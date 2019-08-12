@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class Constants:
     @property
     def MAGNETIC_PERMEABILITY(self):
@@ -14,3 +17,11 @@ class Constants:
     @property
     def TtoAm(self):
         return 795774.715459
+
+    @property
+    def HBAR(self):
+        return 6.62607015e-34/(2*np.pi)
+
+    @property
+    def ELECTRON_CHARGE(self):
+        return 1.60217662e-19
