@@ -52,11 +52,14 @@ class Layer:
             self.coupling = self.update_coupling(time)
 
         heff = \
-            self.Hext + self.calculate_anisotropy() +\
+            self.Hext_const + self.Hext + self.calculate_anisotropy() +\
             self.calculate_demagnetisation_field() +\
             self.calculate_interlayer_exchange_coupling_field(coupled_layers) +\
             self.calculate_dipole_interaction()
         return heff
+
+    def set_global_external_field_value(self, hval):
+        self.Hext_const = hval
 
     def calculate_dipole_interaction(self):
         return -1.*self.dipole_tensor@np.array([0, 0, 1.])
