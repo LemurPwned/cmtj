@@ -1,10 +1,9 @@
 import math
-import json 
+import json
 import time as tm
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 from constants import Constants
 
@@ -45,6 +44,18 @@ class Layer:
         self.update_coupling = None
         self.dmdt = np.array([0., 0., 0.])
         self.log = []
+
+    def to_dict(self):
+        d = {}
+        for param in [
+                'id', 'anisotropy', 'K', 'm', 'coupling', 'thickness', 'Hext',
+                'Hext_const'
+        ]:
+            param_val = getattr(self, param)
+            if type(param_val) is np.ndarray:
+                param_val = param_val.tolist()
+            d[param] = param_val
+        return d
 
     def Heff(self, time, coupled_layers):
         if self.update_anisotropy:
@@ -141,7 +152,8 @@ class Layer:
 
 
 class Junction():
-    def __init__(self, layers, couplings, persist=False):
+    def __init__(self, _id, layers, couplings, persist=False):
+        self.id = _id
         self.layers = layers
         self.layers_id = {layer.id: layer for layer in layers}
         self.couplings = couplings
@@ -153,6 +165,19 @@ class Junction():
         self.Rp = 100
         self.Rap = 200
         self.avg_RpRap = 0.5 * (self.Rap - self.Rp)
+
+    def to_json(self, filename):
+        json.dump(self.to_dict(), open(filename, 'w'), indent=4)
+
+    def to_dict(self):
+        d = {
+            'name': self.id,
+            'layers': [layer.to_dict() for layer in self.layers],
+            'couplings': self.couplings,
+            'Rap': self.Rap,
+            'Rp': self.Rp
+        }
+        return d
 
     def magnetoresistance(self, costheta):
         """
@@ -257,7 +282,7 @@ if __name__ == "__main__":
                K=1500e3,
                Ms=1200e3,
                thickness=2e-9)
-    junction = Junction(layers=[l1, l2], couplings=None)
+    junction = Junction('MTJ', layers=[l1, l2], couplings=None)
 
     def field_change(Hext, t):
         return np.array([
@@ -266,5 +291,6 @@ if __name__ == "__main__":
         ])
 
     l1.update_external_field = field_change
-    junction.run_simulation(2e-9)
-    plot_results()
+    junction.to_json('junction.json')
+    # junction.run_simulation(2e-9)
+    # plot_results()
