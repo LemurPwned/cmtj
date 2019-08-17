@@ -49,13 +49,18 @@ class Layer:
         d = {}
         for param in [
                 'id', 'anisotropy', 'K', 'm', 'coupling', 'thickness', 'Hext',
-                'Hext_const'
+                'Hext_const', 'demagnetisation_tensor', 'dipole_tensor', 'Ms'
         ]:
             param_val = getattr(self, param)
             if type(param_val) is np.ndarray:
                 param_val = param_val.tolist()
             d[param] = param_val
         return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d['id'], d['m'], d['anisotropy'], d['K'], d['Ms'],
+                   d['thickness'])
 
     def Heff(self, time, coupled_layers):
         if self.update_anisotropy:
@@ -174,7 +179,7 @@ class Junction():
         json.dump(self.to_dict(), open(filename, 'w'), indent=4)
 
     def from_json(self, filename):
-        pass 
+        pass
 
     def to_dict(self):
         d = {}
@@ -201,14 +206,19 @@ class Junction():
 
     def set_junction_global_external_field(self, constant_field_value):
         for layer in self.layers:
-            layer.constant_external_field = constant_field_value
+            layer.Hext_const = constant_field_value
 
     def restart(self):
         # just revert to initial parameters
         # that will involve reading the saved file and overrite the state
         # restore the snapshot
         for key in self.snapshot:
-            setattr(self, key, self.snapshot[key])
+            if key != 'layers':
+                setattr(self, key, self.snapshot[key])
+        self.layers = [
+            Layer.from_dict(layer_dict)
+            for layer_dict in self.snapshot['layers']
+        ]
 
     def run_simulation(self, stop_time, dt=1e-12, time_step=1e-13):
         # LLG#
