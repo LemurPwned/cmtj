@@ -165,18 +165,23 @@ class Junction():
         self.Rp = 100
         self.Rap = 200
         self.avg_RpRap = 0.5 * (self.Rap - self.Rp)
+        self.snapshot = self.to_dict()
+
+    def overwrite_snapshot(self):
+        self.snapshot = self.to_dict()
 
     def to_json(self, filename):
         json.dump(self.to_dict(), open(filename, 'w'), indent=4)
 
+    def from_json(self, filename):
+        pass 
+
     def to_dict(self):
-        d = {
-            'name': self.id,
-            'layers': [layer.to_dict() for layer in self.layers],
-            'couplings': self.couplings,
-            'Rap': self.Rap,
-            'Rp': self.Rp
-        }
+        d = {}
+        layers_dict = [layer.to_dict() for layer in self.layers]
+        d['layers'] = layers_dict
+        for param in ['id', 'couplings', 'Rap', 'Rp']:
+            d[param] = getattr(self, param)
         return d
 
     def magnetoresistance(self, costheta):
@@ -201,7 +206,9 @@ class Junction():
     def restart(self):
         # just revert to initial parameters
         # that will involve reading the saved file and overrite the state
-        pass
+        # restore the snapshot
+        for key in self.snapshot:
+            setattr(self, key, self.snapshot[key])
 
     def run_simulation(self, stop_time, dt=1e-12, time_step=1e-13):
         # LLG#
@@ -291,6 +298,11 @@ if __name__ == "__main__":
         ])
 
     l1.update_external_field = field_change
+    junction.set_junction_global_external_field(200)
+    junction.overwrite_snapshot()
     junction.to_json('junction.json')
+    junction.set_junction_global_external_field(100)
+    # junction.restart()
+    junction.to_json('junction2.json')
     # junction.run_simulation(2e-9)
     # plot_results()
