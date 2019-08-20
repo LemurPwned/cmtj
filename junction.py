@@ -9,7 +9,15 @@ from constants import Constants
 
 constant = Constants()
 
+def c_cross(a, b):
+    return np.array([
+        a[1]*b[2] - a[2]*b[1],
+        a[2]*b[0] - a[0]*b[2],
+        a[0]*b[1] - a[1]*b[0]
+    ], dtype=float)
 
+def c_dot(a, b):
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 class Layer:
     def __init__(self, id_, start_mag, start_anisotropy, K, Ms, thickness):
         self.id = id_
@@ -44,6 +52,7 @@ class Layer:
         self.update_coupling = None
         self.dmdt = np.array([0., 0., 0.])
         self.log = []
+        self.junction_result = None 
 
     def to_dict(self):
         d = {}
@@ -87,7 +96,7 @@ class Layer:
         return -1. * tensor @ self.m * self.Ms
 
     def calculate_anisotropy(self):
-        nom = 2 * self.K * np.dot(self.m, self.anisotropy) * self.anisotropy
+        nom = 2 * self.K * c_dot(self.m, self.anisotropy) * self.anisotropy
         return nom / (constant.MAGNETIC_PERMEABILITY * self.Ms)
 
     """
@@ -118,8 +127,8 @@ class Layer:
     def llg(self, time, m, coupled_layers):
         heff = self.Heff(time, coupled_layers)
         dmdt = -1.0*constant.GYRO * \
-            np.cross(m, heff) - 1.0*constant.GYRO * \
-            constant.DAMPING*np.cross(m, np.cross(m, heff))
+            c_cross(m, heff) - 1.0*constant.GYRO * \
+            constant.DAMPING*c_cross(m, c_cross(m, heff))
         return dmdt
 
     def llg_STT(self, time, m, coupled_layers, spin_polarized_layer):
@@ -133,12 +142,12 @@ class Layer:
                   2 * constant.ELECTRON_CHARGE *
                   constant.MAGNETIC_PERMEABILITY * self.Ms * self.thickness)
         bj = np.array([0., 0., 0.])
-        p_cross = np.cross(m, spin_polarized_layer)
-        stt_term = constant.GYRO * (aj * np.cross(m, p_cross) + bj * p_cross)
+        p_cross = c_cross(m, spin_polarized_layer)
+        stt_term = constant.GYRO * (aj * c_cross(m, p_cross) + bj * p_cross)
 
         dmdt = -1.0*constant.GYRO * \
-            np.cross(m, heff) - 1.0*constant.GYRO * \
-            constant.DAMPING*np.cross(m, np.cross(m, heff)) +\
+            c_cross(m, heff) - 1.0*constant.GYRO * \
+            constant.DAMPING*c_cross(m, c_cross(m, heff)) +\
             stt_term
         return dmdt
 
@@ -164,7 +173,7 @@ class Junction():
         self.couplings = couplings
         self.log = []
         self.params = ['m', 'anisotropy', 'Hext']
-        self.persist_resultant_dataframe = persist  # read file only or memory leftover?
+        self.persist = persist  # read file only or memory leftover?
 
         self.R_labs = []
         self.Rp = 100
@@ -178,8 +187,15 @@ class Junction():
     def to_json(self, filename):
         json.dump(self.to_dict(), open(filename, 'w'), indent=4)
 
-    def from_json(self, filename):
-        pass
+    @classmethod
+    def from_json(cls, filename, persist=False):
+        d = json.load(open(filename, 'r'))
+        return Junction.from_dict(d, persist)
+
+    @classmethod
+    def from_dict(cls, d, persist=False):
+        layers = [Layer.from_dict(layer) for layer in d['layers']]
+        return cls(d['id'], layers, d['couplings'], persist=persist)
 
     def to_dict(self):
         d = {}
@@ -212,6 +228,8 @@ class Junction():
         # just revert to initial parameters
         # that will involve reading the saved file and overrite the state
         # restore the snapshot
+        self.R_labs = []
+        self.log = []
         for key in self.snapshot:
             if key != 'layers':
                 setattr(self, key, self.snapshot[key])
@@ -256,7 +274,7 @@ class Junction():
                 for layer1 in self.layers:
                     for layer2 in self.layers[1:]:
                         if layer1.id != layer2.id:
-                            cosTheta = np.dot(layer1.m, layer2.m)
+                            cosTheta = c_dot(layer1.m, layer2.m)
                             R.append(self.magnetoresistance(cosTheta))
                 self.log_layer_parameters(t, R)
 
@@ -269,10 +287,12 @@ class Junction():
             for layer in self.layers:
                 for suffix in ['x', 'y', 'z']:
                     cols.append(param + '_' + suffix + '_' + layer.id)
-        if self.persist_resultant_dataframe:
+        if self.persist:
+            print("Result available under junction_result variable")
             self.junction_result = pd.DataFrame(
                 data=self.log, columns=['time', *self.R_labs,
-                                        *cols]).to_csv('results.csv')
+                                        *cols])
+            # self.junction_result.to_csv('results2.csv')
         else:
             pd.DataFrame(data=self.log, columns=['time', *self.R_labs,
                                                  *cols]).to_csv('results.csv')
@@ -285,34 +305,3 @@ def plot_results():
     plt.show()
 
 
-if __name__ == "__main__":
-
-    l1 = Layer(id_="free",
-               start_mag=[0.8, 0.1, 0.],
-               start_anisotropy=[0., 1., 0],
-               K=800e3,
-               Ms=1200e3,
-               thickness=2e-9)
-    l2 = Layer(id_="bottom",
-               start_mag=[0., 1.0, 0.],
-               start_anisotropy=[0., 1., 0],
-               K=1500e3,
-               Ms=1200e3,
-               thickness=2e-9)
-    junction = Junction('MTJ', layers=[l1, l2], couplings=None)
-
-    def field_change(Hext, t):
-        return np.array([
-            200e-3 * constant.TtoAm +
-            20e-3 * constant.TtoAm * np.sin(5e9 * 2 * np.pi * t), 0., 0.
-        ])
-
-    l1.update_external_field = field_change
-    junction.set_junction_global_external_field(200)
-    junction.overwrite_snapshot()
-    junction.to_json('junction.json')
-    junction.set_junction_global_external_field(100)
-    # junction.restart()
-    junction.to_json('junction2.json')
-    # junction.run_simulation(2e-9)
-    # plot_results()
