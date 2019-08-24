@@ -18,6 +18,7 @@ def c_cross(a, b):
 
 def c_dot(a, b):
     return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+    
 class Layer:
     def __init__(self, id_, start_mag, start_anisotropy, K, Ms, thickness):
         self.id = id_
@@ -126,9 +127,10 @@ class Layer:
 
     def llg(self, time, m, coupled_layers):
         heff = self.Heff(time, coupled_layers)
+        prod = c_cross(m, heff)
         dmdt = -1.0*constant.GYRO * \
-            c_cross(m, heff) - 1.0*constant.GYRO * \
-            constant.DAMPING*c_cross(m, c_cross(m, heff))
+            prod - 1.0*constant.GYRO * \
+            constant.DAMPING*c_cross(m, prod)
         return dmdt
 
     def llg_STT(self, time, m, coupled_layers, spin_polarized_layer):
@@ -267,7 +269,7 @@ class Junction():
             # start the simulation
             for i in range(0, iterations):
                 t = i * time_step
-                for i, layer in enumerate(self.layers):
+                for layer in self.layers:
                     layer.rk4_step(t, time_step)
                 # calculate magnetoresistance
                 R = []
