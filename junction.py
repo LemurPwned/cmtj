@@ -76,15 +76,19 @@ class Layer:
                    d['thickness'])
 
     def Heff(self, time, coupled_layers):
+
+        anisotropy = self.calculate_anisotropy()
+
         if self.update_anisotropy:
-            self.anisotropy = self.update_anisotropy(time)
+            anisotropy += self.update_anisotropy(time)
         if self.update_external_field:
             self.Hext = self.update_external_field(time)
         if self.update_coupling:
             self.coupling = self.update_coupling(time)
 
         heff = \
-            self.Hext_const + self.Hext + self.calculate_anisotropy() +\
+            self.Hext_const + self.Hext +\
+            anisotropy +\
             self.calculate_demagnetisation_field() +\
             self.calculate_interlayer_exchange_coupling_field(coupled_layers) +\
             self.calculate_dipole_interaction()
@@ -240,6 +244,10 @@ class Junction():
         for layer in self.layers:
             layer.update_external_field = field_function
 
+    def set_global_anisotropy_function(self, anisotropy_function):
+        for layer in self.layers:
+            layer.update_anisotropy = anisotropy_function
+
     def restart(self):
         # just revert to initial parameters
         # that will involve reading the saved file and overrite the state
@@ -308,7 +316,7 @@ class Junction():
             self.junction_result = pd.DataFrame(
                 data=self.log, columns=['time', *self.R_labs,
                                         *cols])
-            # self.junction_result.to_csv('results2.csv')
+            self.junction_result.to_csv('results.csv')
         else:
             pd.DataFrame(data=self.log, columns=['time', *self.R_labs,
                                                  *cols]).to_csv('results.csv')
