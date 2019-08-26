@@ -9,6 +9,7 @@ from constants import Constants
 
 constant = Constants()
 
+
 def c_cross(a, b):
     return np.array([
         a[1]*b[2] - a[2]*b[1],
@@ -16,9 +17,11 @@ def c_cross(a, b):
         a[0]*b[1] - a[1]*b[0]
     ], dtype=float)
 
+
 def c_dot(a, b):
     return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
-    
+
+
 class Layer:
     def __init__(self, id_, start_mag, start_anisotropy, K, Ms, thickness):
         self.id = id_
@@ -53,7 +56,7 @@ class Layer:
         self.update_coupling = None
         self.dmdt = np.array([0., 0., 0.])
         self.log = []
-        self.junction_result = None 
+        self.junction_result = None
 
     def to_dict(self):
         d = {}
@@ -76,7 +79,7 @@ class Layer:
         if self.update_anisotropy:
             self.anisotropy = self.update_anisotropy(time)
         if self.update_external_field:
-            self.Hext = self.update_external_field(self.Hext, time)
+            self.Hext = self.update_external_field(time)
         if self.update_coupling:
             self.coupling = self.update_coupling(time)
 
@@ -91,7 +94,10 @@ class Layer:
         self.Hext_const = hval
 
     def calculate_dipole_interaction(self):
-        return -1. * self.dipole_tensor @ np.array([0, 0, 1.])
+        return -1. * self.dipole_tensor @ self.m * self.Ms
+
+    def calculate_demagnetisation_field(self):
+        return -1. * self.demagnetisation_tensor @ self.m * self.Ms
 
     def calculate_tensor_interaction(self, tensor):
         return -1. * tensor @ self.m * self.Ms
@@ -121,9 +127,6 @@ class Layer:
             heff_iec += self.coupling*(layer.m - self.m) / \
                 (constant.MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
         return heff_iec
-
-    def calculate_demagnetisation_field(self):
-        return -1. * self.demagnetisation_tensor @ self.m * self.Ms
 
     def llg(self, time, m, coupled_layers):
         heff = self.Heff(time, coupled_layers)
@@ -174,7 +177,7 @@ class Junction():
         self.layers_id = {layer.id: layer for layer in layers}
         self.couplings = couplings
         self.log = []
-        self.params = ['m', 'anisotropy', 'Hext']
+        self.params = ['m', 'anisotropy', 'Hext', 'Hext_const']
         self.persist = persist  # read file only or memory leftover?
 
         self.R_labs = []
@@ -222,9 +225,20 @@ class Junction():
                 value_list.extend(pval)
         self.log.append(value_list)
 
-    def set_junction_global_external_field(self, constant_field_value):
+    def set_junction_global_external_field(self, constant_field_value, axis='x'):
+        Hext = np.zeros((3,))
+        if axis == 'x':
+            Hext[0] = constant_field_value
+        elif axis == 'y':
+            Hext[1] = constant_field_value
+        elif axis == 'z':
+            Hext[2] = constant_field_value
         for layer in self.layers:
-            layer.Hext_const = constant_field_value
+            layer.Hext_const = Hext
+
+    def set_global_field_function(self, field_function):
+        for layer in self.layers:
+            layer.update_external_field = field_function
 
     def restart(self):
         # just revert to initial parameters
@@ -257,7 +271,7 @@ class Junction():
                         ]
                         layer.rk4_step(time, time_step, coupled_layers)
                     time += time_step
-                self.log_layer_parameters(t)
+                self.log_layer_parameters(t, 0)
         else:
             iterations = int(stop_time / time_step)
 
@@ -305,5 +319,3 @@ def plot_results():
     # df[['m_x_free', 'm_y_free', 'm_z_free']].plot()
     df['R_free_bottom'].plot()
     plt.show()
-
-
