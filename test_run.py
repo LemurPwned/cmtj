@@ -22,7 +22,7 @@ l1.demagnetisation_tensor = np.array([[0.00832453381627329, 0., 0.],
 l2 = Layer(id_="bottom",
            start_mag=[0., 0.0, 1.0],
            start_anisotropy=[0., 0., 1.0],
-           K=1500e3,
+           K=1000e3,
            Ms=1000e3,
            thickness=2e-9)
 l2.dipole_tensor = np.array([[0.00706885975425371, 0.0, 0., ],
@@ -34,12 +34,11 @@ l2.demagnetisation_tensor = np.array([[0.00832453381627329, 0., 0.],
 junction = Junction('MTJ', layers=[l1, l2], couplings=None, persist=True)
 
 
-def step_field(time, step_start=5e-9, step_stop=5.01e-9):
+def step_field(time, step_start=5e-9, step_stop=5.1e-9):
     Hval = np.zeros((3,))
     if time < step_stop and time > step_start:
         Hval[0] = 10e-3*constant.TtoAm
     return Hval
-
 
 # voltage_spin_diode(junction, 0, 500e-3)
 df = pd.read_csv('voltage_spin-diode.csv')
@@ -47,7 +46,7 @@ plt.plot(df['H'], df['Vmix'], '.')
 plt.show()
 # junction.set_global_field_function(step_field)
 # junction.set_junction_global_external_field(300e-3*constant.TtoAm, axis='x')
-# junction.run_simulation(8e-9)
+# junction.run_simulation(10e-9)
 # junction.junction_result[['Hext_const_x_free',
 #                           'Hext_const_y_free', 'Hext_const_x_bottom', 'Hext_const_y_bottom']].plot()
 # junction.junction_result[['Hext_x_free',
