@@ -4,17 +4,22 @@ import matplotlib.pyplot as plt
 from multiprocessing import Pool
 from itertools import repeat
 
-
 from junction import Junction
 from constants import Constants
 constant = Constants()
 
 
 def step_field(time, step_start=5e-9, step_stop=5.01e-9):
-    Hval = np.zeros((3,))
+    Hval = np.zeros((3, ))
     if time < step_stop and time > step_start:
-        Hval[0] = 10e-3*constant.TtoAm
+        Hval[0] = 1e-3 * constant.TtoAm
     return Hval
+
+
+def anisotropy_update(time):
+    frequency = 6.93e9  # 10 Ghz
+    omega = 2 * np.pi * frequency
+    return 1000 * np.sin(2 * omega * time)
 
 
 def calculate_single_voltage(h_value, junction: Junction, frequency):
@@ -24,29 +29,22 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     omega = 2 * np.pi * frequency
     print(f"Simulation for {h_value}")
     junction.restart()
-    junction.set_junction_global_external_field(
-        h_value*constant.TtoAm, axis='x')
+    junction.set_junction_global_external_field(h_value * constant.TtoAm,
+                                                axis='x')
     junction.set_global_anisotropy_function(anisotropy_update)
-    # restart simualtion
-    junction.run_simulation(9e-9)
+    # restart simulation
+    junction.run_simulation(15e-9)
     # extract the magnetisation value
     # wait for 5ns
     limited_res = junction.junction_result[
-        junction.junction_result['time'] >= 5e-9]
+        junction.junction_result['time'] >= 9e-9]
     avg_resistance = np.mean(limited_res['R_free_bottom'])
     print(f"Avg resistance {avg_resistance}")
     amplitude = np.sqrt(power / avg_resistance)
-    current = amplitude * np.sin(omega * limited_res['time']*1e-9 +
-                                 phase_shift)
+    current = amplitude * np.sin(omega * limited_res['time'] + phase_shift)
     voltage = limited_res['R_free_bottom'] * current
 
     return h_value, np.mean(voltage)
-
-
-def anisotropy_update(time):
-    frequency = 6.93e9  # 10 Ghz
-    omega = 2 * np.pi * frequency
-    return 100*np.sin(2*omega*time)
 
 
 def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
@@ -60,7 +58,8 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     """
     phase_shift = 0
     power = 10e-6
-    frequency = 6.93e9  # 10 Ghz
+    # frequency = 6.84e9  # 10 Ghz
+    frequency = 9.5e9
     omega = 2 * np.pi * frequency
     voltages = []
 
@@ -72,8 +71,7 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
         with Pool() as pool:
             hvals_voltages = pool.starmap(
                 calculate_single_voltage,
-                zip(h_vals, repeat(junction), repeat(frequency))
-            )
+                zip(h_vals, repeat(junction), repeat(frequency)))
         h_vals, voltages = zip(*hvals_voltages)
         h_vals = list(h_vals)
         voltages = list(voltages)
@@ -82,19 +80,20 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
             # set the field
             print(f"Simulation for {h_value}")
             junction.restart()
-            junction.set_junction_global_external_field(
-                h_value*constant.TtoAm, axis='x')
+            junction.set_junction_global_external_field(h_value *
+                                                        constant.TtoAm,
+                                                        axis='x')
             junction.set_global_anisotropy_function(anisotropy_update)
             # restart simualtion
             junction.run_simulation(9e-9)
             # extract the magnetisation value
             # wait for 5ns
             limited_res = junction.junction_result[
-                junction.junction_result['time'] >= 5e-9]
+                junction.junction_result['time'] >= 6e-9]
             avg_resistance = np.mean(limited_res['R_free_bottom'])
             print(f"Avg resistance {avg_resistance}")
             amplitude = np.sqrt(power / avg_resistance)
-            current = amplitude * np.sin(omega * limited_res['time']*1e-9 +
+            current = amplitude * np.sin(omega * limited_res['time'] +
                                          phase_shift)
             voltage = limited_res['R_free_bottom'] * current
             dc_component = np.mean(voltage)
@@ -109,10 +108,11 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
 
 def find_resonant_frequency(junction: Junction):
     def step_field(time, step_start=2e-9, step_stop=3e-9):
-        Hval = np.zeros((3,))
+        Hval = np.zeros((3, ))
         if time < step_stop and time > step_start:
-            Hval[1] = 10e-3*constant.TtoAm
+            Hval[1] = 10e-3 * constant.TtoAm
         return Hval
+
     junction.set_global_field_function(step_field)
     junction.run_simulation(10e-9)
 
@@ -130,14 +130,14 @@ def frequency_analysis(junction: Junction, time_step=1e-13):
     """
     # send a step pulse to excite the system
     print(
-        f"Calculating the resonant frequencies for the system..., step size {time_step}")    # measure the response
+        f"Calculating the resonant frequencies for the system..., step size {time_step}"
+    )  # measure the response
     limited_res = junction.junction_result[
-        junction.junction_result['time'] >= 5.1e-9]
+        junction.junction_result['time'] >= 8.1e-9]
     mx_fft = np.fft.fft(limited_res['m_x_free'], axis=0)
     my_fft = np.fft.fft(limited_res['m_y_free'], axis=0)
     mz_fft = np.fft.fft(limited_res['m_z_free'], axis=0)
-    frequency_steps = np.fft.fftfreq(
-        mx_fft.size, d=time_step)
+    frequency_steps = np.fft.fftfreq(mx_fft.size, d=time_step)
     # print(frequency_steps)
     max_freq_set = []
     for freq_data in [mx_fft, my_fft, mz_fft]:
@@ -167,14 +167,14 @@ def frequency_analysis_csv(results, time_step=1e-13):
     # send a step pulse to excite the system
     df = pd.read_csv(results)
     print(
-        f"Calculating the resonant frequencies for the system..., step size {time_step}")
+        f"Calculating the resonant frequencies for the system..., step size {time_step}"
+    )
     # measure the response
     limited_res = df[df['time'] >= 5.1e-9]
     mx_fft = np.fft.fft(limited_res['m_x_free'], axis=0)
     my_fft = np.fft.fft(limited_res['m_y_free'], axis=0)
     mz_fft = np.fft.fft(limited_res['m_z_free'], axis=0)
-    frequency_steps = np.fft.fftfreq(
-        mx_fft.size, d=time_step)
+    frequency_steps = np.fft.fftfreq(mx_fft.size, d=time_step)
     # print(frequency_steps)
     max_freq_set = []
     for freq_data in [mx_fft, my_fft, mz_fft]:

@@ -6,9 +6,6 @@ class Constants:
     def MAGNETIC_PERMEABILITY(self):
         return 12.57e-7
 
-    # @property
-    # def GYRO(self):
-    #     return 176.08596e9
     @property
     def GYRO(self):
         return 2.21e5
