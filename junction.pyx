@@ -18,7 +18,7 @@ cimport numpy as np
 
 MAGNETIC_PERMEABILITY = 12.57e-7
 GYRO = 2.21e5
-DAMPING = 0.01
+DAMPING = 0.02
 TtoAm = 795774.715459
 HBAR = 6.62607015e-34/(2*pi)
 ELECTRON_CHARGE = 1.60217662e-19
@@ -39,7 +39,7 @@ cdef double c_dot(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] b):
 
 
 class Layer:
-    def __init__(self, id_, start_mag, start_anisotropy, K, Ms, thickness):
+    def __init__(self, id_, start_mag, start_anisotropy, K, Ms, coupling, thickness):
         self.id = id_
         # magnetisation options
         if start_mag is not np.array:
@@ -58,7 +58,7 @@ class Layer:
 
         self.Ms = Ms
         self.thickness = thickness
-        self.coupling = 1e-5
+        self.coupling = coupling
         self.demagnetisation_tensor = np.array(
             [[0.000, 0, 0], [0, 0.00, 0], [0, 0, 0.93]], dtype=float)
 
@@ -92,10 +92,11 @@ class Layer:
     @classmethod
     def from_dict(cls, d):
         return cls(d['id'], d['m'], d['anisotropy'], d['K'], d['Ms'],
-                   d['thickness'])
+                   d['thickness'], d['coupling'])
 
     def Heff(self, time, coupled_layers):
-        cdef double K_var =0.0
+        cdef double K_var = 0.0
+        cdef np.ndarray iec_field = np.zeros((3,))
         if self.update_anisotropy:
             K_var = self.update_anisotropy(time)
         if self.update_external_field:
@@ -107,6 +108,7 @@ class Layer:
 
         heff = \
             self.Hext_const + self.Hext +\
+            iec_field +\
             self.calculate_anisotropy() +\
             calculate_tensor_interaction(self.m, self.demagnetisation_tensor, self.Ms) +\
             self.calculate_interlayer_exchange_coupling_field(coupled_layers) +\
@@ -140,12 +142,12 @@ class Layer:
     """
 
     def calculate_interlayer_exchange_coupling_field(self, coupled_layers):
-        heff_iec = np.array([0, 0., 0], dtype=float)
+        heff_iec = np.array([0., 0., 0.], dtype=float)
         if not coupled_layers:
             return heff_iec
         for layer in coupled_layers:
             heff_iec += self.coupling*(layer.m - self.m) / \
-                ( MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
+                (MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
         return heff_iec
 
     def llg(self, time, m, coupled_layers):
@@ -164,15 +166,15 @@ class Layer:
         heff = self.Heff(time, coupled_layers)
         aj = ( HBAR * self.current_density *
               self.spin_polarisation_efficiency) / (
-                  2 *  ELECTRON_CHARGE *
-                   MAGNETIC_PERMEABILITY * self.Ms * self.thickness)
+                  2 * ELECTRON_CHARGE *
+                  MAGNETIC_PERMEABILITY * self.Ms * self.thickness)
         bj = np.array([0., 0., 0.])
         p_cross = c_cross(m, spin_polarized_layer)
         stt_term =  GYRO * (aj * c_cross(m, p_cross) + bj * p_cross)
 
         dmdt = -1.0* GYRO * \
             c_cross(m, heff) - 1.0* GYRO * \
-             DAMPING*c_cross(m, c_cross(m, heff)) +\
+            DAMPING*c_cross(m, c_cross(m, heff)) +\
             stt_term
         return dmdt
 
@@ -272,9 +274,13 @@ class Junction():
         for layer in self.layers:
             layer.update_anisotropy = anisotropy_function
 
+    def set_global_coupling_function(self, coupling_function):
+        for layer in self.layers:
+            layer.update_anisotropy = coupling_function
+
     def restart(self):
         # just revert to initial parameters
-        # that will involve reading the saved file and overrite the state
+        # that will involve reading the saved file and override the state
         # restore the snapshot
         self.R_labs = []
         self.log = []
@@ -303,8 +309,9 @@ class Junction():
         # start the simulation
         for i in range(0, iterations):
             t = i * time_step
-            for layer in self.layers:
-                layer.rk4_step(t, time_step)
+            for layer_no, layer in enumerate(self.layers):
+                layer.rk4_step(t, time_step, 
+                    [self.layers[coupled-1] for coupled in self.couplings[layer_no]])
             # calculate magnetoresistance
             R = []
             for layer1 in self.layers:
@@ -338,9 +345,3 @@ class Junction():
                                                  *cols]).to_csv('results.csv',
                                                  index=False)
 
-
-def plot_results():
-    df = pd.read_csv('results.csv')
-    # df[['m_x_free', 'm_y_free', 'm_z_free']].plot()
-    df['R_free_bottom'].plot()
-    plt.show()

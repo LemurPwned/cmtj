@@ -1,4 +1,4 @@
-from junction import Layer, Junction, plot_results
+from junction import Layer, Junction
 from constants import Constants
 from workers import frequency_analysis, voltage_spin_diode
 import matplotlib.pyplot as plt
@@ -13,6 +13,7 @@ l1 = Layer(id_="free",
            start_anisotropy=[0.0, 0.0, 1.0],
            K=900e3,
            Ms=1200e3,
+           coupling=3e-6,
            thickness=2e-9)
 
 l1.dipole_tensor = np.array([[0.00706885975425371, 0.0, 0., ],
@@ -26,6 +27,7 @@ l2 = Layer(id_="bottom",
            start_anisotropy=[0., 0., 1.0],
            K=1000e3,
            Ms=1000e3,
+           coupling=3e-6,
            thickness=2e-9)
 l2.dipole_tensor = np.array([[0.00706885975425371, 0.0, 0., ],
                              [0.0, 0.00706885975425371, 0., ],
@@ -33,7 +35,7 @@ l2.dipole_tensor = np.array([[0.00706885975425371, 0.0, 0., ],
 l2.demagnetisation_tensor = np.array([[0.00832453381627329, 0., 0.],
                                       [0., 0.00832453381627329, 0.],
                                       [0.0, 0.0, 0.765750932367453]])
-junction = Junction('MTJ', layers=[l1, l2], couplings=None, persist=True)
+junction = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
 
 
 def step_field(time, step_start=7e-9, step_stop=7.01e-9):

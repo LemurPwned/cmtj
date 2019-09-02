@@ -21,6 +21,10 @@ def anisotropy_update(time):
     omega = 2 * np.pi * frequency
     return 1000 * np.sin(2 * omega * time)
 
+def coupling_update(time):
+    frequency = 6.93e9  # 10 Ghz
+    omega = 2 * np.pi * frequency
+    return 8e-7 * np.sin(2 * omega * time)
 
 def calculate_single_voltage(h_value, junction: Junction, frequency):
     # set the field
@@ -31,7 +35,8 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     junction.restart()
     junction.set_junction_global_external_field(h_value * constant.TtoAm,
                                                 axis='x')
-    junction.set_global_anisotropy_function(anisotropy_update)
+    # junction.set_global_anisotropy_function(anisotropy_update)
+    junction.set_global_coupling_function(coupling_update)
     # restart simulation
     junction.run_simulation(15e-9)
     # extract the magnetisation value
@@ -67,7 +72,8 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     junction.save = False
     h_vals = np.linspace(start_h, stop_h, 30)
     if multiprocess:
-        junction.set_global_anisotropy_function(anisotropy_update)
+        # junction.set_global_anisotropy_function(anisotropy_update)
+        junction.set_global_coupling_function(coupling_update)
         with Pool() as pool:
             hvals_voltages = pool.starmap(
                 calculate_single_voltage,
@@ -83,7 +89,8 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
             junction.set_junction_global_external_field(h_value *
                                                         constant.TtoAm,
                                                         axis='x')
-            junction.set_global_anisotropy_function(anisotropy_update)
+            # junction.set_global_anisotropy_function(anisotropy_update)
+            junction.set_global_coupling_function(coupling_update)
             # restart simualtion
             junction.run_simulation(9e-9)
             # extract the magnetisation value
