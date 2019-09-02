@@ -37,18 +37,17 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     print(f"Avg resistance {avg_resistance}")
     amplitude = np.sqrt(power / avg_resistance)
     current = amplitude * np.sin(omega * limited_res['time']*1e-9 +
-                                    phase_shift)
+                                 phase_shift)
     voltage = limited_res['R_free_bottom'] * current
 
-    return np.mean(voltage)
+    return h_value, np.mean(voltage)
 
 
 def anisotropy_update(time):
-    frequency = 5.4e9  # 10 Ghz
+    frequency = 6.93e9  # 10 Ghz
     omega = 2 * np.pi * frequency
-    anisotropy = np.zeros((3,))
-    anisotropy[0] = 100e3*np.sin(2*omega*time)
-    return anisotropy
+    return 100*np.sin(2*omega*time)
+
 
 def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     """
@@ -61,18 +60,23 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     """
     phase_shift = 0
     power = 10e-6
-    frequency = 5.4e9  # 10 Ghz
+    frequency = 6.93e9  # 10 Ghz
     omega = 2 * np.pi * frequency
     voltages = []
 
+    # turn off result saving to csv
+    junction.save = False
     h_vals = np.linspace(start_h, stop_h, 30)
     if multiprocess:
         junction.set_global_anisotropy_function(anisotropy_update)
         with Pool() as pool:
-            voltages = pool.starmap(
+            hvals_voltages = pool.starmap(
                 calculate_single_voltage,
                 zip(h_vals, repeat(junction), repeat(frequency))
             )
+        h_vals, voltages = zip(*hvals_voltages)
+        h_vals = list(h_vals)
+        voltages = list(voltages)
     else:
         for h_value in h_vals:
             # set the field
@@ -91,15 +95,16 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
             print(f"Avg resistance {avg_resistance}")
             amplitude = np.sqrt(power / avg_resistance)
             current = amplitude * np.sin(omega * limited_res['time']*1e-9 +
-                                        phase_shift)
+                                         phase_shift)
             voltage = limited_res['R_free_bottom'] * current
             dc_component = np.mean(voltage)
             voltages.append(dc_component)
         # calcualte magnetoresistance and get the current
-    # plt.plot(h_vals, voltages)
-    # plt.show()
+
     df = pd.DataFrame.from_dict({'H': h_vals, 'Vmix': voltages})
-    df.to_csv('voltage_spin-diode.csv')
+    df.to_csv('voltage_spin-diode.csv', index=False)
+    plt.plot(df['H'], df['Vmix'], '.')
+    plt.show()
 
 
 def find_resonant_frequency(junction: Junction):

@@ -4,6 +4,8 @@ from workers import frequency_analysis, voltage_spin_diode
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import math
+
 constant = Constants()
 
 l1 = Layer(id_="free",
@@ -40,19 +42,30 @@ def step_field(time, step_start=5e-9, step_stop=5.1e-9):
         Hval[0] = 10e-3*constant.TtoAm
     return Hval
 
-# voltage_spin_diode(junction, 0, 500e-3)
-df = pd.read_csv('voltage_spin-diode.csv')
-plt.plot(df['H'], df['Vmix'], '.')
-plt.show()
+
+def anisotropy_update(time):
+    frequency = 5.e9  # 10 Ghz
+    omega = 2 * np.pi * frequency
+    if time >= 2e-9:
+        return math.sin(2*omega*time)
+    else:
+        return 0
+
+
+voltage_spin_diode(junction, 0, 500e-3)
+# junction.set_junction_global_external_field(
+# 300e-3*constant.TtoAm, axis='x')
+# junction.set_global_anisotropy_function(anisotropy_update)
 # junction.set_global_field_function(step_field)
-# junction.set_junction_global_external_field(300e-3*constant.TtoAm, axis='x')
 # junction.run_simulation(10e-9)
+# junction.junction_result[['K_log_free']].plot()
+# plt.show()
 # junction.junction_result[['Hext_const_x_free',
 #                           'Hext_const_y_free', 'Hext_const_x_bottom', 'Hext_const_y_bottom']].plot()
 # junction.junction_result[['Hext_x_free',
 #                           'Hext_y_free', 'Hext_x_bottom', 'Hext_y_bottom']].plot()
 
-# print(frequency_analysis(junction))
+print(frequency_analysis(junction))
 # junction.junction_result[['m_x_free',
 #                           'm_y_free', 'm_z_free', 'm_x_bottom', 'm_y_bottom', 'm_z_bottom']].plot()
 # plt.show()

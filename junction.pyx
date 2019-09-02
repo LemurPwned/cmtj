@@ -53,6 +53,9 @@ class Layer:
         # other parameters section
         self.anisotropy = start_anisotropy
         self.K = K
+        self.K_log = K
+
+
         self.Ms = Ms
         self.thickness = thickness
         self.coupling = 1e-5
@@ -92,18 +95,19 @@ class Layer:
                    d['thickness'])
 
     def Heff(self, time, coupled_layers):
-        anisotropy = self.calculate_anisotropy()
-
+        cdef double K_var =0.0
         if self.update_anisotropy:
-            anisotropy += self.update_anisotropy(time)
+            K_var = self.update_anisotropy(time)
         if self.update_external_field:
             self.Hext = self.update_external_field(time)
         if self.update_coupling:
             self.coupling = self.update_coupling(time)
 
+        self.K_log = self.K + K_var
+
         heff = \
             self.Hext_const + self.Hext +\
-            anisotropy +\
+            self.calculate_anisotropy() +\
             calculate_tensor_interaction(self.m, self.demagnetisation_tensor, self.Ms) +\
             self.calculate_interlayer_exchange_coupling_field(coupled_layers) +\
             calculate_tensor_interaction(self.m, self.dipole_tensor, self.Ms)
@@ -119,7 +123,7 @@ class Layer:
         return -1. * self.demagnetisation_tensor @ self.m * self.Ms
 
     def calculate_anisotropy(self):
-        nom = 2 * self.K * c_dot(self.m, self.anisotropy) * self.anisotropy
+        nom = 2 * self.K_log * c_dot(self.m, self.anisotropy) * self.anisotropy
         return nom / (MAGNETIC_PERMEABILITY * self.Ms)
 
     """
@@ -188,17 +192,20 @@ class Layer:
 
 
 class Junction():
-    def __init__(self, _id, layers, couplings, persist=False):
+    def __init__(self, _id, layers, couplings, persist=False, save=True):
         self.id = _id
         self.layers = layers
         self.layers_id = {layer.id: layer for layer in layers}
         self.couplings = couplings
         self.log = []
-        self.params = ['m', 'anisotropy', 'Hext', 'Hext_const']
+        self.vec_params = ['m', 'Hext', 'Hext_const']
+        self.scalar_params = ['K_log', 'K']
+
+        self.save = False
         self.persist = persist  # read file only or memory leftover?
 
         self.R_labs = []
-        self.Rp = 100
+        self.Rp = 100   
         self.Rap = 200
         self.avg_RpRap = 0.5 * (self.Rap - self.Rp)
         self.snapshot = self.to_dict()
@@ -236,7 +243,11 @@ class Junction():
 
     def log_layer_parameters(self, time, R):
         value_list = [time , *R]  # nanoseconds
-        for param in self.params:
+        for param in self.scalar_params:
+            for layer in self.layers:
+                pval = getattr(layer, param)
+                value_list.append(pval)
+        for param in self.vec_params:
             for layer in self.layers:
                 pval = getattr(layer, param)
                 value_list.extend(pval)
@@ -275,7 +286,7 @@ class Junction():
             for layer_dict in self.snapshot['layers']
         ]
 
-    def run_simulation(self, stop_time, dt=1e-12, time_step=1e-13):
+    def run_simulation(self, stop_time, time_step=1e-13):
         # LLG#
         cdef double tstart, tend, t
         cdef int iterations, i
@@ -308,7 +319,10 @@ class Junction():
             f"Simulation has finished in {tend-tstart}s. Writting the results..."
         )
         cols = []
-        for param in self.params:
+        for param in self.scalar_params:
+            for layer in self.layers:
+                cols.append(param + '_' + layer.id)
+        for param in self.vec_params:
             for layer in self.layers:
                 for suffix in ['x', 'y', 'z']:
                     cols.append(param + '_' + suffix + '_' + layer.id)
@@ -316,10 +330,13 @@ class Junction():
             self.junction_result = pd.DataFrame(
                 data=self.log, columns=['time', *self.R_labs,
                                         *cols])
-            self.junction_result.to_csv('results.csv')
+            if self.save:
+                self.junction_result.to_csv('results.csv', index=False)
         else:
-            pd.DataFrame(data=self.log, columns=['time', *self.R_labs,
-                                                 *cols]).to_csv('results.csv')
+            if self.save:
+                pd.DataFrame(data=self.log, columns=['time', *self.R_labs,
+                                                 *cols]).to_csv('results.csv',
+                                                 index=False)
 
 
 def plot_results():
