@@ -9,9 +9,6 @@ import pyximport
 pyximport.install()
 
 if __name__ == "__main__":
-    # j = Junction.from_json('junction.json', persist=True)
-    # j.run_simulation(2e-9)
-    # print(np.mean(j.junction_result['time']))
     l1 = Layer(id_="free",
                start_mag=[0.8, 0.1, 0.],
                start_anisotropy=[0., 1., 0],

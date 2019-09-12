@@ -8,40 +8,42 @@ import math
 
 constant = Constants()
 
+dipole_tensor = np.array([
+    [6.8353909454237E-4, 0.,0.],
+    [0., 0.00150694452305927, 0.],
+    [0., 0., 0.99780951638608]
+])
+demag_tensor = np.array([
+    [5.57049776248663E-4,0., 0.],
+    [0., 0.00125355500286346, 0.],
+    [0., 0.0, -0.00181060482770131]
+])
 l1 = Layer(id_="free",
            start_mag=[0.0, 0.0, 1.0],
            start_anisotropy=[0.0, 0.0, 1.0],
            K=900e3,
            Ms=1200e3,
-           coupling=3e-6,
-           thickness=2e-9)
+           coupling=-3e-6,
+           thickness=1.4e-9)
 
-l1.dipole_tensor = np.array([[0.00706885975425371, 0.0, 0., ],
-                             [0.0, 0.00706885975425371, 0., ],
-                             [0., 0., -0.0141377195085074]])
-l1.demagnetisation_tensor = np.array([[0.00832453381627329, 0., 0.],
-                                      [0., 0.00832453381627329, 0.],
-                                      [0.0, 0.0, 0.765750932367453]])
+l1.dipole_tensor = dipole_tensor
+l1.demagnetisation_tensor = demag_tensor
 l2 = Layer(id_="bottom",
            start_mag=[0., 0.0, 1.0],
            start_anisotropy=[0., 0., 1.0],
            K=1000e3,
            Ms=1000e3,
-           coupling=3e-6,
-           thickness=2e-9)
-l2.dipole_tensor = np.array([[0.00706885975425371, 0.0, 0., ],
-                             [0.0, 0.00706885975425371, 0., ],
-                             [0., 0., -0.0141377195085074]])
-l2.demagnetisation_tensor = np.array([[0.00832453381627329, 0., 0.],
-                                      [0., 0.00832453381627329, 0.],
-                                      [0.0, 0.0, 0.765750932367453]])
+           coupling=-3e-6,
+           thickness=7e-10)
+l2.dipole_tensor = dipole_tensor
+l2.demagnetisation_tensor = demag_tensor
 junction = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
 
 
-def step_field(time, step_start=7e-9, step_stop=7.01e-9):
+def step_field(time, step_start=7e-9, step_stop=7.001e-9):
     Hval = np.zeros((3,))
     if time <= step_stop and time >= step_start:
-        Hval[0] = 10e-3*constant.TtoAm
+        Hval[0] = 0.001254*constant.TtoAm
     return Hval
 
 
@@ -51,12 +53,20 @@ def anisotropy_update(time):
     return 1e3*math.sin(2*omega*time)
 
 
-voltage_spin_diode(junction, 0, 400e-3)
-# junction.set_junction_global_external_field(
-#                 200e-3*constant.TtoAm, axis='x')
+def get_resonance_frequency(junction):
+    junction.set_junction_global_external_field(
+                    250e-3*constant.TtoAm, axis='x')
+    junction.run_simulation(10e-9)
+    print(frequency_analysis(junction))
+
+
+def perform_vsd(junction):
+    voltage_spin_diode(junction, 0, 400e-3)
+
+perform_vsd(junction)
+# get_resonance_frequency(junction)
 # # junction.set_global_anisotropy_function(anisotropy_update)
 # junction.set_global_field_function(step_field)
-# junction.run_simulation(10e-9)
 # junction.junction_result[['K_log_free']].plot()
 # plt.show()
 # junction.junction_result[['Hext_const_x_free',

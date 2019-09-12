@@ -17,12 +17,12 @@ def step_field(time, step_start=5e-9, step_stop=5.01e-9):
 
 
 def anisotropy_update(time):
-    frequency = 6.93e9  # 10 Ghz
+    frequency = 6.84e9  # 10 Ghz
     omega = 2 * np.pi * frequency
     return 1000 * np.sin(2 * omega * time)
 
 def coupling_update(time):
-    frequency = 6.93e9  # 10 Ghz
+    frequency = 7e9  # 10 Ghz
     omega = 2 * np.pi * frequency
     return 8e-7 * np.sin(2 * omega * time)
 
@@ -31,7 +31,7 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     phase_shift = 0
     power = 10e-6
     omega = 2 * np.pi * frequency
-    print(f"Simulation for {h_value}")
+    # print(f"Simulation for {h_value}")
     junction.restart()
     junction.set_junction_global_external_field(h_value * constant.TtoAm,
                                                 axis='x')
@@ -42,9 +42,9 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     # extract the magnetisation value
     # wait for 5ns
     limited_res = junction.junction_result[
-        junction.junction_result['time'] >= 9e-9]
+        junction.junction_result['time'] >= 10e-9]
     avg_resistance = np.mean(limited_res['R_free_bottom'])
-    print(f"Avg resistance {avg_resistance}")
+    # print(f"Avg resistance {avg_resistance}")
     amplitude = np.sqrt(power / avg_resistance)
     current = amplitude * np.sin(omega * limited_res['time'] + phase_shift)
     voltage = limited_res['R_free_bottom'] * current
@@ -64,7 +64,7 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     phase_shift = 0
     power = 10e-6
     # frequency = 6.84e9  # 10 Ghz
-    frequency = 9.5e9
+    frequency = 7e9
     omega = 2 * np.pi * frequency
     voltages = []
 
@@ -74,7 +74,7 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     if multiprocess:
         # junction.set_global_anisotropy_function(anisotropy_update)
         junction.set_global_coupling_function(coupling_update)
-        with Pool() as pool:
+        with Pool(4) as pool:
             hvals_voltages = pool.starmap(
                 calculate_single_voltage,
                 zip(h_vals, repeat(junction), repeat(frequency)))
@@ -92,19 +92,17 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
             # junction.set_global_anisotropy_function(anisotropy_update)
             junction.set_global_coupling_function(coupling_update)
             # restart simualtion
-            junction.run_simulation(9e-9)
+            junction.run_simulation(20e-9)
             # extract the magnetisation value
             # wait for 5ns
             limited_res = junction.junction_result[
-                junction.junction_result['time'] >= 6e-9]
+                junction.junction_result['time'] >= 10e-9]
             avg_resistance = np.mean(limited_res['R_free_bottom'])
-            print(f"Avg resistance {avg_resistance}")
             amplitude = np.sqrt(power / avg_resistance)
             current = amplitude * np.sin(omega * limited_res['time'] +
                                          phase_shift)
             voltage = limited_res['R_free_bottom'] * current
-            dc_component = np.mean(voltage)
-            voltages.append(dc_component)
+            voltages.append(np.mean(voltage))
         # calcualte magnetoresistance and get the current
 
     df = pd.DataFrame.from_dict({'H': h_vals, 'Vmix': voltages})

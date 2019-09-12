@@ -18,7 +18,7 @@ cimport numpy as np
 
 MAGNETIC_PERMEABILITY = 12.57e-7
 GYRO = 2.21e5
-DAMPING = 0.02
+DAMPING = 0.011
 TtoAm = 795774.715459
 HBAR = 6.62607015e-34/(2*pi)
 ELECTRON_CHARGE = 1.60217662e-19
@@ -59,6 +59,8 @@ class Layer:
         self.Ms = Ms
         self.thickness = thickness
         self.coupling = coupling
+        self.coupling_log = self.coupling
+
         self.demagnetisation_tensor = np.array(
             [[0.000, 0, 0], [0, 0.00, 0], [0, 0, 0.93]], dtype=float)
 
@@ -102,10 +104,11 @@ class Layer:
         if self.update_external_field:
             self.Hext = self.update_external_field(time)
         if self.update_coupling:
-            self.coupling = self.update_coupling(time)
-
+            coupling_u = self.update_coupling(time)
+        else: 
+            coupling_u = 0
         self.K_log = self.K + K_var
-
+        self.coupling_log = self.coupling + coupling_u
         heff = \
             self.Hext_const + self.Hext +\
             iec_field +\
@@ -131,7 +134,7 @@ class Layer:
     """
     # this is the old formula that yields non-zero field 
     # for parallel spins
-    def calculate_interlayer_exchange_coupling(self, time, coupled_layers):
+    def calculate_interlayer_exchange_coupling(self, coupled_layers):
         heff_iec = np.array([0, 0., 0], dtype=float)
         if not coupled_layers:
             return heff_iec
@@ -146,7 +149,7 @@ class Layer:
         if not coupled_layers:
             return heff_iec
         for layer in coupled_layers:
-            heff_iec += self.coupling*(layer.m - self.m) / \
+            heff_iec += self.coupling_log*(layer.m - self.m) / \
                 (MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
         return heff_iec
 
@@ -276,7 +279,7 @@ class Junction():
 
     def set_global_coupling_function(self, coupling_function):
         for layer in self.layers:
-            layer.update_anisotropy = coupling_function
+            layer.update_coupling = coupling_function
 
     def restart(self):
         # just revert to initial parameters
@@ -306,7 +309,9 @@ class Junction():
             for layer2 in self.layers[1:]:
                 if layer1.id != layer2.id:
                     self.R_labs.append(f'R_{layer1.id}_{layer2.id}')
+        
         # start the simulation
+        print(iterations)
         for i in range(0, iterations):
             t = i * time_step
             for layer_no, layer in enumerate(self.layers):
