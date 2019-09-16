@@ -38,25 +38,25 @@ l2.demagnetisation_tensor = np.array([[0.00832453381627329, 0., 0.],
 junction = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
 
 
-def step_field(time, step_start=7e-9, step_stop=7.01e-9):
-    Hval = np.zeros((3,))
-    if time <= step_stop and time >= step_start:
-        Hval[0] = 10e-3*constant.TtoAm
-    return Hval
+# def step_field(time, step_start=7e-9, step_stop=7.01e-9):
+#     Hval = np.zeros((3,))
+#     if time <= step_stop and time >= step_start:
+#         Hval[0] = 10e-3*constant.TtoAm
+#     return Hval
 
 
-def anisotropy_update(time):
-    frequency = 6.84e9  # 10 Ghz
-    omega = 2 * np.pi * frequency
-    return 1e3*math.sin(2*omega*time)
+# def anisotropy_update(time):
+#     frequency = 6.84e9  # 10 Ghz
+#     omega = 2 * math.pi * frequency
+#     return 1e3*math.sin(2*omega*time)
 
 
-voltage_spin_diode(junction, 0, 400e-3)
-# junction.set_junction_global_external_field(
-#                 200e-3*constant.TtoAm, axis='x')
-# # junction.set_global_anisotropy_function(anisotropy_update)
+# voltage_spin_diode(junction, 0, 400e-3)
+junction.set_junction_global_external_field(
+                200e-3*constant.TtoAm, axis='x')
+# junction.set_global_anisotropy_function(anisotropy_update)
 # junction.set_global_field_function(step_field)
-# junction.run_simulation(10e-9)
+junction.run_simulation(10e-9)
 # junction.junction_result[['K_log_free']].plot()
 # plt.show()
 # junction.junction_result[['Hext_const_x_free',
