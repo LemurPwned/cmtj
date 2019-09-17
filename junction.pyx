@@ -98,7 +98,7 @@ class Layer:
 
     def Heff(self, time, coupled_layers):
         cdef double K_var = 0.0
-        cdef np.ndarray iec_field = np.zeros((3,))
+
         if self.update_anisotropy:
             K_var = self.update_anisotropy(time)
         if self.update_external_field:
@@ -107,11 +107,12 @@ class Layer:
             coupling_u = self.update_coupling(time)
         else: 
             coupling_u = 0
+
         self.K_log = self.K + K_var
         self.coupling_log = self.coupling + coupling_u
+
         heff = \
             self.Hext_const + self.Hext +\
-            iec_field +\
             self.calculate_anisotropy() +\
             calculate_tensor_interaction(self.m, self.demagnetisation_tensor, self.Ms) +\
             self.calculate_interlayer_exchange_coupling_field(coupled_layers) +\
@@ -204,9 +205,9 @@ class Junction():
         self.couplings = couplings
         self.log = []
         self.vec_params = ['m', 'Hext', 'Hext_const']
-        self.scalar_params = ['K_log', 'K']
+        self.scalar_params = ['K_log', 'K', 'coupling_log', 'coupling']
 
-        self.save = False
+        self.save = save
         self.persist = persist  # read file only or memory leftover?
 
         self.R_labs = []
@@ -311,20 +312,24 @@ class Junction():
                     self.R_labs.append(f'R_{layer1.id}_{layer2.id}')
         
         # start the simulation
-        print(iterations)
+        write_steps = int(stop_time/1e-9)-1
+        save_step = 0 
         for i in range(0, iterations):
             t = i * time_step
             for layer_no, layer in enumerate(self.layers):
                 layer.rk4_step(t, time_step, 
                     [self.layers[coupled-1] for coupled in self.couplings[layer_no]])
             # calculate magnetoresistance
-            R = []
-            for layer1 in self.layers:
-                for layer2 in self.layers[1:]:
-                    if layer1.id != layer2.id:
-                        cosTheta = c_dot(layer1.m, layer2.m)
-                        R.append(self.magnetoresistance(cosTheta))
-            self.log_layer_parameters(t, R)
+            if save_step == i:
+            # the write time is quite limited
+                R = []
+                for layer1 in self.layers:
+                    for layer2 in self.layers[1:]:
+                        if layer1.id != layer2.id:
+                            cosTheta = c_dot(layer1.m, layer2.m)
+                            R.append(self.magnetoresistance(cosTheta))
+                self.log_layer_parameters(t, R)
+                save_step += 1
 
         tend = tm.time()
         print(

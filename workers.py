@@ -21,10 +21,12 @@ def anisotropy_update(time):
     omega = 2 * np.pi * frequency
     return 1000 * np.sin(2 * omega * time)
 
+
 def coupling_update(time):
     frequency = 7e9  # 10 Ghz
     omega = 2 * np.pi * frequency
     return 8e-7 * np.sin(2 * omega * time)
+
 
 def calculate_single_voltage(h_value, junction: Junction, frequency):
     # set the field
