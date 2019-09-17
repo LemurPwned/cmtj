@@ -1,6 +1,6 @@
-# cython: profile=False
+# cython: profile=True
 
-# cython: linetrace=False
+# cython: linetrace=True
 # cython: infer_types=True
 # cython: boundscheck=False
 # cython: wraparound=False
@@ -23,8 +23,14 @@ TtoAm = 795774.715459
 HBAR = 6.62607015e-34/(2*pi)
 ELECTRON_CHARGE = 1.60217662e-19
 
-cdef np.ndarray calculate_tensor_interaction(m, tensor, Ms):
+cdef np.ndarray calculate_tensor_interaction(np.ndarray[double, ndim=1]m, np.ndarray[double, ndim=2]tensor, double Ms):
     return -1. * tensor @ m * Ms
+    # return np.array([
+    #     -Ms*tensor[0,0]*m[0] -Ms* tensor[0,1]*m[1] -Ms* tensor[0,2]*m[1],
+    #     -Ms*tensor[1,0]*m[0] -Ms* tensor[1,1]*m[1] -Ms* tensor[1,2]*m[1],
+    #     -Ms*tensor[2,0]*m[0] -Ms* tensor[2,1]*m[1] -Ms* tensor[2,2]*m[1]
+    #     ], dtype=np.double)
+
 
 cdef np.ndarray c_cross(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1]b):
     return np.array([
@@ -37,18 +43,19 @@ cdef np.ndarray c_cross(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1]
 cdef double c_dot(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] b):
     return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 
+ZERO_ARRAY = np.array([0.0, 0.0, 0.0], dtype=np.double)
 
 class Layer:
     def __init__(self, id_, start_mag, start_anisotropy, K, Ms, coupling, thickness):
         self.id = id_
         # magnetisation options
         if start_mag is not np.array:
-            start_mag = np.array(start_mag, dtype=float)
+            start_mag = np.array(start_mag, dtype=np.double)
         self.m = start_mag
         self.m = self.m / np.linalg.norm(self.m)
         self.m_history = []
         if start_anisotropy is not np.array:
-            start_anisotropy = np.array(start_anisotropy, dtype=float)
+            start_anisotropy = np.array(start_anisotropy, dtype=np.double)
 
         # other parameters section
         self.anisotropy = start_anisotropy
@@ -62,20 +69,21 @@ class Layer:
         self.coupling_log = self.coupling
 
         self.demagnetisation_tensor = np.array(
-            [[0.000, 0, 0], [0, 0.00, 0], [0, 0, 0.93]], dtype=float)
+            [[0.000, 0, 0], [0, 0.00, 0], [0, 0, 0.93]], dtype=np.double)
 
         self.dipole_tensor = np.array(
             [[0.0173, 0.0, 0.0], [0.0, 0.0173, 0.0], [0.0, 0.0, -0.0345]],
-            dtype=float)
+            dtype=np.double)
 
         # utility function
         self.params = ['m', 'anisotropy', 'Hext', 'coupling']
-        self.Hext = np.array([0.0, 0.0, 0.0])
-        self.Hext_const = np.array([0.0, 0.0, 0.0])
+        self.Hext = np.array([0.0, 0.0, 0.0], dtype=np.double)
+        self.Hext_const = np.array([0.0, 0.0, 0.0], dtype=np.double)
+
         self.update_external_field = None
         self.update_anisotropy = None
         self.update_coupling = None
-        self.dmdt = np.array([0., 0., 0.])
+        self.dmdt = np.array([0., 0., 0.],dtype=np.double)
         self.log = []
         self.junction_result = None
 
@@ -97,16 +105,13 @@ class Layer:
                    d['thickness'], d['coupling'])
 
     def Heff(self, time, coupled_layers):
-        cdef double K_var = 0.0
-
+        cdef double K_var, coupling_u = 0.0
         if self.update_anisotropy:
             K_var = self.update_anisotropy(time)
         if self.update_external_field:
             self.Hext = self.update_external_field(time)
         if self.update_coupling:
             coupling_u = self.update_coupling(time)
-        else: 
-            coupling_u = 0
 
         self.K_log = self.K + K_var
         self.coupling_log = self.coupling + coupling_u
@@ -129,8 +134,8 @@ class Layer:
         return -1. * self.demagnetisation_tensor @ self.m * self.Ms
 
     def calculate_anisotropy(self):
-        nom = 2 * self.K_log * c_dot(self.m, self.anisotropy) * self.anisotropy
-        return nom / (MAGNETIC_PERMEABILITY * self.Ms)
+        nom = 2 * self.K_log * c_dot(self.m, self.anisotropy) / (MAGNETIC_PERMEABILITY * self.Ms)
+        return nom * self.anisotropy
 
     """
     # this is the old formula that yields non-zero field 
@@ -145,13 +150,12 @@ class Layer:
         return heff_iec
     """
 
-    def calculate_interlayer_exchange_coupling_field(self, coupled_layers):
-        heff_iec = np.array([0., 0., 0.], dtype=float)
-        if not coupled_layers:
+    def calculate_interlayer_exchange_coupling_field(self, coupled_layers_m=None):
+        heff_iec = np.array([0., 0., 0.], dtype=np.double)
+        if not coupled_layers_m:
             return heff_iec
-        for layer in coupled_layers:
-            heff_iec += self.coupling_log*(layer.m - self.m) / \
-                (MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
+        for m in coupled_layers_m:
+            heff_iec += self.coupling_log*(m - self.m) /(MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
         return heff_iec
 
     def llg(self, time, m, coupled_layers):
@@ -172,7 +176,7 @@ class Layer:
               self.spin_polarisation_efficiency) / (
                   2 * ELECTRON_CHARGE *
                   MAGNETIC_PERMEABILITY * self.Ms * self.thickness)
-        bj = np.array([0., 0., 0.])
+        bj = np.array([0., 0., 0.], dtype=np.double)
         p_cross = c_cross(m, spin_polarized_layer)
         stt_term =  GYRO * (aj * c_cross(m, p_cross) + bj * p_cross)
 
@@ -185,14 +189,40 @@ class Layer:
     def rk4_step(self, time, time_step, coupled_layers=None):
         cdef np.ndarray[double, ndim=1] k1, k2, k3, k4, m
         m = self.m
-        k1 = time_step * self.llg(time, m, coupled_layers)
-        k2 = time_step * self.llg(time + 0.5 * time_step, m + 0.5 * k1,
-                                  coupled_layers)
-        k3 = time_step * self.llg(time + 0.5 * time_step, m + 0.5 * k2,
-                                  coupled_layers)
-        k4 = time_step * self.llg(time + time_step, m + k3, coupled_layers)
-        m = m + (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
-        m = m / sqrt(m[0]**2 + m[1]**2 + m[2]**2)
+
+        # heff = self.Heff(time, coupled_layers)
+        # prod = c_cross(m, heff)
+        # k1 = - GYRO * \
+        #     prod - GYRO * \
+        #      DAMPING*c_cross(m, prod)
+
+        # heff = self.Heff(time+0.5*time_step, coupled_layers)
+        # prod = c_cross(m+0.5*k1, heff)
+        # k2 = - GYRO * \
+        #     prod - GYRO * \
+        #      DAMPING*c_cross(m + 0.5*k1, prod)
+
+        # # reuse heff -- heavy optimization 
+        # prod = c_cross(m+0.5*k2, heff)
+        # k3 = - GYRO * \
+        #     prod - GYRO * \
+        #      DAMPING*c_cross(m + 0.5*k2, prod)
+
+        # heff = self.Heff(time+time_step, coupled_layers)
+        # prod = c_cross(m + k3, heff)
+        # k4 = - GYRO * \
+        #     prod - GYRO * \
+        #      DAMPING*c_cross(m + k3, prod)
+        k1 =  self.llg(time, m, coupled_layers)
+        k2 =  self.llg(time + 0.5 * time_step, m + 0.5 * k1,
+                       coupled_layers)
+        k3 =  self.llg(time + 0.5 * time_step, m + 0.5 * k2,
+                       coupled_layers)
+        k4 =  self.llg(time + time_step, m + k3, coupled_layers)
+
+
+        m += time_step*(k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+        m /= sqrt(m[0]**2 + m[1]**2 + m[2]**2)
         # update m
         self.m = m
 
@@ -317,8 +347,8 @@ class Junction():
         for i in range(0, iterations):
             t = i * time_step
             for layer_no, layer in enumerate(self.layers):
-                layer.rk4_step(t, time_step, 
-                    [self.layers[coupled-1] for coupled in self.couplings[layer_no]])
+                layer.rk4_step(t, time_step, # -1 because id "1" to logical id "0"
+                    [self.layers[coupled-1].m for coupled in self.couplings[layer_no]])
             # calculate magnetoresistance
             if save_step == i:
             # the write time is quite limited
