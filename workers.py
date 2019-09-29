@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -18,13 +19,15 @@ def step_field(time, step_start=5e-9, step_stop=5.01e-9):
 
 def anisotropy_update(time):
     frequency = 6.93e9  # 10 Ghz
-    omega = 2 * np.pi * frequency
-    return 1000 * np.sin(2 * omega * time)
+    omega = 2 * math.pi * frequency
+    return 1000 * math.sin(omega * time)
+
 
 def coupling_update(time):
     frequency = 6.93e9  # 10 Ghz
-    omega = 2 * np.pi * frequency
-    return 8e-7 * np.sin(2 * omega * time)
+    omega = 2 * math.pi * frequency
+    return 8e-7 * math.sin(omega * time)
+
 
 def calculate_single_voltage(h_value, junction: Junction, frequency):
     # set the field
@@ -33,7 +36,7 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     omega = 2 * np.pi * frequency
     print(f"Simulation for {h_value}")
     junction.restart()
-    junction.set_junction_global_external_field(h_value * constant.TtoAm,
+    junction.set_junction_global_external_field(float(h_value * constant.TtoAm),
                                                 axis='x')
     # junction.set_global_anisotropy_function(anisotropy_update)
     junction.set_global_coupling_function(coupling_update)
@@ -74,7 +77,7 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     if multiprocess:
         # junction.set_global_anisotropy_function(anisotropy_update)
         junction.set_global_coupling_function(coupling_update)
-        with Pool() as pool:
+        with Pool(2) as pool:
             hvals_voltages = pool.starmap(
                 calculate_single_voltage,
                 zip(h_vals, repeat(junction), repeat(frequency)))
@@ -86,17 +89,17 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
             # set the field
             print(f"Simulation for {h_value}")
             junction.restart()
-            junction.set_junction_global_external_field(h_value *
-                                                        constant.TtoAm,
+            junction.set_junction_global_external_field(float(h_value *
+                                                              constant.TtoAm),
                                                         axis='x')
             # junction.set_global_anisotropy_function(anisotropy_update)
             junction.set_global_coupling_function(coupling_update)
             # restart simualtion
-            junction.run_simulation(9e-9)
+            junction.run_simulation(15e-9)
             # extract the magnetisation value
             # wait for 5ns
             limited_res = junction.junction_result[
-                junction.junction_result['time'] >= 6e-9]
+                junction.junction_result['time'] >= 9e-9]
             avg_resistance = np.mean(limited_res['R_free_bottom'])
             print(f"Avg resistance {avg_resistance}")
             amplitude = np.sqrt(power / avg_resistance)
@@ -198,6 +201,6 @@ def frequency_analysis_csv(results, time_step=1e-13):
 
 
 if __name__ == "__main__":
-    # j = Junction.from_json('junction.json', persist=True)
+    j = Junction.from_json('junction.json', persist=True)
     voltage_spin_diode(j, 0, 400e-3 * constant.TtoAm, 20e-3 * constant.TtoAm)
     print(frequency_analysis_csv('results.csv'))
