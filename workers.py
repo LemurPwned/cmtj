@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -35,7 +36,7 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     omega = 2 * np.pi * frequency
     # print(f"Simulation for {h_value}")
     junction.restart()
-    junction.set_junction_global_external_field(h_value * constant.TtoAm,
+    junction.set_junction_global_external_field(float(h_value * constant.TtoAm),
                                                 axis='x')
     # junction.set_global_anisotropy_function(anisotropy_update)
     junction.set_global_coupling_function(coupling_update)
@@ -88,8 +89,8 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
             # set the field
             print(f"Simulation for {h_value}")
             junction.restart()
-            junction.set_junction_global_external_field(h_value *
-                                                        constant.TtoAm,
+            junction.set_junction_global_external_field(float(h_value *
+                                                              constant.TtoAm),
                                                         axis='x')
             # junction.set_global_anisotropy_function(anisotropy_update)
             junction.set_global_coupling_function(coupling_update)
@@ -198,6 +199,6 @@ def frequency_analysis_csv(results, time_step=1e-13):
 
 
 if __name__ == "__main__":
-    # j = Junction.from_json('junction.json', persist=True)
+    j = Junction.from_json('junction.json', persist=True)
     voltage_spin_diode(j, 0, 400e-3 * constant.TtoAm, 20e-3 * constant.TtoAm)
     print(frequency_analysis_csv('results.csv'))

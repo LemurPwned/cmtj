@@ -7,17 +7,22 @@ import pandas as pd
 import math
 
 constant = Constants()
-
-dipole_tensor = np.array([
-    [6.8353909454237E-4, 0.,0.],
-    [0., 0.00150694452305927, 0.],
-    [0., 0., 0.99780951638608]
-], dtype=np.double)
-demag_tensor = np.array([
-    [5.57049776248663E-4,0., 0.],
+# dipole_tensor = [[0.00706885975425371, 0.0, 0., ],
+#                  [0.0, 0.00706885975425371, 0., ],
+#                  [0., 0., -0.0141377195085074]]
+# demag_tensor = [[0.00832453381627329, 0., 0.],
+#                 [0., 0.00832453381627329, 0.],
+#                 [0.0, 0.0, 0.765750932367453]]
+dipole_tensor =[
+    [6.835e-4, 0.,0.],
+    [0., 0.0015, 0.],
+    [0., 0., 0.998]
+]
+demag_tensor = [
+    [5.57e-4,0., 0.],
     [0., 0.00125355500286346, 0.],
-    [0., 0.0, -0.00181060482770131]
-], dtype=np.double)
+    [0., 0.0, -0.0018]
+]
 l1 = Layer(id_="free",
            start_mag=[0.0, 0.0, 1.0],
            start_anisotropy=[0.0, 0.0, 1.0],
@@ -28,6 +33,7 @@ l1 = Layer(id_="free",
 
 l1.dipole_tensor = dipole_tensor
 l1.demagnetisation_tensor = demag_tensor
+
 l2 = Layer(id_="bottom",
            start_mag=[0., 0.0, 1.0],
            start_anisotropy=[0., 0., 1.0],
@@ -40,7 +46,7 @@ l2.demagnetisation_tensor = demag_tensor
 junction = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
 
 
-def step_field(time, step_start=7e-9, step_stop=7.001e-9):
+def step_field(time, step_start=5e-9, step_stop=5.001e-9):
     Hval = np.zeros((3,))
     if time <= step_stop and time >= step_start:
         Hval[0] = 0.001254*constant.TtoAm
@@ -57,8 +63,14 @@ def step_field(time, step_start=7e-9, step_stop=7.001e-9):
 #     omega = 2 * math.pi * frequency
 #     return 1e3*math.sin(2*omega*time)
 
+def coupling_update(time):
+    frequency = 6.93e9  # 10 Ghz
+    omega = 2 * math.pi * frequency
+    return 8e-7 * math.sin(omega * time)
 
-def get_resonance_frequency(junction):
+
+def get_resonance_frequency(junction: Junction):
+    junction.set_global_field_function(step_field)
     junction.set_junction_global_external_field(
                     250e-3*constant.TtoAm, axis='x')
     junction.run_simulation(10e-9)
