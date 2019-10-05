@@ -12,7 +12,6 @@ import pandas as pd
 from math import pi, sqrt
 
 
-
 MAGNETIC_PERMEABILITY = 12.57e-7
 GYRO = 2.21e5
 DAMPING = 0.011
@@ -20,7 +19,7 @@ TtoAm = 795774.715459
 HBAR = 6.62607015e-34/(2*pi)
 ELECTRON_CHARGE = 1.60217662e-19
 
-cdef list calculate_tensor_interaction(list m, list tensor, double Ms):
+cdef list calculate_tensor_interaction(list m, list tensor, float Ms):
     return [
         -Ms*tensor[0][0]*m[0] -Ms* tensor[0][1]*m[1] -Ms* tensor[0][2]*m[2],
         -Ms*tensor[1][0]*m[0] -Ms* tensor[1][1]*m[1] -Ms* tensor[1][2]*m[2],
@@ -40,16 +39,18 @@ cdef double c_dot(list a, list b):
 
 
 class Layer:
-    def __init__(self, id_, start_mag, start_anisotropy, K, Ms, coupling, thickness):
+    def __init__(self, id_, start_mag,
+                anisotropy, K, Ms, 
+                coupling, thickness,
+                demag_tensor,
+                dipole_tensor):
         self.id = id_
         # magnetisation options
-
-        self.m = start_mag
-        norm = sqrt(self.m[0]**2 + self.m[1]**2 + self.m[2]**2)
-        self.m = [self.m[i] / norm for i in range(3)]
+        norm = sqrt(start_mag[0]**2 + start_mag[1]**2 + start_mag[2]**2)
+        self.m = [start_mag[i] / norm for i in range(3)]
 
         # other parameters section
-        self.anisotropy = start_anisotropy
+        self.anisotropy = anisotropy
         self.K = K
         self.K_log = K
 
@@ -58,11 +59,8 @@ class Layer:
         self.coupling = coupling
         self.coupling_log = self.coupling
 
-        self.demagnetisation_tensor = \
-            [[0.000, 0, 0], [0, 0.00, 0], [0, 0, 0.93]]
-
-        self.dipole_tensor = \
-            [[0.0173, 0.0, 0.0], [0.0, 0.0173, 0.0], [0.0, 0.0, -0.0345]]
+        self.demagnetisation_tensor = demag_tensor
+        self.dipole_tensor = dipole_tensor
 
         # utility function
         self.params = ['m', 'anisotropy', 'Hext', 'coupling']
@@ -72,8 +70,7 @@ class Layer:
         self.update_external_field = None
         self.update_anisotropy = None
         self.update_coupling = None
-        self.dmdt = [0., 0., 0.]
-        self.log = []
+
         self.junction_result = None
 
     def to_dict(self):
@@ -88,10 +85,17 @@ class Layer:
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d['id'], d['m'], d['anisotropy'], d['K'], d['Ms'],
-                   d['thickness'], d['coupling'])
+        return cls(d['id'], 
+                   start_mag=d['m'], 
+                   anisotropy=d['anisotropy'], 
+                   K=d['K'],
+                   Ms=d['Ms'],
+                   coupling=d['coupling'],     
+                   thickness=d['thickness'], 
+                   dipole_tensor=d['dipole_tensor'],
+                   demag_tensor=d['demagnetisation_tensor'])
 
-    def Heff(self, time, coupled_layers):
+    def Heff(self, m, time, coupled_layers):
         cdef double K_var, coupling_var = 0.0
         if self.update_anisotropy:
             K_var = self.update_anisotropy(time)
@@ -102,11 +106,10 @@ class Layer:
 
         self.K_log = self.K + K_var
         self.coupling_log = self.coupling + coupling_var
-
-        anis = self.calculate_anisotropy()
-        iec = self.calculate_interlayer_exchange_coupling_field(coupled_layers)
-        ti_demag = calculate_tensor_interaction(self.m, self.demagnetisation_tensor, self.Ms) 
-        ti_dip = calculate_tensor_interaction(self.m, self.dipole_tensor, self.Ms)
+        anis = self.calculate_anisotropy(m)
+        iec = self.calculate_interlayer_exchange_coupling_field(m, coupled_layers)
+        ti_demag = calculate_tensor_interaction(m, self.demagnetisation_tensor, self.Ms) 
+        ti_dip = calculate_tensor_interaction(m, self.dipole_tensor, self.Ms)
 
         heff = [
             self.Hext_const[i] +\
@@ -122,39 +125,54 @@ class Layer:
     def set_global_external_field_value(self, hval):
         self.Hext_const = hval
 
-    def calculate_anisotropy(self):
-        nom = 2 * self.K_log * c_dot(self.m, self.anisotropy) / (MAGNETIC_PERMEABILITY * self.Ms)
+    def calculate_anisotropy(self, m):
+        nom = 2 * self.K_log * c_dot(m, self.anisotropy) / (MAGNETIC_PERMEABILITY * self.Ms)
         return [nom * anis_v for anis_v in self.anisotropy]
 
-    def calculate_interlayer_exchange_coupling_field(self, coupled_layers_m=None):
+    def calculate_interlayer_exchange_coupling_field(self, m, coupled_layers_m=None):
         if not coupled_layers_m:
             return [0., 0., 0.]
-        return [self.coupling_log*(coupled_layers_m.m[i] - self.m[i]) /(MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
+        const = self.coupling_log/(MAGNETIC_PERMEABILITY*self.Ms*self.thickness)
+        return [const*(coupled_layers_m[i] - m[i]) 
                 for i in range(3)]
 
     def llg(self, time, m, coupled_layers):
-        heff = self.Heff(time, coupled_layers)
+        norm = sqrt(m[0]**2 + m[1]**2 + m[2]**2)
+        m[0] = m[0]/norm
+        m[1] = m[1]/norm
+        m[2] = m[2]/norm
+        heff = self.Heff(m, time, coupled_layers)
         prod = c_cross(m, heff)
         prod2 = c_cross(m, prod)
-        return [- GYRO * \
-            prod[i] - GYRO * \
-            DAMPING*prod2[i] for i in range(3)]
+        dmdt =  [- GYRO *  prod[i] - GYRO * DAMPING*prod2[i] for i in range(3)]
+        return dmdt
 
     def rk4_step(self, time, time_step, coupled_layers=None):
         m = self.m
-        k1 =  self.llg(time, m, coupled_layers)
-        k2 =  self.llg(time + 0.5 * time_step, [m[i] + 0.5 * k1[i] for i in range(3)],
-                       coupled_layers)
-        k3 =  self.llg(time + 0.5 * time_step, [m[i] + 0.5 * k2[i] for i in range(3)],
-                       coupled_layers)
-        k4 =  self.llg(time + time_step, [m[i] + k3[i] for i in range(3)], coupled_layers)
+        k1 = self.llg(time, m, coupled_layers)
+        k1 = [time_step*k1[i] for i in range(3)]
 
-        m[0] += time_step*(k1[0] + 2.0 * k2[0] + 2.0 * k3[0] + k4[0]) / 6.0
-        m[1] += time_step*(k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1]) / 6.0
-        m[2] += time_step*(k1[2] + 2.0 * k2[2] + 2.0 * k3[2] + k4[2]) / 6.0
+        k2 = self.llg(time + 0.5 * time_step, [m[i] + 0.5 * k1[i] for i in range(3)],
+                       coupled_layers)
+        k2 = [time_step*k2[i] for i in range(3)]
+
+        k3 = self.llg(time + 0.5 * time_step, [m[i] + 0.5 * k2[i] for i in range(3)],
+                       coupled_layers)
+        k3 = [time_step*k3[i] for i in range(3)]
+
+        k4 = self.llg(time + time_step, [m[i] + k3[i] for i in range(3)], 
+                       coupled_layers)
+        k4 = [time_step*k4[i] for i in range(3)]
+
+        m[0] += ((k1[0] + 2.0 * k2[0] + 2.0 * k3[0] + k4[0]) / 6.0)
+        m[1] += ((k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1]) / 6.0)
+        m[2] += ((k1[2] + 2.0 * k2[2] + 2.0 * k3[2] + k4[2]) / 6.0)
         norm = sqrt(m[0]**2 + m[1]**2 + m[2]**2)
         # update m
-        self.m = [mv/norm for mv in m]
+        m[0] = m[0]/norm
+        m[1] = m[1]/norm
+        m[2] = m[2]/norm
+        self.m = m
 
 
 class Junction():
@@ -264,7 +282,6 @@ class Junction():
             raise ValueError("No layers in junction!")
         tstart = tm.time()
         iterations = int(stop_time / time_step)
-
         # just for labels
         for layer1 in self.layers:
             for layer2 in self.layers[1:]:
@@ -275,21 +292,22 @@ class Junction():
         write_steps = int(stop_time/1e-9)-1
         save_step = 0 
         for i in range(0, iterations):
-            t = i * time_step
+            t = float(i * time_step)
             for layer_no, layer in enumerate(self.layers):
+                other_m = self.layers[self.couplings[layer_no][0]-1].m
                 layer.rk4_step(t, time_step, # -1 because id "1" to logical id "0"
-                    self.layers[0])
+                    other_m)
             # calculate magnetoresistance
-            if save_step == i:
+            # if save_step == i:
             # the write time is quite limited
-                R = []
-                for layer1 in self.layers:
-                    for layer2 in self.layers[1:]:
-                        if layer1.id != layer2.id:
-                            cosTheta = c_dot(layer1.m, layer2.m)
-                            R.append(self.magnetoresistance(cosTheta))
-                self.log_layer_parameters(t, R)
-                save_step += 1
+            R = []
+            for layer1 in self.layers:
+                for layer2 in self.layers[1:]:
+                    if layer1.id != layer2.id:
+                        cosTheta = c_dot(layer1.m, layer2.m)
+                        R.append(self.magnetoresistance(cosTheta))
+            self.log_layer_parameters(t, R)
+                # save_step += 1
 
         tend = tm.time()
         print(
