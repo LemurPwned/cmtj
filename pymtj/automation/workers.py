@@ -136,11 +136,19 @@ def frequency_analysis(junction: Junction, time_step=1e-13):
         filepath to csv file
     :param time_step
         time step for fft Fourier steps
+
+    :returns 
+        np.ndarray of frequencies in GHz and their amplitudes
+        [
+            [freq_x, amp_x],
+            [freq_y, amp_y],
+            [freq_z, amp_z]
+        ]
     """
     # send a step pulse to excite the system
-    print(
-        f"Calculating the resonant frequencies for the system..., step size {time_step}"
-    )  # measure the response
+    # print(
+    #     f"Calculating the resonant frequencies for the system..., step size {time_step}"
+    # )  # measure the response
     limited_res = junction.junction_result[
         junction.junction_result['time'] >= 8.1e-9]
     mx_fft = np.fft.fft(limited_res['m_x_free'], axis=0)

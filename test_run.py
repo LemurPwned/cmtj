@@ -68,6 +68,3 @@ def perform_vsd(junction):
 
 
 perform_vsd(junction)
-# get_resonance_frequency(junction)
-# display_results()
-

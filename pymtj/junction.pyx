@@ -311,6 +311,54 @@ class Junction():
         for layer in self.layers:
             layer.Hext_const = Hext
 
+
+    def set_global_coupling(self, coupling_val):
+        """
+        Sets coupling to the coupling val for all layers
+        in the junction
+        :param coupling_val
+            Coupling value, unit [J/m^2]
+        """
+        for layer in self.layers:
+            layer.coupling = coupling_val
+
+    def set_layer_coupling(self, layer_id, coupling_val):
+        """
+        Sets coupling to the coupling val for a specific layer
+        in the junction
+        :param layer_id
+            layer id, for which the value will be set
+        :param coupling_val
+            Coupling value, unit [J/m^2]
+        """
+        found = False 
+        for layer in self.layers:
+            if layer.id == layer_id:
+                found = True 
+                layer.coupling = coupling_val
+                return
+        if not found:
+            raise AttributeError(f"Layer with id: {layer_id} not found!")
+
+    def set_layer_K(self, layer_id, K):
+        """
+        Sets K (anisotropy) to the coupling val for a specific layer
+        in the junction
+        :param layer_id
+            layer id, for which the value will be set
+        :param coupling_val
+            Coupling value, unit [J/m^3]
+        """
+        found = False 
+        for layer in self.layers:
+            if layer.id == layer_id:
+                found = True 
+                layer.K = K
+                return 
+        if not found:
+            raise AttributeError(f"Layer with id: {layer_id} not found!")
+
+
     def set_global_field_function(self, field_function):
         """
         Updates the external field value at each step
@@ -397,9 +445,9 @@ class Junction():
             self.log_layer_parameters(t, R)
 
         tend = tm.time()
-        print(
-            f"Simulation has finished in {tend-tstart}s. Writting the results..."
-        )
+        # print(
+        #     f"Simulation has finished in {tend-tstart}s. Writting the results..."
+        # )
         cols = []
         for param in self.scalar_params:
             for layer in self.layers:
