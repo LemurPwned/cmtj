@@ -67,4 +67,5 @@ def perform_vsd(junction):
     voltage_spin_diode(junction, 0, 400e-3)
 
 
-perform_vsd(junction)
+# perform_vsd(junction)
+get_resonance_frequency(junction)

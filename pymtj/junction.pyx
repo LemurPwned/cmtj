@@ -226,8 +226,8 @@ class Junction():
                  _id,
                  layers,
                  couplings,
-                 persist=False,
-                 save=True,
+                 persist=True,
+                 save=False,
                  save_location='results.csv'):
         self.id = _id
         self.layers = layers
@@ -254,14 +254,14 @@ class Junction():
         json.dump(self.to_dict(), open(filename, 'w'), indent=4)
 
     @classmethod
-    def from_json(cls, filename, persist=False):
+    def from_json(cls, filename, persist=True):
         d = json.load(open(filename, 'r'))
         return Junction.from_dict(d, persist)
 
     @classmethod
-    def from_dict(cls, d, persist=False):
+    def from_dict(cls, d, persist=True, save=False):
         layers = [Layer.from_dict(layer) for layer in d['layers']]
-        return cls(d['id'], layers, d['couplings'], persist=persist)
+        return cls(d['id'], layers, d['couplings'], persist=persist, save=save)
 
     def to_dict(self):
         d = {}
