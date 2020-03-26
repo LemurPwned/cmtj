@@ -18,22 +18,22 @@ l1 = Layer(id_="free",
            anisotropy=[0.0, 0.0, 1.0],
            K=900e3,
            Ms=1200e3,
-           coupling=-3e-6,
+           coupling=0.,
            thickness=1.4e-9,
            demag_tensor=demag_tensor,
            dipole_tensor=dipole_tensor)
 
 l2 = Layer(id_="bottom",
-           start_mag=[0., 0.0, 1.0],
-           anisotropy=[0., 0., 1.0],
+           start_mag=[0.0, 0.0, 1.0],
+           anisotropy=[0.0, 0.0, 1.0],
            K=1000e3,
            Ms=1000e3,
-           coupling=-3e-6,
+           coupling=0.,
            thickness=7e-10,
            demag_tensor=demag_tensor,
            dipole_tensor=dipole_tensor)
 
-junction = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
+junction = Junction('MTJ', layers=[l1, l2], couplings=[[2],[1]], persist=True)
 
 
 def step_field(time, step_start=5e-9, step_stop=5.001e-9):
@@ -43,10 +43,10 @@ def step_field(time, step_start=5e-9, step_stop=5.001e-9):
     return Hval
 
 
-def coupling_update(time):
-    frequency = 6.93e9  # 10 Ghz
-    omega = 2 * math.pi * frequency
-    return 8e-7 * math.sin(omega * time)
+# def coupling_update(time):
+#     frequency = 6.93e9  # 10 Ghz
+#     omega = float(2 * math.pi * frequency)
+#     return 8e-7 * float(np.sin(omega * time))
 
 
 def get_resonance_frequency(junction: Junction):
@@ -59,13 +59,16 @@ def get_resonance_frequency(junction: Junction):
 
 def display_results():
     df = pd.read_csv('results.csv')
-    plt.plot(df['time'], df[['m_x_free', 'm_y_free', 'm_z_free']])
+    df[['m_x_free', 'm_y_free', 'm_z_free']].plot()
+    plt.legend()
     plt.show()
 
 
 def perform_vsd(junction):
-    voltage_spin_diode(junction, 0, 400e-3)
+    voltage_spin_diode(junction, 000e3, 500e-3)
 
 
 # perform_vsd(junction)
 get_resonance_frequency(junction)
+# display_results()
+

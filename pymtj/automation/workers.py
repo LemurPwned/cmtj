@@ -18,9 +18,9 @@ def step_field(time, step_start=5e-9, step_stop=5.01e-9):
 
 
 def anisotropy_update(time):
-    frequency = 6.84e9  # 10 Ghz
+    frequency = 7e9  # 10 Ghz
     omega = 2 * np.pi * frequency
-    return 1000 * np.sin(2 * omega * time)
+    return 800 * np.sin(omega * time)
 
 
 def coupling_update(time):
@@ -40,7 +40,9 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     junction.set_junction_global_external_field(float(h_value * constant.TtoAm),
                                                 axis='x')
     # junction.set_global_anisotropy_function(anisotropy_update)
-    junction.set_global_coupling_function(coupling_update)
+    junction.set_layer_anisotropy_function('free', anisotropy_update)
+
+    # junction.set_global_coupling_function(coupling_update)
     # restart simulation
     junction.run_simulation(20e-9)
     # extract the magnetisation value
@@ -68,16 +70,16 @@ def voltage_spin_diode(junction: Junction, start_h, stop_h, multiprocess=True):
     phase_shift = 0
     power = 10e-6
     # frequency = 6.84e9  # 10 Ghz
-    frequency = 6.95e9
+    frequency = 7e9
     omega = 2 * np.pi * frequency
     voltages = []
 
     # turn off result saving to csv
     junction.save = False
-    h_vals = np.linspace(start_h, stop_h, 50)
+    h_vals = np.linspace(start_h, stop_h, 40)
     if multiprocess:
-        # junction.set_global_anisotropy_function(anisotropy_update)
-        junction.set_global_coupling_function(coupling_update)
+        junction.set_global_anisotropy_function(anisotropy_update)
+        # junction.set_global_coupling_function(coupling_update)
         with Pool(4) as pool:
             hvals_voltages = pool.starmap(
                 calculate_single_voltage,
@@ -126,7 +128,7 @@ def find_resonant_frequency(junction: Junction):
     junction.run_simulation(10e-9)
 
 
-def frequency_analysis(junction: Junction, time_step=1e-13):
+def frequency_analysis(junction: Junction, time_step=1e-11):
     """
     Returns the values of frequency analysis
     For each magnetisation axis the function returns the values of 
@@ -150,7 +152,7 @@ def frequency_analysis(junction: Junction, time_step=1e-13):
     #     f"Calculating the resonant frequencies for the system..., step size {time_step}"
     # )  # measure the response
     limited_res = junction.junction_result[
-        junction.junction_result['time'] >= 8.1e-9]
+        junction.junction_result['time'] >= 10.0e-9]
     mx_fft = np.fft.fft(limited_res['m_x_free'], axis=0)
     my_fft = np.fft.fft(limited_res['m_y_free'], axis=0)
     mz_fft = np.fft.fft(limited_res['m_z_free'], axis=0)
@@ -169,7 +171,7 @@ def frequency_analysis(junction: Junction, time_step=1e-13):
     return np.array(max_freq_set, dtype=float)
 
 
-def frequency_analysis_csv(results, time_step=1e-13):
+def frequency_analysis_csv(results, time_step=1e-9):
     """
     Returns the values of frequency analysis
     For each magnetisation axis the function returns the values of 
