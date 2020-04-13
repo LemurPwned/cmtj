@@ -8,14 +8,18 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Experiment defines an experiment structure
 type Experiment struct {
+	ID   string `json:"id"`
 	Name string `json:"name"`
 	Date string `json:"date"`
 	// key value parameters
 	Parmeters   map[string]interface{} `json:"parameters"`
+	Metrics     map[string][]float32   `json:"metrics"`
 	Successfull bool                   `json:"successful"`
 }
 
@@ -27,6 +31,10 @@ type ExperimentSlice struct {
 
 // experiments holds the list of all experiments
 var experiments ExperimentSlice
+
+const maxSaves = 2
+
+var saveQueue = make(chan string, maxSaves+1)
 
 const saveDir = "./snapshots"
 
@@ -41,34 +49,26 @@ func periodicSave() {
 	}
 }
 
-func getParticularExperiment(queryType, queyrValue string) (*Experiment, error) {
-	switch queryType {
-	case "NAME":
-		for _, exp := range experiments.Experiments {
-			if exp.Name == queryType {
-				return &exp, nil
-			}
-		}
-	case "DATE":
-		for _, exp := range experiments.Experiments {
-			if exp.Date == queryType {
-				return &exp, nil
-			}
-		}
-	}
-
-	return nil, fmt.Errorf("Not found %s in query: %s ", queyrValue, queryType)
-}
-
 func handleExperimentSubmission(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case "GET":
-		for k, v := range r.URL.Query() {
-			fmt.Printf("%s: %s\n", k, v)
+		log.Println("Serving a GET request...")
+		expID := r.URL.Query().Get("id")
+		log.Println("\tDetected query parameter id = ", expID)
+		exp, _, err := findExperimentByID(&experiments, expID)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		} else {
+			resJSON, err := json.Marshal(*exp)
+			if err != nil {
+				w.Write([]byte(err.Error()))
+				return
+			}
+			w.Write(resJSON)
 		}
-		w.Write([]byte("Received a GET request\n"))
 	case "POST":
+		log.Println("Serving a POST request...")
+
 		// retrieve the message body
 		var exp Experiment
 
@@ -77,14 +77,37 @@ func handleExperimentSubmission(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		exp.ID = uuid.New().String()
+		exp.Date = time.Now().String()
+		exp.Metrics = make(map[string][]float32)
 		experiments.Experiments = append(experiments.Experiments, exp)
 		experiments.ExperimentCount++
 		w.Write([]byte("Added an experiment to the experiment list\n"))
+
 	default:
 		w.WriteHeader(http.StatusNotImplemented)
 		w.Write([]byte(http.StatusText(http.StatusNotImplemented)))
 	}
 
+}
+
+func handleDeleteExperiment(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		log.Println("Serving a DELETE request...")
+		expID := r.URL.Query().Get("id")
+		log.Println("\tDetected query parameter id = ", expID)
+		err := deleteExperiment(&experiments, expID)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		fmt.Fprintf(w, "Deleted the experiment %s", expID)
+
+	default:
+		w.WriteHeader(http.StatusNotImplemented)
+		w.Write([]byte(http.StatusText(http.StatusNotImplemented)))
+	}
 }
 
 func experimentsToJSON() ([]byte, error) {
@@ -126,8 +149,10 @@ func loadExperimentsFromFile() {
 	// snapshot is the last entry
 	latestSnap := fileList[len(fileList)-1]
 
-	file, _ := ioutil.ReadFile(latestSnap.Name())
-
+	file, err := ioutil.ReadFile(saveDir + "/" + latestSnap.Name())
+	if err != nil {
+		log.Panic(err)
+	}
 	err = json.Unmarshal([]byte(file), &experiments)
 	if err != nil {
 		log.Panic(err)
@@ -145,11 +170,23 @@ func saveExperimentsToFile() {
 	if err != nil {
 		log.Panic(err)
 	}
+	saveQueue <- filename
+	if len(saveQueue) >= maxSaves {
+		// cut the unnecessary saves
+		pop := <-saveQueue
+		err := os.Remove(pop)
+		log.Println("Removed old snapshot", pop)
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}
 }
 
 func handleListExperiments(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
+		log.Println("Serving a GET ALL request...")
+
 		expJ, err := experimentsToJSON()
 		if err != nil {
 			log.Panic(err)
@@ -168,8 +205,9 @@ func main() {
 	go periodicSave()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleExperimentSubmission)
+	mux.HandleFunc("/experiment", handleExperimentSubmission)
 	mux.HandleFunc("/experiments", handleListExperiments)
+	mux.HandleFunc("/delete", handleDeleteExperiment)
 
 	log.Println("Starting server on :4000...")
 	err := http.ListenAndServe(":4000", mux)
