@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Pool
 from itertools import repeat
 
-from pymtj.junction import Junction
+from pymtj.junction import Junction, Layer
 from pymtj.constants import Constants
 constant = Constants()
 
@@ -42,7 +42,6 @@ def calculate_single_voltage(h_value, junction: Junction, frequency):
     # junction.set_global_anisotropy_function(anisotropy_update)
     junction.set_layer_anisotropy_function('free', anisotropy_update)
 
-    # junction.set_global_coupling_function(coupling_update)
     # restart simulation
     junction.run_simulation(20e-9)
     # extract the magnetisation value
@@ -208,7 +207,37 @@ def frequency_analysis_csv(results, time_step=1e-9):
     return np.array(max_freq_set, dtype=float)
 
 
+
+constant = Constants()
+
+dipole_tensor = [[6.8353909454237E-4, 0., 0.], [0., 0.00150694452305927, 0.],
+                 [0., 0., 0.99780951638608]]
+demag_tensor = [[5.57049776248663E-4, 0., 0.], [0., 0.00125355500286346, 0.],
+                [0., 0.0, -0.00181060482770131]]
+
+l1 = Layer(id_="free",
+           start_mag=[0.0, 0.0, 1.0],
+           anisotropy=[0.0, 0.0, 1.0],
+           K=900e3,
+           Ms=1200e3,
+           coupling=0,
+           thickness=1.4e-9,
+           demag_tensor=demag_tensor,
+           dipole_tensor=dipole_tensor)
+
+l2 = Layer(id_="bottom",
+           start_mag=[0., 0.0, 1.0],
+           anisotropy=[0., 0., 1.0],
+           K=1000e3,
+           Ms=1000e3,
+           coupling=0,
+           thickness=7e-10,
+           demag_tensor=demag_tensor,
+           dipole_tensor=dipole_tensor)
+
+junc = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
+
 if __name__ == "__main__":
-    j = Junction.from_json('junction.json', persist=True)
-    voltage_spin_diode(j, 0, 400e-3 * constant.TtoAm, 20e-3 * constant.TtoAm)
-    print(frequency_analysis_csv('results.csv'))
+    # j = Junction.from_json('junction.json', persist=True)
+    voltage_spin_diode(junc, 0, 400e-3 * constant.TtoAm, 20e-3 * constant.TtoAm)
+    # print(frequency_analysis_csv('results.csv'))
