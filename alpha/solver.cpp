@@ -1,10 +1,13 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <map>
 #include <cstring>
 #include <cmath>
 #include <fstream>
 #include <string>
+#include <chrono>
+#include <numeric>
 
 #include "cvector.hpp"
 
@@ -54,12 +57,12 @@ class Layer
 public:
     std::string id;
 
-    CVector Hconst, anis, mag;
+    CVector H_log, Hconst, anis, mag;
 
     double K, J, Ms, thickness;
     double Kvar, Jvar, Hvar;
     double K_frequency, J_frequency, H_frequency = 0.0;
-    double J_log, K_log, H_log;
+    double J_log, K_log;
 
     Axis Kax, Hax;
 
@@ -86,50 +89,53 @@ public:
     {
         return sinusoidalUpdate(J, frequency, time, phase);
     }
-    CVector updateAxial(double H, double frequency, double time, double phase, Axis axis)
+    CVector updateAxial(double amplitude, double frequency, double time, double phase, Axis axis)
     {
         CVector *result = new CVector();
         switch (axis)
         {
         case xaxis:
-            result->x = sinusoidalUpdate(H, frequency, time, phase);
+            result->x = sinusoidalUpdate(amplitude, frequency, time, phase);
         case yaxis:
-            result->y = sinusoidalUpdate(H, frequency, time, phase);
+            result->y = sinusoidalUpdate(amplitude, frequency, time, phase);
         case zaxis:
-            result->z = sinusoidalUpdate(H, frequency, time, phase);
+            result->z = sinusoidalUpdate(amplitude, frequency, time, phase);
         }
         return *result;
     }
 
     CVector Heff(double time, CVector otherMag, double otherMs)
     {
-        double kVar, couplingVar = 0.0;
         CVector Heff = {0., 0., 0.};
-        // kVar = updateAxial(this->K, this->K_frequency, time, 0, this->Kax);
-        // HextVar = updateExternalField(time);
-        K_log = K + kVar;
 
-        // couplingVar = updateCoupling(time);
-
-        // J_log = J + updateCoupling();
-
-        Heff = Hconst + calculateAnisotropy() +
-               calculateIEC(otherMag) +
+        Heff = calculateExternalField(time) +
+               calculateAnisotropy(time) +
+               calculateIEC(time, otherMag) +
                // demag
                calculate_tensor_interaction(this->mag, this->demag_tensor, otherMs) +
+               // dipole
                calculate_tensor_interaction(this->mag, this->dipole_tensor, this->Ms);
 
         return Heff;
     }
-    CVector calculateAnisotropy()
+
+    CVector calculateExternalField(double time)
     {
-        double nom = (2 * K_log) * c_dot(anis, mag) / (MAGNETIC_PERMEABILITY * Ms);
-        return anis * nom;
+        this->H_log = this->Hconst + updateAxial(this->Hvar, this->H_frequency, time, 0, this->Hax);
+        return this->H_log;
     }
 
-    CVector calculateIEC(CVector coupledMag)
+    CVector calculateAnisotropy(double time)
     {
-        double nom = this->J / (MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
+        this->K_log = this->K + sinusoidalUpdate(this->Kvar, this->K_frequency, time, 0);
+        double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
+        return this->anis * nom;
+    }
+
+    CVector calculateIEC(double time, CVector coupledMag)
+    {
+        this->J_log = this->J + sinusoidalUpdate(this->Jvar, this->J_frequency, time, 0);
+        double nom = this->J_log / (MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
         return (coupledMag - this->mag) * nom;
     }
 
@@ -143,7 +149,7 @@ public:
         return dmdt;
     }
 
-    void setGlobalExtenralFieldValue(CVector Hval)
+    void setGlobalExternalFieldValue(CVector Hval)
     {
         this->Hconst = Hval;
     }
@@ -176,12 +182,17 @@ class Junction
 public:
     std::vector<Layer> layers;
     double Rp, Rap = 0.0;
+    std::map<std::string, std::vector<double>> log;
+    std::string fileSave;
+    unsigned int logLength = 0;
+    std::vector<std::string> vectorNames = {"x", "y", "z"};
 
-    Junction(std::vector<Layer> layersToSet)
+    Junction(std::vector<Layer> layersToSet, std::string filename, double Rp = 100, double Rap = 200)
     {
         this->layers = std::move(layersToSet);
-        Rp = 100;
-        Rap = 200;
+        this->Rp = Rp;
+        this->Rap = Rap;
+        this->fileSave = filename;
     }
 
     Layer &findLayerByID(std::string lID)
@@ -195,17 +206,31 @@ public:
         }
         throw std::runtime_error("Failed to find the specified layer!");
     }
-    // double coupleLayers(std::string l1ID, std::string l2ID, double couplingStrength)
-    // {
-    //     // Layer &l1 = findLayerByID(l1ID);
-    //     // Layer &l2 = findLayerByID(l2ID);
-    //     // l1.otherMs = l2.Ms;
-    //     // l2.otherMs = l1.Ms;
-    // }
 
     double calculateMagnetoresistance(double cosTheta)
     {
         return this->Rp + ((this->Rp + this->Rap) / 2.0 * (1.0 - cosTheta));
+    }
+
+    void setConstantExternalField(double Hval, Axis axis)
+    {
+        CVector *fieldToSet = new CVector();
+        switch (axis)
+        {
+        case xaxis:
+            fieldToSet->x = Hval;
+            break;
+        case yaxis:
+            fieldToSet->y = Hval;
+            break;
+        case zaxis:
+            fieldToSet->z = Hval;
+            break;
+        }
+        for (Layer &l : this->layers)
+        {
+            l.setGlobalExternalFieldValue(*fieldToSet);
+        }
     }
 
     void setLayerCoupling(std::string layerID, double J)
@@ -225,6 +250,19 @@ public:
         }
     }
 
+    void setLayerAnisotropyUpdate(std::string layerID, double amplitude, double frequency, double phase)
+    {
+        Layer &l1 = findLayerByID(layerID);
+        l1.Kvar = amplitude;
+        l1.K_frequency = frequency;
+    }
+    void setLayerIECUpdate(std::string layerID, double amplitude, double frequency, double phase)
+    {
+        Layer &l1 = findLayerByID(layerID);
+        l1.Jvar = amplitude;
+        l1.J_log = frequency;
+    }
+
     void setLayerAnisotropy(std::string layerID, double K)
     {
         bool found = false;
@@ -242,13 +280,84 @@ public:
         }
     }
 
+    void logLayerParams(double t, double magnetoresistance)
+    {
+
+        for (int i = 0; i < 3; i++)
+        {
+            this->log["L1m" + vectorNames[i]].push_back(this->layers[0].mag[i]);
+            this->log["L2m" + vectorNames[i]].push_back(this->layers[1].mag[i]);
+        }
+        this->log["L1K"].push_back(this->layers[0].K_log);
+        this->log["L2K"].push_back(this->layers[1].K_log);
+        this->log["R_free_bottom"].push_back(magnetoresistance);
+        this->log["time"].push_back(t);
+
+        logLength++;
+    }
+
+    void saveLogs()
+    {
+        std::ofstream logFile;
+        logFile.open(this->fileSave);
+        for (const auto &keyPair : this->log)
+        {
+            logFile << keyPair.first << ";";
+        }
+        logFile << "\n";
+        for (unsigned int i = 0; i < logLength; i++)
+        {
+            for (const auto &keyPair : this->log)
+            {
+                logFile << keyPair.second[i] << ";";
+            }
+            logFile << "\n";
+        }
+    }
+
+    double calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 5e-9)
+    {
+
+        double omega = 2 * M_PI * frequency;
+        std::string res = "R_free_bottom";
+        std::vector<double> &resistance = this->log[res];
+        auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
+                               [&minTime](const auto &value) { return value >= minTime; });
+        // turn into index
+        int thresIdx = (int)(this->log["time"].end() - it);
+        int cutSize = this->log["time"].size() - thresIdx;
+        // Rpp
+        double RppMax = *std::max_element(resistance.begin() + thresIdx, resistance.end());
+        double RppMin = *std::min_element(resistance.begin() + thresIdx, resistance.end());
+        double avgR = std::accumulate(resistance.begin() + thresIdx, resistance.end(), 0.0) / cutSize;
+        double Iampl = sqrt(power / avgR);
+        std::vector<double> voltage, current;
+        std::transform(
+            this->log["time"].begin() + thresIdx, this->log["time"].end(),
+            std::back_inserter(current), [Iampl, omega](double time) { return Iampl * sin(omega * time); });
+
+        // std::cout << "SIZE TIME: " << this->log["time"].size() << " SIZE CURR:" << current.size() << std::endl;
+        for (unsigned int i = 0; i < cutSize; i++)
+        {
+            voltage.push_back(resistance[thresIdx + i] * current[i]);
+        }
+        double Vmix = std::accumulate(voltage.begin(), voltage.end(), 0.0) / voltage.size();
+        // std::cout << "Rpp: " << RppMax - RppMin << ", meanR: " << avgR << ", VSD: " << Vmix << std::endl;
+        return Vmix;
+    }
+
     void runSimulation(double totalTime, double timeStep)
     {
 
-        int totalIterations = (int)(totalTime / timeStep);
+        unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
         std::vector<double> magnetoresistance;
-        for (int i = 0; i < totalIterations; i++)
+        unsigned int writeEvery = (int)(0.01 * 1e-9 / timeStep) - 1;
+        // std::cout << "Writing every " << writeEvery << std::endl;
+        // std::cout << "Total iterations: " << totalIterations << std::endl;
+
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        for (unsigned int i = 0; i < totalIterations; i++)
         {
             t = i * timeStep;
 
@@ -259,23 +368,66 @@ public:
             layers[1].rk4_step(
                 t, timeStep, l2mag, layers[0].Ms);
 
-            for (Layer &l1 : layers)
+            if (!(i % writeEvery))
             {
-                for (Layer &l2 : layers)
-                {
-                    if (l1.id != l2.id)
-                    {
-                        double cosTheta = c_dot(l1.mag, l2.mag);
-                        magnetoresistance.push_back(
-                            calculateMagnetoresistance(cosTheta));
-                    }
-                }
+                double magRes = calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
+                // std::cout << "Mag res at " << i << ": " << magRes << std::endl;
+                logLayerParams(t, magRes);
             }
         }
+        // saveLogs();
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
     }
 };
 
 int main(void)
 {
+
+    std::vector<CVector> demagTensor = {
+        {6.8353909454237E-4, 0., 0.},
+        {0., 0.00150694452305927, 0.},
+        {0., 0., 0.99780951638608}};
+    std::vector<CVector> dipoleTensor = {
+        {5.57049776248663E-4, 0., 0.},
+        {0., 0.00125355500286346, 0.},
+        {0., 0.0, -0.00181060482770131}};
+
+    Layer l1(std::string("free"),
+             CVector(0., 0., 1.),
+             CVector(0, 0., 1.),
+             900e3,
+             1200e3,
+             0.0, 1.4e-9, demagTensor, dipoleTensor);
+    Layer l2(std::string("bottom"),
+             CVector(0., 0., 1.),
+             CVector(0, 0., 1.),
+             1000e3,
+             1000e3,
+             0.0, 7e-10, demagTensor, dipoleTensor);
+
+    Junction mtj(
+        {l1, l2}, "test.csv");
+
+    double minField = 0.0;
+    double maxField = 500.0;
+    int numPoints = 30;
+    double spacing = (maxField - minField) / numPoints;
+
+    std::ofstream vsdFile;
+    vsdFile.open("VSD.csv");
+    vsdFile << "H;Vmix\n" ;
+    for (double field = minField; field <= maxField; field += spacing)
+    {
+        mtj.setConstantExternalField(field * TtoAm, xaxis);
+        mtj.setLayerAnisotropyUpdate("free", 900, 7e9, 0);
+        mtj.setLayerAnisotropyUpdate("bottom", 900, 7e9, 0);
+        mtj.runSimulation(20e-9, 1e-13);
+        double res = mtj.calculateVoltageSpinDiode(7e9);
+        
+        // clear logs
+        mtj.log.clear();
+        vsdFile << field << ";" << res << "\n";
+    }
     return 0;
 }
