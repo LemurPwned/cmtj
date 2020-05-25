@@ -111,7 +111,7 @@ public:
         return *result;
     }
 
-    CVector Heff(double time, CVector otherMag, double otherMs)
+    CVector calculateHeff(double time, CVector otherMag, double otherMs)
     {
         CVector Heff = {0., 0., 0.};
 
@@ -119,7 +119,7 @@ public:
                calculateAnisotropy(time) +
                calculateIEC(time, otherMag) +
                // demag
-               // 
+              // check the interaction here to be sure
                calculate_tensor_interaction(otherMag, this->demag_tensor, this->Ms) +
                // dipole
                calculate_tensor_interaction(this->mag, this->dipole_tensor, this->Ms);
@@ -147,13 +147,13 @@ public:
         return (coupledMag - this->mag) * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, double otherMs)
+    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double otherMs)
     {
-        CVector heff, prod, prod2, dmdt;
-        heff = Heff(time, coupledMag, otherMs);
+        CVector prod, prod2, dmdt;
+        // heff = calculateHeff(time, coupledMag, otherMs);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
-        dmdt = prod * -GYRO - c_cross(m, prod2) * GYRO * DAMPING;
+        dmdt = prod * -GYRO - prod2 * GYRO * DAMPING;
         return dmdt;
     }
 
@@ -173,13 +173,14 @@ public:
 
     void rk4_step(double time, double time_step, CVector coupledMag, double otherMs)
     {
-        CVector k1, k2, k3, k4, m_t;
+        CVector k1, k2, k3, k4, m_t, heff;
         m_t = mag;
-        k1 = llg(time, m_t, coupledMag, otherMs) * time_step;
-        k2 = llg(time + 0.5 * time_step, m_t + k1 * 0.5, coupledMag, otherMs) * time_step;
-        k3 = llg(time + 0.5 * time_step, m_t + k2 * 0.5, coupledMag, otherMs) * time_step;
-        k4 = llg(time + time_step, m_t + k3, coupledMag, otherMs) * time_step;
-        m_t = m_t + (k1 + k2 * 2.0 + (k3 * 2.0) + k4) / 6.0;
+        heff = calculateHeff(time, coupledMag, otherMs);
+        k1 = llg(time, m_t, coupledMag, heff, otherMs) * time_step;
+        k2 = llg(time + 0.5 * time_step, m_t + k1 * 0.5, coupledMag, heff, otherMs) * time_step;
+        k3 = llg(time + 0.5 * time_step, m_t + k2 * 0.5, coupledMag, heff, otherMs) * time_step;
+        k4 = llg(time + time_step, m_t + k3, coupledMag, heff, otherMs) * time_step;
+        m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         mag = m_t;
     }
@@ -325,7 +326,7 @@ public:
         }
     }
 
-    double calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 15e-9)
+    double calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 10e-9)
     {
 
         double omega = 2 * M_PI * frequency;
@@ -409,7 +410,7 @@ int main(void)
     Layer l2("bottom",
              CVector(0., 0., 1.),
              CVector(0, 0., 1.),
-             10000e3,
+             1000e3,
              1000e3,
              0.0, 7e-10, demagTensor, dipoleTensor);
 
@@ -433,8 +434,8 @@ int main(void)
     Junction mtj2(
         {l3, l4}, "test.csv");
 
-    double minField = 100.0;
-    double maxField = 350.0;
+    double minField = 000.0;
+    double maxField = 400.0;
     int numPoints = 50;
     double spacing = (maxField - minField) / numPoints;
     std::cout << spacing << std::endl;
@@ -445,8 +446,8 @@ int main(void)
     {
         mtj.setConstantExternalField((field/1000) * TtoAm, xaxis);
         mtj.setLayerAnisotropyUpdate("free", 900, 7e9, 0);
-        // mtj.setLayerAnisotropyUpdate("bottom", 900, 7e9, 0);
-        mtj.runSimulation(20e-9);
+        mtj.setLayerAnisotropyUpdate("bottom", 900, 7e9, 0);
+        mtj.runSimulation(15e-9);
         double res = mtj.calculateVoltageSpinDiode(7e9);
 
         // clear logs
@@ -465,7 +466,7 @@ int main(void)
         mtj2.setConstantExternalField((field/1000) * TtoAm, xaxis);
         mtj2.setLayerIECUpdate("free", 1e-6, 7e9, 0);
         mtj2.setLayerIECUpdate("bottom", 1e-6, 7e9, 0);
-        mtj2.runSimulation(20e-9);
+        mtj2.runSimulation(15e-9);
         double res = mtj2.calculateVoltageSpinDiode(7e9);
 
         // clear logs
