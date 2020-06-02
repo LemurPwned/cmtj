@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <random>
 class CVector
 {
 public:
@@ -17,14 +17,36 @@ public:
         this->x = x;
         this->y = y;
         this->z = z;
-    }; // Constructor
+    } // Constructor
     CVector(const CVector &v)
     {
         this->x = v.x;
         this->y = v.y;
         this->z = v.z;
-    }; // Copy Vector Constructor
-    // ~CVector();
+    } // Copy Vector Constructor
+
+    CVector(std::normal_distribution<double> &distribution, std::default_random_engine &generator)
+    {
+        this->x = distribution(generator);
+        this->y = distribution(generator);
+        this->z = distribution(generator);
+    }
+
+    CVector &operator+=(const CVector &v)
+    {
+        this->x += v.x;
+        this->y += v.y;
+        this->z += v.z;
+        return *this;
+    }
+
+    CVector &operator-=(const CVector &v)
+    {
+        this->x -= v.x;
+        this->y -= v.y;
+        this->z -= v.z;
+        return *this;
+    }
     CVector operator+(CVector v)
     {
         CVector res(
@@ -45,9 +67,7 @@ public:
         return res;
     };
     double dotProduct(CVector &);
-    // CVector operator=(CVector &v){
-    //     return CVector(x + v.x, y+ v.y, z + v.z);
-    // }
+
     void operator=(CVector v)
     {
         x = v.x;
@@ -60,10 +80,8 @@ public:
             (x == v.x) && (y == v.y) && (y == v.z))
             return true;
         return false;
-    }; // Comparison Vector
-    // CVector operator*(CVector &v){
+    };
 
-    // };
     CVector operator*(double val)
     {
         CVector res(
