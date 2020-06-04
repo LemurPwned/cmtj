@@ -12,7 +12,8 @@
 #include <future>
 #include <tuple>
 #include <random>
-
+#include <complex>
+#include <fftw3.h>
 #include "cvector.hpp"
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
@@ -60,6 +61,12 @@ enum Axis
     zaxis
 };
 
+enum ExcitationMode
+{
+    axial,
+    step
+};
+
 std::default_random_engine generator;
 std::normal_distribution<double> distribution(0.0, 1.0);
 class Layer
@@ -81,6 +88,10 @@ public:
     double temperature = 0.0;
     double thickness = 0.0;
     Axis Hax = xaxis;
+
+    double Hstart, Hstop, Hstep = 0.0;
+
+    bool includeSTT = false;
 
     std::vector<CVector> demag_tensor, dipole_tensor;
     Layer(std::string id,
@@ -124,14 +135,31 @@ public:
     CVector updateAxial(double amplitude, double frequency, double time, double phase, Axis axis)
     {
         CVector *result = new CVector();
+        const double updateValue = sinusoidalUpdate(amplitude, frequency, time, phase);
         switch (axis)
         {
         case xaxis:
-            result->x = sinusoidalUpdate(amplitude, frequency, time, phase);
+            result->x = updateValue;
         case yaxis:
-            result->y = sinusoidalUpdate(amplitude, frequency, time, phase);
+            result->y = updateValue;
         case zaxis:
-            result->z = sinusoidalUpdate(amplitude, frequency, time, phase);
+            result->z = updateValue;
+        }
+        return *result;
+    }
+
+    CVector updateAxialStep(double amplitude, double time, double timeStart, double timeStop, Axis axis)
+    {
+        CVector *result = new CVector();
+        const double updateValue = stepUpdate(amplitude, time, timeStart, timeStop);
+        switch (axis)
+        {
+        case xaxis:
+            result->x = updateValue;
+        case yaxis:
+            result->y = updateValue;
+        case zaxis:
+            result->z = updateValue;
         }
         return *result;
     }
@@ -163,7 +191,9 @@ public:
 
     CVector calculateExternalField(double time)
     {
+
         this->H_log = this->Hconst + updateAxial(this->Hvar, this->H_frequency, time, 0, this->Hax);
+        this->H_log += updateAxialStep(this->Hstep, time, this->Hstart, this->Hstop, this->Hax);
         return this->H_log;
     }
 
@@ -181,14 +211,14 @@ public:
         return (coupledMag - this->mag) * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double otherMs, bool includeSTT = false)
+    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double otherMs)
     {
         CVector prod, prod2, dmdt;
         // heff = calculateHeff(time, coupledMag, otherMs);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
         dmdt = prod * -GYRO - prod2 * GYRO * DAMPING;
-        if (includeSTT)
+        if (this->includeSTT)
         {
             CVector prod3;
             // damping-like torque factor
@@ -303,6 +333,15 @@ public:
         l1.J_frequency = frequency;
     }
 
+    void setLayerStepUpdate(std::string layerID, double Hstep, double timeStart, double timeStop, Axis hax)
+    {
+        Layer &l1 = findLayerByID(layerID);
+        l1.Hax = hax;
+        l1.Hstep = Hstep;
+        l1.Hstart = timeStart;
+        l1.Hstop = timeStop;
+    }
+
     void setLayerCoupling(std::string layerID, double J)
     {
         bool found = false;
@@ -343,8 +382,8 @@ public:
         {
             this->log["L1m" + vectorNames[i]].push_back(this->layers[0].mag[i]);
             this->log["L2m" + vectorNames[i]].push_back(this->layers[1].mag[i]);
-            this->log["L1Hext" + vectorNames[i]].push_back(this->layers[0].Hconst[i]);
-            this->log["L2Hext" + vectorNames[i]].push_back(this->layers[1].Hconst[i]);
+            this->log["L1Hext" + vectorNames[i]].push_back(this->layers[0].H_log[i]);
+            this->log["L2Hext" + vectorNames[i]].push_back(this->layers[1].H_log[i]);
         }
         this->log["L1K"].push_back(this->layers[0].K_log);
         this->log["L2K"].push_back(this->layers[1].K_log);
@@ -354,7 +393,7 @@ public:
         this->logLength++;
     }
 
-    void saveLogs(bool saveToFile)
+    void saveLogs()
     {
         std::ofstream logFile;
         logFile.open(this->fileSave);
@@ -404,6 +443,75 @@ public:
         return Vmix;
     }
 
+    void calculateFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
+    {
+        std::cout << "FFT calculation" << std::endl;
+        auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
+                               [&minTime](const auto &value) { return value >= minTime; });
+        // turn into index
+        const int thresIdx = (int)(this->log["time"].end() - it);
+        const int cutSize = this->log["time"].size() - thresIdx;
+
+        std::cout << "Initiating FFT plan execution " << std::endl;
+
+        // plan creation is not thread safe
+        const double normalizer = timeStep * cutSize;
+        const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
+        std::cout << maxIt << "," << cutSize << std::endl;
+        std::vector<double> frequencySteps(maxIt);
+        frequencySteps[0] = 0;
+        for (int i = 1; i <= maxIt; i++)
+        {
+            frequencySteps[i - 1] = (i - 1) / normalizer;
+        }
+
+        for (const auto &magTag : this->vectorNames)
+        {
+            std::cout << "Doing FFT for: " << magTag << std::endl;
+            std::vector<double> cutMag(this->log["L1m" + magTag].begin() + thresIdx, this->log["L1m" + magTag].end());
+            std::cout << "Sub size: " << cutMag.size() << std::endl;
+            fftw_complex out[cutMag.size()];
+            // define FFT plan
+            fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
+                                                  cutMag.data(),
+                                                  out,
+                                                  FFTW_ESTIMATE);
+            if (plan == NULL)
+            {
+                std::cout << " PLAN IS NULL " << std::endl;
+            }
+
+            fftw_execute(plan);
+            std::vector<double> amplitudes, phases;
+
+            const int outBins = (cutMag.size() + 1) / 2;
+            amplitudes.reserve(outBins);
+            phases.reserve(outBins);
+
+            double maxAmpl = 0.0;
+            double maxFreq = 0.0;
+
+            amplitudes[0] = out[0][0];
+            phases[0] = 0;
+            for (int i = 1; i < outBins; i++)
+            {
+                const auto tandem = out[i];
+                const double real = tandem[0];
+                const double img = tandem[1];
+                const double ampl = sqrt(pow(real, 2) + pow(img, 2));
+                phases[i] = tan(img / real);
+                amplitudes[i] = ampl;
+                if (ampl >= maxAmpl)
+                {
+                    maxAmpl = ampl;
+                    maxFreq = frequencySteps[i];
+                }
+            }
+            std::cout << "Max frequency for the system is " << maxFreq << " with " << maxAmpl << std::endl;
+            fftw_destroy_plan(plan);
+        }
+    }
+
     void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false)
     {
 
@@ -431,6 +539,8 @@ public:
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        if (persist)
+            saveLogs();
         if (log)
             std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
     }
@@ -523,7 +633,7 @@ int main(void)
              dipoleTensor);
 
     Junction mtj(
-        {l1, l2}, "test.csv");
+        {l1, l2}, "test2.csv");
 
     double minField = 000.0;
     double maxField = 400.0;
@@ -532,7 +642,12 @@ int main(void)
     std::cout << spacing << std::endl;
     std::ofstream vsdFile;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    threadedSimulation(mtj, minField, maxField, numPoints, vsdFile);
+    // threadedSimulation(mtj, minField, maxField, numPoints, vsdFile);
+    mtj.setConstantExternalField(0.25 * TtoAm, xaxis);
+    mtj.setLayerStepUpdate("free", 10e-3 * TtoAm, 5e-9, 5.01e-9, xaxis);
+    mtj.setLayerStepUpdate("bottom", 10e-3 * TtoAm, 5e-9, 5.01e-9, xaxis);
+    mtj.runSimulation(20e-9, 1e-13, true);
+    mtj.calculateFFT(10e-9, 1e-11);
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
 
