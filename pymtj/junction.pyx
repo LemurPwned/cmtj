@@ -113,9 +113,9 @@ class Layer:
         anis = self.calculate_anisotropy(m)
         iec = self.calculate_interlayer_exchange_coupling_field(
             m, coupled_layers)
-        ti_demag = calculate_tensor_interaction(m, 
+        ti_demag = calculate_tensor_interaction(coupled_layers, 
                                                 self.demagnetisation_tensor,
-                                                Ms)
+                                                self.Ms)
         ti_dip = calculate_tensor_interaction(m, self.dipole_tensor, self.Ms)
 
         heff = [

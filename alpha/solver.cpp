@@ -77,19 +77,19 @@ private:
 public:
     std::string id;
 
-    CVector H_log, Hconst, anis, mag = {0., 0., 0.};
+    CVector H_log, Hconst, anis, mag;
 
-    double K, J, Ms = 0.0;
+    double K = 0.0, J = 0.0, Ms = 0.0;
     double Kvar, Jvar, Hvar = 0.0;
-    double K_frequency, J_frequency, H_frequency = 0.0;
-    double J_log, K_log = 0.0;
+    double K_frequency = 0.0, J_frequency = 0.0, H_frequency = 0.0;
+    double J_log = 0.0, K_log = 0.0;
 
     // resting temperature in Kelvin
     double temperature = 0.0;
     double thickness = 0.0;
     Axis Hax = xaxis;
 
-    double Hstart, Hstop, Hstep = 0.0;
+    double Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
 
     bool includeSTT = false;
 
@@ -164,7 +164,7 @@ public:
         return *result;
     }
 
-    CVector calculateHeff(double time, double timeStep, CVector otherMag, double otherMs)
+    CVector calculateHeff(double time, double timeStep, CVector otherMag)
     {
         CVector Heff = {0., 0., 0.};
 
@@ -211,7 +211,7 @@ public:
         return (coupledMag - this->mag) * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double otherMs)
+    CVector llg(double time, CVector m, CVector coupledMag, CVector heff)
     {
         CVector prod, prod2, dmdt;
         // heff = calculateHeff(time, coupledMag, otherMs);
@@ -248,15 +248,15 @@ public:
         this->K = amplitude;
     }
 
-    void rk4_step(double time, double timeStep, CVector coupledMag, double otherMs)
+    void rk4_step(double time, double timeStep, CVector coupledMag)
     {
         CVector k1, k2, k3, k4, m_t, heff;
         m_t = mag;
-        heff = calculateHeff(time, timeStep, coupledMag, otherMs);
-        k1 = llg(time, m_t, coupledMag, heff, otherMs) * timeStep;
-        k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff, otherMs) * timeStep;
-        k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff, otherMs) * timeStep;
-        k4 = llg(time + timeStep, m_t + k3, coupledMag, heff, otherMs) * timeStep;
+        heff = calculateHeff(time, timeStep, coupledMag);
+        k1 = llg(time, m_t, coupledMag, heff) * timeStep;
+        k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff) * timeStep;
+        k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff) * timeStep;
+        k4 = llg(time + timeStep, m_t + k3, coupledMag, heff) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         mag = m_t;
@@ -414,7 +414,6 @@ public:
 
     double calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 10e-9)
     {
-
         const double omega = 2 * M_PI * frequency;
         const std::string res = "R_free_bottom";
         std::vector<double> &resistance = this->log[res];
@@ -439,7 +438,6 @@ public:
             voltage.push_back(resistance[thresIdx + i] * current[i]);
         }
         const double Vmix = std::accumulate(voltage.begin(), voltage.end(), 0.0) / voltage.size();
-        // std::cout << "Rpp: " << RppMax - RppMin << ", meanR: " << avgR << ", VSD: " << Vmix << std::endl;
         return Vmix;
     }
 
@@ -478,7 +476,7 @@ public:
                                                   FFTW_ESTIMATE);
             if (plan == NULL)
             {
-                std::cout << " PLAN IS NULL " << std::endl;
+                throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
             }
 
             fftw_execute(plan);
@@ -528,9 +526,9 @@ public:
             CVector l1mag = this->layers[0].mag;
             CVector l2mag = this->layers[1].mag;
             layers[0].rk4_step(
-                t, timeStep, l2mag, layers[1].Ms);
+                t, timeStep, l2mag);
             layers[1].rk4_step(
-                t, timeStep, l1mag, layers[0].Ms);
+                t, timeStep, l1mag);
 
             if (!(i % writeEvery))
             {
@@ -546,6 +544,7 @@ public:
     }
 };
 
+
 void threadedSimulation(Junction cjx, double minField, double maxField, int numberOfPoints, std::ofstream &vsdFile)
 {
     const int threadNum = std::thread::hardware_concurrency() - 2;
@@ -554,7 +553,6 @@ void threadedSimulation(Junction cjx, double minField, double maxField, int numb
 
     const int pointsPerThread = numberOfPoints / threadNum + 1;
     const double spacing = (maxField - minField) / numberOfPoints;
-    // std::cout << "Spacing " << spacing << std::endl;
     for (int i = 0; i < threadNum; i++)
     {
         const double threadMinField = pointsPerThread * i * spacing;
@@ -579,22 +577,13 @@ void threadedSimulation(Junction cjx, double minField, double maxField, int numb
         }));
     }
 
-    // std::vector<std::vector<std::tuple<double, double>>> receivedResults{};
-    // std::transform(std::make_move_iterator(threadResults.begin()), std::make_move_iterator(threadResults.end()),
-    //                std::back_inserter(receivedResults),
-    //                [](std::future<std::vector<std::tuple<double, double>>> futs) { return futs.get(); });
     vsdFile.open("VSD-anisotropy.csv");
     vsdFile << "H;Vmix\n";
-    // std::for_each(threadResults.begin(), threadResults.end(),
-    //               [&vsdFile](std::shared_future<std::vector<std::tuple<double, double>>> &result) {
     for (auto &result : threadResults)
     {
-        const auto r = result.get();
-        // std::cout << r.size() << std::endl;
-        for (const auto &tup : r)
+        for (const auto [field, vsdVal] : result.get())
         {
-            // std::cout << "Field:" << std::get<0>(tup) << ", Vmix:" << std::get<1>(tup) << std::endl;
-            vsdFile << std::get<0>(tup) << ";" << std::get<1>(tup) << "\n";
+            vsdFile << field << ";" << vsdVal << "\n";
         }
     };
 }
@@ -651,43 +640,5 @@ int main(void)
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
 
-    // begin = std::chrono::steady_clock::now();
-    // vsdFile.open("VSD-anisotropy.csv");
-    // vsdFile << "H;Vmix\n";
-    // for (double field = minField; field <= maxField; field += spacing)
-    // {
-    //     mtj.setConstantExternalField((field / 1000) * TtoAm, xaxis);
-    //     mtj.setLayerAnisotropyUpdate("free", 12000, 7e9, 0);
-    //     mtj.setLayerAnisotropyUpdate("free", 12000, 7e9, 0);
-    //     // mtj.setLayerAnisotropyUpdate("bottom", 9000, 7e9, 0);
-    //     mtj.runSimulation(15e-9);
-    //     double res = mtj.calculateVoltageSpinDiode(7e9);
-
-    //     // clear logs
-    //     mtj.log.clear();
-    //     vsdFile << field << ";" << res << "\n";
-    // }
-    // vsdFile.close();
-    // end = std::chrono::steady_clock::now();
-    // std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
-
-    // std::ofstream vsdFile2;
-    // std::cout << "Finished ANIS\n"
-    //           << std::endl;
-    // vsdFile2.open("VSD-IEC.csv");
-    // vsdFile2 << "H;Vmix\n";
-    // for (double field = minField; field <= maxField; field += spacing)
-    // {
-    //     mtj2.setConstantExternalField((field / 1000) * TtoAm, xaxis);
-    //     mtj2.setLayerIECUpdate("free", 8e-7, 7e9, 0);
-    //     mtj2.setLayerIECUpdate("bottom", 8e-7, 7e9, 0);
-    //     mtj2.runSimulation(15e-9);
-    //     double res = mtj2.calculateVoltageSpinDiode(7e9);
-
-    //     // clear logs
-    //     mtj2.log.clear();
-    //     vsdFile2 << field << ";" << res << "\n";
-    // }
-    // vsdFile2.close();
     return 0;
 }
