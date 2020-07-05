@@ -112,7 +112,7 @@ public:
 
     bool includeSTT = false;
 
-    std::vector<CVector> demag_tensor, dipole_tensor;
+    std::vector<CVector> demagTensor, dipoleTensor;
     Layer(std::string id,
           CVector mag,
           CVector anis,
@@ -121,14 +121,19 @@ public:
           double J,
           double thickness,
           double cellSurface,
-          std::vector<CVector> demag_tensor,
-          std::vector<CVector> dipole_tensor, double temperature = 0.0) : id(id),
-                                                                          mag(mag), anis(anis), K(K), Ms(Ms), J(J),
-                                                                          thickness(thickness),
-                                                                          cellSurface(cellSurface),
-                                                                          demag_tensor(demag_tensor),
-                                                                          dipole_tensor(dipole_tensor),
-                                                                          temperature(temperature)
+          std::vector<CVector> demagTensor,
+          std::vector<CVector> dipoleTensor,
+          double temperature = 0.0) : id(id),
+                                      mag(mag),
+                                      anis(anis),
+                                      K(K),
+                                      Ms(Ms),
+                                      J(J),
+                                      thickness(thickness),
+                                      cellSurface(cellSurface),
+                                      demagTensor(demagTensor),
+                                      dipoleTensor(dipoleTensor),
+                                      temperature(temperature)
 
     {
         this->cellVolume = this->cellSurface * this->thickness;
@@ -192,9 +197,9 @@ public:
                calculateIEC(time, otherMag) +
                // demag
                // check the interaction here to be sure
-               calculate_tensor_interaction(otherMag, this->demag_tensor, this->Ms) +
+               calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms) +
                // dipole
-               calculate_tensor_interaction(this->mag, this->dipole_tensor, this->Ms) +
+               calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms) +
                calculateStochasticThermalField(timeStep);
 
         return Heff;
@@ -299,6 +304,16 @@ public:
         this->Rp = Rp;
         this->Rap = Rap;
         this->fileSave = filename;
+    }
+
+    void clearLog()
+    {
+        this->log.clear();
+    }
+
+    std::map<std::string, std::vector<double>> getLog()
+    {
+        return this->log;
     }
 
     Layer &findLayerByID(std::string lID)

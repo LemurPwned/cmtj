@@ -1,3 +1,5 @@
+#ifndef CVECTOR_H
+#define CVECTOR_H 
 #include <stdio.h>
 #include <random>
 class CVector
@@ -132,3 +134,5 @@ public:
         this->z = vz;
     }
 };
+
+#endif

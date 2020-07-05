@@ -28,6 +28,25 @@
 #define B1 0.5
 #define B2 0.3
 
+double operator"" _ns(unsigned long long timeUnit)
+{
+    return ((double)timeUnit) / 1e9;
+}
+double operator"" _ns(long double timeUnit)
+{
+    return ((double)timeUnit) / 1e9;
+}
+
+double operator"" _mT(unsigned long long tesla)
+{
+    return ((double)tesla) / 1000.0;
+}
+
+double operator"" _mT(long double tesla)
+{
+    return ((double)tesla) / 1000.0;
+}
+
 CVector calculate_tensor_interaction(CVector m,
                                      std::vector<CVector> tensor,
                                      double Ms)
@@ -410,6 +429,7 @@ public:
             }
             logFile << "\n";
         }
+        logFile.close();
     }
 
     double calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 10e-9)
@@ -441,7 +461,7 @@ public:
         return Vmix;
     }
 
-    void calculateFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
+    std::map<std::string, std::vector<double>> calculateFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
     {
         std::cout << "FFT calculation" << std::endl;
         auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
@@ -463,6 +483,7 @@ public:
             frequencySteps[i - 1] = (i - 1) / normalizer;
         }
 
+        std::map<std::string, std::vector<double>> result;
         for (const auto &magTag : this->vectorNames)
         {
             std::cout << "Doing FFT for: " << magTag << std::endl;
@@ -507,7 +528,10 @@ public:
             }
             std::cout << "Max frequency for the system is " << maxFreq << " with " << maxAmpl << std::endl;
             fftw_destroy_plan(plan);
+            result[magTag + "_amplitude"] = amplitudes;
+            result[magTag + "_phase"] = phases;
         }
+        return result;
     }
 
     void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false)
@@ -544,6 +568,30 @@ public:
     }
 };
 
+void customResultMap(std::map<std::string, std::vector<double>> resultMap, std::string filename)
+{
+
+    std::ofstream saveFile;
+
+    saveFile.open(filename);
+    int logLength = 0;
+    for (const auto [key, _] : resultMap)
+    {
+        if (!logLength)
+            logLength = resultMap[key].size();
+        saveFile << key << ";";
+    }
+    saveFile << "\n";
+    for (unsigned int i = 0; i < logLength; i++)
+    {
+        for (const auto [_, value] : resultMap)
+        {
+            saveFile << value[i] << ";";
+        }
+        saveFile << "\n";
+    }
+    saveFile.close();
+}
 
 void threadedSimulation(Junction cjx, double minField, double maxField, int numberOfPoints, std::ofstream &vsdFile)
 {
@@ -577,7 +625,43 @@ void threadedSimulation(Junction cjx, double minField, double maxField, int numb
         }));
     }
 
-    vsdFile.open("VSD-anisotropy.csv");
+    vsdFile << "H;Vmix\n";
+    for (auto &result : threadResults)
+    {
+        for (const auto [field, vsdVal] : result.get())
+        {
+            vsdFile << field << ";" << vsdVal << "\n";
+        }
+    };
+}
+
+void threadedSimulation2(Junction mtj, double minField, double maxField, int numberOfPoints, std::ofstream &vsdFile,
+                         std::tuple<double, double> runnableFunction(Junction mtj, double scanningParam))
+{
+    const int threadNum = std::thread::hardware_concurrency() - 2;
+    std::vector<std::future<std::vector<std::tuple<double, double>>>> threadResults;
+    threadResults.reserve(threadNum);
+
+    const int pointsPerThread = numberOfPoints / threadNum + 1;
+    const double spacing = (maxField - minField) / numberOfPoints;
+    for (int i = 0; i < threadNum; i++)
+    {
+        const double threadMinField = pointsPerThread * i * spacing;
+        const double threadMaxField = pointsPerThread * (i + 1) * spacing;
+        threadResults.emplace_back(std::async([mtj, runnableFunction, threadMinField, threadMaxField, spacing]() mutable {
+            std::vector<std::tuple<double, double>>
+                resAcc;
+            for (double field = threadMinField; field <= threadMaxField;
+                 field += spacing)
+            {
+                auto subRes = runnableFunction(mtj, field);
+                resAcc.push_back(subRes);
+            }
+            return resAcc;
+        }));
+    }
+
+    // vsdFile.open("VSD-anisotropy.csv");
     vsdFile << "H;Vmix\n";
     for (auto &result : threadResults)
     {
@@ -631,12 +715,27 @@ int main(void)
     std::cout << spacing << std::endl;
     std::ofstream vsdFile;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    // threadedSimulation(mtj, minField, maxField, numPoints, vsdFile);
-    mtj.setConstantExternalField(0.25 * TtoAm, xaxis);
-    mtj.setLayerStepUpdate("free", 10e-3 * TtoAm, 5e-9, 5.01e-9, xaxis);
-    mtj.setLayerStepUpdate("bottom", 10e-3 * TtoAm, 5e-9, 5.01e-9, xaxis);
-    mtj.runSimulation(20e-9, 1e-13, true);
-    mtj.calculateFFT(10e-9, 1e-11);
+    vsdFile.open("VSD-IEC.csv");
+    threadedSimulation(mtj, minField, maxField, numPoints, vsdFile);
+    vsdFile.close();
+    vsdFile.open("VSD-anisotropy.csv");
+    threadedSimulation2(mtj, minField, maxField, numPoints, vsdFile,
+                        [](Junction mtj, double field) mutable {
+                            const double freq = 7e9;
+                            mtj.setConstantExternalField((field / 1000) * TtoAm, xaxis);
+                            mtj.setLayerAnisotropyUpdate("free", 12000, freq, 0);
+                            mtj.setLayerAnisotropyUpdate("bottom", 12000, freq, 0);
+                            mtj.runSimulation(20e-9);
+                            const auto vsd = mtj.calculateVoltageSpinDiode(freq);
+                            mtj.log.clear();
+                            return std::tuple<double, double>{field, vsd};
+                        });
+    vsdFile.close();
+    // mtj.setConstantExternalField(250_mT * TtoAm, xaxis);
+    // mtj.setLayerStepUpdate("free", 10e-3 * TtoAm, 5_ns, 5.01_ns, xaxis);
+    // mtj.setLayerStepUpdate("bottom", 10e-3 * TtoAm, 5_ns, 5.01_ns, xaxis);
+    // mtj.runSimulation(20_ns, 1e-13, true);
+    // mtj.calculateFFT(10_ns, 1e-11);
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
 
