@@ -1,3 +1,6 @@
+#ifndef JUNCTION_H
+#define JUNCTION_H
+
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -8,12 +11,11 @@
 #include <string>
 #include <chrono>
 #include <numeric>
-#include <thread>
-#include <future>
 #include <tuple>
 #include <random>
 #include <complex>
 #include <fftw3.h>
+
 #include "cvector.hpp"
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
@@ -78,12 +80,6 @@ enum Axis
     xaxis,
     yaxis,
     zaxis
-};
-
-enum ExcitationMode
-{
-    axial,
-    step
 };
 
 std::default_random_engine generator;
@@ -449,6 +445,10 @@ public:
 
     std::map<std::string, double> calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 10e-9)
     {
+        if (this->log.empty())
+        {
+            std::runtime_error("Empty log! Cannot proceed without running a simulation!");
+        }
         const double omega = 2 * M_PI * frequency;
         const std::string res = "R_free_bottom";
         std::vector<double> &resistance = this->log[res];
@@ -480,6 +480,11 @@ public:
     std::map<std::string, double>
     calculateFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
     {
+
+        if (this->log.empty())
+        {
+            std::runtime_error("Empty log! Cannot proceed without running a simulation!");
+        }
         // std::cout << "FFT calculation" << std::endl;
         auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
                                [&minTime](const auto &value) { return value >= minTime; });
@@ -588,3 +593,5 @@ public:
             std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
     }
 };
+
+#endif
