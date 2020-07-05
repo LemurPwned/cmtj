@@ -50,7 +50,7 @@ def step_field(time, step_start=5e-9, step_stop=5.001e-9):
 
 
 def get_resonance_frequency(junction: Junction):
-    # junction.set_global_field_function(step_field)
+    junction.set_global_field_function(step_field)
     junction.set_junction_global_external_field(250e-3 * constant.TtoAm,
                                                 axis='x')
     junction.run_simulation(15e-9)
