@@ -1,4 +1,3 @@
-
 #ifndef PARALLEL_H
 #define PARALLEL_H
 
@@ -45,15 +44,21 @@ public:
         saveFile.close();
     }
 
-    static std::map<std::string, std::vector<double>> parallelFieldScan(Junction mtj, double minField, double maxField,
+    static std::map<std::string, std::vector<double>> parallelFieldScan(Junction &mtj, double minField, double maxField,
                                                                         int numberOfPoints,
+                                                                        int threadNumber,
                                                                         const std::function<fnRes(Junction &mtj, const double scanningParam)>
                                                                             runnableFunction)
     {
-        const int threadNum = std::thread::hardware_concurrency() - 2;
+ 
+        int threadNum = std::thread::hardware_concurrency();
+        if (threadNumber > 0)
+        {
+            threadNum = threadNumber <= threadNum ? threadNumber : threadNum;
+        }
         std::vector<std::future<std::vector<fnRes>>> threadResults;
         threadResults.reserve(threadNum);
-
+        std::cout << "Using: " << threadNum << " threads." << std::endl;
         const int pointsPerThread = (numberOfPoints / threadNum) + 1;
         const double spacing = (maxField - minField) / numberOfPoints;
         for (int i = 0; i < threadNum; i++)

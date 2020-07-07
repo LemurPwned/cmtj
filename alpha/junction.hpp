@@ -447,7 +447,7 @@ public:
     {
         if (this->log.empty())
         {
-            std::runtime_error("Empty log! Cannot proceed without running a simulation!");
+            throw std::runtime_error("Empty log! Cannot proceed without running a simulation!");
         }
         const double omega = 2 * M_PI * frequency;
         const std::string res = "R_free_bottom";
@@ -483,7 +483,7 @@ public:
 
         if (this->log.empty())
         {
-            std::runtime_error("Empty log! Cannot proceed without running a simulation!");
+            throw std::runtime_error("Empty log! Cannot proceed without running a simulation!");
         }
         // std::cout << "FFT calculation" << std::endl;
         auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
@@ -519,7 +519,6 @@ public:
                                                   FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
             if (plan == NULL)
             {
-
                 throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
             }
             fftw_execute(plan);
