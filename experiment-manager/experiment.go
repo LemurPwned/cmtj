@@ -10,35 +10,31 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/spf13/viper" viper
 )
 
-// Experiment defines an experiment structure
-type Experiment struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Date string `json:"date"`
-	// key value parameters
-	Parmeters   map[string]interface{} `json:"parameters"`
-	Metrics     map[string][]float32   `json:"metrics"`
-	Successfull bool                   `json:"successful"`
+
+
+func setupConfig(){ 
+	viper.SetConfigName("config") // name of config file (without extension)
+	viper.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
+
+
+	viper.AddConfigPath(".")               // optionally look for config in the working directory
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil { // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
 }
 
-// ExperimentSlice holds lists of experiments
-type ExperimentSlice struct {
-	Experiments     []Experiment `json:"experiments"`
-	ExperimentCount int          `json:"experimentCount"`
-}
 
 // experiments holds the list of all experiments
 var experiments ExperimentSlice
-
 const maxSaves = 2
-
 var saveQueue = make(chan string, maxSaves+1)
-
-const saveDir = "./snapshots"
-
-const savingInterval = time.Minute
+const saveDir = viper.Get("server.saveDirectory");
+const savingInterval = time.Second * viper.Get("server.snapshotInterval")
+const serverPort = viper.Get("server.Port")
 
 func periodicSave() {
 	ticker := time.NewTicker(1 * savingInterval)
