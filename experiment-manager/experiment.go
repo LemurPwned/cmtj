@@ -10,31 +10,30 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/spf13/viper" viper
+	"github.com/spf13/viper"
 )
-
-
-
-func setupConfig(){ 
-	viper.SetConfigName("config") // name of config file (without extension)
-	viper.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
-
-
-	viper.AddConfigPath(".")               // optionally look for config in the working directory
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil { // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
-}
-
 
 // experiments holds the list of all experiments
 var experiments ExperimentSlice
+
 const maxSaves = 2
+
 var saveQueue = make(chan string, maxSaves+1)
-const saveDir = viper.Get("server.saveDirectory");
-const savingInterval = time.Second * viper.Get("server.snapshotInterval")
-const serverPort = viper.Get("server.Port")
+
+func setupConfig() {
+	viper.SetConfigName("config") // name of config file (without extension)
+	viper.SetConfigType("yaml")   // REQUIRED if the config file does not have the extension in the name
+
+	viper.AddConfigPath(".")    // optionally look for config in the working directory
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s", err))
+	}
+}
+
+var saveDir string
+var savingInterval time.Duration
+var serverPort string
 
 func periodicSave() {
 	ticker := time.NewTicker(1 * savingInterval)
@@ -196,16 +195,23 @@ func handleListExperiments(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	setupConfig()
 
-	loadExperimentsFromFile()
-	go periodicSave()
+	saveDir = viper.GetString("server.saveDirectory")
+	savingInterval = (time.Duration(viper.GetInt64("server.snapShotInterVal")) * time.Second)
+	serverPort = viper.GetString("server.Port")
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/experiment", handleExperimentSubmission)
-	mux.HandleFunc("/experiments", handleListExperiments)
-	mux.HandleFunc("/delete", handleDeleteExperiment)
+	connectMongo()
 
-	log.Println("Starting server on :4000...")
-	err := http.ListenAndServe(":4000", mux)
-	log.Fatal(err)
+	// loadExperimentsFromFile()
+	// go periodicSave()
+
+	// mux := http.NewServeMux()
+	// mux.HandleFunc("/experiment", handleExperimentSubmission)
+	// mux.HandleFunc("/experiments", handleListExperiments)
+	// mux.HandleFunc("/delete", handleDeleteExperiment)
+
+	// log.Println("Starting server on :4000...")
+	// err := http.ListenAndServe(":"+serverPort, mux)
+	// log.Fatal(err)
 }
