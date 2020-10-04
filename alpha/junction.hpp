@@ -20,15 +20,10 @@
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
 #define GYRO 221000.0
-#define DAMPING 0.011
 #define TtoAm 795774.715459
 #define HBAR 6.62607015e-34 / (2 * M_PI)
 #define ELECTRON_CHARGE 1.60217662e-19
 #define BOLTZMANN_CONST 1.380649e-23
-#define SPIN_POLARISATION_EFF 0.8
-#define CURRENT_DENSITY 1
-#define B1 0.5
-#define B2 0.3
 
 double operator"" _ns(unsigned long long timeUnit)
 {
@@ -108,7 +103,15 @@ public:
 
     bool includeSTT = false;
 
-    std::vector<CVector> demagTensor, dipoleTensor;
+    // LLG params
+    double B1 = 0.5, B2 = 0.3;
+    double spinPolarisationEff = 0.8;
+    double currentDensity = 1;
+    double damping = 0.11;
+
+    std::vector<CVector>
+        demagTensor,
+        dipoleTensor;
     Layer(std::string id,
           CVector mag,
           CVector anis,
@@ -119,18 +122,28 @@ public:
           double cellSurface,
           std::vector<CVector> demagTensor,
           std::vector<CVector> dipoleTensor,
-          double temperature = 0.0) : id(id),
-                                      mag(mag),
-                                      anis(anis),
-                                      K(K),
-                                      Ms(Ms),
-                                      J(J),
-                                      thickness(thickness),
-                                      cellSurface(cellSurface),
-                                      demagTensor(demagTensor),
-                                      dipoleTensor(dipoleTensor),
-                                      temperature(temperature)
-
+          double temperature = 0.0,
+          bool includeSTT = false,
+          double damping = 0.011,
+          double currentDensity = 1.,
+          double B1 = 0.5,
+          double B2 = 0.3,
+          double spinPolarisationEff = 0.8) : id(id),
+                                       mag(mag),
+                                       anis(anis),
+                                       K(K),
+                                       Ms(Ms),
+                                       J(J),
+                                       thickness(thickness),
+                                       cellSurface(cellSurface),
+                                       demagTensor(demagTensor),
+                                       dipoleTensor(dipoleTensor),
+                                       temperature(temperature),
+                                       includeSTT(includeSTT),
+                                       damping(damping),
+                                       currentDensity(currentDensity),
+                                       B1(B1), B2(B2),
+                                       spinPolarisationEff(spinPolarisationEff)
     {
         this->cellVolume = this->cellSurface * this->thickness;
     }
@@ -203,8 +216,9 @@ public:
 
     CVector calculateStochasticThermalField(double timeStep)
     {
+        // becomes zero if the temperature is 0
         CVector res(distribution, generator);
-        const double nom = sqrt((2 * DAMPING * BOLTZMANN_CONST * this->temperature) /
+        const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
                                 (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
         return res * nom;
     }
@@ -237,15 +251,15 @@ public:
         // heff = calculateHeff(time, coupledMag, otherMs);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
-        dmdt = prod * -GYRO - prod2 * GYRO * DAMPING;
+        dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
         if (this->includeSTT)
         {
             CVector prod3;
             // damping-like torque factor
-            const double aJ = HBAR * SPIN_POLARISATION_EFF * CURRENT_DENSITY /
+            const double aJ = HBAR * this->spinPolarisationEff * this->currentDensity /
                               (2 * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
-            const double bJ = B1 * CURRENT_DENSITY + B2 * CURRENT_DENSITY * CURRENT_DENSITY;
+            const double bJ = this->B1 * this->currentDensity + this->B2 * this->currentDensity * this->currentDensity;
 
             prod3 = c_cross(m, coupledMag);
             dmdt += c_cross(m, prod3) * GYRO * aJ;
