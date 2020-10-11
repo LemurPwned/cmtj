@@ -104,10 +104,11 @@ public:
     bool includeSTT = false;
 
     // LLG params
-    double B1 = 0.5, B2 = 0.3;
-    double spinPolarisationEff = 0.8;
+    double SlonczewskiSpacerLayerParameter = 1.0;
+    double spinPolarisation = 0.8;
     double currentDensity = 1;
     double damping = 0.11;
+    double beta = 0.0; // usually either set to 0 or to damping
 
     std::vector<CVector>
         demagTensor,
@@ -126,24 +127,25 @@ public:
           bool includeSTT = false,
           double damping = 0.011,
           double currentDensity = 1.,
-          double B1 = 0.5,
-          double B2 = 0.3,
-          double spinPolarisationEff = 0.8) : id(id),
-                                       mag(mag),
-                                       anis(anis),
-                                       K(K),
-                                       Ms(Ms),
-                                       J(J),
-                                       thickness(thickness),
-                                       cellSurface(cellSurface),
-                                       demagTensor(demagTensor),
-                                       dipoleTensor(dipoleTensor),
-                                       temperature(temperature),
-                                       includeSTT(includeSTT),
-                                       damping(damping),
-                                       currentDensity(currentDensity),
-                                       B1(B1), B2(B2),
-                                       spinPolarisationEff(spinPolarisationEff)
+          double SlonczewskiSpacerLayerParameter = 1.0,
+          double beta = 0.0,
+          double spinPolarisation = 0.8) : id(id),
+                                           mag(mag),
+                                           anis(anis),
+                                           K(K),
+                                           Ms(Ms),
+                                           J(J),
+                                           thickness(thickness),
+                                           cellSurface(cellSurface),
+                                           demagTensor(demagTensor),
+                                           dipoleTensor(dipoleTensor),
+                                           temperature(temperature),
+                                           includeSTT(includeSTT),
+                                           damping(damping),
+                                           currentDensity(currentDensity),
+                                           SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
+                                           spinPolarisation(spinPolarisation),
+                                           beta(beta)
     {
         this->cellVolume = this->cellSurface * this->thickness;
     }
@@ -209,6 +211,7 @@ public:
                calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms) +
                // dipole
                calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms) +
+               // stochastic field dependent on the temperature
                calculateStochasticThermalField(timeStep);
 
         return Heff;
@@ -254,16 +257,22 @@ public:
         dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
         if (this->includeSTT)
         {
+
+            // we will use coupledMag as the reference layer
             CVector prod3;
-            // damping-like torque factor
-            const double aJ = HBAR * this->spinPolarisationEff * this->currentDensity /
+            // // damping-like torque factor
+            const double aJ = HBAR * this->currentDensity /
                               (2 * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
-            const double bJ = this->B1 * this->currentDensity + this->B2 * this->currentDensity * this->currentDensity;
+            const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
+            double eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot(m, coupledMag));
 
+            double sttTerm = aJ * eta;
             prod3 = c_cross(m, coupledMag);
-            dmdt += c_cross(m, prod3) * GYRO * aJ;
-            dmdt += prod3 * GYRO * bJ;
+            // first term is "damping-like torque"
+            // second term is "field-like torqe"
+            dmdt += c_cross(m, prod3) * GYRO * sttTerm + prod3 * sttTerm * this->beta * GYRO;
+            // dmdt += prod3 * GYRO * bJ;
         }
         return dmdt;
     }
