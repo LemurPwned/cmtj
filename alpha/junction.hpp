@@ -251,28 +251,27 @@ public:
     CVector llg(double time, CVector m, CVector coupledMag, CVector heff)
     {
         CVector prod, prod2, dmdt;
-        // heff = calculateHeff(time, coupledMag, otherMs);
+        // heff = calculateHeff(time, 1e-13, coupledMag);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
         dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
         if (this->includeSTT)
         {
-
             // we will use coupledMag as the reference layer
             CVector prod3;
-            // // damping-like torque factor
+            // damping-like torque factor
             const double aJ = HBAR * this->currentDensity /
-                              (2 * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
+                              (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
-            double eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot(m, coupledMag));
+            // field like
+            const double eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot(m, coupledMag));
+            const double sttTerm = GYRO * aJ * eta;
 
-            double sttTerm = aJ * eta;
             prod3 = c_cross(m, coupledMag);
             // first term is "damping-like torque"
-            // second term is "field-like torqe"
-            dmdt += c_cross(m, prod3) * GYRO * sttTerm + prod3 * sttTerm * this->beta * GYRO;
-            // dmdt += prod3 * GYRO * bJ;
+            // second term is "field-like torque"
+            dmdt += c_cross(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
         }
         return dmdt;
     }
@@ -349,7 +348,7 @@ public:
 
     double calculateMagnetoresistance(double cosTheta)
     {
-        return this->Rp + (((this->Rp + this->Rap) / 2.0) * (1.0 - cosTheta));
+        return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
     void setConstantExternalField(double Hval, Axis axis)
