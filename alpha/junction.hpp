@@ -21,7 +21,7 @@
 #define MAGNETIC_PERMEABILITY 12.57e-7
 #define GYRO 221000.0
 #define TtoAm 795774.715459
-#define HBAR 6.62607015e-34 / (2 * M_PI)
+#define HBAR 6.62607015e-34 / (2. * M_PI)
 #define ELECTRON_CHARGE 1.60217662e-19
 #define BOLTZMANN_CONST 1.380649e-23
 
@@ -106,7 +106,9 @@ public:
     // LLG params
     double SlonczewskiSpacerLayerParameter = 1.0;
     double spinPolarisation = 0.8;
-    double currentDensity = 1;
+    double currentDensity = 1;      // DC (or DC offset if you wish)
+    double currentFrequency = 0.0;  // AC frequency
+    double currentDensityVar = 0.0; // AC amplitude
     double damping = 0.11;
     double beta = 0.0; // usually either set to 0 or to damping
 
@@ -260,7 +262,7 @@ public:
             // we will use coupledMag as the reference layer
             CVector prod3;
             // damping-like torque factor
-            const double aJ = HBAR * this->currentDensity /
+            const double aJ = HBAR * (this->currentDensity + sinusoidalUpdate(this->currentDensityVar, this->currentFrequency, time, 0)) /
                               (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
@@ -302,6 +304,26 @@ public:
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         mag = m_t;
+    }
+
+    double calculateLayerCriticalSwitchingCurrent(std::string plane)
+    {
+
+        const double fixedTerm = (2 * this->damping * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY) / (HBAR * this->beta);
+        const double layerParamTerm = (this->Ms * this->thickness);
+        // statick Hk
+        const double Hk = calculateAnisotropy(0).length();
+        if (plane == "IP")
+        {
+            return fixedTerm * layerParamTerm * Hk;
+        }
+        else if (plane == "PP")
+        {
+            const double Hdemag = calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms).length();
+            return fixedTerm * layerParamTerm * (Hdemag / 2 + Hk);
+        }
+        std::cout << "Warning -- UNKNOWN ENUM: " << plane << std::endl;
+        return 0.0;
     }
 };
 
@@ -392,6 +414,13 @@ public:
         l1.Hstep = Hstep;
         l1.Hstart = timeStart;
         l1.Hstop = timeStop;
+    }
+
+    void setLayerCurrentDensity(std::string layerID, double currentDensity, double frequency)
+    {
+        Layer &l1 = findLayerByID(layerID);
+        l1.currentDensityVar = currentDensity;
+        l1.currentFrequency = frequency;
     }
 
     void setLayerCoupling(std::string layerID, double J)
