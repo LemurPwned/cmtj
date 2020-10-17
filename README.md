@@ -36,9 +36,9 @@ The C++ version basically requires only:
 
 
 ### Compilation
-_The header files are available in the [`alpha`](alpha/) folder_
+_The header files are available in the [`cmtj`](cmtj/) folder_
 
-The actual installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- [`junction.hpp`](alpha/junction.hpp) and [`cvector.hpp`](alpha/cvector.hpp). Simply include the headers in your code and compile it away.
+The actual installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- [`junction.hpp`](cmtj/junction.hpp) and [`cvector.hpp`](cmtj/cvector.hpp). Simply include the headers in your code and compile it away.
 
 The only actual compilation is required for the Python bindings. You may want to use one of the `make python` command variations from the Makefile.
 
@@ -50,7 +50,12 @@ The bindings to Python are be installed into the Python by running the:
 ```bash 
 pip3 install -e .
 ```
-in the [`alpha`](alpha/) folder of the repository -- it will automatically install the cmtj module into Python.
+in the [`cmtj`](cmtj/) folder of the repository -- it will automatically install the cmtj module into Python.   
+Alternatively, you may run 
+```bash 
+python3 setup.py build_ext --inplace
+```
+in the same, [`cmtj`](cmtj/), folder.
 
 Now, you may use the Python bindings as any other module in Python. See the [examples] (`examples/`) folder for some instruction on how to use the module.
 
