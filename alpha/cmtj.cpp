@@ -64,17 +64,24 @@ PYBIND11_MODULE(cmtj, m)
 
     py::class_<Layer>(m, "Layer")
         .def(py::init<
-                 std::string,
-                 CVector,
-                 CVector,
-                 double,
-                 double,
-                 double,
-                 double,
-                 double,
-                 std::vector<CVector>,
-                 std::vector<CVector>,
-                 double>(),
+                 std::string,          // id
+                 CVector,              // mag
+                 CVector,              // anis
+                 double,               // K
+                 double,               // Ms
+                 double,               // J
+                 double,               // thickness
+                 double,               // cekkSurface
+                 std::vector<CVector>, // demagTensor
+                 std::vector<CVector>, // dipoleTensor
+                 double,               // temperature
+                 bool,                 // includeSTT
+                 double,               // damping
+                 double,               // currentDensity
+                 double,               // SlonczewskiSpacerLayerParameter
+                 double,                // beta
+                 double                // spinPolarisation
+                 >(),
              "id"_a,
              "mag"_a,
              "anis"_a,
@@ -85,7 +92,15 @@ PYBIND11_MODULE(cmtj, m)
              "cellSurface"_a,
              "demagTensor"_a,
              "dipoleTensor"_a,
-             "temperature"_a = 0.0);
+             "temperature"_a = 0.0,
+             "includeSTT"_a = false,
+             "damping"_a = 0.011,
+             "currentDensity"_a = 1,
+             "SlonczewskiSpacerLayerParameter"_a = 1.0,
+             "beta"_a = 0.0,
+             "spinPolarisation"_a = 0.8)
+        .def("calculateLayerCriticalSwitchingCurrent",
+             &Layer::calculateLayerCriticalSwitchingCurrent);
 
     py::class_<Junction>(m, "Junction")
         .def(py::init<
@@ -118,6 +133,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerStepUpdate", &Junction::setLayerStepUpdate)
         .def("setLayerIECUpdate", &Junction::setLayerIECUpdate)
         .def("setLayerStepUpdate", &Junction::setLayerStepUpdate)
+        .def("setLayerCurrentDensity", &Junction::setLayerCurrentDensity)
 
         // junction calculations
         .def("calculateMagnetoresistance", &Junction::calculateMagnetoresistance)

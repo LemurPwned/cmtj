@@ -1,6 +1,6 @@
-# PYMTJ
+# CMTJ
 
-PyMTJ is a set of C++ headers for spin magnetics in Magnetic Tunnel Junctions, with some bindings from C++ to Python, but there's also a Python standalone library. The Python standalone library is not maintained actively, but you are welcome to contribute if you would like to see it revived. Until then, C++ with Python bindings is the best choice if you want to go with a maintained version.
+CMTJ is a set of C++ headers for spin magnetics in Magnetic Tunnel Junctions, with some bindings from C++ to Python, but there's also a Python standalone library. The Python standalone library is not maintained actively, but you are welcome to contribute if you would like to see it revived. Until then, C++ with Python bindings is the best choice if you want to go with a maintained version.
 
 
 ## Installation steps
@@ -10,11 +10,11 @@ The easiest way to compile the PyBind11 bindings is to use the provided [Dockerf
 # docker build
 docker build -t pymtj .
 # docker run 
-docker run -it --entrypoint bash pytmj 
+docker run -it --entrypoint bash cmtj 
 ```
 You may want to develop C++ code inside the Dockerfile since it has everything installed (including the `vim`). Then, you may want to mount the volume to container's `/mnt`:
 ```bash 
-docker run -it --entrypoint bash -v /path/to/my/volume:/mnt pytmj
+docker run -it --entrypoint bash -v /path/to/my/volume:/mnt cmtj
 ```
 
 ### Requirements 
@@ -45,16 +45,21 @@ The only actual compilation is required for the Python bindings. You may want to
 _Which one to run it?_   
 For the MacOs use `make python-macos`, for Ubuntu use `make python-ubuntu`
 
+### Easy binding installation 
+The bindings to Python are be installed into the Python by running the:
+```bash 
+pip3 install -e .
+```
+in the [`alpha`](alpha/) folder of the repository -- it will automatically install the cmtj module into Python.
 
-
-
-
+Now, you may use the Python bindings as any other module in Python. See the [examples] (`examples/`) folder for some instruction on how to use the module.
 
 
 ------------------
+# PYTMJ 
 
 ## Python version (Python libray may be found in [`pymtj`](pymtj/) folder)
-Below is a short introduction to that library
+Below is a short introduction to that library, which is purely Python (no bindings, simply Cython).
 A Python library for spin magnetics in Magnetic Tunnel Junctions.
 
 ### Installation
@@ -63,7 +68,7 @@ Clone this repository
 ```bash 
 git clone https://github.com/LemurPwned/spinpy.git
 ```
-Enter the repository and: 
+Enter the [`pymtj`](pymtj/) repository and: 
 ```bash 
 pip3 install -e .
 ```

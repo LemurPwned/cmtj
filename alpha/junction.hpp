@@ -14,7 +14,7 @@
 #include <tuple>
 #include <random>
 #include <complex>
-#include <algorithm> 
+#include <algorithm>
 
 #include <fftw3.h>
 
@@ -89,16 +89,20 @@ private:
 public:
     std::string id;
 
-    CVector H_log, Hconst, anis, mag;
+    CVector H_log, Hconst, mag, anis;
 
-    double K = 0.0, J = 0.0, Ms = 0.0;
+    double K, Ms, J;
     double Kvar, Jvar, Hvar = 0.0;
     double K_frequency = 0.0, J_frequency = 0.0, H_frequency = 0.0;
     double J_log = 0.0, K_log = 0.0;
+    double thickness;
+
+    std::vector<CVector>
+        demagTensor,
+        dipoleTensor;
 
     // resting temperature in Kelvin
-    double temperature = 0.0;
-    double thickness = 0.0;
+    double temperature;
     Axis Hax = xaxis;
 
     double Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
@@ -106,17 +110,16 @@ public:
     bool includeSTT = false;
 
     // LLG params
-    double SlonczewskiSpacerLayerParameter = 1.0;
-    double spinPolarisation = 0.8;
-    double currentDensity = 1;      // DC (or DC offset if you wish)
+    double damping;
+    double currentDensity;          // DC (or DC offset if you wish)
+    double SlonczewskiSpacerLayerParameter;
+    double beta; // usually either set to 0 or to damping
+    double spinPolarisation;
+
     double currentFrequency = 0.0;  // AC frequency
     double currentDensityVar = 0.0; // AC amplitude
-    double damping = 0.11;
-    double beta = 0.0; // usually either set to 0 or to damping
 
-    std::vector<CVector>
-        demagTensor,
-        dipoleTensor;
+
     Layer(std::string id,
           CVector mag,
           CVector anis,
@@ -148,8 +151,8 @@ public:
                                            damping(damping),
                                            currentDensity(currentDensity),
                                            SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
-                                           spinPolarisation(spinPolarisation),
-                                           beta(beta)
+                                           beta(beta),
+                                           spinPolarisation(spinPolarisation)
     {
         this->cellVolume = this->cellSurface * this->thickness;
     }
