@@ -24,9 +24,11 @@ The C++ version basically requires only:
 
 
 ### Compilation
-The actuall installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- `junction.hpp` and `cvector.hpp`). Simply include the headers in your code and compile it away.
+_The header files are available in the `alpha` folder_
 
-The only actual compilation is required for the Python bindings. You may want to use the `make python` command from the Makefile.◊
+The actual installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- `junction.hpp` and `cvector.hpp`). Simply include the headers in your code and compile it away.
+
+The only actual compilation is required for the Python bindings. You may want to use the `make python` command from the Makefile.
 
 
 
