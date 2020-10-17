@@ -308,7 +308,6 @@ public:
 
     double calculateLayerCriticalSwitchingCurrent(std::string plane)
     {
-
         const double fixedTerm = (2 * this->damping * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY) / (HBAR * this->beta);
         const double layerParamTerm = (this->Ms * this->thickness);
         // statick Hk

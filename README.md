@@ -1,5 +1,44 @@
-## PYMTJ
+# PYMTJ
 
+PyMTJ is a set of C++ headers for spin magnetics in Magnetic Tunnel Junctions, with some bindings from C++ to Python, but there's also a Python standalone library. The Python standalone library is not maintained actively, but you are welcome to contribute if you would like to see it revived. Until then, C++ with Python bindings is the best choice if you want to go with a maintained version.
+
+
+## Installation steps
+
+### Requirements 
+The C++ version basically requires only:  
+* FFTW3  
+  The library for computing the Fast Fourier Transform, needed for some of the frequency analysis included in the package
+
+  The library may be downloaded from the link here [http://www.fftw.org/](http://www.fftw.org/).
+  However, if you're on the Ubuntu (it may work for some other distros as well), you may install the package with 
+  ```bash
+  apt-get install -y fftw3 
+  ```
+
+* PyBind11 
+  PyBind11 allows us to bind pieces of C++ code to be usable from within the Python code.
+  This package *is not* necessary if you just plan to use the C++ API. Otherwise, if you  need to compile the PyMTJ yourself, then you should install this package.
+
+  The library is available here [https://github.com/pybind/pybind11](https://github.com/pybind/pybind11).
+
+
+### Compilation
+The actuall installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- `junction.hpp` and `cvector.hpp`). Simply include the headers in your code and compile it away.
+
+The only actual compilation is required for the Python bindings. You may want to use the `make python` command from the Makefile.◊
+
+
+
+
+
+
+
+
+------------------
+
+## Python version (Python libray may be found in [`pymtj`](pymtj/) folder)
+Below is a short introduction to that library
 A Python library for spin magnetics in Magnetic Tunnel Junctions.
 
 ### Installation
