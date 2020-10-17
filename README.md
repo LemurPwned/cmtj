@@ -5,15 +5,27 @@ PyMTJ is a set of C++ headers for spin magnetics in Magnetic Tunnel Junctions, w
 
 ## Installation steps
 
+The easiest way to compile the PyBind11 bindings is to use the provided [Dockerfile](Dockerfile), if you know how to use it:
+```bash
+# docker build
+docker build -t pymtj .
+# docker run 
+docker run -it --entrypoint bash pytmj 
+```
+You may want to develop C++ code inside the Dockerfile since it has everything installed (including the `vim`). Then, you may want to mount the volume to container's `/mnt`:
+```bash 
+docker run -it --entrypoint bash -v /path/to/my/volume:/mnt pytmj
+```
+
 ### Requirements 
 The C++ version basically requires only:  
 * FFTW3  
   The library for computing the Fast Fourier Transform, needed for some of the frequency analysis included in the package
 
-  The library may be downloaded from the link here [http://www.fftw.org/](http://www.fftw.org/).
-  However, if you're on the Ubuntu (it may work for some other distros as well), you may install the package with 
+  The library may be downloaded from the link here [http://www.fftw.org/](http://www.fftw.org/).  
+  However, if you're on the Ubuntu (it may work for some other distros as well), you may install the package with:
   ```bash
-  apt-get install -y fftw3 
+  apt-get install -y libfftw3-dev
   ```
 
 * PyBind11 
@@ -24,12 +36,14 @@ The C++ version basically requires only:
 
 
 ### Compilation
-_The header files are available in the `alpha` folder_
+_The header files are available in the [`alpha`](alpha/) folder_
 
-The actual installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- `junction.hpp` and `cvector.hpp`). Simply include the headers in your code and compile it away.
+The actual installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- [`junction.hpp`](alpha/junction.hpp) and [`cvector.hpp`](alpha/cvector.hpp). Simply include the headers in your code and compile it away.
 
-The only actual compilation is required for the Python bindings. You may want to use the `make python` command from the Makefile.
+The only actual compilation is required for the Python bindings. You may want to use one of the `make python` command variations from the Makefile.
 
+_Which one to run it?_   
+For the MacOs use `make python-macos`, for Ubuntu use `make python-ubuntu`
 
 
 
@@ -87,15 +101,15 @@ Otherwise it can be read:
 
 ## **Calculations**
 
-#### Conventional markings   
+### Conventional markings   
 1. $\vec{m}_i$      the magnetisation vector of the $i$th layer. If not given, means the *current* layer 
 2. $M_s$            is the magnetisation saturation 
 3. $\vec{H}$        is the vector field  
-#### Demagnetisation tensor 
+### Demagnetisation tensor 
 $$\vec{H_i} = -NM_s^{j}\vec{m_i}$$
 where the $M_s^{j}$ means the saturation of the *other*, *non-local* layer $j$ and $N$ is the demagnetisation tensor dependent on the elative shape of the layers $i$ and $j$.
 
-#### Interlayer Exchange Coupling interaction (IEC)
+### Interlayer Exchange Coupling interaction (IEC)
 
 $$\vec{H_i} = \frac{J}{\mu M_s d} (\vec{m_j} - \vec{m_i})$$
 where the $J$ is the coupling constant between the layers $i$ and $j$, and $d$ is the thickness.

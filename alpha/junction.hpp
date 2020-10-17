@@ -14,6 +14,8 @@
 #include <tuple>
 #include <random>
 #include <complex>
+#include <algorithm> 
+
 #include <fftw3.h>
 
 #include "cvector.hpp"
