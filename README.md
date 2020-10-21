@@ -4,6 +4,21 @@ CMTJ is a set of C++ headers for spin magnetics in Magnetic Tunnel Junctions, wi
 
 
 ## Installation steps
+The recommended way is to use the `pip` installation option.
+### Easy binding installation 
+The bindings to Python are be installed into the Python by running the:
+```bash 
+pip3 install -e .
+```
+in the [`cmtj`](cmtj/) folder of the repository -- it will automatically install the cmtj module into Python.   
+Alternatively, you may run 
+```bash 
+python3 setup.py build_ext --inplace
+```
+in the same, [`cmtj`](cmtj/), folder.
+
+### Other
+If for some reason you wish to compile manually (or have to), either for debugging or development, see below. 
 
 The easiest way to compile the PyBind11 bindings is to use the provided [Dockerfile](Dockerfile), if you know how to use it:
 ```bash
@@ -45,19 +60,7 @@ The only actual compilation is required for the Python bindings. You may want to
 _Which one to run it?_   
 For the MacOs use `make python-macos`, for Ubuntu use `make python-ubuntu`
 
-### Easy binding installation 
-The bindings to Python are be installed into the Python by running the:
-```bash 
-pip3 install -e .
-```
-in the [`cmtj`](cmtj/) folder of the repository -- it will automatically install the cmtj module into Python.   
-Alternatively, you may run 
-```bash 
-python3 setup.py build_ext --inplace
-```
-in the same, [`cmtj`](cmtj/), folder.
-
-Now, you may use the Python bindings as any other module in Python. See the [examples] (`examples/`) folder for some instruction on how to use the module.
+Now, you may use the Python bindings as any other module in Python. See the [examples](`examples/`) folder for some instruction on how to use the module.
 
 
 ------------------

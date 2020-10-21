@@ -92,7 +92,7 @@ public:
     CVector H_log, Hconst, mag, anis;
 
     double K, Ms, J;
-    double Kvar, Jvar, Hvar = 0.0;
+    double Kvar = 0.0, Jvar = 0.0, Hvar = 0.0;
     double K_frequency = 0.0, J_frequency = 0.0, H_frequency = 0.0;
     double J_log = 0.0, K_log = 0.0;
     double thickness;
@@ -111,14 +111,13 @@ public:
 
     // LLG params
     double damping;
-    double currentDensity;          // DC (or DC offset if you wish)
+    double currentDensity; // DC (or DC offset if you wish)
     double SlonczewskiSpacerLayerParameter;
     double beta; // usually either set to 0 or to damping
     double spinPolarisation;
 
-    double currentFrequency = 0.0;  // AC frequency
-    double currentDensityVar = 0.0; // AC amplitude
-
+    double I_frequency = 0.0;        // AC frequency
+    double I_var = 0.0, I_log = 0.0; // AC amplitude
 
     Layer(std::string id,
           CVector mag,
@@ -171,6 +170,21 @@ public:
         else
         {
             return 0.0;
+        }
+    }
+
+    double pulseTrain(double amplitude, double time, double T, double cycle)
+    {
+        const int n = (int)(time / T);
+        const double dT = cycle * T;
+        const double nT = n * T;
+        if (nT <= time <= (nT + dT))
+        {
+            return amplitude;
+        }
+        else
+        {
+            return 0;
         }
     }
 
@@ -229,10 +243,8 @@ public:
         // becomes zero if the temperature is 0
         CVector res(distribution, generator);
         res.normalize();
-        // std::cout<<res.x << ";" << res.y << ";" << res.z << std::endl;
         const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
                                 (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
-        // std::cout << nom << std::endl;                                
         return res * nom;
     }
 
@@ -258,10 +270,17 @@ public:
         return (coupledMag - this->mag) * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, CVector heff)
+    double calculateCurrentDensity(double time)
+    {
+        this->I_log = this->currentDensity + sinusoidalUpdate(this->I_var, this->I_frequency, time, 0);
+        ;
+        return this->I_log;
+    }
+
+    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double timeStep)
     {
         CVector prod, prod2, dmdt;
-        // heff = calculateHeff(time, 1e-13, coupledMag);
+        // heff = calculateHeff(time, timeStep, coupledMag);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
         dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
@@ -270,7 +289,7 @@ public:
             // we will use coupledMag as the reference layer
             CVector prod3;
             // damping-like torque factor
-            const double aJ = HBAR * (this->currentDensity + sinusoidalUpdate(this->currentDensityVar, this->currentFrequency, time, 0)) /
+            const double aJ = HBAR * (calculateCurrentDensity(time)) /
                               (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
@@ -305,10 +324,10 @@ public:
         CVector k1, k2, k3, k4, m_t, heff;
         m_t = mag;
         heff = calculateHeff(time, timeStep, coupledMag);
-        k1 = llg(time, m_t, coupledMag, heff) * timeStep;
-        k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff) * timeStep;
-        k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff) * timeStep;
-        k4 = llg(time + timeStep, m_t + k3, coupledMag, heff) * timeStep;
+        k1 = llg(time, m_t, coupledMag, heff, timeStep) * timeStep;
+        k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff, timeStep) * timeStep;
+        k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff, timeStep) * timeStep;
+        k4 = llg(time + timeStep, m_t + k3, coupledMag, heff, timeStep) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         mag = m_t;
@@ -318,7 +337,7 @@ public:
     {
         const double fixedTerm = (2 * this->damping * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY) / (HBAR * this->beta);
         const double layerParamTerm = (this->Ms * this->thickness);
-        // statick Hk
+        // static Hk
         const double Hk = calculateAnisotropy(0).length();
         if (plane == "IP")
         {
@@ -380,17 +399,16 @@ public:
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
-
-    void setConstantExternalField(double Hval, CVector Hdir){
+    void setConstantExternalField(double Hval, CVector Hdir)
+    {
         // Hdir is just unit vector
         CVector fieldToSet(Hdir);
         fieldToSet.normalize();
-        fieldToSet = fieldToSet*Hval;
+        fieldToSet = fieldToSet * Hval;
         for (Layer &l : this->layers)
         {
             l.setGlobalExternalFieldValue(fieldToSet);
         }
-
     }
     void setConstantExternalField(double Hval, Axis axis)
     {
@@ -438,8 +456,8 @@ public:
     void setLayerCurrentDensity(std::string layerID, double currentDensity, double frequency)
     {
         Layer &l1 = findLayerByID(layerID);
-        l1.currentDensityVar = currentDensity;
-        l1.currentFrequency = frequency;
+        l1.I_var = currentDensity;
+        l1.I_frequency = frequency;
     }
 
     void setLayerCoupling(std::string layerID, double J)
@@ -487,6 +505,10 @@ public:
         }
         this->log["L1K"].push_back(this->layers[0].K_log);
         this->log["L2K"].push_back(this->layers[1].K_log);
+        if (this->layers[0].includeSTT)
+            this->log["I1"].push_back(this->layers[0].I_log);
+        if (this->layers[0].includeSTT)
+            this->log["I2"].push_back(this->layers[1].I_log);
         this->log["R_free_bottom"].push_back(magnetoresistance);
         this->log["time"].push_back(t);
 
