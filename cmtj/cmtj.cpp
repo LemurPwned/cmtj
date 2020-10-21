@@ -37,6 +37,7 @@ PYBIND11_MODULE(cmtj, m)
 {
     m.doc() = "Python binding for C++ CMTJ Library";
 
+    m.def("c_dot", &c_dot);
     m.def("customResultMap", &ComputeUtil::customResultMap,
           "resultMap"_a,
           "filename"_a);
@@ -79,7 +80,7 @@ PYBIND11_MODULE(cmtj, m)
                  double,               // damping
                  double,               // currentDensity
                  double,               // SlonczewskiSpacerLayerParameter
-                 double,                // beta
+                 double,               // beta
                  double                // spinPolarisation
                  >(),
              "id"_a,
@@ -127,7 +128,11 @@ PYBIND11_MODULE(cmtj, m)
         // set Layer parameters
         .def("setLayerAnisotropy", &Junction::setLayerAnisotropy)
         .def("setLayerCoupling", &Junction::setLayerCoupling)
-        .def("setConstantExternalField", &Junction::setConstantExternalField)
+
+        // overload 
+        // .def("setConstantExternalField", &Junction::setConstantExternalField)
+        .def("setConstantExternalField", py::overload_cast<double, CVector>(&Junction::setConstantExternalField))
+        .def("setConstantExternalField", py::overload_cast<double, Axis>(&Junction::setConstantExternalField))
 
         // set updates
         .def("setLayerStepUpdate", &Junction::setLayerStepUpdate)

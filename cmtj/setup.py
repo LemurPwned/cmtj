@@ -3,7 +3,7 @@ from setuptools.command.build_ext import build_ext
 import sys
 import setuptools
 import os 
-__version__ = '0.0.1'
+__version__ = '0.9.0'
 """
 As per 
 https://github.com/pybind/python_example

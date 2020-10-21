@@ -228,8 +228,11 @@ public:
     {
         // becomes zero if the temperature is 0
         CVector res(distribution, generator);
+        res.normalize();
+        // std::cout<<res.x << ";" << res.y << ";" << res.z << std::endl;
         const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
                                 (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
+        // std::cout << nom << std::endl;                                
         return res * nom;
     }
 
@@ -377,6 +380,18 @@ public:
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
+
+    void setConstantExternalField(double Hval, CVector Hdir){
+        // Hdir is just unit vector
+        CVector fieldToSet(Hdir);
+        fieldToSet.normalize();
+        fieldToSet = fieldToSet*Hval;
+        for (Layer &l : this->layers)
+        {
+            l.setGlobalExternalFieldValue(fieldToSet);
+        }
+
+    }
     void setConstantExternalField(double Hval, Axis axis)
     {
         CVector fieldToSet(0, 0, 0);

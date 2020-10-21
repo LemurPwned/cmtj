@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 WORKDIR /app 
 
 # let's copy all the necessary files
-COPY alpha/*.hpp alpha/*.cpp alpha/Makefile /app/ 
+COPY cmtj/*.cpp cmtj/*.hpp cmtj/*.py cmtj/Makefile app/
 
 # we install our only 2 dependencies :) and vim for nice workflow
 RUN apt-get update && apt-get install -y build-essential libfftw3-dev \
