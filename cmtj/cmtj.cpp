@@ -37,6 +37,9 @@ PYBIND11_MODULE(cmtj, m)
 {
     m.doc() = "Python binding for C++ CMTJ Library";
 
+    m.def("RK45", &Junction::RK45);
+    m.def("LLG", &Junction::LLG);
+
     m.def("c_dot", &c_dot);
     m.def("customResultMap", &ComputeUtil::customResultMap,
           "resultMap"_a,
@@ -59,9 +62,13 @@ PYBIND11_MODULE(cmtj, m)
 
     py::class_<CVector>(m, "CVector")
         .def(py::init<
-             double, double, double>());
+             double, double, double>())
+        .def_readwrite("x", &CVector::x)
+        .def_readwrite("y", &CVector::y)
+        .def_readwrite("z", &CVector::z)
+        .def("length", &CVector::length);
 
-    py::implicitly_convertible<std::list<double>, CVector>();
+    py::implicitly_convertible<std::list<float>, CVector>();
 
     py::class_<Layer>(m, "Layer")
         .def(py::init<
@@ -129,7 +136,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerAnisotropy", &Junction::setLayerAnisotropy)
         .def("setLayerCoupling", &Junction::setLayerCoupling)
 
-        // overload 
+        // overload
         // .def("setConstantExternalField", &Junction::setConstantExternalField)
         .def("setConstantExternalField", py::overload_cast<double, CVector>(&Junction::setConstantExternalField))
         .def("setConstantExternalField", py::overload_cast<double, Axis>(&Junction::setConstantExternalField))
