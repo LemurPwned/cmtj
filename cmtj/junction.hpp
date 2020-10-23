@@ -202,21 +202,6 @@ public:
         }
     }
 
-    double pulseTrain(double amplitude, double time, double T, double cycle)
-    {
-        const int n = (int)(time / T);
-        const double dT = cycle * T;
-        const double nT = n * T;
-        if (nT <= time <= (nT + dT))
-        {
-            return amplitude;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
     CVector updateAxial(double amplitude, double frequency, double time, double phase, Axis axis)
     {
         CVector *result = new CVector();
