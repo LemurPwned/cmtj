@@ -80,17 +80,45 @@ enum Axis
     zaxis
 };
 
+class EnergyDriver
+{
+public:
+    static double calculateZeemanEnergy(CVector mag, CVector Hext, double cellVolume, double Ms)
+    {
+        return -MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hext) * cellVolume;
+    }
+
+    static double calculateAnisotropyEnergy(CVector mag, CVector anis, double K, double cellVolume)
+    {
+        const double sinSq = 1 - pow(c_dot(mag, anis) / (anis.length() * mag.length()), 2);
+        return K * sinSq * cellVolume;
+    }
+
+    static double calculateIECEnergy(CVector mag, CVector other, double J, double cellSurface)
+    {
+        return -c_dot(mag, other) * J * cellSurface;
+    }
+
+    static double calculateDemagEnergy(CVector mag, CVector Hdemag, double Ms, double cellVolume)
+    {
+        return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hdemag) * cellVolume;
+    }
+};
+
 std::default_random_engine generator;
 std::normal_distribution<double> distribution(0.0, 1.0);
 class Layer
 {
-private:
+public:
     double cellVolume, cellSurface = 0.0;
 
-public:
     std::string id;
 
     CVector H_log, Hconst, mag, anis;
+    CVector Hext, Hdemag, HIEC, HAnis;
+
+    CVector IFlow = {0., 0., 1.0};
+    double cellRadius = 35e-9;
 
     double K, Ms, J;
     double Kvar = 0.0, Jvar = 0.0, Hvar = 0.0;
@@ -225,12 +253,16 @@ public:
     {
         CVector Heff = {0., 0., 0.};
 
-        Heff = calculateExternalField(time) +
-               calculateAnisotropy(time) +
-               calculateIEC(time, otherMag) +
+        this->Hext = calculateExternalField(time);
+        this->Hdemag = calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms);
+        this->HIEC = calculateIEC(time, otherMag);
+        this->HAnis = calculateAnisotropy(time);
+        Heff = this->Hext +  // external
+               this->HAnis + // anistotropy
+               this->HIEC +  // IEC
                // demag
                // check the interaction here to be sure
-               calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms) +
+               this->Hdemag +
                // dipole
                calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms) +
                // stochastic field dependent on the temperature
@@ -247,6 +279,11 @@ public:
         const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
                                 (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
         return res * nom;
+    }
+
+    CVector calculateOerstedField(double time)
+    {
+        return this->IFlow * (this->calculateCurrentDensity(time)) / 2 * M_PI * this->cellSurface;
     }
 
     CVector calculateExternalField(double time)
@@ -274,7 +311,7 @@ public:
     double calculateCurrentDensity(double time)
     {
         this->I_log = this->currentDensity + sinusoidalUpdate(this->I_var, this->I_frequency, time, 0);
-        ;
+
         return this->I_log;
     }
 
@@ -495,28 +532,51 @@ public:
         }
     }
 
-    void logLayerParams(double t, double magnetoresistance)
+    void logLayerParams(double t, double magnetoresistance, bool calculateEnergies = false)
     {
-        for (int i = 0; i < 3; i++)
+        for (Layer &layer : this->layers)
         {
-            this->log["L1m" + vectorNames[i]].push_back(this->layers[0].mag[i]);
-            this->log["L2m" + vectorNames[i]].push_back(this->layers[1].mag[i]);
-            this->log["L1Hext" + vectorNames[i]].push_back(this->layers[0].H_log[i]);
-            this->log["L2Hext" + vectorNames[i]].push_back(this->layers[1].H_log[i]);
+            for (int i = 0; i < 3; i++)
+            {
+                this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
+                this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
+            }
+            this->log[layer.id + "_K"].push_back(layer.K_log);
+            if (layer.includeSTT)
+                this->log[layer.id + "_I1"].push_back(layer.I_log);
+
+            if (calculateEnergies)
+            {
+                for (Layer &layer : this->layers)
+                {
+                    this->log[layer.id + "_EZeeman"].push_back(EnergyDriver::calculateZeemanEnergy(layer.mag,
+                                                                                                   layer.Hext,
+                                                                                                   layer.cellVolume,
+                                                                                                   layer.Ms));
+                    this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
+                                                                                                     layer.anis,
+                                                                                                     layer.K_log,
+                                                                                                     layer.cellVolume));
+                    // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
+                    //                                                                    layer,
+                    //                                                                    layer.J_log,
+                    //                                                                    layer.cellSurface);
+                    this->log[layer.id + "_EDemag"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
+                                                                                                 layer.Hdemag,
+                                                                                                 layer.Ms,
+                                                                                                 layer.cellVolume));
+                }
+            }
         }
-        this->log["L1K"].push_back(this->layers[0].K_log);
-        this->log["L2K"].push_back(this->layers[1].K_log);
-        if (this->layers[0].includeSTT)
-            this->log["I1"].push_back(this->layers[0].I_log);
-        if (this->layers[0].includeSTT)
-            this->log["I2"].push_back(this->layers[1].I_log);
+
         this->log["R_free_bottom"].push_back(magnetoresistance);
         this->log["time"].push_back(t);
 
         this->logLength++;
     }
 
-    void saveLogs()
+    void
+    saveLogs()
     {
         std::ofstream logFile;
         logFile.open(this->fileSave);
@@ -652,7 +712,7 @@ public:
         return maxAmpls;
     }
 
-    void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false)
+    void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false, bool calculateEnergies = false)
     {
 
         const unsigned int totalIterations = (int)(totalTime / timeStep);
@@ -675,7 +735,7 @@ public:
             if (!(i % writeEvery))
             {
                 const double magRes = calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
-                logLayerParams(t, magRes);
+                logLayerParams(t, magRes, calculateEnergies);
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
