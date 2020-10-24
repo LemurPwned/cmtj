@@ -18,70 +18,44 @@ public:
     // if the user wants to update, let them do that
     double constantValue, amplitude, frequency, phase, cycle, period;
     UpdateType update;
-    Driver(double constantValue,
+    Driver()
+    {
+        this->constantValue = 0.0;
+        this->amplitude = 0.0;
+        this->frequency = 0.0;
+        this->phase = 0.0;
+        this->period = 0.0;
+    };
+    Driver(UpdateType update,
+           double constantValue,
            double amplitude,
            double frequency,
            double phase,
            double period,
-           double cycle,
-           UpdateType update) : constantValue(constantValue),
-                                amplitude(amplitude),
-                                frequency(frequency),
-                                phase(phase),
-                                period(period),
-                                cycle(cycle),
-                                update(update) {}
-};
-
-class AxialDriver
-{
-private:
-    std::vector<ScalarDriver> drivers;
-
-public:
-    AxialDriver(std::vector<ScalarDriver> axialDrivers)
+           double cycle) : update(update), constantValue(constantValue),
+                           amplitude(amplitude),
+                           frequency(frequency),
+                           phase(phase),
+                           period(period),
+                           cycle(cycle)
     {
-        this->drivers = std::move(axialDrivers);
-    }
-
-    CVector getCurrentAxialDrivers(double time)
-    {
-        return CVector(
-            this->drivers[0].getCurrentScalarValue(time),
-            this->drivers[1].getCurrentScalarValue(time),
-            this->drivers[2].getCurrentScalarValue(time));
     }
 };
 
 class ScalarDriver : public Driver
 {
-
-public:
-    ScalarDriver(
-        double constantValue = 0,
-        double amplitude = 0,
-        double frequency = -1,
-        double phase = 0,
-        double period = -1,
-        double cycle = -1,
-        UpdateType update = constant) : Driver(constantValue,
-                                               amplitude,
-                                               frequency,
-                                               phase,
-                                               period,
-                                               cycle,
-                                               update)
+protected:
+    double stepUpdate(double amplitude, double time, double timeStart, double timeStop)
     {
-        if (update == pulse && (period == -1 || cycle == -1))
+        if (time >= timeStart && time <= timeStop)
         {
-            std::runtime_error("Selected pulse train driver type but either period or cycle were not set");
+            return amplitude;
         }
-        else if (update == sine && (frequency == -1))
+        else
         {
-            std::runtime_error("Selected sine driver type but frequency was not set");
+            return 0.0;
         }
     }
-
     double pulseTrain(double amplitude, double time, double T, double cycle)
     {
         const int n = (int)(time / T);
@@ -94,6 +68,32 @@ public:
         else
         {
             return 0;
+        }
+    }
+
+public:
+    ScalarDriver(
+        UpdateType update = constant,
+        double constantValue = 0,
+        double amplitude = 0,
+        double frequency = -1,
+        double phase = 0,
+        double period = -1,
+        double cycle = -1)
+        : Driver(update, constantValue,
+                 amplitude,
+                 frequency,
+                 phase,
+                 period,
+                 cycle)
+    {
+        if (update == pulse && (period == -1 || cycle == -1))
+        {
+            std::runtime_error("Selected pulse train driver type but either period or cycle were not set");
+        }
+        else if (update == sine && (frequency == -1))
+        {
+            std::runtime_error("Selected sine driver type but frequency was not set");
         }
     }
 
@@ -115,9 +115,38 @@ public:
 
 class NullDriver : public ScalarDriver
 {
+public:
+    NullDriver() = default;
     double getCurrentScalarValue(double time)
     {
         return 0.0;
+    }
+};
+
+class AxialDriver : public Driver
+{
+private:
+    std::vector<ScalarDriver> drivers;
+
+public:
+    AxialDriver()
+    {
+        this->drivers = {
+            NullDriver(),
+            NullDriver(),
+            NullDriver()};
+    }
+    AxialDriver(std::vector<ScalarDriver> axialDrivers)
+    {
+        this->drivers = std::move(axialDrivers);
+    }
+
+    CVector getCurrentAxialDrivers(double time)
+    {
+        return CVector(
+            this->drivers[0].getCurrentScalarValue(time),
+            this->drivers[1].getCurrentScalarValue(time),
+            this->drivers[2].getCurrentScalarValue(time));
     }
 };
 

@@ -19,6 +19,7 @@
 #include <fftw3.h>
 
 #include "cvector.hpp"
+#include "drivers.hpp"
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
 #define GYRO 221000.0
@@ -109,6 +110,11 @@ std::default_random_engine generator;
 std::normal_distribution<double> distribution(0.0, 1.0);
 class Layer
 {
+private:
+    ScalarDriver currentDriver, IECDriver, anisotropyDriver;
+
+    AxialDriver externalFieldDriver;
+
 public:
     double cellVolume, cellSurface = 0.0;
 
@@ -185,53 +191,23 @@ public:
         this->cellVolume = this->cellSurface * this->thickness;
     }
 
-    double sinusoidalUpdate(double amplitude, double frequency, double time, double phase = 0.0)
+    void setCurrentDriver(ScalarDriver driver)
     {
-        return amplitude * sin(2 * M_PI * time * frequency + phase);
+        this->currentDriver = driver;
     }
 
-    double stepUpdate(double amplitude, double time, double timeStart, double timeStop)
+    void setExternalFieldDriver(AxialDriver driver)
     {
-        if (time >= timeStart && time <= timeStop)
-        {
-            return amplitude;
-        }
-        else
-        {
-            return 0.0;
-        }
+        this->externalFieldDriver = driver;
+    }
+    void setAnisotropyDriver(ScalarDriver driver)
+    {
+        this->anisotropyDriver = driver;
     }
 
-    CVector updateAxial(double amplitude, double frequency, double time, double phase, Axis axis)
+    void setIECDriver(ScalarDriver driver)
     {
-        CVector *result = new CVector();
-        const double updateValue = sinusoidalUpdate(amplitude, frequency, time, phase);
-        switch (axis)
-        {
-        case xaxis:
-            result->x = updateValue;
-        case yaxis:
-            result->y = updateValue;
-        case zaxis:
-            result->z = updateValue;
-        }
-        return *result;
-    }
-
-    CVector updateAxialStep(double amplitude, double time, double timeStart, double timeStop, Axis axis)
-    {
-        CVector *result = new CVector();
-        const double updateValue = stepUpdate(amplitude, time, timeStart, timeStop);
-        switch (axis)
-        {
-        case xaxis:
-            result->x = updateValue;
-        case yaxis:
-            result->y = updateValue;
-        case zaxis:
-            result->z = updateValue;
-        }
-        return *result;
+        this->IECDriver = driver;
     }
 
     CVector calculateHeff(double time, double timeStep, CVector otherMag)
@@ -266,38 +242,32 @@ public:
         return res * nom;
     }
 
-    CVector calculateOerstedField(double time)
-    {
-        return this->IFlow * (this->calculateCurrentDensity(time)) / 2 * M_PI * this->cellSurface;
-    }
+    // CVector calculateOerstedField(double time)
+    // {
+    //     return this->currentDriver.getCurrentScalarValue(time) / 2 * M_PI * this->cellSurface;
+    // }
 
     CVector calculateExternalField(double time)
     {
-
-        this->H_log = this->Hconst + updateAxial(this->Hvar, this->H_frequency, time, 0, this->Hax);
-        this->H_log += updateAxialStep(this->Hstep, time, this->Hstart, this->Hstop, this->Hax);
+        this->H_log =
+            this->externalFieldDriver.getCurrentAxialDrivers(time);
+        // this->H_log = this->Hconst + updateAxial(this->Hvar, this->H_frequency, time, 0, this->Hax);
+        // this->H_log += updateAxialStep(this->Hstep, time, this->Hstart, this->Hstop, this->Hax);
         return this->H_log;
     }
 
     CVector calculateAnisotropy(double time)
     {
-        this->K_log = this->K + sinusoidalUpdate(this->Kvar, this->K_frequency, time, 0);
+        this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
         const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
         return this->anis * nom;
     }
 
     CVector calculateIEC(double time, CVector coupledMag)
     {
-        this->J_log = this->J + sinusoidalUpdate(this->Jvar, this->J_frequency, time, 0);
+        this->J_log = this->IECDriver.getCurrentScalarValue(time);
         const double nom = this->J_log / (MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
         return (coupledMag - this->mag) * nom;
-    }
-
-    double calculateCurrentDensity(double time)
-    {
-        this->I_log = this->currentDensity + sinusoidalUpdate(this->I_var, this->I_frequency, time, 0);
-
-        return this->I_log;
     }
 
     CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double timeStep)
@@ -312,7 +282,7 @@ public:
             // we will use coupledMag as the reference layer
             CVector prod3;
             // damping-like torque factor
-            const double aJ = HBAR * (calculateCurrentDensity(time)) /
+            const double aJ = HBAR * (this->currentDriver.getCurrentScalarValue(time)) /
                               (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
@@ -528,7 +498,7 @@ public:
             }
             this->log[layer.id + "_K"].push_back(layer.K_log);
             if (layer.includeSTT)
-                this->log[layer.id + "_I1"].push_back(layer.I_log);
+                this->log[layer.id + "_I"].push_back(layer.I_log);
 
             if (calculateEnergies)
             {
