@@ -127,9 +127,7 @@ public:
     double cellRadius = 35e-9;
 
     double K, Ms, J;
-    double Kvar = 0.0, Jvar = 0.0, Hvar = 0.0;
-    double K_frequency = 0.0, J_frequency = 0.0, H_frequency = 0.0;
-    double J_log = 0.0, K_log = 0.0;
+    double J_log = 0.0, K_log = 0.0, I_log = 0.0;
     double thickness;
 
     std::vector<CVector>
@@ -150,9 +148,6 @@ public:
     double SlonczewskiSpacerLayerParameter;
     double beta; // usually either set to 0 or to damping
     double spinPolarisation;
-
-    double I_frequency = 0.0;        // AC frequency
-    double I_var = 0.0, I_log = 0.0; // AC amplitude
 
     Layer(std::string id,
           CVector mag,
@@ -191,21 +186,21 @@ public:
         this->cellVolume = this->cellSurface * this->thickness;
     }
 
-    void setCurrentDriver(ScalarDriver driver)
+    void setCurrentDriver(ScalarDriver &driver)
     {
         this->currentDriver = driver;
     }
 
-    void setExternalFieldDriver(AxialDriver driver)
+    void setExternalFieldDriver(AxialDriver &driver)
     {
         this->externalFieldDriver = driver;
     }
-    void setAnisotropyDriver(ScalarDriver driver)
+    void setAnisotropyDriver(ScalarDriver &driver)
     {
         this->anisotropyDriver = driver;
     }
 
-    void setIECDriver(ScalarDriver driver)
+    void setIECDriver(ScalarDriver &driver)
     {
         this->IECDriver = driver;
     }
@@ -242,11 +237,6 @@ public:
         return res * nom;
     }
 
-    // CVector calculateOerstedField(double time)
-    // {
-    //     return this->currentDriver.getCurrentScalarValue(time) / 2 * M_PI * this->cellSurface;
-    // }
-
     CVector calculateExternalField(double time)
     {
         this->H_log =
@@ -281,8 +271,9 @@ public:
         {
             // we will use coupledMag as the reference layer
             CVector prod3;
+            this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // damping-like torque factor
-            const double aJ = HBAR * (this->currentDriver.getCurrentScalarValue(time)) /
+            const double aJ = HBAR * this->I_log /
                               (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
@@ -348,6 +339,7 @@ public:
 
 class Junction
 {
+    friend class Layer;
     std::vector<std::string> vectorNames = {"x", "y", "z"};
 
 public:
@@ -392,75 +384,43 @@ public:
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
-    void setConstantExternalField(double Hval, CVector Hdir)
-    {
-        // Hdir is just unit vector
-        CVector fieldToSet(Hdir);
-        fieldToSet.normalize();
-        fieldToSet = fieldToSet * Hval;
-        for (Layer &l : this->layers)
-        {
-            l.setGlobalExternalFieldValue(fieldToSet);
-        }
-    }
-    void setConstantExternalField(double Hval, Axis axis)
-    {
-        CVector fieldToSet(0, 0, 0);
-        switch (axis)
-        {
-        case xaxis:
-            fieldToSet.x = Hval;
-            break;
-        case yaxis:
-            fieldToSet.y = Hval;
-            break;
-        case zaxis:
-            fieldToSet.z = Hval;
-            break;
-        }
-        for (Layer &l : this->layers)
-        {
-            l.setGlobalExternalFieldValue(fieldToSet);
-        }
-    }
 
-    void setLayerAnisotropyUpdate(std::string layerID, double amplitude, double frequency, double phase)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.Kvar = amplitude;
-        l1.K_frequency = frequency;
-    }
-    void setLayerIECUpdate(std::string layerID, double amplitude, double frequency, double phase)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.Jvar = amplitude;
-        l1.J_frequency = frequency;
-    }
+    // void setLayerStepUpdate(std::string layerID, double Hstep, double timeStart, double timeStop, Axis hax)
+    // {
+    //     Layer &l1 = findLayerByID(layerID);
+    //     l1.Hax = hax;
+    //     l1.Hstep = Hstep;
+    //     l1.Hstart = timeStart;
+    //     l1.Hstop = timeStop;
+    // }
 
-    void setLayerStepUpdate(std::string layerID, double Hstep, double timeStart, double timeStop, Axis hax)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.Hax = hax;
-        l1.Hstep = Hstep;
-        l1.Hstart = timeStart;
-        l1.Hstop = timeStop;
-    }
 
-    void setLayerCurrentDensity(std::string layerID, double currentDensity, double frequency)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.I_var = currentDensity;
-        l1.I_frequency = frequency;
-    }
-
-    void setLayerCoupling(std::string layerID, double J)
+    typedef void (Layer::*scalarDriverSetter)(ScalarDriver &driver);
+    typedef void (Layer::*axialDriverSetter)(AxialDriver &driver);
+    void scalarlayerSetter(std::string layerID, scalarDriverSetter functor, ScalarDriver driver)
     {
         bool found = false;
         for (Layer &l : this->layers)
         {
             if (l.id == layerID || layerID == "all")
             {
-                l.setCoupling(J);
+                (l.*functor)(driver);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id!");
+        }
+    }
+    void axiallayerSetter(std::string layerID, axialDriverSetter functor, AxialDriver driver)
+    {
+        bool found = false;
+        for (Layer &l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                (l.*functor)(driver);
                 found = true;
             }
         }
@@ -470,21 +430,21 @@ public:
         }
     }
 
-    void setLayerAnisotropy(std::string layerID, double K)
+    void setLayerExternalFieldDriver(std::string layerID, AxialDriver driver)
     {
-        bool found = false;
-        for (Layer &l : this->layers)
-        {
-            if (l.id == layerID || layerID == "all")
-            {
-                l.setAnisotropy(K);
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            throw std::runtime_error("Failed to find a layer with a given id!");
-        }
+        axiallayerSetter(layerID, &Layer::setExternalFieldDriver, driver);
+    }
+    void setLayerCurrentDriver(std::string layerID, ScalarDriver driver)
+    {
+        scalarlayerSetter(layerID, &Layer::setCurrentDriver, driver);
+    }
+    void setLayerAnisotropyDriver(std::string layerID, ScalarDriver driver)
+    {
+        scalarlayerSetter(layerID, &Layer::setAnisotropyDriver, driver);
+    }
+    void setLayerIECDriver(std::string layerID, ScalarDriver driver)
+    {
+        scalarlayerSetter(layerID, &Layer::setIECDriver, driver);
     }
 
     void logLayerParams(double t, double magnetoresistance, bool calculateEnergies = false)

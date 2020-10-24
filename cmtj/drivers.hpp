@@ -9,7 +9,8 @@ enum UpdateType
 {
     constant,
     pulse,
-    sine
+    sine,
+    step
 };
 
 class Driver
@@ -61,7 +62,7 @@ protected:
         const int n = (int)(time / T);
         const double dT = cycle * T;
         const double nT = n * T;
-        if (nT <= time <= (nT + dT))
+        if (nT <= time && time <= (nT + dT))
         {
             return amplitude;
         }
@@ -87,16 +88,40 @@ public:
                  period,
                  cycle)
     {
-        if (update == pulse && (period == -1 || cycle == -1))
+        if (update == pulse && ((period == -1) || (cycle == -1)))
         {
-            std::runtime_error("Selected pulse train driver type but either period or cycle were not set");
+            throw std::runtime_error("Selected pulse train driver type but either period or cycle were not set");
         }
         else if (update == sine && (frequency == -1))
         {
-            std::runtime_error("Selected sine driver type but frequency was not set");
+            throw std::runtime_error("Selected sine driver type but frequency was not set");
         }
     }
 
+    static ScalarDriver getConstantDriver(double constantValue)
+    {
+        return ScalarDriver(
+            constant,
+            constantValue);
+    }
+
+    static ScalarDriver getPulseDriver(double constantValue, double amplitude, double period, double cycle)
+    {
+        return ScalarDriver(
+            pulse,
+            constantValue,
+            amplitude,
+            -1, -1, period, cycle);
+    }
+
+    static ScalarDriver getSineDriver(double constantValue, double amplitude, double frequency, double phase)
+    {
+        return ScalarDriver(
+            sine,
+            constantValue,
+            amplitude,
+            frequency, phase);
+    }
     double getCurrentScalarValue(double time)
     {
         double returnValue = constantValue;
