@@ -384,7 +384,6 @@ public:
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
-
     // void setLayerStepUpdate(std::string layerID, double Hstep, double timeStart, double timeStop, Axis hax)
     // {
     //     Layer &l1 = findLayerByID(layerID);
@@ -393,7 +392,6 @@ public:
     //     l1.Hstart = timeStart;
     //     l1.Hstop = timeStop;
     // }
-
 
     typedef void (Layer::*scalarDriverSetter)(ScalarDriver &driver);
     typedef void (Layer::*axialDriverSetter)(AxialDriver &driver);
@@ -627,29 +625,38 @@ public:
         return maxAmpls;
     }
 
+    void runSingleRK4Iteration(double t, double timeStep)
+    {
+        CVector l1mag = this->layers[0].mag;
+        CVector l2mag = this->layers[1].mag;
+        this->layers[0].rk4_step(
+            t, timeStep, l2mag);
+        this->layers[1].rk4_step(
+            t, timeStep, l1mag);
+    }
+
+    double getMagnetoresistance()
+    {
+        return calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
+    }
+
     void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false, bool calculateEnergies = false)
     {
 
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
         const unsigned int writeEvery = (int)(0.01 * 1e-9 / timeStep) - 1;
-        std::vector<double> magnetoresistance;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             t = i * timeStep;
 
-            CVector l1mag = this->layers[0].mag;
-            CVector l2mag = this->layers[1].mag;
-            layers[0].rk4_step(
-                t, timeStep, l2mag);
-            layers[1].rk4_step(
-                t, timeStep, l1mag);
+            runSingleRK4Iteration(t, timeStep);
 
             if (!(i % writeEvery))
             {
-                const double magRes = calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
+                const double magRes = getMagnetoresistance();
                 logLayerParams(t, magRes, calculateEnergies);
             }
         }

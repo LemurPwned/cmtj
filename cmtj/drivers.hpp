@@ -17,7 +17,8 @@ class Driver
 {
 public:
     // if the user wants to update, let them do that
-    double constantValue, amplitude, frequency, phase, cycle, period;
+    double constantValue, amplitude, frequency, phase,
+        cycle, period, timeStart, timeStop;
     UpdateType update;
     Driver()
     {
@@ -26,6 +27,9 @@ public:
         this->frequency = 0.0;
         this->phase = 0.0;
         this->period = 0.0;
+        this->timeStart = 0.0;
+        this->timeStop = 0.0;
+        this->update = constant;
     };
     Driver(UpdateType update,
            double constantValue,
@@ -33,12 +37,16 @@ public:
            double frequency,
            double phase,
            double period,
-           double cycle) : update(update), constantValue(constantValue),
-                           amplitude(amplitude),
-                           frequency(frequency),
-                           phase(phase),
-                           period(period),
-                           cycle(cycle)
+           double cycle,
+           double timeStart,
+           double timeStop) : update(update), constantValue(constantValue),
+                              amplitude(amplitude),
+                              frequency(frequency),
+                              phase(phase),
+                              period(period),
+                              cycle(cycle),
+                              timeStart(timeStart),
+                              timeStop(timeStop)
     {
     }
 };
@@ -80,13 +88,17 @@ public:
         double frequency = -1,
         double phase = 0,
         double period = -1,
-        double cycle = -1)
+        double cycle = -1,
+        double timeStart = -1,
+        double timeStop = -1)
         : Driver(update, constantValue,
                  amplitude,
                  frequency,
                  phase,
                  period,
-                 cycle)
+                 cycle,
+                 timeStart,
+                 timeStop)
     {
         if (update == pulse && ((period == -1) || (cycle == -1)))
         {
@@ -122,6 +134,16 @@ public:
             amplitude,
             frequency, phase);
     }
+
+    static ScalarDriver getStepDriver(double constantValue, double amplitude, double timeStart, double timeStop)
+    {
+        return ScalarDriver(
+            step,
+            constantValue,
+            amplitude,
+            -1, -1, -1, -1, timeStart, timeStop);
+    }
+
     double getCurrentScalarValue(double time)
     {
         double returnValue = constantValue;
@@ -132,6 +154,10 @@ public:
         else if (this->update == sine)
         {
             returnValue += this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase);
+        }
+        else if (this->update == step)
+        {
+            returnValue += stepUpdate(this->amplitude, time, this->timeStart, this->timeStop);
         }
 
         return returnValue;
