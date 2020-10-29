@@ -126,7 +126,7 @@ public:
     CVector IFlow = {0., 0., 1.0};
     double cellRadius = 35e-9;
 
-    double K, Ms, J;
+    double Ms;
     double J_log = 0.0, K_log = 0.0, I_log = 0.0;
     double thickness;
 
@@ -144,7 +144,6 @@ public:
 
     // LLG params
     double damping;
-    double currentDensity; // DC (or DC offset if you wish)
     double SlonczewskiSpacerLayerParameter;
     double beta; // usually either set to 0 or to damping
     double spinPolarisation;
@@ -152,9 +151,7 @@ public:
     Layer(std::string id,
           CVector mag,
           CVector anis,
-          double K,
           double Ms,
-          double J,
           double thickness,
           double cellSurface,
           std::vector<CVector> demagTensor,
@@ -168,9 +165,7 @@ public:
           double spinPolarisation = 0.8) : id(id),
                                            mag(mag),
                                            anis(anis),
-                                           K(K),
                                            Ms(Ms),
-                                           J(J),
                                            thickness(thickness),
                                            cellSurface(cellSurface),
                                            demagTensor(demagTensor),
@@ -178,7 +173,6 @@ public:
                                            temperature(temperature),
                                            includeSTT(includeSTT),
                                            damping(damping),
-                                           currentDensity(currentDensity),
                                            SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
                                            beta(beta),
                                            spinPolarisation(spinPolarisation)
@@ -241,8 +235,6 @@ public:
     {
         this->H_log =
             this->externalFieldDriver.getCurrentAxialDrivers(time);
-        // this->H_log = this->Hconst + updateAxial(this->Hvar, this->H_frequency, time, 0, this->Hax);
-        // this->H_log += updateAxialStep(this->Hstep, time, this->Hstart, this->Hstop, this->Hax);
         return this->H_log;
     }
 
@@ -287,20 +279,6 @@ public:
             dmdt += c_cross(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
         }
         return dmdt;
-    }
-
-    void setGlobalExternalFieldValue(CVector &Hval)
-    {
-        this->Hconst = Hval;
-    }
-
-    void setCoupling(double amplitude)
-    {
-        this->J = amplitude;
-    }
-    void setAnisotropy(double amplitude)
-    {
-        this->K = amplitude;
     }
 
     void rk4_step(double time, double timeStep, CVector coupledMag)

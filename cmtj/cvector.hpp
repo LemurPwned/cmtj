@@ -1,7 +1,8 @@
 #ifndef CVECTOR_H
-#define CVECTOR_H 
+#define CVECTOR_H
 #include <stdio.h>
 #include <random>
+#include <vector>
 class CVector
 {
 public:
@@ -14,6 +15,17 @@ public:
         this->y = 0.0;
         this->z = 0.0;
     } // zero Vector Constructor
+    CVector(std::vector<double> vec)
+    {
+        if (vec.size() != 3)
+        {
+            throw std::runtime_error("Failed to create vector -- passed list was not of len 3!");
+        }
+        this->x = vec[0];
+        this->y = vec[1];
+        this->z = vec[2];
+    }
+
     CVector(double x, double y, double z)
     {
         this->x = x;

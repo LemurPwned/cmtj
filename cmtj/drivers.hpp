@@ -189,6 +189,10 @@ public:
     }
     AxialDriver(std::vector<ScalarDriver> axialDrivers)
     {
+        if (axialDrivers.size() != 3)
+        {
+            throw std::runtime_error("The axial driver can only have 3 axes!");
+        }
         this->drivers = std::move(axialDrivers);
     }
 
