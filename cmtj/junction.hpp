@@ -74,13 +74,6 @@ double c_dot(CVector a, CVector b)
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-enum Axis
-{
-    xaxis,
-    yaxis,
-    zaxis
-};
-
 class EnergyDriver
 {
 public:
@@ -136,7 +129,6 @@ public:
 
     // resting temperature in Kelvin
     double temperature;
-    Axis Hax = xaxis;
 
     double Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
 
@@ -361,15 +353,6 @@ public:
     {
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
-
-    // void setLayerStepUpdate(std::string layerID, double Hstep, double timeStart, double timeStop, Axis hax)
-    // {
-    //     Layer &l1 = findLayerByID(layerID);
-    //     l1.Hax = hax;
-    //     l1.Hstep = Hstep;
-    //     l1.Hstart = timeStart;
-    //     l1.Hstop = timeStop;
-    // }
 
     typedef void (Layer::*scalarDriverSetter)(ScalarDriver &driver);
     typedef void (Layer::*axialDriverSetter)(AxialDriver &driver);

@@ -80,10 +80,11 @@ PYBIND11_MODULE(cmtj, m)
                     "timeStart"_a,
                     "timeStop"_a);
 
-    py::class_<NullDriver>(m, "NullDriver")
+    py::class_<NullDriver, ScalarDriver>(m, "NullDriver")
         .def(py::init<>());
 
     py::class_<AxialDriver>(m, "AxialDriver")
+        .def(py::init<ScalarDriver, ScalarDriver, ScalarDriver>())
         .def(py::init<std::vector<ScalarDriver>>())
         .def("getCurrentAxialDrivers",
              &AxialDriver::getCurrentAxialDrivers);
@@ -103,7 +104,8 @@ PYBIND11_MODULE(cmtj, m)
         .def_readwrite("z", &CVector::z)
         .def("length", &CVector::length);
 
-    py::implicitly_convertible<std::list<float>, CVector>();
+    py::implicitly_convertible<std::list<double>, CVector>();
+    py::implicitly_convertible<std::vector<double>, CVector>();
 
     py::class_<Layer>(m, "Layer")
         .def(py::init<

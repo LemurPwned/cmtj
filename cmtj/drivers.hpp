@@ -174,6 +174,13 @@ public:
     }
 };
 
+enum Axis
+{
+    xaxis,
+    yaxis,
+    zaxis
+};
+
 class AxialDriver : public Driver
 {
 private:
@@ -187,6 +194,12 @@ public:
             NullDriver(),
             NullDriver()};
     }
+    AxialDriver(ScalarDriver x,
+                ScalarDriver y,
+                ScalarDriver z)
+    {
+        this->drivers = {x, y, z};
+    }
     AxialDriver(std::vector<ScalarDriver> axialDrivers)
     {
         if (axialDrivers.size() != 3)
@@ -195,8 +208,8 @@ public:
         }
         this->drivers = std::move(axialDrivers);
     }
-
-    CVector getCurrentAxialDrivers(double time)
+    CVector
+    getCurrentAxialDrivers(double time)
     {
         return CVector(
             this->drivers[0].getCurrentScalarValue(time),
