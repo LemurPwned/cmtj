@@ -19,6 +19,7 @@
 #include <fftw3.h>
 
 #include "cvector.hpp"
+#include "drivers.hpp"
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
 #define GYRO 221000.0
@@ -73,11 +74,29 @@ double c_dot(CVector a, CVector b)
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-enum Axis
+class EnergyDriver
 {
-    xaxis,
-    yaxis,
-    zaxis
+public:
+    static double calculateZeemanEnergy(CVector mag, CVector Hext, double cellVolume, double Ms)
+    {
+        return -MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hext) * cellVolume;
+    }
+
+    static double calculateAnisotropyEnergy(CVector mag, CVector anis, double K, double cellVolume)
+    {
+        const double sinSq = 1 - pow(c_dot(mag, anis) / (anis.length() * mag.length()), 2);
+        return K * sinSq * cellVolume;
+    }
+
+    static double calculateIECEnergy(CVector mag, CVector other, double J, double cellSurface)
+    {
+        return -c_dot(mag, other) * J * cellSurface;
+    }
+
+    static double calculateDemagEnergy(CVector mag, CVector Hdemag, double Ms, double cellVolume)
+    {
+        return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hdemag) * cellVolume;
+    }
 };
 
 std::default_random_engine generator;
@@ -85,17 +104,23 @@ std::normal_distribution<double> distribution(0.0, 1.0);
 class Layer
 {
 private:
-    double cellVolume, cellSurface = 0.0;
+    ScalarDriver currentDriver, IECDriver, anisotropyDriver;
+
+    AxialDriver externalFieldDriver;
 
 public:
+    double cellVolume, cellSurface = 0.0;
+
     std::string id;
 
     CVector H_log, Hconst, mag, anis;
+    CVector Hext, Hdemag, HIEC, HAnis;
 
-    double K, Ms, J;
-    double Kvar = 0.0, Jvar = 0.0, Hvar = 0.0;
-    double K_frequency = 0.0, J_frequency = 0.0, H_frequency = 0.0;
-    double J_log = 0.0, K_log = 0.0;
+    CVector IFlow = {0., 0., 1.0};
+    double cellRadius = 35e-9;
+
+    double Ms;
+    double J_log = 0.0, K_log = 0.0, I_log = 0.0;
     double thickness;
 
     std::vector<CVector>
@@ -104,7 +129,6 @@ public:
 
     // resting temperature in Kelvin
     double temperature;
-    Axis Hax = xaxis;
 
     double Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
 
@@ -112,20 +136,14 @@ public:
 
     // LLG params
     double damping;
-    double currentDensity; // DC (or DC offset if you wish)
     double SlonczewskiSpacerLayerParameter;
     double beta; // usually either set to 0 or to damping
     double spinPolarisation;
 
-    double I_frequency = 0.0;        // AC frequency
-    double I_var = 0.0, I_log = 0.0; // AC amplitude
-
     Layer(std::string id,
           CVector mag,
           CVector anis,
-          double K,
           double Ms,
-          double J,
           double thickness,
           double cellSurface,
           std::vector<CVector> demagTensor,
@@ -139,9 +157,7 @@ public:
           double spinPolarisation = 0.8) : id(id),
                                            mag(mag),
                                            anis(anis),
-                                           K(K),
                                            Ms(Ms),
-                                           J(J),
                                            thickness(thickness),
                                            cellSurface(cellSurface),
                                            demagTensor(demagTensor),
@@ -149,7 +165,6 @@ public:
                                            temperature(temperature),
                                            includeSTT(includeSTT),
                                            damping(damping),
-                                           currentDensity(currentDensity),
                                            SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
                                            beta(beta),
                                            spinPolarisation(spinPolarisation)
@@ -157,80 +172,39 @@ public:
         this->cellVolume = this->cellSurface * this->thickness;
     }
 
-    double sinusoidalUpdate(double amplitude, double frequency, double time, double phase = 0.0)
+    void setCurrentDriver(ScalarDriver &driver)
     {
-        return amplitude * sin(2 * M_PI * time * frequency + phase);
+        this->currentDriver = driver;
     }
 
-    double stepUpdate(double amplitude, double time, double timeStart, double timeStop)
+    void setExternalFieldDriver(AxialDriver &driver)
     {
-        if (time >= timeStart && time <= timeStop)
-        {
-            return amplitude;
-        }
-        else
-        {
-            return 0.0;
-        }
+        this->externalFieldDriver = driver;
+    }
+    void setAnisotropyDriver(ScalarDriver &driver)
+    {
+        this->anisotropyDriver = driver;
     }
 
-    double pulseTrain(double amplitude, double time, double T, double cycle)
+    void setIECDriver(ScalarDriver &driver)
     {
-        const int n = (int)(time / T);
-        const double dT = cycle * T;
-        const double nT = n * T;
-        if (nT <= time <= (nT + dT))
-        {
-            return amplitude;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    CVector updateAxial(double amplitude, double frequency, double time, double phase, Axis axis)
-    {
-        CVector *result = new CVector();
-        const double updateValue = sinusoidalUpdate(amplitude, frequency, time, phase);
-        switch (axis)
-        {
-        case xaxis:
-            result->x = updateValue;
-        case yaxis:
-            result->y = updateValue;
-        case zaxis:
-            result->z = updateValue;
-        }
-        return *result;
-    }
-
-    CVector updateAxialStep(double amplitude, double time, double timeStart, double timeStop, Axis axis)
-    {
-        CVector *result = new CVector();
-        const double updateValue = stepUpdate(amplitude, time, timeStart, timeStop);
-        switch (axis)
-        {
-        case xaxis:
-            result->x = updateValue;
-        case yaxis:
-            result->y = updateValue;
-        case zaxis:
-            result->z = updateValue;
-        }
-        return *result;
+        this->IECDriver = driver;
     }
 
     CVector calculateHeff(double time, double timeStep, CVector otherMag)
     {
         CVector Heff = {0., 0., 0.};
 
-        Heff = calculateExternalField(time) +
-               calculateAnisotropy(time) +
-               calculateIEC(time, otherMag) +
+        this->Hext = calculateExternalField(time);
+        this->Hdemag = calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms);
+        this->HIEC = calculateIEC(time, otherMag);
+        this->HAnis = calculateAnisotropy(time);
+        Heff = this->Hext +  // external
+               this->HAnis + // anistotropy
+               this->HIEC +  // IEC
                // demag
                // check the interaction here to be sure
-               calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms) +
+               this->Hdemag +
                // dipole
                calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms) +
                // stochastic field dependent on the temperature
@@ -251,31 +225,23 @@ public:
 
     CVector calculateExternalField(double time)
     {
-
-        this->H_log = this->Hconst + updateAxial(this->Hvar, this->H_frequency, time, 0, this->Hax);
-        this->H_log += updateAxialStep(this->Hstep, time, this->Hstart, this->Hstop, this->Hax);
+        this->H_log =
+            this->externalFieldDriver.getCurrentAxialDrivers(time);
         return this->H_log;
     }
 
     CVector calculateAnisotropy(double time)
     {
-        this->K_log = this->K + sinusoidalUpdate(this->Kvar, this->K_frequency, time, 0);
+        this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
         const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
         return this->anis * nom;
     }
 
     CVector calculateIEC(double time, CVector coupledMag)
     {
-        this->J_log = this->J + sinusoidalUpdate(this->Jvar, this->J_frequency, time, 0);
+        this->J_log = this->IECDriver.getCurrentScalarValue(time);
         const double nom = this->J_log / (MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
         return (coupledMag - this->mag) * nom;
-    }
-
-    double calculateCurrentDensity(double time)
-    {
-        this->I_log = this->currentDensity + sinusoidalUpdate(this->I_var, this->I_frequency, time, 0);
-        ;
-        return this->I_log;
     }
 
     CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double timeStep)
@@ -289,8 +255,9 @@ public:
         {
             // we will use coupledMag as the reference layer
             CVector prod3;
+            this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // damping-like torque factor
-            const double aJ = HBAR * (calculateCurrentDensity(time)) /
+            const double aJ = HBAR * this->I_log /
                               (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
@@ -304,20 +271,6 @@ public:
             dmdt += c_cross(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
         }
         return dmdt;
-    }
-
-    void setGlobalExternalFieldValue(CVector &Hval)
-    {
-        this->Hconst = Hval;
-    }
-
-    void setCoupling(double amplitude)
-    {
-        this->J = amplitude;
-    }
-    void setAnisotropy(double amplitude)
-    {
-        this->K = amplitude;
     }
 
     void rk4_step(double time, double timeStep, CVector coupledMag)
@@ -356,6 +309,7 @@ public:
 
 class Junction
 {
+    friend class Layer;
     std::vector<std::string> vectorNames = {"x", "y", "z"};
 
 public:
@@ -400,75 +354,32 @@ public:
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
-    void setConstantExternalField(double Hval, CVector Hdir)
-    {
-        // Hdir is just unit vector
-        CVector fieldToSet(Hdir);
-        fieldToSet.normalize();
-        fieldToSet = fieldToSet * Hval;
-        for (Layer &l : this->layers)
-        {
-            l.setGlobalExternalFieldValue(fieldToSet);
-        }
-    }
-    void setConstantExternalField(double Hval, Axis axis)
-    {
-        CVector fieldToSet(0, 0, 0);
-        switch (axis)
-        {
-        case xaxis:
-            fieldToSet.x = Hval;
-            break;
-        case yaxis:
-            fieldToSet.y = Hval;
-            break;
-        case zaxis:
-            fieldToSet.z = Hval;
-            break;
-        }
-        for (Layer &l : this->layers)
-        {
-            l.setGlobalExternalFieldValue(fieldToSet);
-        }
-    }
-
-    void setLayerAnisotropyUpdate(std::string layerID, double amplitude, double frequency, double phase)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.Kvar = amplitude;
-        l1.K_frequency = frequency;
-    }
-    void setLayerIECUpdate(std::string layerID, double amplitude, double frequency, double phase)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.Jvar = amplitude;
-        l1.J_frequency = frequency;
-    }
-
-    void setLayerStepUpdate(std::string layerID, double Hstep, double timeStart, double timeStop, Axis hax)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.Hax = hax;
-        l1.Hstep = Hstep;
-        l1.Hstart = timeStart;
-        l1.Hstop = timeStop;
-    }
-
-    void setLayerCurrentDensity(std::string layerID, double currentDensity, double frequency)
-    {
-        Layer &l1 = findLayerByID(layerID);
-        l1.I_var = currentDensity;
-        l1.I_frequency = frequency;
-    }
-
-    void setLayerCoupling(std::string layerID, double J)
+    typedef void (Layer::*scalarDriverSetter)(ScalarDriver &driver);
+    typedef void (Layer::*axialDriverSetter)(AxialDriver &driver);
+    void scalarlayerSetter(std::string layerID, scalarDriverSetter functor, ScalarDriver driver)
     {
         bool found = false;
         for (Layer &l : this->layers)
         {
             if (l.id == layerID || layerID == "all")
             {
-                l.setCoupling(J);
+                (l.*functor)(driver);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id!");
+        }
+    }
+    void axiallayerSetter(std::string layerID, axialDriverSetter functor, AxialDriver driver)
+    {
+        bool found = false;
+        for (Layer &l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                (l.*functor)(driver);
                 found = true;
             }
         }
@@ -478,45 +389,68 @@ public:
         }
     }
 
-    void setLayerAnisotropy(std::string layerID, double K)
+    void setLayerExternalFieldDriver(std::string layerID, AxialDriver driver)
     {
-        bool found = false;
-        for (Layer &l : this->layers)
-        {
-            if (l.id == layerID || layerID == "all")
-            {
-                l.setAnisotropy(K);
-                found = true;
-            }
-        }
-        if (!found)
-        {
-            throw std::runtime_error("Failed to find a layer with a given id!");
-        }
+        axiallayerSetter(layerID, &Layer::setExternalFieldDriver, driver);
+    }
+    void setLayerCurrentDriver(std::string layerID, ScalarDriver driver)
+    {
+        scalarlayerSetter(layerID, &Layer::setCurrentDriver, driver);
+    }
+    void setLayerAnisotropyDriver(std::string layerID, ScalarDriver driver)
+    {
+        scalarlayerSetter(layerID, &Layer::setAnisotropyDriver, driver);
+    }
+    void setLayerIECDriver(std::string layerID, ScalarDriver driver)
+    {
+        scalarlayerSetter(layerID, &Layer::setIECDriver, driver);
     }
 
-    void logLayerParams(double t, double magnetoresistance)
+    void logLayerParams(double t, double magnetoresistance, bool calculateEnergies = false)
     {
-        for (int i = 0; i < 3; i++)
+        for (Layer &layer : this->layers)
         {
-            this->log["L1m" + vectorNames[i]].push_back(this->layers[0].mag[i]);
-            this->log["L2m" + vectorNames[i]].push_back(this->layers[1].mag[i]);
-            this->log["L1Hext" + vectorNames[i]].push_back(this->layers[0].H_log[i]);
-            this->log["L2Hext" + vectorNames[i]].push_back(this->layers[1].H_log[i]);
+            for (int i = 0; i < 3; i++)
+            {
+                this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
+                this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
+            }
+            this->log[layer.id + "_K"].push_back(layer.K_log);
+            if (layer.includeSTT)
+                this->log[layer.id + "_I"].push_back(layer.I_log);
+
+            if (calculateEnergies)
+            {
+                for (Layer &layer : this->layers)
+                {
+                    this->log[layer.id + "_EZeeman"].push_back(EnergyDriver::calculateZeemanEnergy(layer.mag,
+                                                                                                   layer.Hext,
+                                                                                                   layer.cellVolume,
+                                                                                                   layer.Ms));
+                    this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
+                                                                                                     layer.anis,
+                                                                                                     layer.K_log,
+                                                                                                     layer.cellVolume));
+                    // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
+                    //                                                                    layer,
+                    //                                                                    layer.J_log,
+                    //                                                                    layer.cellSurface);
+                    this->log[layer.id + "_EDemag"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
+                                                                                                 layer.Hdemag,
+                                                                                                 layer.Ms,
+                                                                                                 layer.cellVolume));
+                }
+            }
         }
-        this->log["L1K"].push_back(this->layers[0].K_log);
-        this->log["L2K"].push_back(this->layers[1].K_log);
-        if (this->layers[0].includeSTT)
-            this->log["I1"].push_back(this->layers[0].I_log);
-        if (this->layers[0].includeSTT)
-            this->log["I2"].push_back(this->layers[1].I_log);
+
         this->log["R_free_bottom"].push_back(magnetoresistance);
         this->log["time"].push_back(t);
 
         this->logLength++;
     }
 
-    void saveLogs()
+    void
+    saveLogs()
     {
         std::ofstream logFile;
         logFile.open(this->fileSave);
@@ -652,30 +586,39 @@ public:
         return maxAmpls;
     }
 
-    void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false)
+    void runSingleRK4Iteration(double t, double timeStep)
+    {
+        CVector l1mag = this->layers[0].mag;
+        CVector l2mag = this->layers[1].mag;
+        this->layers[0].rk4_step(
+            t, timeStep, l2mag);
+        this->layers[1].rk4_step(
+            t, timeStep, l1mag);
+    }
+
+    double getMagnetoresistance()
+    {
+        return calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
+    }
+
+    void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false, bool calculateEnergies = false)
     {
 
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
         const unsigned int writeEvery = (int)(0.01 * 1e-9 / timeStep) - 1;
-        std::vector<double> magnetoresistance;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             t = i * timeStep;
 
-            CVector l1mag = this->layers[0].mag;
-            CVector l2mag = this->layers[1].mag;
-            layers[0].rk4_step(
-                t, timeStep, l2mag);
-            layers[1].rk4_step(
-                t, timeStep, l1mag);
+            runSingleRK4Iteration(t, timeStep);
 
             if (!(i % writeEvery))
             {
-                const double magRes = calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
-                logLayerParams(t, magRes);
+                const double magRes = getMagnetoresistance();
+                logLayerParams(t, magRes, calculateEnergies);
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

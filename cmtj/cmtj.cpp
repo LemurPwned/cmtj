@@ -5,6 +5,7 @@
 #include "cvector.hpp"
 #include "parallel.hpp"
 #include "junction.hpp"
+#include "drivers.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -40,6 +41,7 @@ PYBIND11_MODULE(cmtj, m)
     m.def("RK45", &Junction::RK45);
     m.def("LLG", &Junction::LLG);
 
+    // helpers
     m.def("c_dot", &c_dot);
     m.def("customResultMap", &ComputeUtil::customResultMap,
           "resultMap"_a,
@@ -54,6 +56,40 @@ PYBIND11_MODULE(cmtj, m)
           "numberOfThreads"_a,
           "runnableFunction"_a);
 
+    // Driver Class
+    py::class_<ScalarDriver>(m, "ScalarDriver")
+        .def_static("getConstantDriver",
+                    &ScalarDriver::getConstantDriver,
+                    "constantValue"_a)
+        .def_static("getPulseDriver",
+                    &ScalarDriver::getPulseDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "period"_a,
+                    "cycle"_a)
+        .def_static("getSineDriver",
+                    &ScalarDriver::getSineDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "frequency"_a,
+                    "phase"_a)
+        .def_static("getStepDriver",
+                    &ScalarDriver::getStepDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "timeStart"_a,
+                    "timeStop"_a);
+
+    py::class_<NullDriver, ScalarDriver>(m, "NullDriver")
+        .def(py::init<>());
+
+    py::class_<AxialDriver>(m, "AxialDriver")
+        .def(py::init<ScalarDriver, ScalarDriver, ScalarDriver>())
+        .def(py::init<std::vector<ScalarDriver>>())
+        .def("getCurrentAxialDrivers",
+             &AxialDriver::getCurrentAxialDrivers);
+
+    // CVector
     py::enum_<Axis>(m, "Axis")
         .value("xaxis", xaxis)
         .value("yaxis", yaxis)
@@ -68,16 +104,15 @@ PYBIND11_MODULE(cmtj, m)
         .def_readwrite("z", &CVector::z)
         .def("length", &CVector::length);
 
-    py::implicitly_convertible<std::list<float>, CVector>();
+    py::implicitly_convertible<std::list<double>, CVector>();
+    py::implicitly_convertible<std::vector<double>, CVector>();
 
     py::class_<Layer>(m, "Layer")
         .def(py::init<
                  std::string,          // id
                  CVector,              // mag
                  CVector,              // anis
-                 double,               // K
                  double,               // Ms
-                 double,               // J
                  double,               // thickness
                  double,               // cekkSurface
                  std::vector<CVector>, // demagTensor
@@ -85,7 +120,6 @@ PYBIND11_MODULE(cmtj, m)
                  double,               // temperature
                  bool,                 // includeSTT
                  double,               // damping
-                 double,               // currentDensity
                  double,               // SlonczewskiSpacerLayerParameter
                  double,               // beta
                  double                // spinPolarisation
@@ -93,9 +127,7 @@ PYBIND11_MODULE(cmtj, m)
              "id"_a,
              "mag"_a,
              "anis"_a,
-             "K"_a,
              "Ms"_a,
-             "J"_a,
              "thickness"_a,
              "cellSurface"_a,
              "demagTensor"_a,
@@ -103,7 +135,6 @@ PYBIND11_MODULE(cmtj, m)
              "temperature"_a = 0.0,
              "includeSTT"_a = false,
              "damping"_a = 0.011,
-             "currentDensity"_a = 1,
              "SlonczewskiSpacerLayerParameter"_a = 1.0,
              "beta"_a = 0.0,
              "spinPolarisation"_a = 0.8)
@@ -130,22 +161,14 @@ PYBIND11_MODULE(cmtj, m)
              "totalTime"_a,
              "timeStep"_a = 1e-13,
              "persist"_a = false,
-             "log"_a = false)
+             "log"_a = false,
+             "calculateEnergies"_a = false)
 
-        // set Layer parameters
-        .def("setLayerAnisotropy", &Junction::setLayerAnisotropy)
-        .def("setLayerCoupling", &Junction::setLayerCoupling)
-
-        // overload
-        // .def("setConstantExternalField", &Junction::setConstantExternalField)
-        .def("setConstantExternalField", py::overload_cast<double, CVector>(&Junction::setConstantExternalField))
-        .def("setConstantExternalField", py::overload_cast<double, Axis>(&Junction::setConstantExternalField))
-
-        // set updates
-        .def("setLayerStepUpdate", &Junction::setLayerStepUpdate)
-        .def("setLayerIECUpdate", &Junction::setLayerIECUpdate)
-        .def("setLayerStepUpdate", &Junction::setLayerStepUpdate)
-        .def("setLayerCurrentDensity", &Junction::setLayerCurrentDensity)
+        // driver setters
+        .def("setLayerExternalFieldDriver", &Junction::setLayerExternalFieldDriver)
+        .def("setLayerCurrentDriver", &Junction::setLayerCurrentDriver)
+        .def("setLayerAnisotropyDriver", &Junction::setLayerAnisotropyDriver)
+        .def("setLayerIECDriver", &Junction::setLayerIECDriver)
 
         // junction calculations
         .def("calculateMagnetoresistance", &Junction::calculateMagnetoresistance)
