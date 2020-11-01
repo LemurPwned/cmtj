@@ -28,9 +28,9 @@ public:
         ComputeUtil::customResultMap(this->stackLog, filename);
     }
 
-    void runSimulation(double totalTime, double timeStep = 1e-13)
+    void runSimulation(double totalTime, double timeStep = 1e-13, double writeFrequency = 1e-11)
     {
-        const unsigned int writeEvery = (int)(0.01 * 1e-9 / timeStep) - 1;
+        const unsigned int writeEvery = (int)(writeFrequency / timeStep) - 1;
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
 

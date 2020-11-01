@@ -421,25 +421,22 @@ public:
 
             if (calculateEnergies)
             {
-                for (Layer &layer : this->layers)
-                {
-                    this->log[layer.id + "_EZeeman"].push_back(EnergyDriver::calculateZeemanEnergy(layer.mag,
-                                                                                                   layer.Hext,
-                                                                                                   layer.cellVolume,
-                                                                                                   layer.Ms));
-                    this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
-                                                                                                     layer.anis,
-                                                                                                     layer.K_log,
-                                                                                                     layer.cellVolume));
-                    // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
-                    //                                                                    layer,
-                    //                                                                    layer.J_log,
-                    //                                                                    layer.cellSurface);
-                    this->log[layer.id + "_EDemag"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
-                                                                                                 layer.Hdemag,
-                                                                                                 layer.Ms,
+                this->log[layer.id + "_EZeeman"].push_back(EnergyDriver::calculateZeemanEnergy(layer.mag,
+                                                                                               layer.Hext,
+                                                                                               layer.cellVolume,
+                                                                                               layer.Ms));
+                this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
+                                                                                                 layer.anis,
+                                                                                                 layer.K_log,
                                                                                                  layer.cellVolume));
-                }
+                // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
+                //                                                                    layer.other,
+                //                                                                    layer.J_log,
+                //                                                                    layer.cellSurface);
+                this->log[layer.id + "_EDemag"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
+                                                                                             layer.Hdemag,
+                                                                                             layer.Ms,
+                                                                                             layer.cellVolume));
             }
         }
 
@@ -536,7 +533,7 @@ public:
         for (const auto &magTag : this->vectorNames)
         {
             // std::cout << "Doing FFT for: " << magTag << std::endl;
-            std::vector<double> cutMag(this->log["L1m" + magTag].begin() + thresIdx, this->log["L1m" + magTag].end());
+            std::vector<double> cutMag(this->log["free_m" + magTag].begin() + thresIdx, this->log["free_m" + magTag].end());
             // std::cout << "Sub size: " << cutMag.size() << std::endl;
             fftw_complex out[cutMag.size()];
             // define FFT plan
@@ -601,12 +598,13 @@ public:
         return calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
     }
 
-    void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false, bool calculateEnergies = false)
+    void runSimulation(double totalTime, double timeStep = 1e-13, double writeFrequency = 1e-11,
+                       bool persist = true, bool log = false, bool calculateEnergies = false)
     {
 
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
-        const unsigned int writeEvery = (int)(0.01 * 1e-9 / timeStep) - 1;
+        const unsigned int writeEvery = (int)(writeFrequency / timeStep) - 1;
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
