@@ -98,14 +98,11 @@ public:
         return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hdemag) * cellVolume;
     }
 };
-
-std::default_random_engine generator;
-std::normal_distribution<double> distribution(0.0, 1.0);
+static std::default_random_engine generator;
 class Layer
 {
 private:
     ScalarDriver currentDriver, IECDriver, anisotropyDriver;
-
     AxialDriver externalFieldDriver;
 
 public:
@@ -114,7 +111,7 @@ public:
     std::string id;
 
     CVector H_log, Hconst, mag, anis;
-    CVector Hext, Hdemag, HIEC, HAnis;
+    CVector Hext, Hdipole, Hdemag, HIEC, HAnis, Hthermal;
 
     CVector IFlow = {0., 0., 1.0};
     double cellRadius = 35e-9;
@@ -139,6 +136,9 @@ public:
     double SlonczewskiSpacerLayerParameter;
     double beta; // usually either set to 0 or to damping
     double spinPolarisation;
+
+    std::normal_distribution<double> distribution;
+    const double stochasticTorqueMean = 0.0;
 
     Layer(std::string id,
           CVector mag,
@@ -170,6 +170,18 @@ public:
                                            spinPolarisation(spinPolarisation)
     {
         this->cellVolume = this->cellSurface * this->thickness;
+
+        const double torqueStd = getStochasticStandardDeviation();
+        std::cout << "Torque Std: " << torqueStd << std::endl;
+
+        this->distribution = std::normal_distribution<double>(stochasticTorqueMean, torqueStd);
+    }
+
+    double getStochasticStandardDeviation()
+    {
+        const double scaledDamping = 2 * (this->damping) / (1 + pow(this->damping, 2));
+        const double mainFactor = BOLTZMANN_CONST * this->temperature / (GYRO * this->Ms * this->cellVolume);
+        return sqrt(scaledDamping * mainFactor);
     }
 
     void setCurrentDriver(ScalarDriver &driver)
@@ -196,9 +208,11 @@ public:
         CVector Heff = {0., 0., 0.};
 
         this->Hext = calculateExternalField(time);
-        this->Hdemag = calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms);
+        this->Hdipole = calculate_tensor_interaction(otherMag, this->dipoleTensor, this->Ms);
+        this->Hdemag = calculate_tensor_interaction(this->mag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, otherMag);
         this->HAnis = calculateAnisotropy(time);
+        this->Hthermal = calculateStochasticThermalField(timeStep);
         Heff = this->Hext +  // external
                this->HAnis + // anistotropy
                this->HIEC +  // IEC
@@ -206,9 +220,10 @@ public:
                // check the interaction here to be sure
                this->Hdemag +
                // dipole
-               calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms) +
+               this->Hdipole +
                // stochastic field dependent on the temperature
-               calculateStochasticThermalField(timeStep);
+               this->Hthermal;
+        //    calculateStochasticThermalField(timeStep);
 
         return Heff;
     }
@@ -216,11 +231,13 @@ public:
     CVector calculateStochasticThermalField(double timeStep)
     {
         // becomes zero if the temperature is 0
-        CVector res(distribution, generator);
+        CVector res(this->distribution, generator);
         res.normalize();
-        const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
-                                (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
-        return res * nom;
+        // const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
+        // (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
+        // return res * nom;
+        return res;
+        // return CVector(0., 0., 0.);
     }
 
     CVector calculateExternalField(double time)
@@ -305,6 +322,17 @@ public:
         std::cout << "Warning -- UNKNOWN ENUM: " << plane << std::endl;
         return 0.0;
     }
+
+    void calculatePinningCurrents()
+    {
+        const double qh = ELECTRON_CHARGE / HBAR;
+        const double PMA_Ip = 6 * qh * this->damping * BOLTZMANN_CONST * this->temperature;
+        // const double locDemag =
+        // const double IMA_Ip = 2 * qh * sqrt(2 / M_PI) * sqrt(this->Hdemag * this->Ms * this->cellVolume * BOLTZMANN_CONST * this->temperature);
+
+        std::cout << "PMA pinning current: " << PMA_Ip << std::endl;
+        // std::cout << "IMA pinning current: " << IMA_Ip << std::endl;
+    }
 };
 
 class Junction
@@ -330,6 +358,7 @@ public:
     void clearLog()
     {
         this->log.clear();
+        this->logLength = 0;
     }
 
     std::map<std::string, std::vector<double>> getLog()
@@ -437,6 +466,10 @@ public:
                                                                                              layer.Hdemag,
                                                                                              layer.Ms,
                                                                                              layer.cellVolume));
+                this->log[layer.id + "_EDipole"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
+                                                                                              layer.Hdipole,
+                                                                                              layer.Ms,
+                                                                                              layer.cellVolume));
             }
         }
 

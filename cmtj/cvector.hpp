@@ -129,9 +129,12 @@ public:
     void normalize()
     {
         double mag = this->length();
-        x = x / mag;
-        y = y / mag;
-        z = z / mag;
+        if (mag != 0)
+        {
+            x = x / mag;
+            y = y / mag;
+            z = z / mag;
+        }
     };
     void setX(double vx)
     {
