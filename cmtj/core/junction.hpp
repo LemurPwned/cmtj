@@ -1,20 +1,20 @@
 #ifndef JUNCTION_H
 #define JUNCTION_H
 
-#include <iostream>
-#include <stdio.h>
-#include <vector>
-#include <map>
-#include <cstring>
-#include <cmath>
-#include <fstream>
-#include <string>
-#include <chrono>
-#include <numeric>
-#include <tuple>
-#include <random>
-#include <complex>
 #include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <complex>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <numeric>
+#include <random>
+#include <stdio.h>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include <fftw3.h>
 
@@ -139,7 +139,7 @@ public:
 
     std::normal_distribution<double> distribution;
     const double stochasticTorqueMean = 0.0;
-
+    Layer() {}
     Layer(std::string id,
           CVector mag,
           CVector anis,
@@ -666,49 +666,7 @@ public:
                                      std::vector<CVector> Kdir,
                                      std::vector<double> th,
                                      std::vector<double> alpha,
-                                     std::vector<CVector> demag)
-    {
-
-        CVector k1, k2, k3, k4, dm;
-
-        k1 = Junction::LLG(mag, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-        k2 = Junction::LLG(mag + k1 * 0.5, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-        k3 = Junction::LLG(mag + k2 * 0.5, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-        k4 = Junction::LLG(mag + k3, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-
-        dm = (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
-        mag = mag + dm;
-        mag.normalize();
-        return {mag, dm};
-    }
+                                     std::vector<CVector> demag);
 
     static CVector LLG(CVector mag, CVector mTop, CVector mBottom, CVector Hext, CVector HOe, int layer,
                        std::vector<double> Ms,
@@ -717,23 +675,7 @@ public:
                        std::vector<CVector> Kdir,
                        std::vector<double> th,
                        std::vector<double> alpha,
-                       std::vector<CVector> demag)
-    {
-
-        CVector Heff, noise, dm, Pprod, Hprod;
-
-        Heff = Hext + HOe + Kdir[layer] * ((2 * Ku[layer] / Ms[layer]) * c_dot(mag, Kdir[layer])) +
-               mTop * (Ju[layer - 1] / (Ms[layer] * th[layer])) +
-               mBottom * (Ju[layer] / (Ms[layer] * th[layer])) -
-               calculate_tensor_interaction(mag, demag, 1) * (Ms[layer] / MAGNETIC_PERMEABILITY);
-
-        // noise
-        // Pprod = c_cross(mag, p);
-        Hprod = c_cross(mag, Heff);
-        dm = Hprod * -PERGYR + c_cross(mag, Hprod) * alpha[layer] * -PERGYR;
-
-        return dm;
-    }
+                       std::vector<CVector> demag);
 };
 
 #endif

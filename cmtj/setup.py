@@ -31,11 +31,12 @@ ext_modules = [
         'cmtj',
         # Sort input source files to ensure bit-for-bit reproducible builds
         # (https://github.com/pybind/python_example/pull/53)
-        sorted(['cmtj.cpp']),
+        sorted(['python/cmtj.cpp']),
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
-            '/usr/local/include'
+            '/usr/local/include',
+            './core'
         ],
         libraries=['fftw3'],
         library_dirs=['/usr/local/lib'],
@@ -123,7 +124,6 @@ setup(
     name='cmtj',
     version=__version__,
     author='Jakub',
-    author_email='jakubmj@student.agh.edu.pl',
     url='https://github.com/LemurPwned/spinpy',
     description='Python bindings for CMTJ library',
     long_description='',
