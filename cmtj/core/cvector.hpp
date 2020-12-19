@@ -41,6 +41,7 @@ public:
 
     CVector(std::normal_distribution<double> &distribution, std::default_random_engine &generator)
     {
+        // the noise should be independent in each direction
         this->x = distribution(generator);
         this->y = distribution(generator);
         this->z = distribution(generator);

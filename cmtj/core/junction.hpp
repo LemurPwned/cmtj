@@ -111,7 +111,7 @@ public:
     std::string id;
 
     CVector H_log, Hconst, mag, anis;
-    CVector Hext, Hdipole, Hdemag, HIEC, HAnis, Hthermal;
+    CVector Hext, Hdipole, Hdemag, HIEC, HAnis, Hthermal, Hfl;
 
     CVector IFlow = {0., 0., 1.0};
     double cellRadius = 35e-9;
@@ -151,33 +151,36 @@ public:
           double temperature = 0.0,
           bool includeSTT = false,
           double damping = 0.011,
-          double currentDensity = 1.,
           double SlonczewskiSpacerLayerParameter = 1.0,
           double beta = 0.0,
-          double spinPolarisation = 0.8) : id(id),
-                                           mag(mag),
-                                           anis(anis),
-                                           Ms(Ms),
-                                           thickness(thickness),
-                                           cellSurface(cellSurface),
-                                           demagTensor(demagTensor),
-                                           dipoleTensor(dipoleTensor),
-                                           temperature(temperature),
-                                           includeSTT(includeSTT),
-                                           damping(damping),
-                                           SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
-                                           beta(beta),
-                                           spinPolarisation(spinPolarisation)
+          double spinPolarisation = 0.8,
+          bool silent = true) : id(id),
+                                mag(mag),
+                                anis(anis),
+                                Ms(Ms),
+                                thickness(thickness),
+                                cellSurface(cellSurface),
+                                demagTensor(demagTensor),
+                                dipoleTensor(dipoleTensor),
+                                temperature(temperature),
+                                includeSTT(includeSTT),
+                                damping(damping),
+                                SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
+                                beta(beta),
+                                spinPolarisation(spinPolarisation)
     {
         this->cellVolume = this->cellSurface * this->thickness;
-
-        const double torqueStd = getStochasticStandardDeviation();
-        std::cout << "Torque Std: " << torqueStd << std::endl;
-
+        // this is Langevin fluctuation field from the Kaiser paper
+        const double torqueStd = this->getLangevinStochasticStandardDeviation();
+        if (!silent)
+        {
+            std::cout << "Langevin torque std: " << torqueStd << std::endl;
+            std::cout << "Cell Volume: " << cellVolume << std::endl;
+        }
         this->distribution = std::normal_distribution<double>(stochasticTorqueMean, torqueStd);
     }
 
-    double getStochasticStandardDeviation()
+    double getLangevinStochasticStandardDeviation()
     {
         const double scaledDamping = 2 * (this->damping) / (1 + pow(this->damping, 2));
         const double mainFactor = BOLTZMANN_CONST * this->temperature / (GYRO * this->Ms * this->cellVolume);
@@ -212,7 +215,7 @@ public:
         this->Hdemag = calculate_tensor_interaction(this->mag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, otherMag);
         this->HAnis = calculateAnisotropy(time);
-        this->Hthermal = calculateStochasticThermalField(timeStep);
+        this->Hfl = calculateLangevinStochasticField(timeStep);
         Heff = this->Hext +  // external
                this->HAnis + // anistotropy
                this->HIEC +  // IEC
@@ -222,17 +225,15 @@ public:
                // dipole
                this->Hdipole +
                // stochastic field dependent on the temperature
-               this->Hthermal;
-        //    calculateStochasticThermalField(timeStep);
+               this->Hfl;
 
         return Heff;
     }
 
-    CVector calculateStochasticThermalField(double timeStep)
+    CVector calculateLangevinStochasticField(double timeStep)
     {
         // becomes zero if the temperature is 0
         CVector res(this->distribution, generator);
-        res.normalize();
         // const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
         // (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
         // return res * nom;
@@ -261,10 +262,10 @@ public:
         return (coupledMag - this->mag) * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double timeStep)
+    CVector llg(double time, CVector m, CVector coupledMag, CVector heffEx, double timeStep)
     {
-        CVector prod, prod2, dmdt;
-        // heff = calculateHeff(time, timeStep, coupledMag);
+        CVector prod, prod2, dmdt, heff;
+        heff = calculateHeff(time, timeStep, coupledMag);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
         dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
@@ -294,7 +295,7 @@ public:
     {
         CVector k1, k2, k3, k4, m_t, heff;
         m_t = mag;
-        heff = calculateHeff(time, timeStep, coupledMag);
+        // heff = calculateHeff(time, timeStep, coupledMag);
         k1 = llg(time, m_t, coupledMag, heff, timeStep) * timeStep;
         k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff, timeStep) * timeStep;
         k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff, timeStep) * timeStep;
@@ -637,7 +638,7 @@ public:
 
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
-        const unsigned int writeEvery = (int)(writeFrequency / timeStep) - 1;
+        const unsigned int writeEvery = (int)(writeFrequency / timeStep);
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
@@ -656,7 +657,11 @@ public:
         if (persist)
             saveLogs();
         if (log)
+        {
+            std::cout << "Steps in simulation: " << totalIterations << std::endl;
+            std::cout << "Write every: " << writeEvery << std::endl;
             std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
+        }
     }
 
     static std::vector<CVector> RK45(CVector mag, CVector mTop, CVector mBottom, CVector Hext, int layer, double dt, CVector HOe,
