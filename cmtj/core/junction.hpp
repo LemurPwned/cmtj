@@ -1,20 +1,20 @@
 #ifndef JUNCTION_H
 #define JUNCTION_H
 
-#include <iostream>
-#include <stdio.h>
-#include <vector>
-#include <map>
-#include <cstring>
-#include <cmath>
-#include <fstream>
-#include <string>
-#include <chrono>
-#include <numeric>
-#include <tuple>
-#include <random>
-#include <complex>
 #include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <complex>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <numeric>
+#include <random>
+#include <stdio.h>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include <fftw3.h>
 
@@ -98,14 +98,11 @@ public:
         return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hdemag) * cellVolume;
     }
 };
-
-std::default_random_engine generator;
-std::normal_distribution<double> distribution(0.0, 1.0);
+static std::default_random_engine generator;
 class Layer
 {
 private:
     ScalarDriver currentDriver, IECDriver, anisotropyDriver;
-
     AxialDriver externalFieldDriver;
 
 public:
@@ -114,7 +111,7 @@ public:
     std::string id;
 
     CVector H_log, Hconst, mag, anis;
-    CVector Hext, Hdemag, HIEC, HAnis;
+    CVector Hext, Hdipole, Hdemag, HIEC, HAnis, Hthermal, Hfl;
 
     CVector IFlow = {0., 0., 1.0};
     double cellRadius = 35e-9;
@@ -140,6 +137,9 @@ public:
     double beta; // usually either set to 0 or to damping
     double spinPolarisation;
 
+    std::normal_distribution<double> distribution;
+    const double stochasticTorqueMean = 0.0;
+    Layer() {}
     Layer(std::string id,
           CVector mag,
           CVector anis,
@@ -151,25 +151,40 @@ public:
           double temperature = 0.0,
           bool includeSTT = false,
           double damping = 0.011,
-          double currentDensity = 1.,
           double SlonczewskiSpacerLayerParameter = 1.0,
           double beta = 0.0,
-          double spinPolarisation = 0.8) : id(id),
-                                           mag(mag),
-                                           anis(anis),
-                                           Ms(Ms),
-                                           thickness(thickness),
-                                           cellSurface(cellSurface),
-                                           demagTensor(demagTensor),
-                                           dipoleTensor(dipoleTensor),
-                                           temperature(temperature),
-                                           includeSTT(includeSTT),
-                                           damping(damping),
-                                           SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
-                                           beta(beta),
-                                           spinPolarisation(spinPolarisation)
+          double spinPolarisation = 0.8,
+          bool silent = true) : id(id),
+                                mag(mag),
+                                anis(anis),
+                                Ms(Ms),
+                                thickness(thickness),
+                                cellSurface(cellSurface),
+                                demagTensor(demagTensor),
+                                dipoleTensor(dipoleTensor),
+                                temperature(temperature),
+                                includeSTT(includeSTT),
+                                damping(damping),
+                                SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
+                                beta(beta),
+                                spinPolarisation(spinPolarisation)
     {
         this->cellVolume = this->cellSurface * this->thickness;
+        // this is Langevin fluctuation field from the Kaiser paper
+        const double torqueStd = this->getLangevinStochasticStandardDeviation();
+        if (!silent)
+        {
+            std::cout << "Langevin torque std: " << torqueStd << std::endl;
+            std::cout << "Cell Volume: " << cellVolume << std::endl;
+        }
+        this->distribution = std::normal_distribution<double>(stochasticTorqueMean, torqueStd);
+    }
+
+    double getLangevinStochasticStandardDeviation()
+    {
+        const double scaledDamping = 2 * (this->damping) / (1 + pow(this->damping, 2));
+        const double mainFactor = BOLTZMANN_CONST * this->temperature / (GYRO * this->Ms * this->cellVolume);
+        return sqrt(scaledDamping * mainFactor);
     }
 
     void setCurrentDriver(ScalarDriver &driver)
@@ -196,9 +211,11 @@ public:
         CVector Heff = {0., 0., 0.};
 
         this->Hext = calculateExternalField(time);
-        this->Hdemag = calculate_tensor_interaction(otherMag, this->demagTensor, this->Ms);
+        this->Hdipole = calculate_tensor_interaction(otherMag, this->dipoleTensor, this->Ms);
+        this->Hdemag = calculate_tensor_interaction(this->mag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, otherMag);
         this->HAnis = calculateAnisotropy(time);
+        this->Hfl = calculateLangevinStochasticField(timeStep);
         Heff = this->Hext +  // external
                this->HAnis + // anistotropy
                this->HIEC +  // IEC
@@ -206,21 +223,22 @@ public:
                // check the interaction here to be sure
                this->Hdemag +
                // dipole
-               calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms) +
+               this->Hdipole +
                // stochastic field dependent on the temperature
-               calculateStochasticThermalField(timeStep);
+               this->Hfl;
 
         return Heff;
     }
 
-    CVector calculateStochasticThermalField(double timeStep)
+    CVector calculateLangevinStochasticField(double timeStep)
     {
         // becomes zero if the temperature is 0
-        CVector res(distribution, generator);
-        res.normalize();
-        const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
-                                (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
-        return res * nom;
+        CVector res(this->distribution, generator);
+        // const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
+        // (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
+        // return res * nom;
+        return res;
+        // return CVector(0., 0., 0.);
     }
 
     CVector calculateExternalField(double time)
@@ -244,10 +262,10 @@ public:
         return (coupledMag - this->mag) * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, CVector heff, double timeStep)
+    CVector llg(double time, CVector m, CVector coupledMag, CVector heffEx, double timeStep)
     {
-        CVector prod, prod2, dmdt;
-        // heff = calculateHeff(time, timeStep, coupledMag);
+        CVector prod, prod2, dmdt, heff;
+        heff = calculateHeff(time, timeStep, coupledMag);
         prod = c_cross(m, heff);
         prod2 = c_cross(m, prod);
         dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
@@ -277,7 +295,7 @@ public:
     {
         CVector k1, k2, k3, k4, m_t, heff;
         m_t = mag;
-        heff = calculateHeff(time, timeStep, coupledMag);
+        // heff = calculateHeff(time, timeStep, coupledMag);
         k1 = llg(time, m_t, coupledMag, heff, timeStep) * timeStep;
         k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff, timeStep) * timeStep;
         k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff, timeStep) * timeStep;
@@ -305,6 +323,17 @@ public:
         std::cout << "Warning -- UNKNOWN ENUM: " << plane << std::endl;
         return 0.0;
     }
+
+    void calculatePinningCurrents()
+    {
+        const double qh = ELECTRON_CHARGE / HBAR;
+        const double PMA_Ip = 6 * qh * this->damping * BOLTZMANN_CONST * this->temperature;
+        // const double locDemag =
+        // const double IMA_Ip = 2 * qh * sqrt(2 / M_PI) * sqrt(this->Hdemag * this->Ms * this->cellVolume * BOLTZMANN_CONST * this->temperature);
+
+        std::cout << "PMA pinning current: " << PMA_Ip << std::endl;
+        // std::cout << "IMA pinning current: " << IMA_Ip << std::endl;
+    }
 };
 
 class Junction
@@ -330,6 +359,7 @@ public:
     void clearLog()
     {
         this->log.clear();
+        this->logLength = 0;
     }
 
     std::map<std::string, std::vector<double>> getLog()
@@ -421,25 +451,26 @@ public:
 
             if (calculateEnergies)
             {
-                for (Layer &layer : this->layers)
-                {
-                    this->log[layer.id + "_EZeeman"].push_back(EnergyDriver::calculateZeemanEnergy(layer.mag,
-                                                                                                   layer.Hext,
-                                                                                                   layer.cellVolume,
-                                                                                                   layer.Ms));
-                    this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
-                                                                                                     layer.anis,
-                                                                                                     layer.K_log,
-                                                                                                     layer.cellVolume));
-                    // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
-                    //                                                                    layer,
-                    //                                                                    layer.J_log,
-                    //                                                                    layer.cellSurface);
-                    this->log[layer.id + "_EDemag"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
-                                                                                                 layer.Hdemag,
-                                                                                                 layer.Ms,
+                this->log[layer.id + "_EZeeman"].push_back(EnergyDriver::calculateZeemanEnergy(layer.mag,
+                                                                                               layer.Hext,
+                                                                                               layer.cellVolume,
+                                                                                               layer.Ms));
+                this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
+                                                                                                 layer.anis,
+                                                                                                 layer.K_log,
                                                                                                  layer.cellVolume));
-                }
+                // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
+                //                                                                    layer.other,
+                //                                                                    layer.J_log,
+                //                                                                    layer.cellSurface);
+                this->log[layer.id + "_EDemag"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
+                                                                                             layer.Hdemag,
+                                                                                             layer.Ms,
+                                                                                             layer.cellVolume));
+                this->log[layer.id + "_EDipole"].push_back(EnergyDriver::calculateDemagEnergy(layer.mag,
+                                                                                              layer.Hdipole,
+                                                                                              layer.Ms,
+                                                                                              layer.cellVolume));
             }
         }
 
@@ -536,7 +567,7 @@ public:
         for (const auto &magTag : this->vectorNames)
         {
             // std::cout << "Doing FFT for: " << magTag << std::endl;
-            std::vector<double> cutMag(this->log["L1m" + magTag].begin() + thresIdx, this->log["L1m" + magTag].end());
+            std::vector<double> cutMag(this->log["free_m" + magTag].begin() + thresIdx, this->log["free_m" + magTag].end());
             // std::cout << "Sub size: " << cutMag.size() << std::endl;
             fftw_complex out[cutMag.size()];
             // define FFT plan
@@ -601,12 +632,13 @@ public:
         return calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
     }
 
-    void runSimulation(double totalTime, double timeStep = 1e-13, bool persist = false, bool log = false, bool calculateEnergies = false)
+    void runSimulation(double totalTime, double timeStep = 1e-13, double writeFrequency = 1e-11,
+                       bool persist = true, bool log = false, bool calculateEnergies = false)
     {
 
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
-        const unsigned int writeEvery = (int)(0.01 * 1e-9 / timeStep) - 1;
+        const unsigned int writeEvery = (int)(writeFrequency / timeStep);
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
@@ -625,7 +657,11 @@ public:
         if (persist)
             saveLogs();
         if (log)
+        {
+            std::cout << "Steps in simulation: " << totalIterations << std::endl;
+            std::cout << "Write every: " << writeEvery << std::endl;
             std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
+        }
     }
 
     static std::vector<CVector> RK45(CVector mag, CVector mTop, CVector mBottom, CVector Hext, int layer, double dt, CVector HOe,
@@ -635,49 +671,7 @@ public:
                                      std::vector<CVector> Kdir,
                                      std::vector<double> th,
                                      std::vector<double> alpha,
-                                     std::vector<CVector> demag)
-    {
-
-        CVector k1, k2, k3, k4, dm;
-
-        k1 = Junction::LLG(mag, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-        k2 = Junction::LLG(mag + k1 * 0.5, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-        k3 = Junction::LLG(mag + k2 * 0.5, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-        k4 = Junction::LLG(mag + k3, mTop, mBottom, Hext, HOe, layer, Ms,
-                           Ku,
-                           Ju,
-                           Kdir,
-                           th,
-                           alpha,
-                           demag) *
-             dt;
-
-        dm = (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
-        mag = mag + dm;
-        mag.normalize();
-        return {mag, dm};
-    }
+                                     std::vector<CVector> demag);
 
     static CVector LLG(CVector mag, CVector mTop, CVector mBottom, CVector Hext, CVector HOe, int layer,
                        std::vector<double> Ms,
@@ -686,23 +680,7 @@ public:
                        std::vector<CVector> Kdir,
                        std::vector<double> th,
                        std::vector<double> alpha,
-                       std::vector<CVector> demag)
-    {
-
-        CVector Heff, noise, dm, Pprod, Hprod;
-
-        Heff = Hext + HOe + Kdir[layer] * ((2 * Ku[layer] / Ms[layer]) * c_dot(mag, Kdir[layer])) +
-               mTop * (Ju[layer - 1] / (Ms[layer] * th[layer])) +
-               mBottom * (Ju[layer] / (Ms[layer] * th[layer])) -
-               calculate_tensor_interaction(mag, demag, 1) * (Ms[layer] / MAGNETIC_PERMEABILITY);
-
-        // noise
-        // Pprod = c_cross(mag, p);
-        Hprod = c_cross(mag, Heff);
-        dm = Hprod * -PERGYR + c_cross(mag, Hprod) * alpha[layer] * -PERGYR;
-
-        return dm;
-    }
+                       std::vector<CVector> demag);
 };
 
 #endif

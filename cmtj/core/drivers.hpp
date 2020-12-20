@@ -2,8 +2,8 @@
 #define DRIVERS_H
 
 #include "cvector.hpp"
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 enum UpdateType
 {
@@ -194,12 +194,21 @@ public:
             NullDriver(),
             NullDriver()};
     }
+
     AxialDriver(ScalarDriver x,
                 ScalarDriver y,
                 ScalarDriver z)
     {
         this->drivers = {x, y, z};
     }
+
+    AxialDriver(CVector xyz) : AxialDriver(
+                                   ScalarDriver::getConstantDriver(xyz.x),
+                                   ScalarDriver::getConstantDriver(xyz.y),
+                                   ScalarDriver::getConstantDriver(xyz.z))
+    {
+    }
+
     AxialDriver(std::vector<ScalarDriver> axialDrivers)
     {
         if (axialDrivers.size() != 3)
@@ -207,6 +216,19 @@ public:
             throw std::runtime_error("The axial driver can only have 3 axes!");
         }
         this->drivers = std::move(axialDrivers);
+    }
+
+    static AxialDriver getUniAxialDriver(ScalarDriver in, Axis axis)
+    {
+        switch (axis)
+        {
+        case xaxis:
+            return AxialDriver(in, NullDriver(), NullDriver());
+        case yaxis:
+            return AxialDriver(NullDriver(), in, NullDriver());
+        case zaxis:
+            return AxialDriver(NullDriver(), NullDriver(), in);
+        }
     }
     CVector
     getCurrentAxialDrivers(double time)

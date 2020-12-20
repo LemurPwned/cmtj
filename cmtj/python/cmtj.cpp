@@ -160,6 +160,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("runSimulation", &Junction::runSimulation,
              "totalTime"_a,
              "timeStep"_a = 1e-13,
+             "writeFrequency"_a = 1e-11,
              "persist"_a = false,
              "log"_a = false,
              "calculateEnergies"_a = false)

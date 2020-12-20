@@ -41,6 +41,7 @@ public:
 
     CVector(std::normal_distribution<double> &distribution, std::default_random_engine &generator)
     {
+        // the noise should be independent in each direction
         this->x = distribution(generator);
         this->y = distribution(generator);
         this->z = distribution(generator);
@@ -129,9 +130,12 @@ public:
     void normalize()
     {
         double mag = this->length();
-        x = x / mag;
-        y = y / mag;
-        z = z / mag;
+        if (mag != 0)
+        {
+            x = x / mag;
+            y = y / mag;
+            z = z / mag;
+        }
     };
     void setX(double vx)
     {
