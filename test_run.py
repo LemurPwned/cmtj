@@ -1,10 +1,37 @@
-from pymtj.junction import Layer, Junction
-from pymtj.constants import Constants
-from pymtj.automation.workers import frequency_analysis, voltage_spin_diode
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import math
+
+from pymtj.automation.workers import frequency_analysis, voltage_spin_diode
+from pymtj.constants import Constants
+from pymtj.junction import Junction, Layer
+
+
+def step_field(time, step_start=5e-9, step_stop=5.001e-9):
+    Hval = np.zeros((3, ))
+    if time <= step_stop and time >= step_start:
+        Hval[0] = 0.001254 * constant.TtoAm
+    return Hval
+
+
+def get_resonance_frequency(junction: Junction):
+    junction.set_global_field_function(step_field)
+    junction.set_junction_global_external_field(250e-3 * constant.TtoAm,
+                                                axis='x')
+    junction.run_simulation(15e-9)
+    print(frequency_analysis(junction))
+
+
+def display_results():
+    df = pd.read_csv('results.csv')
+    df[['m_x_free', 'm_y_free', 'm_z_free']].plot()
+    plt.legend()
+    plt.show()
+
+
+def perform_vsd(junction):
+    voltage_spin_diode(junction, 000e3, 500e-3)
+
 
 constant = Constants()
 
@@ -33,42 +60,6 @@ l2 = Layer(id_="bottom",
            demag_tensor=demag_tensor,
            dipole_tensor=dipole_tensor)
 
-junction = Junction('MTJ', layers=[l1, l2], couplings=[[2],[1]], persist=True)
+junction = Junction('MTJ', layers=[l1, l2], couplings=[[2], [1]], persist=True)
 
-
-def step_field(time, step_start=5e-9, step_stop=5.001e-9):
-    Hval = np.zeros((3, ))
-    if time <= step_stop and time >= step_start:
-        Hval[0] = 0.001254 * constant.TtoAm
-    return Hval
-
-
-# def coupling_update(time):
-#     frequency = 6.93e9  # 10 Ghz
-#     omega = float(2 * math.pi * frequency)
-#     return 8e-7 * float(np.sin(omega * time))
-
-
-def get_resonance_frequency(junction: Junction):
-    junction.set_global_field_function(step_field)
-    junction.set_junction_global_external_field(250e-3 * constant.TtoAm,
-                                                axis='x')
-    junction.run_simulation(15e-9)
-    print(frequency_analysis(junction))
-
-
-def display_results():
-    df = pd.read_csv('results.csv')
-    df[['m_x_free', 'm_y_free', 'm_z_free']].plot()
-    plt.legend()
-    plt.show()
-
-
-def perform_vsd(junction):
-    voltage_spin_diode(junction, 000e3, 500e-3)
-
-
-# perform_vsd(junction)
 get_resonance_frequency(junction)
-# display_results()
-

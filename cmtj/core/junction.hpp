@@ -6,7 +6,9 @@
 #include <cmath>
 #include <complex>
 #include <cstring>
+#include <fftw3.h>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <numeric>
@@ -15,8 +17,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include <iomanip>
-#include <fftw3.h>
 
 #include "cvector.hpp"
 #include "drivers.hpp"
@@ -103,15 +103,15 @@ class Layer
 {
 private:
     ScalarDriver currentDriver, IECDriver, anisotropyDriver;
-    AxialDriver externalFieldDriver;
+    AxialDriver externalFieldDriver, HoeDriver;
 
 public:
     double cellVolume, cellSurface = 0.0;
 
     std::string id;
 
-    CVector H_log, Hconst, mag, anis;
-    CVector Hext, Hdipole, Hdemag, HIEC, HAnis, Hthermal, Hfl;
+    CVector H_log, Hoe_log, Hconst, mag, anis;
+    CVector Hext, Hdipole, Hdemag, HIEC, Hoe, HAnis, Hthermal, Hfl;
 
     CVector IFlow = {0., 0., 1.0};
     double cellRadius = 35e-9;
@@ -192,10 +192,6 @@ public:
         this->currentDriver = driver;
     }
 
-    void setExternalFieldDriver(AxialDriver &driver)
-    {
-        this->externalFieldDriver = driver;
-    }
     void setAnisotropyDriver(ScalarDriver &driver)
     {
         this->anisotropyDriver = driver;
@@ -206,11 +202,21 @@ public:
         this->IECDriver = driver;
     }
 
+    void setExternalFieldDriver(AxialDriver &driver)
+    {
+        this->externalFieldDriver = driver;
+    }
+    void setLayerOerstedFieldDriver(AxialDriver &driver)
+    {
+        this->HoeDriver = driver;
+    }
+
     CVector calculateHeff(double time, double timeStep, CVector otherMag)
     {
         CVector Heff = {0., 0., 0.};
 
         this->Hext = calculateExternalField(time);
+        this->Hoe = calculateHOeField(time);
         this->Hdipole = calculate_tensor_interaction(otherMag, this->dipoleTensor, this->Ms);
         this->Hdemag = calculate_tensor_interaction(this->mag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, otherMag);
@@ -219,6 +225,7 @@ public:
         Heff = this->Hext +  // external
                this->HAnis + // anistotropy
                this->HIEC +  // IEC
+               this->Hoe +   // Oersted field
                // demag
                // check the interaction here to be sure
                this->Hdemag +
@@ -228,6 +235,12 @@ public:
                this->Hfl;
 
         return Heff;
+    }
+
+    CVector calculateHOeField(double time)
+    {
+        this->Hoe_log = this->HoeDriver.getCurrentAxialDrivers(time);
+        return this->Hoe_log;
     }
 
     CVector calculateLangevinStochasticField(double timeStep)
@@ -422,6 +435,10 @@ public:
     void setLayerExternalFieldDriver(std::string layerID, AxialDriver driver)
     {
         axiallayerSetter(layerID, &Layer::setExternalFieldDriver, driver);
+    }
+    void setLayerOerstedFieldDriver(std::string layerID, AxialDriver driver)
+    {
+        axiallayerSetter(layerID, &Layer::setLayerOerstedFieldDriver, driver);
     }
     void setLayerCurrentDriver(std::string layerID, ScalarDriver driver)
     {
