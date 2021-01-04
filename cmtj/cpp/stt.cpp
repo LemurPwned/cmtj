@@ -16,66 +16,75 @@ int main(void)
         {0., 0.0, -0.00181060482770131}};
 
     double damping = 0.03;
-    double currentDensity = 1e10;
+    double currentDensity = 0.6e11;
     double beta = 1;
     double spinPolarisation = -1.0;
     double STT_ = 1;
     double temperature = 300;
 
-    double sttOn = false;
+    double sttOn = true;
+
+    double radius = 60e-9;
+    double surface = M_PI * pow(radius, 2);
+    double Ms = 1 * TtoAm;
+    double topThickness = 1e-9;
+    double topAnisotropy = 600e3;
 
     ScalarDriver anisotropyBottom(
         constant,
-        1500e3);
+        900e3);
 
     ScalarDriver anisotropyTop(
         constant,
-        800e3 // constant
+        topAnisotropy // constant
     );
+
+    double Hkp = (2 * topAnisotropy) - 4 * M_1_PI * Ms;
+    std::cout << "Hkp: " << Hkp << std::endl;
+    std::cout << "4Ms: " << 4 * M_1_PI * Ms << std::endl;
 
     Layer l1("free",             // id
              CVector(0., 0., 1), // mag
              CVector(0, 0., 1.), // anis
-             1200e3,             // Ms
-             1.4e-9,             // thickness
-             7e-10 * 7e-10,      // surface
+             Ms,                 // Ms
+             topThickness,       // thickness
+             surface,            // surface
              demagTensor,        // demag
              dipoleTensor,       // dipole
              temperature,        // temp
              sttOn,              // STT
              damping,            // damping
              STT_,               // Slonczewski spacer
+             beta,               // beta
              spinPolarisation,   // spin polaristaion
-             beta                // beta
+             false               // silent
     );
 
-
-    auto currentDriver = ScalarDriver::getConstantDriver(1.0);
+    auto currentDriver = ScalarDriver::getConstantDriver(currentDensity);
     l1.setCurrentDriver(currentDriver);
     l1.setAnisotropyDriver(anisotropyTop);
 
     Layer l2("bottom",            // id
-             CVector(0., 1., 1.), // mag
-             CVector(0, 1., 1.),  // anis
-             1000e3,              // Ms
+             CVector(0., 0., 1.), // mag
+             CVector(0, 0., 1.),  // anis
+             Ms,                  // Ms
              1.4e-9,              // thickness
-             7e-10 * 7e-10,       // surface
+             surface,             // surface
              demagTensor,         // demag
              dipoleTensor,        // dipole
              temperature,         // temp
-             sttOn,               // STT
+             false,               // STT
              damping,             // damping
              STT_,                // Slonczewski spacer
-             spinPolarisation,    // spin polaristaion
-             beta                 // beta
+             beta,                // beta,
+             spinPolarisation     // spin polaristaion
     );
 
     l2.setAnisotropyDriver(anisotropyBottom);
-    l2.setCurrentDriver(currentDriver);
     Junction mtj(
         {l1, l2}, "STT.csv");
 
-    mtj.runSimulation(50e-9, 1e-13, 1e-11, true, true, true);
+    mtj.runSimulation(2e-9, 1e-13, 1e-13, true, true, false);
     std::cout << l1.calculateLayerCriticalSwitchingCurrent("IP") << std::endl;
     std::cout << l1.calculateLayerCriticalSwitchingCurrent("PP") << std::endl;
 }
