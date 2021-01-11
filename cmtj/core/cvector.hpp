@@ -1,7 +1,7 @@
 #ifndef CVECTOR_H
 #define CVECTOR_H
-#include <stdio.h>
 #include <random>
+#include <stdio.h>
 #include <vector>
 class CVector
 {
@@ -148,6 +148,12 @@ public:
     void setZ(double vz)
     {
         this->z = vz;
+    }
+
+    std::vector<double> tolist()
+    {
+        return {
+            this->x, this->y, this->z};
     }
 };
 

@@ -2,6 +2,7 @@
 #define DRIVERS_H
 
 #include "cvector.hpp"
+#include <cassert>
 #include <cmath>
 #include <iostream>
 
@@ -187,6 +188,30 @@ private:
     std::vector<ScalarDriver> drivers;
 
 public:
+    void applyMask(std::vector<unsigned int> mask)
+    {
+        assert(mask.size() == 3);
+        for (int i = 0; i < 3; i++)
+        {
+            if (mask[i] == 0)
+            {
+                // Mask asks to nullify the driver
+                this->drivers[i] = NullDriver();
+            }
+            else if (mask[i] != 1)
+            {
+                throw std::runtime_error("Invalid mask value, mask must be binary!");
+            }
+        }
+    }
+
+    void applyMask(CVector mask)
+    {
+        this->applyMask((std::vector<unsigned int>){(unsigned int)(mask[0]),
+                                                    (unsigned int)(mask[1]),
+                                                    (unsigned int)(mask[2])});
+    }
+
     AxialDriver()
     {
         this->drivers = {
