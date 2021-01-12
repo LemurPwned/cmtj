@@ -355,18 +355,46 @@ class Junction
     std::vector<std::string> vectorNames = {"x", "y", "z"};
 
 public:
+    enum MRmode
+    {
+        CLASSIC = 1,
+        ADVANCED = 2
+    };
+    MRmode MR_mode;
+
     std::vector<Layer> layers;
     double Rp, Rap = 0.0;
+
+    std::vector<double> Rx0, Ry0, AMR, AHE, SMR;
     std::map<std::string, std::vector<double>> log;
     std::string fileSave;
     unsigned int logLength = 0;
 
+    Junction() {}
     Junction(std::vector<Layer> layersToSet, std::string filename, double Rp = 100, double Rap = 200)
     {
         this->layers = std::move(layersToSet);
         this->Rp = Rp;
         this->Rap = Rap;
         this->fileSave = filename;
+        this->MR_mode = CLASSIC;
+    }
+
+    Junction(std::vector<Layer> layersToSet, std::string filename,
+             std::vector<double> Rx0,
+             std::vector<double> Ry0,
+             std::vector<double> AMR,
+             std::vector<double> AHE,
+             std::vector<double> SMR) : Rx0(std::move(Rx0)),
+                                        Ry0(std::move(Ry0)),
+                                        AMR(std::move(AMR)),
+                                        AHE(std::move(AHE)),
+                                        SMR(std::move(SMR))
+
+    {
+        this->layers = std::move(layersToSet);
+        this->fileSave = filename;
+        this->MR_mode = ADVANCED;
     }
 
     void clearLog()
@@ -390,11 +418,6 @@ public:
             }
         }
         throw std::runtime_error("Failed to find the specified layer!");
-    }
-
-    double calculateMagnetoresistance(double cosTheta)
-    {
-        return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
     }
 
     typedef void (Layer::*scalarDriverSetter)(ScalarDriver &driver);
@@ -453,7 +476,7 @@ public:
         scalarlayerSetter(layerID, &Layer::setIECDriver, driver);
     }
 
-    void logLayerParams(double t, double magnetoresistance, bool calculateEnergies = false)
+    void logLayerParams(double t, std::vector<double> magnetoresistance, bool calculateEnergies = false)
     {
         for (Layer &layer : this->layers)
         {
@@ -491,7 +514,16 @@ public:
             }
         }
 
-        this->log["R_free_bottom"].push_back(magnetoresistance);
+        if (MR_mode == CLASSIC)
+        {
+            this->log["R_free_bottom"].push_back(magnetoresistance[0]);
+        }
+        else
+        {
+            this->log["Rx"].push_back(magnetoresistance[0]);
+            this->log["Ry"].push_back(magnetoresistance[1]);
+            this->log["Rz"].push_back(magnetoresistance[2]);
+        }
         this->log["time"].push_back(t);
 
         this->logLength++;
@@ -676,7 +708,6 @@ public:
                     maxPhase = phases[i];
                 }
             }
-            // std::cout << "Max frequency for the system is " << maxFreq << " with " << maxAmpl << std::endl;
             fftw_destroy_plan(plan);
             result[magTag + "_amplitude"] = amplitudes;
             result[magTag + "_phase"] = phases;
@@ -697,9 +728,47 @@ public:
             t, timeStep, l1mag);
     }
 
-    double getMagnetoresistance()
+    std::vector<double> advancedMagnetoResistance(CVector m1, CVector m2,
+                                                  std::vector<double> Rx0,
+                                                  std::vector<double> Ry0,
+                                                  std::vector<double> AMR,
+                                                  std::vector<double> AHE,
+                                                  std::vector<double> SMR)
     {
-        return calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag));
+        const double R_P = Rx0[0];
+        const double R_AP = Ry0[0];
+        const double Rz_tmp = R_P + (R_AP - R_P) / 2 * (1 - c_dot(m1, m2));
+
+        const double Rx_first = (Rx0[0] + Rx0[0] * AMR[0] * pow(m1.x, 2) + Rx0[0] * SMR[0] * pow(m1.y, 2));
+        const double Rx_second = (Rx0[1] + Rx0[1] * AMR[1] * pow(m2.x, 2) + Rx0[1] * SMR[1] * pow(m2.y, 2));
+
+        const double Ry_first = Ry0[0] + AHE[0] * m1.z + Ry0[0] * (AMR[0] + SMR[0]) * m1.x * m1.y;
+        const double Ry_second = Ry0[1] + AHE[1] * m2.z + Ry0[1] * (AMR[1] + SMR[1]) * m2.y * m2.y;
+
+        const double Rx = ((Rx_first * Rx_second) / (Rx_first + Rx_second));
+        const double Ry = ((Ry_first * Ry_second) / (Ry_first + Ry_second));
+        const double Rz = (Rz_tmp);
+
+        return {Rx, Ry, Rz};
+    }
+
+    double calculateMagnetoresistance(double cosTheta)
+    {
+        return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
+    }
+
+    std::vector<double> getMagnetoresistance()
+    {
+        if (this->MR_mode == CLASSIC)
+        {
+            return {calculateMagnetoresistance(c_dot(layers[0].mag, layers[1].mag))};
+        }
+        else
+        {
+            return advancedMagnetoResistance(
+                layers[0].mag, layers[1].mag,
+                this->Rx0, this->Ry0, this->AMR, this->AHE, this->SMR);
+        }
     }
 
     void runSimulation(double totalTime, double timeStep = 1e-13, double writeFrequency = 1e-11,
@@ -709,7 +778,6 @@ public:
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         double t;
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
-
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
         {
@@ -719,7 +787,7 @@ public:
 
             if (!(i % writeEvery))
             {
-                const double magRes = getMagnetoresistance();
+                const auto magRes = getMagnetoresistance();
                 logLayerParams(t, magRes, calculateEnergies);
             }
         }
@@ -733,24 +801,6 @@ public:
             std::cout << "Simulation time = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
         }
     }
-
-    static std::vector<CVector> RK45(CVector mag, CVector mTop, CVector mBottom, CVector Hext, int layer, double dt, CVector HOe,
-                                     std::vector<double> Ms,
-                                     std::vector<double> Ku,
-                                     std::vector<double> Ju,
-                                     std::vector<CVector> Kdir,
-                                     std::vector<double> th,
-                                     std::vector<double> alpha,
-                                     std::vector<CVector> demag);
-
-    static CVector LLG(CVector mag, CVector mTop, CVector mBottom, CVector Hext, CVector HOe, int layer,
-                       std::vector<double> Ms,
-                       std::vector<double> Ku,
-                       std::vector<double> Ju,
-                       std::vector<CVector> Kdir,
-                       std::vector<double> th,
-                       std::vector<double> alpha,
-                       std::vector<CVector> demag);
 };
 
 #endif

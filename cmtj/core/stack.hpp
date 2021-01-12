@@ -6,6 +6,8 @@
 
 class Stack
 {
+    friend class Junction;
+
 protected:
     std::vector<Junction> junctionList;
     std::map<std::string, std::vector<double>> stackLog;
@@ -15,6 +17,13 @@ public:
     Stack(std::vector<Junction> junctionList)
     {
         this->junctionList = std::move(junctionList);
+        for (auto &j : this->junctionList)
+        {
+            if (j.MR_mode != Junction::CLASSIC)
+            {
+                throw std::runtime_error("Junction has a non-classic magnetoresitance mode!");
+            }
+        }
     }
 
     void logStackData(double t, double resistance)
@@ -42,7 +51,8 @@ public:
             for (Junction &junction : junctionList)
             {
                 junction.runSingleRK4Iteration(t, timeStep);
-                timeResistances.push_back(junction.getMagnetoresistance());
+                const auto resistance = junction.getMagnetoresistance();
+                timeResistances.push_back(resistance[0]);
             }
             if (!(i % writeEvery))
             {
