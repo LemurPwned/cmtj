@@ -1,9 +1,15 @@
 # CMTJ
 
+
 CMTJ is a set of C++ headers for spin magnetics in Magnetic Tunnel Junctions, with some bindings from C++ to Python, but there's also a Python standalone library called PyMTJ. The Python standalone library, the PyMTJ, is not maintained actively, but you are welcome to contribute if you would like to see it revived. Until then, C++ with Python bindings, i.e. CMTJ, is the best choice if you want to go with a maintained version.
 
 
-## Installation steps
+## CMTJ-SERVER Now Available :boom:
+For some real-world use cases (and a nice server wrapper too:exclamation:), please check the *[cmtj-server project](https://github.com/LemurPwned/cmtj-server)*.   
+It contains some ready-to-use examples for the experimental setting. If you'd like me to add an experimental setup, post an issue there. For theorethical contributions, submit an issue in this repo.
+
+
+## Installation steps :rocket:
 The recommended way is to use the `pip` installation option.
 ### Easy binding installation 
 The bindings to Python are be installed into the Python by running the:
@@ -17,7 +23,7 @@ python3 setup.py build_ext --inplace
 ```
 in the same, [`cmtj`](cmtj/), folder.
 
-### Other
+### Manual compilation (advanced :mortar_board:)
 If for some reason you wish to compile manually (or have to), either for debugging or development, see below. 
 
 The easiest way to compile the PyBind11 bindings is to use the provided [Dockerfile](Dockerfile), if you know how to use it:
@@ -32,7 +38,7 @@ You may want to develop C++ code inside the Dockerfile since it has everything i
 docker run -it --entrypoint bash -v /path/to/my/volume:/mnt cmtj
 ```
 
-### Requirements 
+### Requirements :warning:
 The C++ version basically requires only:  
 * FFTW3  
   The library for computing the Fast Fourier Transform, needed for some of the frequency analysis included in the package
@@ -50,7 +56,7 @@ The C++ version basically requires only:
   The library is available here [https://github.com/pybind/pybind11](https://github.com/pybind/pybind11).
 
 
-### Compilation
+### Compilation 
 _The header files are available in the [`cmtj`](cmtj/) folder_
 
 The actual installation is rather simple -- given the Makefile I have provided, you may just compile your code using one of the MakeFile commands since the C++ API is virtually entirely header (2 headers -- [`junction.hpp`](cmtj/junction.hpp) and [`cvector.hpp`](cmtj/cvector.hpp). Simply include the headers in your code and compile it away.
