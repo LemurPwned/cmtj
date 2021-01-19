@@ -1,11 +1,11 @@
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/functional.h>
 
-#include "cvector.hpp"
-#include "parallel.hpp"
-#include "junction.hpp"
-#include "drivers.hpp"
+#include "../core/cvector.hpp"
+#include "../core/drivers.hpp"
+#include "../core/junction.hpp"
+#include "../core/parallel.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -37,9 +37,6 @@ static std::map<std::string, std::vector<double>> parallelGILWrapper(Junction &m
 PYBIND11_MODULE(cmtj, m)
 {
     m.doc() = "Python binding for C++ CMTJ Library";
-
-    m.def("RK45", &Junction::RK45);
-    m.def("LLG", &Junction::LLG);
 
     // helpers
     m.def("c_dot", &c_dot);
@@ -122,8 +119,8 @@ PYBIND11_MODULE(cmtj, m)
                  double,               // damping
                  double,               // SlonczewskiSpacerLayerParameter
                  double,               // beta
-                 double                // spinPolarisation
-                 >(),
+                 double,               // spinPolarisation
+                 bool>(),
              "id"_a,
              "mag"_a,
              "anis"_a,
@@ -137,9 +134,8 @@ PYBIND11_MODULE(cmtj, m)
              "damping"_a = 0.011,
              "SlonczewskiSpacerLayerParameter"_a = 1.0,
              "beta"_a = 0.0,
-             "spinPolarisation"_a = 0.8)
-        .def("calculateLayerCriticalSwitchingCurrent",
-             &Layer::calculateLayerCriticalSwitchingCurrent);
+             "spinPolarisation"_a = 0.8,
+             "silent"_a = true);
 
     py::class_<Junction>(m, "Junction")
         .def(py::init<
@@ -150,9 +146,20 @@ PYBIND11_MODULE(cmtj, m)
              "filename"_a,
              "Rp"_a,
              "Rap"_a)
-
-        // getters & setters
-
+        .def(py::init<
+                 std::vector<Layer>,
+                 std::string, std::vector<double>,
+                 std::vector<double>,
+                 std::vector<double>,
+                 std::vector<double>,
+                 std::vector<double>>(),
+             "layers"_a,
+             "filename"_a,
+             "Rx0"_a,
+             "Ry0"_a,
+             "AMR"_a,
+             "AHE"_a,
+             "SMR"_a)
         // log utils
         .def("getLog", &Junction::getLog)
         .def("clearLog", &Junction::clearLog)
@@ -166,12 +173,14 @@ PYBIND11_MODULE(cmtj, m)
              "calculateEnergies"_a = false)
 
         // driver setters
+        .def("setLayerOerstedFieldDriver", &Junction::setLayerOerstedFieldDriver)
         .def("setLayerExternalFieldDriver", &Junction::setLayerExternalFieldDriver)
         .def("setLayerCurrentDriver", &Junction::setLayerCurrentDriver)
         .def("setLayerAnisotropyDriver", &Junction::setLayerAnisotropyDriver)
         .def("setLayerIECDriver", &Junction::setLayerIECDriver)
 
         // junction calculations
+        .def("advancedMagnetoResistance", &Junction::advancedMagnetoResistance)
         .def("calculateMagnetoresistance", &Junction::calculateMagnetoresistance)
         .def("calculateVoltageSpinDiode", &Junction::calculateVoltageSpinDiode,
              "frequency"_a,
