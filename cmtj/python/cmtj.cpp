@@ -84,8 +84,9 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<ScalarDriver, ScalarDriver, ScalarDriver>())
         .def(py::init<std::vector<ScalarDriver>>())
         .def("getCurrentAxialDrivers",
-             &AxialDriver::getCurrentAxialDrivers);
-
+             &AxialDriver::getCurrentAxialDrivers)
+        .def("applyMask", py::overload_cast<CVector>(&AxialDriver::applyMask))
+        .def("applyMask", py::overload_cast<std::vector<unsigned int>>(&AxialDriver::applyMask));
     // CVector
     py::enum_<Axis>(m, "Axis")
         .value("xaxis", xaxis)
@@ -178,10 +179,12 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerCurrentDriver", &Junction::setLayerCurrentDriver)
         .def("setLayerAnisotropyDriver", &Junction::setLayerAnisotropyDriver)
         .def("setLayerIECDriver", &Junction::setLayerIECDriver)
+        .def("setLayerOerstedFieldDriver", &Junction::setLayerOerstedFieldDriver)
 
         // junction calculations
         .def("advancedMagnetoResistance", &Junction::advancedMagnetoResistance)
         .def("calculateMagnetoresistance", &Junction::calculateMagnetoresistance)
+        .def("getMagnetoresistance", &Junction::getMagnetoresistance)
         .def("calculateVoltageSpinDiode", &Junction::calculateVoltageSpinDiode,
              "frequency"_a,
              "power"_a = 10e-6,

@@ -113,9 +113,6 @@ public:
     CVector H_log, Hoe_log, Hconst, mag, anis;
     CVector Hext, Hdipole, Hdemag, HIEC, Hoe, HAnis, Hthermal, Hfl;
 
-    CVector IFlow = {0., 0., 1.0};
-    double cellRadius = 35e-9;
-
     double Ms;
     double J_log = 0.0, K_log = 0.0, I_log = 0.0;
     double thickness;
@@ -247,11 +244,11 @@ public:
     {
         // becomes zero if the temperature is 0
         CVector res(this->distribution, generator);
-        // const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
-        // (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
-        // return res * nom;
-        return res;
-        // return CVector(0., 0., 0.);
+        // either of those expressions may be correct -- undecided for now
+        const double nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
+                                (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
+        return res * nom;
+        // return res;
     }
 
     CVector calculateExternalField(double time)
@@ -272,7 +269,9 @@ public:
     {
         this->J_log = this->IECDriver.getCurrentScalarValue(time);
         const double nom = this->J_log / (MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
-        return (coupledMag - this->mag) * nom;
+        // return (coupledMag - this->mag) * nom;
+        // either of those may be correct -- undecided for now
+        return coupledMag * nom;
     }
 
     CVector llg(double time, CVector m, CVector coupledMag, CVector heffEx, double timeStep)
@@ -369,7 +368,7 @@ public:
     std::map<std::string, std::vector<double>> log;
     std::string fileSave;
     unsigned int logLength = 0;
-
+    int layerNo;
     Junction() {}
     Junction(std::vector<Layer> layersToSet, std::string filename, double Rp = 100, double Rap = 200)
     {
@@ -378,6 +377,7 @@ public:
         this->Rap = Rap;
         this->fileSave = filename;
         this->MR_mode = CLASSIC;
+        this->layerNo = this->layers.size();
     }
 
     Junction(std::vector<Layer> layersToSet, std::string filename,
@@ -395,6 +395,7 @@ public:
         this->layers = std::move(layersToSet);
         this->fileSave = filename;
         this->MR_mode = ADVANCED;
+        this->layerNo = this->layers.size();
     }
 
     void clearLog()
@@ -583,14 +584,14 @@ public:
         std::map<std::string, double> mRes = {{"Vmix", Vmix}, {"RMax", RppMax}, {"RMin", RppMin}, {"Rpp", (RppMax - RppMin)}};
         return mRes;
     }
-
-    std::map<std::string, std::vector<double>> spectralFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
+    std::map<std::string, std::vector<double>>
+    spectralFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
     {
+
         if (this->log.empty())
         {
             throw std::runtime_error("Empty log! Cannot proceed without running a simulation!");
         }
-
         auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
                                [&minTime](const auto &value) { return value >= minTime; });
         // turn into index
@@ -606,39 +607,46 @@ public:
         {
             frequencySteps[i - 1] = (i - 1) / normalizer;
         }
-        fftw_make_planner_thread_safe();
-        // allocate for the spectral fft
+        // plan creation is not thread safe
         std::map<std::string, std::vector<double>> spectralFFTResult;
-        const std::string resistanceTag = "R_free_bottom";
-        std::vector<double> cutMag(this->log[resistanceTag].begin() + thresIdx,
-                                   this->log[resistanceTag].end());
-        fftw_complex out[cutMag.size()];
-        // define FFT plan
-        fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
-                                              cutMag.data(),
-                                              out,
-                                              FFTW_ESTIMATE_PATIENT); // here it's weird, FFT_FORWARD produces an empty plan
-        if (plan == NULL)
-        {
-            throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
-        }
-        fftw_execute(plan);
-        std::vector<double> amplitudes, phases;
-
-        const int outBins = (cutMag.size() + 1) / 2;
-        // rewrite the phases and amplitudes
-        for (int i = 1; i < outBins; i++)
-        {
-            const auto tandem = out[i];
-            const double real = tandem[0];
-            const double img = tandem[1];
-            phases.push_back(tan(img / real));
-            amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
-        }
-        fftw_destroy_plan(plan);
-        spectralFFTResult["amplitude"] = std::move(amplitudes);
-        spectralFFTResult["phase"] = std::move(phases);
         spectralFFTResult["frequencies"] = std::move(frequencySteps);
+
+        for (const auto &l : this->layers)
+        {
+            for (const auto &magTag : this->vectorNames)
+            {
+                std::vector<double> cutMag(this->log[l.id + "_m" + magTag].begin() + thresIdx, this->log[l.id + "_m" + magTag].end());
+
+                // define FFT plan
+                fftw_complex out[cutMag.size()];
+                fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
+                                                      cutMag.data(),
+                                                      out,
+                                                      FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
+
+                if (plan == NULL)
+                {
+                    throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
+                }
+                fftw_execute(plan);
+                const int outBins = (cutMag.size() + 1) / 2;
+                std::vector<double> amplitudes; //, phases;
+
+                amplitudes.push_back(out[0][0]);
+                // phases[0] = 0;
+                for (int i = 1; i < outBins; i++)
+                {
+                    const auto tandem = out[i];
+                    const double real = tandem[0];
+                    const double img = tandem[1];
+                    // phases[i] = tan(img / real);
+                    amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
+                }
+                spectralFFTResult[l.id + "_m" + magTag + "_amplitude"] = std::move(amplitudes);
+                // spectralFFTResult["phase"] = std::move(phases);
+                fftw_destroy_plan(plan);
+            }
+        }
         return spectralFFTResult;
     }
 
@@ -718,7 +726,17 @@ public:
         return maxAmpls;
     }
 
-    void runSingleRK4Iteration(double t, double timeStep)
+    void runSingleLayerRK4Iteration(double t, double timeStep)
+    {
+        /**
+         * Single layer iteration
+         * 
+         * */
+        this->layers[0].rk4_step(
+            t, timeStep, CVector(0., 0., 0.));
+    }
+
+    void runMultiLayerRK4Iteration(double t, double timeStep)
     {
         CVector l1mag = this->layers[0].mag;
         CVector l2mag = this->layers[1].mag;
@@ -737,16 +755,20 @@ public:
     {
         const double R_P = Rx0[0];
         const double R_AP = Ry0[0];
+        const double ratio = 3 / 2;
+
         const double Rz_tmp = R_P + (R_AP - R_P) / 2 * (1 - c_dot(m1, m2));
 
-        const double Rx_first = (Rx0[0] + Rx0[0] * AMR[0] * pow(m1.x, 2) + Rx0[0] * SMR[0] * pow(m1.y, 2));
-        const double Rx_second = (Rx0[1] + Rx0[1] * AMR[1] * pow(m2.x, 2) + Rx0[1] * SMR[1] * pow(m2.y, 2));
+        const double Rx_first = (Rx0[0] + AMR[0] * pow(m1.x, 2) + SMR[0] * pow(m1.y, 2));
+        // const double Rx_second = (Rx0[1] + AMR[1] * pow(m2.x, 2) + SMR[1] * pow(m2.y, 2));
 
-        const double Ry_first = Ry0[0] + AHE[0] * m1.z + Ry0[0] * (AMR[0] + SMR[0]) * m1.x * m1.y;
-        const double Ry_second = Ry0[1] + AHE[1] * m2.z + Ry0[1] * (AMR[1] + SMR[1]) * m2.y * m2.y;
+        const double Ry_first = Ry0[0] + 0.5 * AHE[0] * m1.z + (-ratio * AMR[0] + ratio * SMR[0]) * m1.x * m1.y;
+        // const double Ry_second = Ry0[1] + 0.5 * AHE[1] * m2.z + (-ratio * AMR[1] + ratio * SMR[1]) * m2.x * m2.y;
 
-        const double Rx = ((Rx_first * Rx_second) / (Rx_first + Rx_second));
-        const double Ry = ((Ry_first * Ry_second) / (Ry_first + Ry_second));
+        // const double Rx = ((Rx_first * Rx_second) / (Rx_first + Rx_second));
+        const double Rx = Rx_first;
+        const double Ry = Ry_first;
+        // const double Ry = ((Ry_first * Ry_second) / (Ry_first + Ry_second));
         const double Rz = (Rz_tmp);
 
         return {Rx, Ry, Rz};
@@ -765,9 +787,10 @@ public:
         }
         else
         {
-            return advancedMagnetoResistance(
-                layers[0].mag, layers[1].mag,
-                this->Rx0, this->Ry0, this->AMR, this->AHE, this->SMR);
+            return {0., 0., 0.};
+            // advancedMagnetoResistance(
+                // layers[0].mag, layers[1].mag,
+                // this->Rx0, this->Ry0, this->AMR, this->AHE, this->SMR);
         }
     }
 
@@ -782,8 +805,14 @@ public:
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             t = i * timeStep;
-
-            runSingleRK4Iteration(t, timeStep);
+            if (this->layerNo == 1)
+            {
+                runSingleLayerRK4Iteration(t, timeStep);
+            }
+            else
+            {
+                runMultiLayerRK4Iteration(t, timeStep);
+            }
 
             if (!(i % writeEvery))
             {

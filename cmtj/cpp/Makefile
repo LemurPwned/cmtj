@@ -6,6 +6,9 @@ stt:
 vsd:
 	g++ -std=c++17 $(INC) $(LIBS) -O3 vsd.cpp -o vsd
 
+single:
+	g++ -std=c++17 $(INC) $(LIBS) -O3 single_layer.cpp -o single
+
 python-ubuntu:
 	g++ -O3 -Wall -shared -std=c++17 -pthread -lfftw3 -fPIC `python3 -m pybind11 --includes` cmtj.cpp -o cmtj`python3-config --extension-suffix`
 

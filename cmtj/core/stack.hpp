@@ -50,7 +50,7 @@ public:
             t = i * timeStep;
             for (Junction &junction : junctionList)
             {
-                junction.runSingleRK4Iteration(t, timeStep);
+                junction.runMultiLayerRK4Iteration(t, timeStep);
                 const auto resistance = junction.getMagnetoresistance();
                 timeResistances.push_back(resistance[0]);
             }
