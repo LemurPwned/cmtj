@@ -393,12 +393,9 @@ public:
         {
             throw std::invalid_argument("This constructor supports only bilayers! Choose the other one with the strip resistance!");
         }
-        // this->layers = std::move(layersToSet);
         this->Rp = Rp;
         this->Rap = Rap;
-        // this->fileSave = filename;
         this->MR_mode = CLASSIC;
-        // this->layerNo = this->layers.size();
     }
 
     /**
@@ -434,10 +431,7 @@ public:
         {
             throw std::invalid_argument("Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
         }
-        // this->layers = std::move(layersToSet);
-        // this->fileSave = filename;
         this->MR_mode = STRIP;
-        // this->layerNo = this->layers.size();
     }
 
     void clearLog()
@@ -600,149 +594,6 @@ public:
         logFile.close();
     }
 
-
-    std::map<std::string, std::vector<double>>
-    spectralFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
-    {
-
-        if (this->log.empty())
-        {
-            throw std::runtime_error("Empty log! Cannot proceed without running a simulation!");
-        }
-        auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
-                               [&minTime](const auto &value) { return value >= minTime; });
-        // turn into index
-        const int thresIdx = (int)(this->log["time"].end() - it);
-        const int cutSize = this->log["time"].size() - thresIdx;
-
-        // plan creation is not thread safe
-        const double normalizer = timeStep * cutSize;
-        const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
-        std::vector<double> frequencySteps(maxIt);
-        frequencySteps[0] = 0;
-        for (int i = 1; i <= maxIt; i++)
-        {
-            frequencySteps[i - 1] = (i - 1) / normalizer;
-        }
-        // plan creation is not thread safe
-        std::map<std::string, std::vector<double>> spectralFFTResult;
-        spectralFFTResult["frequencies"] = std::move(frequencySteps);
-
-        for (const auto &l : this->layers)
-        {
-            for (const auto &magTag : this->vectorNames)
-            {
-                std::vector<double> cutMag(this->log[l.id + "_m" + magTag].begin() + thresIdx, this->log[l.id + "_m" + magTag].end());
-
-                // define FFT plan
-                fftw_complex out[cutMag.size()];
-                fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
-                                                      cutMag.data(),
-                                                      out,
-                                                      FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
-
-                if (plan == NULL)
-                {
-                    throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
-                }
-                fftw_execute(plan);
-                const int outBins = (cutMag.size() + 1) / 2;
-                std::vector<double> amplitudes; //, phases;
-
-                amplitudes.push_back(out[0][0]);
-                // phases[0] = 0;
-                for (int i = 1; i < outBins; i++)
-                {
-                    const auto tandem = out[i];
-                    const double real = tandem[0];
-                    const double img = tandem[1];
-                    // phases[i] = tan(img / real);
-                    amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
-                }
-                spectralFFTResult[l.id + "_m" + magTag + "_amplitude"] = std::move(amplitudes);
-                // spectralFFTResult["phase"] = std::move(phases);
-                fftw_destroy_plan(plan);
-            }
-        }
-        return spectralFFTResult;
-    }
-
-    std::map<std::string, double>
-    calculateFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
-    {
-
-        if (this->log.empty())
-        {
-            throw std::runtime_error("Empty log! Cannot proceed without running a simulation!");
-        }
-        auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
-                               [&minTime](const auto &value) { return value >= minTime; });
-        // turn into index
-        const int thresIdx = (int)(this->log["time"].end() - it);
-        const int cutSize = this->log["time"].size() - thresIdx;
-
-        // plan creation is not thread safe
-        const double normalizer = timeStep * cutSize;
-        const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
-        std::vector<double> frequencySteps(maxIt);
-        frequencySteps[0] = 0;
-        for (int i = 1; i <= maxIt; i++)
-        {
-            frequencySteps[i - 1] = (i - 1) / normalizer;
-        }
-
-        std::map<std::string, std::vector<double>> result;
-        std::map<std::string, double> maxAmpls;
-        for (const auto &magTag : this->vectorNames)
-        {
-            std::vector<double> cutMag(this->log["free_m" + magTag].begin() + thresIdx, this->log["free_m" + magTag].end());
-            fftw_complex out[cutMag.size()];
-            // define FFT plan
-            fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
-                                                  cutMag.data(),
-                                                  out,
-                                                  FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
-            if (plan == NULL)
-            {
-                throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
-            }
-            fftw_execute(plan);
-            std::vector<double> amplitudes, phases;
-
-            const int outBins = (cutMag.size() + 1) / 2;
-            amplitudes.reserve(outBins);
-            phases.reserve(outBins);
-
-            double maxAmpl = 0.0;
-            double maxFreq = 0.0;
-            double maxPhase = 0.0;
-            amplitudes[0] = out[0][0];
-            phases[0] = 0;
-            for (int i = 1; i < outBins; i++)
-            {
-                const auto tandem = out[i];
-                const double real = tandem[0];
-                const double img = tandem[1];
-                const double ampl = sqrt(pow(real, 2) + pow(img, 2));
-                phases[i] = tan(img / real);
-                amplitudes[i] = ampl;
-                if (ampl >= maxAmpl)
-                {
-                    maxAmpl = ampl;
-                    maxFreq = frequencySteps[i];
-                    maxPhase = phases[i];
-                }
-            }
-            fftw_destroy_plan(plan);
-            result[magTag + "_amplitude"] = amplitudes;
-            result[magTag + "_phase"] = phases;
-            maxAmpls[magTag + "_resonant"] = maxFreq;
-            maxAmpls[magTag + "_amplitude"] = maxAmpl;
-            maxAmpls[magTag + "_phase"] = maxPhase;
-        }
-        return maxAmpls;
-    }
-
     void runSingleLayerRK4Iteration(double t, double timeStep)
     {
         /**
@@ -775,11 +626,11 @@ public:
         double Rx_acc = 0.0;
         double Ry_acc = 0.0;
 
-        for (int i = 0; i > this->layers.size(); i++)
+        for (int i = 0; i < this->layers.size(); i++)
         {
             const double Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
-            const double Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z + \
-                        (AMR_Y[i] - SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
+            const double Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
+                              (AMR_Y[i] - SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
             Rx_acc += Rx;
             Ry_acc += Ry;
         }
