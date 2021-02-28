@@ -263,6 +263,41 @@ public:
             this->drivers[1].getCurrentScalarValue(time),
             this->drivers[2].getCurrentScalarValue(time));
     }
+
+    CVector getConstantValues()
+    {
+        return CVector(
+            this->drivers[0].constantValue,
+            this->drivers[1].constantValue,
+            this->drivers[2].constantValue);
+    }
+    /**
+     * Returns the mask for the Axial Driver.
+     * For instance: a vector (1213, 123, 0) returns (1, 1, 0)
+     * Note: This is not normalised 
+     * @return CVector: mask for the driver
+     */
+    CVector getUnitAxis()
+    {
+        return CVector(
+            this->drivers[0].constantValue != 0.0 ? this->drivers[0].constantValue / std::abs(this->drivers[0].constantValue) : 0.0,
+            this->drivers[1].constantValue != 0.0 ? this->drivers[1].constantValue / std::abs(this->drivers[1].constantValue) : 0.0,
+            this->drivers[2].constantValue != 0.0 ? this->drivers[2].constantValue / std::abs(this->drivers[2].constantValue) : 0.0);
+    }
+};
+
+class NullAxialDriver : public AxialDriver
+{
+public:
+    NullAxialDriver() = default;
+    CVector getCurrentAxialDrivers(double time)
+    {
+        return CVector(0., 0., 0.);
+    }
+    CVector getConstantValues()
+    {
+        return CVector(0., 0., 0.);
+    }
 };
 
 #endif

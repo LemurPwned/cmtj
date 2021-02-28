@@ -6,7 +6,6 @@
 #include <cmath>
 #include <complex>
 #include <cstring>
-#include <fftw3.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -82,10 +81,12 @@ public:
         return -MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hext) * cellVolume;
     }
 
-    static double calculateAnisotropyEnergy(CVector mag, CVector anis, double K, double cellVolume)
+    static double calculateAnisotropyEnergy(CVector mag, CVector anisAxis, CVector K, double cellVolume)
     {
-        const double sinSq = 1 - pow(c_dot(mag, anis) / (anis.length() * mag.length()), 2);
-        return K * sinSq * cellVolume;
+        // const double sinSq = 1 - pow(c_dot(mag, anis) / (anis.length() * mag.length()), 2);
+        // return K * sinSq * cellVolume;
+        const double Kval = 2 * c_dot(mag, anisAxis) * c_dot(mag, K) * cellVolume;
+        return Kval;
     }
 
     static double calculateIECEnergy(CVector mag, CVector other, double J, double cellSurface)
@@ -102,19 +103,22 @@ static std::default_random_engine generator;
 class Layer
 {
 private:
-    ScalarDriver currentDriver, IECDriver, anisotropyDriver;
-    AxialDriver externalFieldDriver, HoeDriver;
+    ScalarDriver currentDriver = NullDriver();
+    ScalarDriver IECDriver = NullDriver();
+    AxialDriver anisotropyDriver = NullAxialDriver();
+    AxialDriver externalFieldDriver = NullAxialDriver();
+    AxialDriver HoeDriver = NullAxialDriver();
 
 public:
     double cellVolume, cellSurface = 0.0;
 
     std::string id;
 
-    CVector H_log, Hoe_log, Hconst, mag, anis;
+    CVector H_log, Hoe_log, Hconst, mag, anisAxis, K_log;
     CVector Hext, Hdipole, Hdemag, HIEC, Hoe, HAnis, Hthermal, Hfl;
 
     double Ms;
-    double J_log = 0.0, K_log = 0.0, I_log = 0.0;
+    double J_log = 0.0, I_log = 0.0;
     double thickness;
 
     std::vector<CVector>
@@ -139,7 +143,6 @@ public:
     Layer() {}
     Layer(std::string id,
           CVector mag,
-          CVector anis,
           double Ms,
           double thickness,
           double cellSurface,
@@ -153,7 +156,6 @@ public:
           double spinPolarisation = 0.8,
           bool silent = true) : id(id),
                                 mag(mag),
-                                anis(anis),
                                 Ms(Ms),
                                 thickness(thickness),
                                 cellSurface(cellSurface),
@@ -189,9 +191,10 @@ public:
         this->currentDriver = driver;
     }
 
-    void setAnisotropyDriver(ScalarDriver &driver)
+    void setAnisotropyDriver(AxialDriver &driver)
     {
         this->anisotropyDriver = driver;
+        this->anisAxis = driver.getUnitAxis();
     }
 
     void setIECDriver(ScalarDriver &driver)
@@ -260,9 +263,11 @@ public:
 
     CVector calculateAnisotropy(double time)
     {
-        this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
-        const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
-        return this->anis * nom;
+        this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
+        return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / (MAGNETIC_PERMEABILITY * this->Ms);
+        // this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
+        // const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
+        // return this->anis * nom;
     }
 
     CVector calculateIEC(double time, CVector coupledMag)
@@ -356,46 +361,83 @@ class Junction
 public:
     enum MRmode
     {
+        NONE = 0,
         CLASSIC = 1,
-        ADVANCED = 2
+        STRIP = 2
     };
     MRmode MR_mode;
-
     std::vector<Layer> layers;
     double Rp, Rap = 0.0;
 
-    std::vector<double> Rx0, Ry0, AMR, AHE, SMR;
+    std::vector<double> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
     std::map<std::string, std::vector<double>> log;
     std::string fileSave;
     unsigned int logLength = 0;
     int layerNo;
     Junction() {}
-    Junction(std::vector<Layer> layersToSet, std::string filename, double Rp = 100, double Rap = 200)
+    Junction(std::vector<Layer> layersToSet, std::string filename = "")
     {
+        this->MR_mode = NONE;
         this->layers = std::move(layersToSet);
+        this->layerNo = this->layers.size();
+        if (this->layerNo == 0)
+        {
+            throw std::invalid_argument("Passed a zero length Layer vector!");
+        }
+        this->fileSave = std::move(filename);
+    }
+    Junction(std::vector<Layer> layersToSet, std::string filename, double Rp, double Rap) : Junction(
+                                                                                                layersToSet, filename)
+    {
+        if (this->layerNo != 2)
+        {
+            throw std::invalid_argument("This constructor supports only bilayers! Choose the other one with the strip resistance!");
+        }
+        // this->layers = std::move(layersToSet);
         this->Rp = Rp;
         this->Rap = Rap;
-        this->fileSave = filename;
+        // this->fileSave = filename;
         this->MR_mode = CLASSIC;
-        this->layerNo = this->layers.size();
+        // this->layerNo = this->layers.size();
     }
 
-    Junction(std::vector<Layer> layersToSet, std::string filename,
+    /**
+     * Creates a junction with a STRIP magnetoresistance.  
+     * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the 
+     * length of the layers passed (they directly correspond to each layer).
+     * @param Rx0
+     * @param Ry0
+     * @param AMR_X
+     * @param AMR_Y
+     * @param SMR_X
+     * @param SMR_Y
+     * @param AHE
+     */
+    Junction(std::vector<Layer> layersToSet,
+             std::string filename,
              std::vector<double> Rx0,
              std::vector<double> Ry0,
-             std::vector<double> AMR,
-             std::vector<double> AHE,
-             std::vector<double> SMR) : Rx0(std::move(Rx0)),
+             std::vector<double> AMR_X,
+             std::vector<double> AMR_Y,
+             std::vector<double> SMR_X,
+             std::vector<double> SMR_Y,
+             std::vector<double> AHE) : Rx0(std::move(Rx0)),
                                         Ry0(std::move(Ry0)),
-                                        AMR(std::move(AMR)),
-                                        AHE(std::move(AHE)),
-                                        SMR(std::move(SMR))
+                                        AMR_X(std::move(AMR_X)),
+                                        AMR_Y(std::move(AMR_Y)),
+                                        SMR_X(std::move(SMR_Y)),
+                                        SMR_Y(std::move(SMR_Y)),
+                                        AHE(std::move(AHE))
 
     {
-        this->layers = std::move(layersToSet);
-        this->fileSave = filename;
-        this->MR_mode = ADVANCED;
-        this->layerNo = this->layers.size();
+        if (this->layerNo != Rx0.size() != Ry0.size() != AMR_X.size() != AMR_Y.size() != AHE.size() != SMR_X.size() != SMR_Y.size())
+        {
+            throw std::invalid_argument("Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
+        }
+        // this->layers = std::move(layersToSet);
+        // this->fileSave = filename;
+        this->MR_mode = STRIP;
+        // this->layerNo = this->layers.size();
     }
 
     void clearLog()
@@ -456,6 +498,10 @@ public:
         }
     }
 
+    void setLayerAnisotropyDriver(std::string layerID, AxialDriver driver)
+    {
+        axiallayerSetter(layerID, &Layer::setAnisotropyDriver, driver);
+    }
     void setLayerExternalFieldDriver(std::string layerID, AxialDriver driver)
     {
         axiallayerSetter(layerID, &Layer::setExternalFieldDriver, driver);
@@ -468,16 +514,12 @@ public:
     {
         scalarlayerSetter(layerID, &Layer::setCurrentDriver, driver);
     }
-    void setLayerAnisotropyDriver(std::string layerID, ScalarDriver driver)
-    {
-        scalarlayerSetter(layerID, &Layer::setAnisotropyDriver, driver);
-    }
     void setLayerIECDriver(std::string layerID, ScalarDriver driver)
     {
         scalarlayerSetter(layerID, &Layer::setIECDriver, driver);
     }
 
-    void logLayerParams(double t, std::vector<double> magnetoresistance, bool calculateEnergies = false)
+    void logLayerParams(double t, bool calculateEnergies = false)
     {
         for (Layer &layer : this->layers)
         {
@@ -485,8 +527,9 @@ public:
             {
                 this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
                 this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
+                this->log[layer.id + "_K" + vectorNames[i]].push_back(layer.K_log[i]);
             }
-            this->log[layer.id + "_K"].push_back(layer.K_log);
+
             if (layer.includeSTT)
                 this->log[layer.id + "_I"].push_back(layer.I_log);
 
@@ -497,7 +540,7 @@ public:
                                                                                                layer.cellVolume,
                                                                                                layer.Ms));
                 this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
-                                                                                                 layer.anis,
+                                                                                                 layer.anisAxis,
                                                                                                  layer.K_log,
                                                                                                  layer.cellVolume));
                 // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
@@ -514,16 +557,16 @@ public:
                                                                                               layer.cellVolume));
             }
         }
-
         if (MR_mode == CLASSIC)
         {
+            const auto magnetoresistance = getMagnetoresistance();
             this->log["R_free_bottom"].push_back(magnetoresistance[0]);
         }
-        else
+        else if (MR_mode == STRIP)
         {
+            const auto magnetoresistance = getMagnetoresistance();
             this->log["Rx"].push_back(magnetoresistance[0]);
             this->log["Ry"].push_back(magnetoresistance[1]);
-            this->log["Rz"].push_back(magnetoresistance[2]);
         }
         this->log["time"].push_back(t);
 
@@ -533,6 +576,12 @@ public:
     void
     saveLogs()
     {
+        if (this->fileSave == "")
+        {
+            // if there's an empty fn, don't save
+            std::cout << "Ignoring file save to an empty filename" << std::endl;
+            return;
+        }
         std::ofstream logFile;
         logFile.open(this->fileSave);
         for (const auto &keyPair : this->log)
@@ -551,39 +600,7 @@ public:
         logFile.close();
     }
 
-    std::map<std::string, double> calculateVoltageSpinDiode(double frequency, double power = 10e-6, const double minTime = 10e-9)
-    {
-        if (this->log.empty())
-        {
-            throw std::runtime_error("Empty log! Cannot proceed without running a simulation!");
-        }
-        const double omega = 2 * M_PI * frequency;
-        const std::string res = "R_free_bottom";
-        std::vector<double> &resistance = this->log[res];
-        auto it = std::find_if(this->log["time"].begin(), this->log["time"].end(),
-                               [&minTime](const auto &value) { return value >= minTime; });
-        // turn into index
-        const int thresIdx = (int)(this->log["time"].end() - it);
-        const int cutSize = this->log["time"].size() - thresIdx;
-        // Rpp
-        const double RppMax = *std::max_element(resistance.begin() + thresIdx, resistance.end());
-        const double RppMin = *std::min_element(resistance.begin() + thresIdx, resistance.end());
-        const double avgR = std::accumulate(resistance.begin() + thresIdx, resistance.end(), 0.0) / cutSize;
-        const double Iampl = sqrt(power / avgR);
-        std::vector<double> voltage, current;
-        std::transform(
-            this->log["time"].begin() + thresIdx, this->log["time"].end(),
-            std::back_inserter(current),
-            [&Iampl, &omega](const double &time) { return Iampl * sin(omega * time); });
 
-        for (unsigned int i = 0; i < cutSize; i++)
-        {
-            voltage.push_back(resistance[thresIdx + i] * current[i]);
-        }
-        const double Vmix = std::accumulate(voltage.begin(), voltage.end(), 0.0) / voltage.size();
-        std::map<std::string, double> mRes = {{"Vmix", Vmix}, {"RMax", RppMax}, {"RMin", RppMin}, {"Rpp", (RppMax - RppMin)}};
-        return mRes;
-    }
     std::map<std::string, std::vector<double>>
     spectralFFT(double minTime = 10.0e-9, double timeStep = 1e-11)
     {
@@ -729,8 +746,9 @@ public:
     void runSingleLayerRK4Iteration(double t, double timeStep)
     {
         /**
-         * Single layer iteration
-         * 
+         * Single layer iteration. IEC interaction is turned off.
+         * @param t: current time
+         * @param timeStep: integration step
          * */
         this->layers[0].rk4_step(
             t, timeStep, CVector(0., 0., 0.));
@@ -746,32 +764,27 @@ public:
             t, timeStep, l1mag);
     }
 
-    std::vector<double> advancedMagnetoResistance(CVector m1, CVector m2,
-                                                  std::vector<double> Rx0,
-                                                  std::vector<double> Ry0,
-                                                  std::vector<double> AMR,
-                                                  std::vector<double> AHE,
-                                                  std::vector<double> SMR)
+    std::vector<double> stripMagnetoResistance(std::vector<double> Rx0,
+                                               std::vector<double> Ry0,
+                                               std::vector<double> AMR_X,
+                                               std::vector<double> SMR_X,
+                                               std::vector<double> AMR_Y,
+                                               std::vector<double> SMR_Y,
+                                               std::vector<double> AHE)
     {
-        const double R_P = Rx0[0];
-        const double R_AP = Ry0[0];
-        const double ratio = 3 / 2;
+        double Rx_acc = 0.0;
+        double Ry_acc = 0.0;
 
-        const double Rz_tmp = R_P + (R_AP - R_P) / 2 * (1 - c_dot(m1, m2));
+        for (int i = 0; i > this->layers.size(); i++)
+        {
+            const double Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
+            const double Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z + \
+                        (AMR_Y[i] - SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
+            Rx_acc += Rx;
+            Ry_acc += Ry;
+        }
 
-        const double Rx_first = (Rx0[0] + AMR[0] * pow(m1.x, 2) + SMR[0] * pow(m1.y, 2));
-        // const double Rx_second = (Rx0[1] + AMR[1] * pow(m2.x, 2) + SMR[1] * pow(m2.y, 2));
-
-        const double Ry_first = Ry0[0] + 0.5 * AHE[0] * m1.z + (-ratio * AMR[0] + ratio * SMR[0]) * m1.x * m1.y;
-        // const double Ry_second = Ry0[1] + 0.5 * AHE[1] * m2.z + (-ratio * AMR[1] + ratio * SMR[1]) * m2.x * m2.y;
-
-        // const double Rx = ((Rx_first * Rx_second) / (Rx_first + Rx_second));
-        const double Rx = Rx_first;
-        const double Ry = Ry_first;
-        // const double Ry = ((Ry_first * Ry_second) / (Ry_first + Ry_second));
-        const double Rz = (Rz_tmp);
-
-        return {Rx, Ry, Rz};
+        return {1. / Rx_acc, 1. / Ry_acc};
     }
 
     double calculateMagnetoresistance(double cosTheta)
@@ -787,10 +800,12 @@ public:
         }
         else
         {
-            return {0., 0., 0.};
-            // advancedMagnetoResistance(
-                // layers[0].mag, layers[1].mag,
-                // this->Rx0, this->Ry0, this->AMR, this->AHE, this->SMR);
+            return stripMagnetoResistance(this->Rx0, this->Ry0,
+                                          this->AMR_X,
+                                          this->SMR_X,
+                                          this->AMR_Y,
+                                          this->SMR_Y,
+                                          this->AHE);
         }
     }
 
@@ -816,8 +831,7 @@ public:
 
             if (!(i % writeEvery))
             {
-                const auto magRes = getMagnetoresistance();
-                logLayerParams(t, magRes, calculateEnergies);
+                logLayerParams(t, calculateEnergies);
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
