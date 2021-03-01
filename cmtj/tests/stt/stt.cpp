@@ -1,5 +1,4 @@
-#include "junction.hpp"
-#include "stack.hpp"
+#include "../../core/junction.hpp"
 #include <iostream>
 #include <stdio.h>
 
@@ -15,34 +14,25 @@ int main(void)
         {0., 0.00125355500286346, 0.},
         {0., 0.0, -0.00181060482770131}};
 
-    double damping = 0.03;
-    double currentDensity = 1e10;
-    double beta = 1;
-    double spinPolarisation = 1.0;
-    double STT_ = 1;
-    double temperature = 1e4;
+    const double damping = 0.03;
+    const double currentDensity = 1e10;
+    const double beta = 1;
+    const double spinPolarisation = 1.0;
+    const double STT_ = 1;
+    const double temperature = 1e4;
 
-    double sttOn = true;
+    bool sttOn = true;
 
-    double radius = 70e-9;
-    double surface = 7e-10 * 7e-10; // M_PI * pow(radius, 2);
-    double Ms = 1 * TtoAm;
-    double topAnisotropy = 800e3;
-
-    ScalarDriver anisotropyBottom(
-        constant,
-        1500e3);
-
-    ScalarDriver anisotropyTop(
-        constant,
-        topAnisotropy // constant
-    );
+    const double radius = 70e-9;
+    const double surface = 7e-10 * 7e-10; // M_PI * pow(radius, 2);
+    const double Ms = 1 * TtoAm;
+    const double topAnisotropy = 800e3;
+    const double bottomAnisotropy = 1500e3;
 
     Layer l1("free",              // id
              CVector(0., 0., -1), // mag
-             CVector(0, 0., 1.),  // anis
-             1200e3,                  // Ms
-             1e-9,              // thickness
+             1200e3,              // Ms
+             1e-9,                // thickness
              surface,             // surface
              demagTensor,         // demag
              dipoleTensor,        // dipole
@@ -56,8 +46,7 @@ int main(void)
     );
     Layer l2("bottom",            // id
              CVector(0., 1., 1.), // mag
-             CVector(0, 1., 1.),  // anis
-             1000e3,                  // Ms
+             1000e3,              // Ms
              3e-9,                // thickness
              surface,             // surface
              demagTensor,         // demag
@@ -71,10 +60,10 @@ int main(void)
     );
 
     Junction mtj(
-        {l1, l2}, "STT.csv");
+        {l1, l2}, "STT.csv", 100, 200);
     mtj.setLayerIECDriver("all", ScalarDriver::getConstantDriver(-2.5e-6));
-    mtj.setLayerAnisotropyDriver("free", anisotropyTop);
-    mtj.setLayerAnisotropyDriver("bottom", anisotropyBottom);
+    mtj.setLayerAnisotropyDriver("free", AxialDriver(CVector(0, 0, topAnisotropy)));
+    mtj.setLayerAnisotropyDriver("bottom", AxialDriver(CVector(0, bottomAnisotropy * sqrt(2) / 2, bottomAnisotropy * sqrt(2) / 2)));
     mtj.setLayerCurrentDriver("free", ScalarDriver::getConstantDriver(currentDensity));
     mtj.runSimulation(150e-9, 1e-13, 1e-12, true, true, false);
 }

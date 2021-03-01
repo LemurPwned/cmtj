@@ -227,7 +227,6 @@ public:
                this->HIEC +  // IEC
                this->Hoe +   // Oersted field
                // demag
-               // check the interaction here to be sure
                this->Hdemag +
                // dipole
                this->Hdipole +
@@ -312,7 +311,6 @@ public:
     {
         CVector k1, k2, k3, k4, m_t, heff;
         m_t = mag;
-        // heff = calculateHeff(time, timeStep, coupledMag);
         k1 = llg(time, m_t, coupledMag, heff, timeStep) * timeStep;
         k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff, timeStep) * timeStep;
         k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff, timeStep) * timeStep;
@@ -345,7 +343,6 @@ public:
     {
         const double qh = ELECTRON_CHARGE / HBAR;
         const double PMA_Ip = 6 * qh * this->damping * BOLTZMANN_CONST * this->temperature;
-        // const double locDemag =
         // const double IMA_Ip = 2 * qh * sqrt(2 / M_PI) * sqrt(this->Hdemag * this->Ms * this->cellVolume * BOLTZMANN_CONST * this->temperature);
 
         std::cout << "PMA pinning current: " << PMA_Ip << std::endl;
@@ -440,7 +437,7 @@ public:
         this->logLength = 0;
     }
 
-    std::map<std::string, std::vector<double>> getLog()
+    std::map<std::string, std::vector<double>>& getLog()
     {
         return this->log;
     }

@@ -5,7 +5,6 @@
 #include "../core/cvector.hpp"
 #include "../core/drivers.hpp"
 #include "../core/junction.hpp"
-#include "../core/parallel.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -14,45 +13,12 @@ using namespace pybind11::literals;
 namespace py = pybind11;
 
 #define USING_PY true
-
-static std::map<std::string, std::vector<double>> parallelGILWrapper(Junction &mtj,
-                                                                     double minField,
-                                                                     double maxField,
-                                                                     int numberOfPoints,
-                                                                     int threadNumber,
-                                                                     const std::function<fnRes(Junction &mtj,
-                                                                                               const double scanningParam)>
-                                                                         runnableFunction)
-{
-    std::map<std::string, std::vector<double>> res;
-    pybind11::gil_scoped_acquire acquire;
-    {
-        pybind11::gil_scoped_release release;
-        res = ComputeUtil::parallelFieldScan(mtj, minField, maxField, numberOfPoints, threadNumber, runnableFunction);
-    }
-
-    return res;
-}
-
 PYBIND11_MODULE(cmtj, m)
 {
     m.doc() = "Python binding for C++ CMTJ Library";
 
     // helpers
     m.def("c_dot", &c_dot);
-    m.def("customResultMap", &ComputeUtil::customResultMap,
-          "resultMap"_a,
-          "filename"_a);
-
-    m.def("parallelFieldScan", &parallelGILWrapper,
-          pybind11::call_guard<pybind11::gil_scoped_release>(),
-          "mtj"_a,
-          "minField"_a,
-          "maxField"_a,
-          "numberOfPoints"_a,
-          "numberOfThreads"_a,
-          "runnableFunction"_a);
-
     // Driver Class
     py::class_<ScalarDriver>(m, "ScalarDriver")
         .def_static("getConstantDriver",
@@ -109,10 +75,9 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<
                  std::string,          // id
                  CVector,              // mag
-                 CVector,              // anis
                  double,               // Ms
                  double,               // thickness
-                 double,               // cekkSurface
+                 double,               // cellSurface
                  std::vector<CVector>, // demagTensor
                  std::vector<CVector>, // dipoleTensor
                  double,               // temperature
@@ -124,7 +89,6 @@ PYBIND11_MODULE(cmtj, m)
                  bool>(),
              "id"_a,
              "mag"_a,
-             "anis"_a,
              "Ms"_a,
              "thickness"_a,
              "cellSurface"_a,
@@ -139,17 +103,24 @@ PYBIND11_MODULE(cmtj, m)
              "silent"_a = true);
 
     py::class_<Junction>(m, "Junction")
+        .def(py::init<std::vector<Layer>,
+                      std::string>(),
+             "layers"_a,
+             "filename"_a = "")
         .def(py::init<
                  std::vector<Layer>,
                  std::string,
                  double, double>(),
              "layers"_a,
              "filename"_a,
-             "Rp"_a,
-             "Rap"_a)
+             "Rp"_a = 100,
+             "Rap"_a = 200)
         .def(py::init<
                  std::vector<Layer>,
                  std::string, std::vector<double>,
+                 std::vector<double>,
+                 std::vector<double>,
+                 std::vector<double>,
                  std::vector<double>,
                  std::vector<double>,
                  std::vector<double>,
@@ -158,9 +129,11 @@ PYBIND11_MODULE(cmtj, m)
              "filename"_a,
              "Rx0"_a,
              "Ry0"_a,
-             "AMR"_a,
-             "AHE"_a,
-             "SMR"_a)
+             "AMR_X"_a,
+             "AMR_Y"_a,
+             "SMR_X"_a,
+             "SMR_Y"_a,
+             "AHE"_a)
         // log utils
         .def("getLog", &Junction::getLog)
         .def("clearLog", &Junction::clearLog)
@@ -182,14 +155,5 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerOerstedFieldDriver", &Junction::setLayerOerstedFieldDriver)
 
         // junction calculations
-        .def("advancedMagnetoResistance", &Junction::advancedMagnetoResistance)
-        .def("calculateMagnetoresistance", &Junction::calculateMagnetoresistance)
         .def("getMagnetoresistance", &Junction::getMagnetoresistance)
-        .def("calculateVoltageSpinDiode", &Junction::calculateVoltageSpinDiode,
-             "frequency"_a,
-             "power"_a = 10e-6,
-             "minTime"_a)
-        .def("calculateFFT", &Junction::calculateFFT,
-             "minTime"_a,
-             "timeStep"_a = 1e-11);
 }
