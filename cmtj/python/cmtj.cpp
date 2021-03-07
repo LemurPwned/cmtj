@@ -76,6 +76,7 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<
                  std::string,          // id
                  CVector,              // mag
+                 CVector,
                  double,               // Ms
                  double,               // thickness
                  double,               // cellSurface
@@ -90,6 +91,7 @@ PYBIND11_MODULE(cmtj, m)
                  bool>(),
              "id"_a,
              "mag"_a,
+             "anis"_a,
              "Ms"_a,
              "thickness"_a,
              "cellSurface"_a,

@@ -21,7 +21,7 @@
 #include "drivers.hpp"
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
-#define GYRO 221000.0
+#define GYRO 220880.0
 #define TtoAm 795774.715459
 #define HBAR 6.62607015e-34 / (2. * M_PI)
 #define ELECTRON_CHARGE 1.60217662e-19
@@ -55,7 +55,7 @@ CVector calculate_tensor_interaction(CVector m,
         tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
         tensor[1][0] * m[0] + tensor[1][1] * m[1] + tensor[1][2] * m[2],
         tensor[2][0] * m[0] + tensor[2][1] * m[1] + tensor[2][2] * m[2]);
-    return res / (Ms * MAGNETIC_PERMEABILITY);
+    return res * Ms * MAGNETIC_PERMEABILITY;
 }
 
 CVector c_cross(CVector a, CVector b)
@@ -81,13 +81,13 @@ public:
         return -MAGNETIC_PERMEABILITY * Ms * c_dot(mag, Hext) * cellVolume;
     }
 
-    static double calculateAnisotropyEnergy(CVector mag, CVector anisAxis, CVector K, double cellVolume)
-    {
-        // const double sinSq = 1 - pow(c_dot(mag, anis) / (anis.length() * mag.length()), 2);
-        // return K * sinSq * cellVolume;
-        const double Kval = 2 * c_dot(mag, anisAxis) * c_dot(mag, K) * cellVolume;
-        return Kval;
-    }
+    // static double calculateAnisotropyEnergy(CVector mag, CVector anisAxis, CVector K, double cellVolume)
+    // {
+    //     // const double sinSq = 1 - pow(c_dot(mag, anis) / (anis.length() * mag.length()), 2);
+    //     // return K * sinSq * cellVolume;
+    //     const double Kval = 2 * c_dot(mag, anisAxis) * c_dot(mag, K) * cellVolume;
+    //     return Kval;
+    // }
 
     static double calculateIECEnergy(CVector mag, CVector other, double J, double cellSurface)
     {
@@ -105,7 +105,7 @@ class Layer
 private:
     ScalarDriver currentDriver = NullDriver();
     ScalarDriver IECDriver = NullDriver();
-    AxialDriver anisotropyDriver = NullAxialDriver();
+    ScalarDriver anisotropyDriver = NullDriver();
     AxialDriver externalFieldDriver = NullAxialDriver();
     AxialDriver HoeDriver = NullAxialDriver();
 
@@ -114,9 +114,9 @@ public:
 
     std::string id;
 
-    CVector H_log, Hoe_log, Hconst, mag, anisAxis, K_log;
+    CVector H_log, Hoe_log, Hconst, mag, anisAxis, anis;
     CVector Hext, Hdipole, Hdemag, HIEC, Hoe, HAnis, Hthermal, Hfl;
-
+    double K_log = 0.0;
     double Ms;
     double J_log = 0.0, I_log = 0.0;
     double thickness;
@@ -143,6 +143,7 @@ public:
     Layer() {}
     Layer(std::string id,
           CVector mag,
+          CVector anis,
           double Ms,
           double thickness,
           double cellSurface,
@@ -156,6 +157,7 @@ public:
           double spinPolarisation = 0.8,
           bool silent = true) : id(id),
                                 mag(mag),
+                                anis(anis),
                                 Ms(Ms),
                                 thickness(thickness),
                                 cellSurface(cellSurface),
@@ -191,10 +193,10 @@ public:
         this->currentDriver = driver;
     }
 
-    void setAnisotropyDriver(AxialDriver &driver)
+    void setAnisotropyDriver(ScalarDriver &driver)
     {
         this->anisotropyDriver = driver;
-        this->anisAxis = driver.getUnitAxis();
+        // this->anisAxis = driver.getUnitAxis();
     }
 
     void setIECDriver(ScalarDriver &driver)
@@ -262,11 +264,11 @@ public:
 
     CVector calculateAnisotropy(double time)
     {
-        this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
-        return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / this->Ms;
-        // this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
-        // const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
-        // return this->anis * nom;
+        // this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
+        // return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / this->Ms;
+        this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
+        const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (this->Ms);
+        return this->anis * nom;
     }
 
     CVector calculateIEC(double time, CVector coupledMag)
@@ -275,7 +277,7 @@ public:
         const double nom = this->J_log / (this->Ms * this->thickness);
         // return (coupledMag - this->mag) * nom;
         // either of those may be correct -- undecided for now
-        return coupledMag * nom;
+        return (coupledMag - this->mag) * nom;
     }
 
     CVector llg(double time, CVector m, CVector coupledMag, CVector heffEx, double timeStep)
@@ -496,9 +498,9 @@ public:
         }
     }
 
-    void setLayerAnisotropyDriver(std::string layerID, AxialDriver driver)
+    void setLayerAnisotropyDriver(std::string layerID, ScalarDriver driver)
     {
-        axiallayerSetter(layerID, &Layer::setAnisotropyDriver, driver);
+        scalarlayerSetter(layerID, &Layer::setAnisotropyDriver, driver);
     }
     void setLayerExternalFieldDriver(std::string layerID, AxialDriver driver)
     {
@@ -521,11 +523,12 @@ public:
     {
         for (Layer &layer : this->layers)
         {
+            this->log[layer.id + "_K"].push_back(layer.K_log);
             for (int i = 0; i < 3; i++)
             {
                 this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
                 this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
-                this->log[layer.id + "_K" + vectorNames[i]].push_back(layer.K_log[i]);
+                // this->log[layer.id + "_K" + vectorNames[i]].push_back(layer.K_log[i]);
             }
 
             if (layer.includeSTT)
@@ -537,10 +540,10 @@ public:
                                                                                                layer.Hext,
                                                                                                layer.cellVolume,
                                                                                                layer.Ms));
-                this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
-                                                                                                 layer.anisAxis,
-                                                                                                 layer.K_log,
-                                                                                                 layer.cellVolume));
+                // this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
+                //                                                                                  layer.anisAxis,
+                //                                                                                  layer.K_log,
+                //                                                                                  layer.cellVolume));
                 // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
                 //                                                                    layer.other,
                 //                                                                    layer.J_log,
@@ -557,17 +560,21 @@ public:
         }
         if (MR_mode == CLASSIC)
         {
-            const auto magnetoresistance = getMagnetoresistance();
-            this->log["R_free_bottom"].push_back(magnetoresistance[0]);
+            const auto magnetoresistance = calculateMagnetoresistance(c_dot(this->layers[0].mag, this->layers[1].mag));
+            this->log["R_free_bottom"].push_back(magnetoresistance);
         }
         else if (MR_mode == STRIP)
         {
-            const auto magnetoresistance = getMagnetoresistance();
+            const auto magnetoresistance = stripMagnetoResistance(this->Rx0, this->Ry0,
+                                                                  this->AMR_X,
+                                                                  this->SMR_X,
+                                                                  this->AMR_Y,
+                                                                  this->SMR_Y,
+                                                                  this->AHE);
             this->log["Rx"].push_back(magnetoresistance[0]);
             this->log["Ry"].push_back(magnetoresistance[1]);
         }
         this->log["time"].push_back(t);
-
         this->logLength++;
     }
 
