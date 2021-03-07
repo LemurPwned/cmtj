@@ -35,6 +35,12 @@ public:
         {
             throw std::invalid_argument("Empty log! Cannot proceed without running a simulation!");
         }
+
+        if (log.find(resTag) == log.end())
+        {
+            // not found
+            throw std::invalid_argument("Tag was not found in the junction log: " + resTag);
+        }
         const double omega = 2 * M_PI * frequency;
         std::vector<double> &resistance = log[resTag];
         auto it = std::find_if(log["time"].begin(), log["time"].end(),

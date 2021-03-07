@@ -52,10 +52,10 @@ CVector calculate_tensor_interaction(CVector m,
                                      double Ms)
 {
     CVector res(
-        -Ms * tensor[0][0] * m[0] - Ms * tensor[0][1] * m[1] - Ms * tensor[0][2] * m[2],
-        -Ms * tensor[1][0] * m[0] - Ms * tensor[1][1] * m[1] - Ms * tensor[1][2] * m[2],
-        -Ms * tensor[2][0] * m[0] - Ms * tensor[2][1] * m[1] - Ms * tensor[2][2] * m[2]);
-    return res;
+        tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
+        tensor[1][0] * m[0] + tensor[1][1] * m[1] + tensor[1][2] * m[2],
+        tensor[2][0] * m[0] + tensor[2][1] * m[1] + tensor[2][2] * m[2]);
+    return res / (Ms * MAGNETIC_PERMEABILITY);
 }
 
 CVector c_cross(CVector a, CVector b)
@@ -222,16 +222,16 @@ public:
         this->HIEC = calculateIEC(time, otherMag);
         this->HAnis = calculateAnisotropy(time);
         this->Hfl = calculateLangevinStochasticField(timeStep);
-        Heff = this->Hext +  // external
-               this->HAnis + // anistotropy
-               this->HIEC +  // IEC
-               this->Hoe +   // Oersted field
-               // demag
-               this->Hdemag +
-               // dipole
-               this->Hdipole +
+        Heff = this->Hext    // external
+               + this->HAnis // anistotropy
+               + this->HIEC  // IEC
+               + this->Hoe   // Oersted field
+               // demag -- negative contribution
+               - this->Hdemag
+               // dipole -- negative contribution
+               - this->Hdipole
                // stochastic field dependent on the temperature
-               this->Hfl;
+               + this->Hfl;
 
         return Heff;
     }
@@ -263,7 +263,7 @@ public:
     CVector calculateAnisotropy(double time)
     {
         this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
-        return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / (MAGNETIC_PERMEABILITY * this->Ms);
+        return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / this->Ms;
         // this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
         // const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (MAGNETIC_PERMEABILITY * this->Ms);
         // return this->anis * nom;
@@ -272,7 +272,7 @@ public:
     CVector calculateIEC(double time, CVector coupledMag)
     {
         this->J_log = this->IECDriver.getCurrentScalarValue(time);
-        const double nom = this->J_log / (MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
+        const double nom = this->J_log / (this->Ms * this->thickness);
         // return (coupledMag - this->mag) * nom;
         // either of those may be correct -- undecided for now
         return coupledMag * nom;
@@ -383,8 +383,8 @@ public:
         }
         this->fileSave = std::move(filename);
     }
-    Junction(std::vector<Layer> layersToSet, std::string filename, double Rp, double Rap) : Junction(
-                                                                                                layersToSet, filename)
+    explicit Junction(std::vector<Layer> layersToSet, std::string filename, double Rp, double Rap) : Junction(
+                                                                                                         layersToSet, filename)
     {
         if (this->layerNo != 2)
         {
@@ -407,27 +407,34 @@ public:
      * @param SMR_Y
      * @param AHE
      */
-    Junction(std::vector<Layer> layersToSet,
-             std::string filename,
-             std::vector<double> Rx0,
-             std::vector<double> Ry0,
-             std::vector<double> AMR_X,
-             std::vector<double> AMR_Y,
-             std::vector<double> SMR_X,
-             std::vector<double> SMR_Y,
-             std::vector<double> AHE) : Rx0(std::move(Rx0)),
-                                        Ry0(std::move(Ry0)),
-                                        AMR_X(std::move(AMR_X)),
-                                        AMR_Y(std::move(AMR_Y)),
-                                        SMR_X(std::move(SMR_Y)),
-                                        SMR_Y(std::move(SMR_Y)),
-                                        AHE(std::move(AHE))
+    explicit Junction(std::vector<Layer> layersToSet,
+                      std::string filename,
+                      std::vector<double> Rx0,
+                      std::vector<double> Ry0,
+                      std::vector<double> AMR_X,
+                      std::vector<double> AMR_Y,
+                      std::vector<double> SMR_X,
+                      std::vector<double> SMR_Y,
+                      std::vector<double> AHE) : Rx0(std::move(Rx0)),
+                                                 Ry0(std::move(Ry0)),
+                                                 AMR_X(std::move(AMR_X)),
+                                                 AMR_Y(std::move(AMR_Y)),
+                                                 SMR_X(std::move(SMR_X)),
+                                                 SMR_Y(std::move(SMR_Y)),
+                                                 AHE(std::move(AHE))
 
     {
-        if (this->layerNo != Rx0.size() != Ry0.size() != AMR_X.size() != AMR_Y.size() != AHE.size() != SMR_X.size() != SMR_Y.size())
+        this->layers = std::move(layersToSet);
+        this->layerNo = this->layers.size();
+        if (this->layerNo == 0)
+        {
+            throw std::invalid_argument("Passed a zero length Layer vector!");
+        }
+        if ((this->layerNo != this->Rx0.size()) || (this->layerNo != this->Ry0.size()) || (this->layerNo != this->AMR_X.size()) || (this->layerNo != this->AMR_Y.size()) || (this->layerNo != this->AHE.size()) || (this->layerNo != this->SMR_X.size()) || (this->layerNo != this->SMR_Y.size()))
         {
             throw std::invalid_argument("Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
         }
+        this->fileSave = std::move(filename);
         this->MR_mode = STRIP;
     }
 
@@ -437,7 +444,7 @@ public:
         this->logLength = 0;
     }
 
-    std::map<std::string, std::vector<double>>& getLog()
+    std::map<std::string, std::vector<double>> &getLog()
     {
         return this->log;
     }

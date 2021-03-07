@@ -188,6 +188,11 @@ private:
     std::vector<ScalarDriver> drivers;
 
 public:
+
+    static AxialDriver getVectorAxialDriver(double x, double y, double z) {
+        return AxialDriver(CVector(x, y, z));
+    }
+
     void applyMask(std::vector<unsigned int> mask)
     {
         assert(mask.size() == 3);

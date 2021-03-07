@@ -49,6 +49,7 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<AxialDriver>(m, "AxialDriver")
         .def(py::init<ScalarDriver, ScalarDriver, ScalarDriver>())
         .def(py::init<std::vector<ScalarDriver>>())
+        .def("getVectorAxialDriver", AxialDriver::getVectorAxialDriver)
         .def("getCurrentAxialDrivers",
              &AxialDriver::getCurrentAxialDrivers)
         .def("applyMask", py::overload_cast<CVector>(&AxialDriver::applyMask))
@@ -117,7 +118,7 @@ PYBIND11_MODULE(cmtj, m)
              "Rap"_a = 200)
         .def(py::init<
                  std::vector<Layer>,
-                 std::string, std::vector<double>,
+                 std::string, 
                  std::vector<double>,
                  std::vector<double>,
                  std::vector<double>,
@@ -155,5 +156,5 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerOerstedFieldDriver", &Junction::setLayerOerstedFieldDriver)
 
         // junction calculations
-        .def("getMagnetoresistance", &Junction::getMagnetoresistance)
+        .def("getMagnetoresistance", &Junction::getMagnetoresistance);
 }
