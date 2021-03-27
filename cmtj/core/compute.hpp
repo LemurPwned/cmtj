@@ -5,11 +5,11 @@
 #include <fftw3.h>
 #include <iomanip>
 #include <iostream>
-#include <map>
 #include <numeric>
 #include <random>
 #include <stdio.h>
 #include <string>
+#include <unordered_map>
 
 /**
  * Provides a static interface for computing useful magnetic properties
@@ -26,8 +26,8 @@ public:
      * @param power: power assumed in the system (this is somewhat an arbitrary value).
      * @param minTime: time after which to take the log, preferably when the magnetisation is stable.
      */
-    static std::map<std::string, double> calculateVoltageSpinDiode(
-        std::map<std::string, std::vector<double>> &log,
+    static std::unordered_map<std::string, double> calculateVoltageSpinDiode(
+        std::unordered_map<std::string, std::vector<double>> &log,
         const std::string resTag,
         double frequency, double power = 10e-6, const double minTime = 10e-9)
     {
@@ -64,7 +64,7 @@ public:
             voltage.push_back(resistance[thresIdx + i] * current[i]);
         }
         const double Vmix = std::accumulate(voltage.begin(), voltage.end(), 0.0) / voltage.size();
-        std::map<std::string, double> mRes = {{"Vmix", Vmix}, {"RMax", RppMax}, {"RMin", RppMin}, {"Rpp", (RppMax - RppMin)}};
+        std::unordered_map<std::string, double> mRes = {{"Vmix", Vmix}, {"RMax", RppMax}, {"RMin", RppMin}, {"Rpp", (RppMax - RppMin)}};
         return mRes;
     }
 
@@ -76,8 +76,8 @@ public:
      * oscillations are not included into FFT computation.
      * @param timeStep: integration step (1e-11) by default .
      */
-    static std::map<std::string, std::vector<double>>
-    spectralFFT(std::map<std::string, std::vector<double>> &log,
+    static std::unordered_map<std::string, std::vector<double>>
+    spectralFFT(std::unordered_map<std::string, std::vector<double>> &log,
                 const std::vector<std::string> &fftIds,
                 double minTime = 10.0e-9, double timeStep = 1e-11)
     {
@@ -90,9 +90,6 @@ public:
         {
             throw std::invalid_argument("Empty log! Cannot proceed without running a simulation!");
         }
-        const std::vector<std::string> vectorNames = {"x", "y", "z"};
-
-        // std::cout << log["free_mx"][0] << " " << log["time"].size() << std::endl;
 
         auto it = std::find_if(log["time"].begin(), log["time"].end(),
                                [&minTime](const auto &value) { return value >= minTime; });
@@ -110,7 +107,7 @@ public:
             frequencySteps[i - 1] = (i - 1) / normalizer;
         }
         // plan creation is not thread safe
-        std::map<std::string, std::vector<double>> spectralFFTResult;
+        std::unordered_map<std::string, std::vector<double>> spectralFFTResult;
         spectralFFTResult["frequencies"] = std::move(frequencySteps);
 
         for (const auto &tag : fftIds)
@@ -146,6 +143,68 @@ public:
             spectralFFTResult[tag + "_amplitude"] = std::move(amplitudes);
             fftw_destroy_plan(plan);
         }
+        return spectralFFTResult;
+    }
+
+    static std::unordered_map<std::string, std::vector<double>>
+    spectralFFTMixed(std::unordered_map<std::string, std::vector<double>> &log,
+                     const std::vector<std::string> &tagsToMix, double timeStep = 1e-11)
+    {
+        const int cutSize = log["time"].size();
+        if (log.empty())
+        {
+            throw std::invalid_argument("Empty log! Cannot proceed without running a simulation!");
+        }
+        // plan creation is not thread safe
+        const double normalizer = timeStep * cutSize;
+        const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
+        std::vector<double> frequencySteps(maxIt);
+        frequencySteps[0] = 0;
+        for (int i = 1; i <= maxIt; i++)
+        {
+            frequencySteps[i - 1] = (i - 1) / normalizer;
+        }
+        // plan creation is not thread safe
+        std::unordered_map<std::string, std::vector<double>> spectralFFTResult;
+        spectralFFTResult["frequencies"] = std::move(frequencySteps);
+
+        std::vector<double> mixedSignal(log["time"].size(), 0);
+        for (const auto &tag : tagsToMix)
+        {
+            if (log.find(tag) == log.end())
+                // not found
+                throw std::invalid_argument("FFT id tag was not found in the junction log: " + tag);
+            for (unsigned int i = 0; i < log["time"].size(); i++)
+            {
+                mixedSignal[i] += log[tag][i];
+            }
+        }
+
+        // define FFT plan
+        fftw_complex out[mixedSignal.size()];
+        fftw_plan plan = fftw_plan_dft_r2c_1d(mixedSignal.size(),
+                                              mixedSignal.data(),
+                                              out,
+                                              FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
+
+        if (plan == NULL)
+        {
+            throw std::runtime_error("Plan creation for fftw failed, cannot proceed");
+        }
+        fftw_execute(plan);
+        const int outBins = (mixedSignal.size() + 1) / 2;
+        std::vector<double> amplitudes;
+        amplitudes.push_back(out[0][0]);
+        for (int i = 1; i < outBins; i++)
+        {
+            const auto tandem = out[i];
+            const double real = tandem[0];
+            const double img = tandem[1];
+            amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
+        }
+        spectralFFTResult["mixed_amplitude"] = std::move(amplitudes);
+        fftw_destroy_plan(plan);
+
         return spectralFFTResult;
     }
 };
