@@ -76,7 +76,7 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<
                  std::string,          // id
                  CVector,              // mag
-                 CVector,
+                 CVector,              // anis
                  double,               // Ms
                  double,               // thickness
                  double,               // cellSurface
@@ -156,7 +156,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerAnisotropyDriver", &Junction::setLayerAnisotropyDriver)
         .def("setLayerIECDriver", &Junction::setLayerIECDriver)
         .def("setLayerOerstedFieldDriver", &Junction::setLayerOerstedFieldDriver)
-
+        .def("setLayerMagnetisation", &Junction::setLayerMagnetisation) 
         // junction calculations
         .def("getMagnetoresistance", &Junction::getMagnetoresistance);
 }

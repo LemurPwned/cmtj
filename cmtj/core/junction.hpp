@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 #include "cvector.hpp"
@@ -47,15 +48,15 @@ double operator"" _mT(long double tesla)
     return ((double)tesla) / 1000.0;
 }
 
-CVector calculate_tensor_interaction(CVector m,
-                                     std::vector<CVector> tensor,
+CVector calculate_tensor_interaction(CVector &m,
+                                     std::vector<CVector> &tensor,
                                      double Ms)
 {
     CVector res(
         tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
         tensor[1][0] * m[0] + tensor[1][1] * m[1] + tensor[1][2] * m[2],
         tensor[2][0] * m[0] + tensor[2][1] * m[1] + tensor[2][2] * m[2]);
-    return res * Ms * MAGNETIC_PERMEABILITY;
+    return res * (Ms / MAGNETIC_PERMEABILITY);
 }
 
 CVector c_cross(CVector a, CVector b)
@@ -117,9 +118,9 @@ public:
     CVector H_log, Hoe_log, Hconst, mag, anisAxis, anis;
     CVector Hext, Hdipole, Hdemag, HIEC, Hoe, HAnis, Hthermal, Hfl;
     double K_log = 0.0;
-    double Ms;
+    double Ms = 0.0;
     double J_log = 0.0, I_log = 0.0;
-    double thickness;
+    double thickness = 0.0;
 
     std::vector<CVector>
         demagTensor,
@@ -183,6 +184,8 @@ public:
 
     double getLangevinStochasticStandardDeviation()
     {
+        if (this->cellVolume == 0.0)
+            return 0.0;
         const double scaledDamping = 2 * (this->damping) / (1 + pow(this->damping, 2));
         const double mainFactor = BOLTZMANN_CONST * this->temperature / (GYRO * this->Ms * this->cellVolume);
         return sqrt(scaledDamping * mainFactor);
@@ -213,27 +216,30 @@ public:
         this->HoeDriver = driver;
     }
 
-    CVector calculateHeff(double time, double timeStep, CVector otherMag)
+    void setMagnetisation(CVector &mag)
     {
-        CVector Heff = {0., 0., 0.};
+        this->mag = mag;
+    }
 
+    const CVector calculateHeff(double time, double timeStep, CVector &stepMag, CVector &otherMag)
+    {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
         this->Hdipole = calculate_tensor_interaction(otherMag, this->dipoleTensor, this->Ms);
-        this->Hdemag = calculate_tensor_interaction(this->mag, this->demagTensor, this->Ms);
-        this->HIEC = calculateIEC(time, otherMag);
-        this->HAnis = calculateAnisotropy(time);
+        this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
+        this->HIEC = calculateIEC(time, stepMag, otherMag);
+        this->HAnis = calculateAnisotropy(stepMag, time);
         this->Hfl = calculateLangevinStochasticField(timeStep);
-        Heff = this->Hext    // external
-               + this->HAnis // anistotropy
-               + this->HIEC  // IEC
-               + this->Hoe   // Oersted field
-               // demag -- negative contribution
-               - this->Hdemag
-               // dipole -- negative contribution
-               - this->Hdipole
-               // stochastic field dependent on the temperature
-               + this->Hfl;
+        const CVector Heff = this->Hext    // external
+                             + this->HAnis // anistotropy
+                             + this->HIEC  // IEC
+                             + this->Hoe   // Oersted field
+                             // demag -- negative contribution
+                             - this->Hdemag
+                             // dipole -- negative contribution
+                             - this->Hdipole
+                             // stochastic field dependent on the temperature
+                             + this->Hfl;
 
         return Heff;
     }
@@ -246,6 +252,8 @@ public:
 
     CVector calculateLangevinStochasticField(double timeStep)
     {
+        if (this->cellVolume == 0.0)
+            return CVector();
         // becomes zero if the temperature is 0
         CVector res(this->distribution, generator);
         // either of those expressions may be correct -- undecided for now
@@ -262,31 +270,31 @@ public:
         return this->H_log;
     }
 
-    CVector calculateAnisotropy(double time)
+    CVector calculateAnisotropy(CVector &stepMag, double time)
     {
         // this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
         // return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / this->Ms;
         this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
-        const double nom = (2 * this->K_log) * c_dot(this->anis, this->mag) / (this->Ms);
+        const double nom = (2 * this->K_log) * c_dot(this->anis, stepMag) / (this->Ms);
         return this->anis * nom;
     }
 
-    CVector calculateIEC(double time, CVector coupledMag)
+    CVector calculateIEC(double time, CVector &stepMag, CVector &coupledMag)
     {
         this->J_log = this->IECDriver.getCurrentScalarValue(time);
         const double nom = this->J_log / (this->Ms * this->thickness);
-        // return (coupledMag - this->mag) * nom;
+        return (coupledMag - stepMag) * nom;
         // either of those may be correct -- undecided for now
-        return (coupledMag - this->mag) * nom;
+        // return coupledMag * nom;
     }
 
-    CVector llg(double time, CVector m, CVector coupledMag, CVector heffEx, double timeStep)
+    CVector llg(double time, CVector m, CVector &coupledMag, double &timeStep)
     {
-        CVector prod, prod2, dmdt, heff;
-        heff = calculateHeff(time, timeStep, coupledMag);
-        prod = c_cross(m, heff);
-        prod2 = c_cross(m, prod);
-        dmdt = prod * -GYRO - prod2 * GYRO * this->damping;
+
+        CVector heff = calculateHeff(time, timeStep, m, coupledMag);
+        CVector prod = c_cross(m, heff);
+        CVector prod2 = c_cross(m, prod);
+        CVector dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
         if (this->includeSTT)
         {
             // we will use coupledMag as the reference layer
@@ -294,7 +302,7 @@ public:
             this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // damping-like torque factor
             const double aJ = HBAR * this->I_log /
-                              (ELECTRON_CHARGE * MAGNETIC_PERMEABILITY * this->Ms * this->thickness);
+                              (ELECTRON_CHARGE * this->Ms * this->thickness);
 
             const double slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
             // field like
@@ -309,46 +317,17 @@ public:
         return dmdt;
     }
 
-    void rk4_step(double time, double timeStep, CVector coupledMag)
+    void rk4_step(double &time, double &timeStep, CVector &coupledMag)
     {
-        CVector k1, k2, k3, k4, m_t, heff;
-        m_t = mag;
-        k1 = llg(time, m_t, coupledMag, heff, timeStep) * timeStep;
-        k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, heff, timeStep) * timeStep;
-        k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, heff, timeStep) * timeStep;
-        k4 = llg(time + timeStep, m_t + k3, coupledMag, heff, timeStep) * timeStep;
+        CVector k1, k2, k3, k4, m_t;
+        m_t = this->mag;
+        k1 = llg(time, m_t, coupledMag, timeStep) * timeStep;
+        k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, timeStep) * timeStep;
+        k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, timeStep) * timeStep;
+        k4 = llg(time + timeStep, m_t + k3, coupledMag, timeStep) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
-        mag = m_t;
-    }
-
-    double calculateLayerCriticalSwitchingCurrent(std::string plane)
-    {
-        const double fixedTerm = (2 * this->damping * ELECTRON_CHARGE * MAGNETIC_PERMEABILITY) / (HBAR * this->beta);
-        const double layerParamTerm = (this->Ms * this->thickness);
-        // static Hk
-        const double Hk = calculateAnisotropy(0).length();
-        if (plane == "IP")
-        {
-            return fixedTerm * layerParamTerm * Hk;
-        }
-        else if (plane == "PP")
-        {
-            const double Hdemag = calculate_tensor_interaction(this->mag, this->dipoleTensor, this->Ms).length();
-            return fixedTerm * layerParamTerm * (Hdemag / 2 + Hk);
-        }
-        std::cout << "Warning -- UNKNOWN ENUM: " << plane << std::endl;
-        return 0.0;
-    }
-
-    void calculatePinningCurrents()
-    {
-        const double qh = ELECTRON_CHARGE / HBAR;
-        const double PMA_Ip = 6 * qh * this->damping * BOLTZMANN_CONST * this->temperature;
-        // const double IMA_Ip = 2 * qh * sqrt(2 / M_PI) * sqrt(this->Hdemag * this->Ms * this->cellVolume * BOLTZMANN_CONST * this->temperature);
-
-        std::cout << "PMA pinning current: " << PMA_Ip << std::endl;
-        // std::cout << "IMA pinning current: " << IMA_Ip << std::endl;
+        this->mag = m_t;
     }
 };
 
@@ -369,7 +348,7 @@ public:
     double Rp, Rap = 0.0;
 
     std::vector<double> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
-    std::map<std::string, std::vector<double>> log;
+    std::unordered_map<std::string, std::vector<double>> log;
     std::string fileSave;
     unsigned int logLength = 0;
     int layerNo;
@@ -446,7 +425,7 @@ public:
         this->logLength = 0;
     }
 
-    std::map<std::string, std::vector<double>> &getLog()
+    std::unordered_map<std::string, std::vector<double>> &getLog()
     {
         return this->log;
     }
@@ -519,20 +498,37 @@ public:
         scalarlayerSetter(layerID, &Layer::setIECDriver, driver);
     }
 
+    void setLayerMagnetisation(std::string layerID, CVector &mag)
+    {
+        bool found = false;
+        for (Layer &l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                l.setMagnetisation(mag);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id!");
+        }
+    }
+
     void logLayerParams(double t, bool calculateEnergies = false)
     {
         for (Layer &layer : this->layers)
         {
-            this->log[layer.id + "_K"].push_back(layer.K_log);
+            this->log[layer.id + "_K"].emplace_back(layer.K_log);
             for (int i = 0; i < 3; i++)
             {
-                this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
-                this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
-                // this->log[layer.id + "_K" + vectorNames[i]].push_back(layer.K_log[i]);
+                this->log[layer.id + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
+                this->log[layer.id + "_Hext" + vectorNames[i]].emplace_back(layer.H_log[i]);
+                // this->log[layer.id + "_K" + vectorNames[i]].emplace_back(layer.K_log[i]);
             }
 
             if (layer.includeSTT)
-                this->log[layer.id + "_I"].push_back(layer.I_log);
+                this->log[layer.id + "_I"].emplace_back(layer.I_log);
 
             if (calculateEnergies)
             {
@@ -561,7 +557,7 @@ public:
         if (MR_mode == CLASSIC)
         {
             const auto magnetoresistance = calculateMagnetoresistance(c_dot(this->layers[0].mag, this->layers[1].mag));
-            this->log["R_free_bottom"].push_back(magnetoresistance);
+            this->log["R_free_bottom"].emplace_back(magnetoresistance);
         }
         else if (MR_mode == STRIP)
         {
@@ -571,10 +567,10 @@ public:
                                                                   this->AMR_Y,
                                                                   this->SMR_Y,
                                                                   this->AHE);
-            this->log["Rx"].push_back(magnetoresistance[0]);
-            this->log["Ry"].push_back(magnetoresistance[1]);
+            this->log["Rx"].emplace_back(magnetoresistance[0]);
+            this->log["Ry"].emplace_back(magnetoresistance[1]);
         }
-        this->log["time"].push_back(t);
+        this->log["time"].emplace_back(t);
         this->logLength++;
     }
 
@@ -612,8 +608,9 @@ public:
          * @param t: current time
          * @param timeStep: integration step
          * */
+        CVector null;
         this->layers[0].rk4_step(
-            t, timeStep, CVector(0., 0., 0.));
+            t, timeStep, null);
     }
 
     void runMultiLayerRK4Iteration(double t, double timeStep)
@@ -626,13 +623,13 @@ public:
             t, timeStep, l1mag);
     }
 
-    std::vector<double> stripMagnetoResistance(std::vector<double> Rx0,
-                                               std::vector<double> Ry0,
-                                               std::vector<double> AMR_X,
-                                               std::vector<double> SMR_X,
-                                               std::vector<double> AMR_Y,
-                                               std::vector<double> SMR_Y,
-                                               std::vector<double> AHE)
+    std::vector<double> stripMagnetoResistance(std::vector<double> &Rx0,
+                                               std::vector<double> &Ry0,
+                                               std::vector<double> &AMR_X,
+                                               std::vector<double> &SMR_X,
+                                               std::vector<double> &AMR_Y,
+                                               std::vector<double> &SMR_Y,
+                                               std::vector<double> &AHE)
     {
         double Rx_acc = 0.0;
         double Ry_acc = 0.0;
@@ -662,7 +659,8 @@ public:
         }
         else
         {
-            return stripMagnetoResistance(this->Rx0, this->Ry0,
+            return stripMagnetoResistance(this->Rx0,
+                                          this->Ry0,
                                           this->AMR_X,
                                           this->SMR_X,
                                           this->AMR_Y,
