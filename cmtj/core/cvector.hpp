@@ -123,6 +123,25 @@ public:
         else
             return z;
     } // Scalar Multiplication
+
+    // double operator[](const int i) const 
+    // {
+    //     if (i == 0)
+    //         return x;
+    //     else if (i == 1)
+    //         return y;
+    //     else
+    //         return z;
+    // }
+    double operator[](int i) const 
+    {
+        if (i == 0)
+            return x;
+        else if (i == 1)
+            return y;
+        else
+            return z;
+    } // Scalar Multiplication
     double length()
     {
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));

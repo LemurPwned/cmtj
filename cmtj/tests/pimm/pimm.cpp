@@ -118,7 +118,6 @@ int main(void)
 
     std::ofstream saveFile;
     saveFile.open("PIMM_res.csv");
-    // saveFile << "H;f_x;f_y;f_z;\n";
     auto Hdist = generateRange(hmin, hmax, (hmax - hmin) / hsteps);
     int indx = 0;
     CVector HoeDir(0, 0, 1);
@@ -156,19 +155,11 @@ int main(void)
             tStep, tStep, false, false, false);
         m_init_free = mtj.layers[0].mag;
         m_init_bottom = mtj.layers[1].mag;
-        // write a sum of mzs to a file 
-        for (int i = 0; i< mtj.log["time"].size(); i ++){
-            saveFile << ";" << (mtj.log["free_mz"][i] + mtj.log["bottom_mz"][i]);
+        // write a sum of mzs to a file
+        for (int i = 0; i < mtj.log["time"].size(); i++)
+        {
+            saveFile << ";" << (mtj.log["free_mz"][i] + mtj.log["bottom_mz"][i])/2;
         }
-        
-        // auto fftResult = ComputeFunctions::spectralFFTMixed(
-        //     mtj.getLog(), tagIds, tStep);
-
-        // saveFile << H;
-        // for (const auto &i : fftResult["mixed_amplitude"])
-        // {
-        //     saveFile << ";" << i;
-        // }
         if (indx == Hdist.size())
             break;
         saveFile << "\n";

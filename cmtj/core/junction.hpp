@@ -48,9 +48,9 @@ double operator"" _mT(long double tesla)
     return ((double)tesla) / 1000.0;
 }
 
-CVector calculate_tensor_interaction(CVector &m,
+inline CVector calculate_tensor_interaction(CVector &m,
                                      std::vector<CVector> &tensor,
-                                     double Ms)
+                                     double &Ms)
 {
     CVector res(
         tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
@@ -59,7 +59,7 @@ CVector calculate_tensor_interaction(CVector &m,
     return res * (Ms / MAGNETIC_PERMEABILITY);
 }
 
-CVector c_cross(CVector a, CVector b)
+inline CVector c_cross(CVector &a, CVector &b)
 {
     CVector res(
         a[1] * b[2] - a[2] * b[1],
@@ -69,7 +69,7 @@ CVector c_cross(CVector a, CVector b)
     return res;
 }
 
-double c_dot(CVector a, CVector b)
+inline double c_dot(CVector &a, CVector &b)
 {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
@@ -199,7 +199,6 @@ public:
     void setAnisotropyDriver(ScalarDriver &driver)
     {
         this->anisotropyDriver = driver;
-        // this->anisAxis = driver.getUnitAxis();
     }
 
     void setIECDriver(ScalarDriver &driver)
@@ -244,7 +243,7 @@ public:
         return Heff;
     }
 
-    CVector calculateHOeField(double time)
+    CVector calculateHOeField(double &time)
     {
         this->Hoe_log = this->HoeDriver.getCurrentAxialDrivers(time);
         return this->Hoe_log;
@@ -263,14 +262,14 @@ public:
         // return res;
     }
 
-    CVector calculateExternalField(double time)
+    CVector calculateExternalField(double &time)
     {
         this->H_log =
             this->externalFieldDriver.getCurrentAxialDrivers(time);
         return this->H_log;
     }
 
-    CVector calculateAnisotropy(CVector &stepMag, double time)
+    CVector calculateAnisotropy(CVector &stepMag, double &time)
     {
         // this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
         // return this->K_log * c_dot(this->anisAxis, this->mag) * 2 / this->Ms;
@@ -279,7 +278,7 @@ public:
         return this->anis * nom;
     }
 
-    CVector calculateIEC(double time, CVector &stepMag, CVector &coupledMag)
+    CVector calculateIEC(double &time, CVector &stepMag, CVector &coupledMag)
     {
         this->J_log = this->IECDriver.getCurrentScalarValue(time);
         const double nom = this->J_log / (this->Ms * this->thickness);
@@ -515,15 +514,15 @@ public:
         }
     }
 
-    void logLayerParams(double t, bool calculateEnergies = false)
+    void logLayerParams(double &t, bool calculateEnergies = false)
     {
-        for (Layer &layer : this->layers)
+        for (const auto &layer : this->layers)
         {
             this->log[layer.id + "_K"].emplace_back(layer.K_log);
             for (int i = 0; i < 3; i++)
             {
-                this->log[layer.id + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
-                this->log[layer.id + "_Hext" + vectorNames[i]].emplace_back(layer.H_log[i]);
+                this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
+                this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
                 // this->log[layer.id + "_K" + vectorNames[i]].emplace_back(layer.K_log[i]);
             }
 
@@ -601,7 +600,7 @@ public:
         logFile.close();
     }
 
-    void runSingleLayerRK4Iteration(double t, double timeStep)
+    void runSingleLayerRK4Iteration(double &t, double &timeStep)
     {
         /**
          * Single layer iteration. IEC interaction is turned off.
@@ -613,7 +612,7 @@ public:
             t, timeStep, null);
     }
 
-    void runMultiLayerRK4Iteration(double t, double timeStep)
+    void runMultiLayerRK4Iteration(double &t, double &timeStep)
     {
         CVector l1mag = this->layers[0].mag;
         CVector l2mag = this->layers[1].mag;
