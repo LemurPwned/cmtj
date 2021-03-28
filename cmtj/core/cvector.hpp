@@ -3,19 +3,18 @@
 #include <random>
 #include <stdio.h>
 #include <vector>
+template <typename T>
 class CVector
 {
 public:
-    double x, y, z;          // Order list of 4 elements |x|y|z|w|
-    static char sBuffer[38]; // holds the string of given vector
-    char *toString();        // Return sBuffer with (x,y,z,w) values
+    T x, y, z;
     CVector()
     {
         this->x = 0.0;
         this->y = 0.0;
         this->z = 0.0;
-    } // zero Vector Constructor
-    CVector(std::vector<double> vec)
+    }
+    CVector(std::vector<T> vec)
     {
         if (vec.size() != 3)
         {
@@ -26,20 +25,20 @@ public:
         this->z = vec[2];
     }
 
-    CVector(double x, double y, double z)
+    CVector(T x, T y, T z)
     {
         this->x = x;
         this->y = y;
         this->z = z;
-    } // Constructor
+    }
     CVector(const CVector &v)
     {
         this->x = v.x;
         this->y = v.y;
         this->z = v.z;
-    } // Copy Vector Constructor
+    }
 
-    CVector(std::normal_distribution<double> &distribution, std::default_random_engine &generator)
+    CVector(std::normal_distribution<T> &distribution, std::default_random_engine &generator)
     {
         // the noise should be independent in each direction
         this->x = distribution(generator);
@@ -70,8 +69,35 @@ public:
             z + v.z);
 
         return res;
-    }; // Destructor
-        // Addition
+    };
+
+    CVector operator+(const CVector &v) const
+    {
+        CVector res(
+            x + v.x,
+            y + v.y,
+            z + v.z);
+
+        return res;
+    };
+
+    CVector operator+(const T &val) const
+    {
+        CVector res(
+            x + val,
+            y + val,
+            z + val);
+        return res;
+    }
+    CVector operator+(T &val) const
+    {
+        CVector res(
+            x + val,
+            y + val,
+            z + val);
+        return res;
+    }
+
     CVector operator-(CVector v)
     {
         CVector res(
@@ -81,14 +107,12 @@ public:
 
         return res;
     };
-    double dotProduct(CVector &);
-
     void operator=(CVector v)
     {
         x = v.x;
         y = v.y;
         z = v.z;
-    } // Copy Vector
+    }
     bool operator==(CVector &v)
     {
         if (
@@ -97,7 +121,7 @@ public:
         return false;
     };
 
-    CVector operator*(double val)
+    CVector operator*(T &val)
     {
         CVector res(
             x * val,
@@ -106,7 +130,16 @@ public:
         return res;
     };
 
-    CVector operator/(double val)
+    CVector operator*(const T &val) const
+    {
+        const CVector res(
+            x * val,
+            y * val,
+            z * val);
+        return res;
+    }
+
+    CVector operator/(T val)
     {
         CVector res(
             x / val,
@@ -114,7 +147,7 @@ public:
             z / val);
         return res;
     };
-    double operator[](int i)
+    T operator[](int &i)
     {
         if (i == 0)
             return x;
@@ -122,18 +155,9 @@ public:
             return y;
         else
             return z;
-    } // Scalar Multiplication
+    }
 
-    // double operator[](const int i) const 
-    // {
-    //     if (i == 0)
-    //         return x;
-    //     else if (i == 1)
-    //         return y;
-    //     else
-    //         return z;
-    // }
-    double operator[](int i) const 
+    T operator[](int &i) const
     {
         if (i == 0)
             return x;
@@ -141,14 +165,24 @@ public:
             return y;
         else
             return z;
-    } // Scalar Multiplication
-    double length()
+    }
+
+    T operator[](const int &i) const
+    {
+        if (i == 0)
+            return x;
+        else if (i == 1)
+            return y;
+        else
+            return z;
+    }
+    T length()
     {
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
     }; // Magnitude
     void normalize()
     {
-        double mag = this->length();
+        T mag = this->length();
         if (mag != 0)
         {
             x = x / mag;
@@ -156,20 +190,20 @@ public:
             z = z / mag;
         }
     };
-    void setX(double vx)
+    void setX(T &vx)
     {
         this->x = vx;
     }
-    void setY(double vy)
+    void setY(T &vy)
     {
         this->y = vy;
     }
-    void setZ(double vz)
+    void setZ(T &vz)
     {
         this->z = vz;
     }
 
-    std::vector<double> tolist()
+    std::vector<T> tolist()
     {
         return {
             this->x, this->y, this->z};

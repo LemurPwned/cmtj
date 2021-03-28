@@ -15,6 +15,7 @@
  * Provides a static interface for computing useful magnetic properties
  * such as Voltage Spin Diode Effect or FFT on the magnetoresistance.
  */
+template <typename T>
 class ComputeFunctions
 {
 public:
@@ -26,10 +27,10 @@ public:
      * @param power: power assumed in the system (this is somewhat an arbitrary value).
      * @param minTime: time after which to take the log, preferably when the magnetisation is stable.
      */
-    static std::unordered_map<std::string, double> calculateVoltageSpinDiode(
-        std::unordered_map<std::string, std::vector<double>> &log,
+    static std::unordered_map<std::string, T> calculateVoltageSpinDiode(
+        std::unordered_map<std::string, std::vector<T>> &log,
         const std::string resTag,
-        double frequency, double power = 10e-6, const double minTime = 10e-9)
+        T frequency, T power = 10e-6, const T minTime = 10e-9)
     {
         if (log.empty())
         {
@@ -41,30 +42,30 @@ public:
             // not found
             throw std::invalid_argument("Tag was not found in the junction log: " + resTag);
         }
-        const double omega = 2 * M_PI * frequency;
-        std::vector<double> &resistance = log[resTag];
+        const T omega = 2 * M_PI * frequency;
+        std::vector<T> &resistance = log[resTag];
         auto it = std::find_if(log["time"].begin(), log["time"].end(),
                                [&minTime](const auto &value) { return value >= minTime; });
         // turn into index
         const int thresIdx = (int)(log["time"].end() - it);
         const int cutSize = log["time"].size() - thresIdx;
         // Rpp
-        const double RppMax = *std::max_element(resistance.begin() + thresIdx, resistance.end());
-        const double RppMin = *std::min_element(resistance.begin() + thresIdx, resistance.end());
-        const double avgR = std::accumulate(resistance.begin() + thresIdx, resistance.end(), 0.0) / cutSize;
-        const double Iampl = sqrt(power / avgR);
-        std::vector<double> voltage, current;
+        const T RppMax = *std::max_element(resistance.begin() + thresIdx, resistance.end());
+        const T RppMin = *std::min_element(resistance.begin() + thresIdx, resistance.end());
+        const T avgR = std::accumulate(resistance.begin() + thresIdx, resistance.end(), 0.0) / cutSize;
+        const T Iampl = sqrt(power / avgR);
+        std::vector<T> voltage, current;
         std::transform(
             log["time"].begin() + thresIdx, log["time"].end(),
             std::back_inserter(current),
-            [&Iampl, &omega](const double &time) { return Iampl * sin(omega * time); });
+            [&Iampl, &omega](const T &time) { return Iampl * sin(omega * time); });
 
         for (unsigned int i = 0; i < cutSize; i++)
         {
             voltage.push_back(resistance[thresIdx + i] * current[i]);
         }
-        const double Vmix = std::accumulate(voltage.begin(), voltage.end(), 0.0) / voltage.size();
-        std::unordered_map<std::string, double> mRes = {{"Vmix", Vmix}, {"RMax", RppMax}, {"RMin", RppMin}, {"Rpp", (RppMax - RppMin)}};
+        const T Vmix = std::accumulate(voltage.begin(), voltage.end(), 0.0) / voltage.size();
+        std::unordered_map<std::string, T> mRes = {{"Vmix", Vmix}, {"RMax", RppMax}, {"RMin", RppMin}, {"Rpp", (RppMax - RppMin)}};
         return mRes;
     }
 
@@ -76,10 +77,10 @@ public:
      * oscillations are not included into FFT computation.
      * @param timeStep: integration step (1e-11) by default .
      */
-    static std::unordered_map<std::string, std::vector<double>>
-    spectralFFT(std::unordered_map<std::string, std::vector<double>> &log,
+    static std::unordered_map<std::string, std::vector<T>>
+    spectralFFT(std::unordered_map<std::string, std::vector<T>> &log,
                 const std::vector<std::string> &fftIds,
-                double minTime = 10.0e-9, double timeStep = 1e-11)
+                T minTime = 10.0e-9, T timeStep = 1e-11)
     {
 
         if (minTime >= log["time"][log["time"].size() - 1])
@@ -98,16 +99,16 @@ public:
         const int cutSize = log["time"].size() - thresIdx;
 
         // plan creation is not thread safe
-        const double normalizer = timeStep * cutSize;
+        const T normalizer = timeStep * cutSize;
         const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
-        std::vector<double> frequencySteps(maxIt);
+        std::vector<T> frequencySteps(maxIt);
         frequencySteps[0] = 0;
         for (int i = 1; i <= maxIt; i++)
         {
             frequencySteps[i - 1] = (i - 1) / normalizer;
         }
         // plan creation is not thread safe
-        std::unordered_map<std::string, std::vector<double>> spectralFFTResult;
+        std::unordered_map<std::string, std::vector<T>> spectralFFTResult;
         spectralFFTResult["frequencies"] = std::move(frequencySteps);
 
         for (const auto &tag : fftIds)
@@ -117,7 +118,7 @@ public:
                 // not found
                 throw std::invalid_argument("FFT id tag was not found in the junction log: " + tag);
             }
-            std::vector<double> cutMag(log[tag].begin() + thresIdx, log[tag].end());
+            std::vector<T> cutMag(log[tag].begin() + thresIdx, log[tag].end());
             // define FFT plan
             fftw_complex out[cutMag.size()];
             fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
@@ -131,13 +132,13 @@ public:
             }
             fftw_execute(plan);
             const int outBins = (cutMag.size() + 1) / 2;
-            std::vector<double> amplitudes;
+            std::vector<T> amplitudes;
             amplitudes.push_back(out[0][0]);
             for (int i = 1; i < outBins; i++)
             {
                 const auto tandem = out[i];
-                const double real = tandem[0];
-                const double img = tandem[1];
+                const T real = tandem[0];
+                const T img = tandem[1];
                 amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
             }
             spectralFFTResult[tag + "_amplitude"] = std::move(amplitudes);
@@ -146,9 +147,9 @@ public:
         return spectralFFTResult;
     }
 
-    static std::unordered_map<std::string, std::vector<double>>
-    spectralFFTMixed(std::unordered_map<std::string, std::vector<double>> &log,
-                     const std::vector<std::string> &tagsToMix, double timeStep = 1e-11)
+    static std::unordered_map<std::string, std::vector<T>>
+    spectralFFTMixed(std::unordered_map<std::string, std::vector<T>> &log,
+                     const std::vector<std::string> &tagsToMix, T timeStep = 1e-11)
     {
         const int cutSize = log["time"].size();
         if (log.empty())
@@ -156,19 +157,19 @@ public:
             throw std::invalid_argument("Empty log! Cannot proceed without running a simulation!");
         }
         // plan creation is not thread safe
-        const double normalizer = timeStep * cutSize;
+        const T normalizer = timeStep * cutSize;
         const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
-        std::vector<double> frequencySteps(maxIt);
+        std::vector<T> frequencySteps(maxIt);
         frequencySteps[0] = 0;
         for (int i = 1; i <= maxIt; i++)
         {
             frequencySteps[i - 1] = (i - 1) / normalizer;
         }
         // plan creation is not thread safe
-        std::unordered_map<std::string, std::vector<double>> spectralFFTResult;
+        std::unordered_map<std::string, std::vector<T>> spectralFFTResult;
         spectralFFTResult["frequencies"] = std::move(frequencySteps);
 
-        std::vector<double> mixedSignal(log["time"].size(), 0);
+        std::vector<T> mixedSignal(log["time"].size(), 0);
         for (const auto &tag : tagsToMix)
         {
             if (log.find(tag) == log.end())
@@ -193,13 +194,13 @@ public:
         }
         fftw_execute(plan);
         const int outBins = (mixedSignal.size() + 1) / 2;
-        std::vector<double> amplitudes;
+        std::vector<T> amplitudes;
         amplitudes.push_back(out[0][0]);
         for (int i = 1; i < outBins; i++)
         {
             const auto tandem = out[i];
-            const double real = tandem[0];
-            const double img = tandem[1];
+            const T real = tandem[0];
+            const T img = tandem[1];
             amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
         }
         spectralFFTResult["mixed_amplitude"] = std::move(amplitudes);

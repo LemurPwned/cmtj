@@ -14,11 +14,12 @@ enum UpdateType
     step
 };
 
+template <typename T>
 class Driver
 {
 public:
     // if the user wants to update, let them do that
-    double constantValue, amplitude, frequency, phase,
+    T constantValue, amplitude, frequency, phase,
         cycle, period, timeStart, timeStop;
     UpdateType update;
     Driver()
@@ -33,29 +34,30 @@ public:
         this->update = constant;
     };
     Driver(UpdateType update,
-           double constantValue,
-           double amplitude,
-           double frequency,
-           double phase,
-           double period,
-           double cycle,
-           double timeStart,
-           double timeStop) : update(update), constantValue(constantValue),
-                              amplitude(amplitude),
-                              frequency(frequency),
-                              phase(phase),
-                              period(period),
-                              cycle(cycle),
-                              timeStart(timeStart),
-                              timeStop(timeStop)
+           T constantValue,
+           T amplitude,
+           T frequency,
+           T phase,
+           T period,
+           T cycle,
+           T timeStart,
+           T timeStop) : update(update), constantValue(constantValue),
+                         amplitude(amplitude),
+                         frequency(frequency),
+                         phase(phase),
+                         period(period),
+                         cycle(cycle),
+                         timeStart(timeStart),
+                         timeStop(timeStop)
     {
     }
 };
 
-class ScalarDriver : public Driver
+template <typename T>
+class ScalarDriver : public Driver<T>
 {
 protected:
-    double stepUpdate(double amplitude, double time, double timeStart, double timeStop)
+    T stepUpdate(T amplitude, T time, T timeStart, T timeStop)
     {
         if (time >= timeStart && time <= timeStop)
         {
@@ -66,11 +68,11 @@ protected:
             return 0.0;
         }
     }
-    double pulseTrain(double amplitude, double time, double T, double cycle)
+    T pulseTrain(T amplitude, T time, T period, T cycle)
     {
-        const int n = (int)(time / T);
-        const double dT = cycle * T;
-        const double nT = n * T;
+        const int n = (int)(time / period);
+        const T dT = cycle * period;
+        const T nT = n * period;
         if (nT <= time && time <= (nT + dT))
         {
             return amplitude;
@@ -84,22 +86,22 @@ protected:
 public:
     ScalarDriver(
         UpdateType update = constant,
-        double constantValue = 0,
-        double amplitude = 0,
-        double frequency = -1,
-        double phase = 0,
-        double period = -1,
-        double cycle = -1,
-        double timeStart = -1,
-        double timeStop = -1)
-        : Driver(update, constantValue,
-                 amplitude,
-                 frequency,
-                 phase,
-                 period,
-                 cycle,
-                 timeStart,
-                 timeStop)
+        T constantValue = 0,
+        T amplitude = 0,
+        T frequency = -1,
+        T phase = 0,
+        T period = -1,
+        T cycle = -1,
+        T timeStart = -1,
+        T timeStop = -1)
+        : Driver<T>(update, constantValue,
+                    amplitude,
+                    frequency,
+                    phase,
+                    period,
+                    cycle,
+                    timeStart,
+                    timeStop)
     {
         if (update == pulse && ((period == -1) || (cycle == -1)))
         {
@@ -111,14 +113,14 @@ public:
         }
     }
 
-    static ScalarDriver getConstantDriver(double constantValue)
+    static ScalarDriver getConstantDriver(T constantValue)
     {
         return ScalarDriver(
             constant,
             constantValue);
     }
 
-    static ScalarDriver getPulseDriver(double constantValue, double amplitude, double period, double cycle)
+    static ScalarDriver getPulseDriver(T constantValue, T amplitude, T period, T cycle)
     {
         return ScalarDriver(
             pulse,
@@ -127,7 +129,7 @@ public:
             -1, -1, period, cycle);
     }
 
-    static ScalarDriver getSineDriver(double constantValue, double amplitude, double frequency, double phase)
+    static ScalarDriver getSineDriver(T constantValue, T amplitude, T frequency, T phase)
     {
         return ScalarDriver(
             sine,
@@ -136,7 +138,7 @@ public:
             frequency, phase);
     }
 
-    static ScalarDriver getStepDriver(double constantValue, double amplitude, double timeStart, double timeStop)
+    static ScalarDriver getStepDriver(T constantValue, T amplitude, T timeStart, T timeStop)
     {
         return ScalarDriver(
             step,
@@ -145,9 +147,9 @@ public:
             -1, -1, -1, -1, timeStart, timeStop);
     }
 
-    double getCurrentScalarValue(double time)
+    T getCurrentScalarValue(T time)
     {
-        double returnValue = constantValue;
+        T returnValue = this->constantValue;
         if (this->update == pulse)
         {
             returnValue += pulseTrain(this->amplitude, time, this->period, this->cycle);
@@ -165,11 +167,12 @@ public:
     }
 };
 
-class NullDriver : public ScalarDriver
+template <typename T>
+class NullDriver : public ScalarDriver<T>
 {
 public:
     NullDriver() = default;
-    double getCurrentScalarValue(double time)
+    T getCurrentScalarValue(T time)
     {
         return 0.0;
     }
@@ -181,16 +184,16 @@ enum Axis
     yaxis,
     zaxis
 };
-
-class AxialDriver : public Driver
+template <typename T>
+class AxialDriver : public Driver<T>
 {
 private:
-    std::vector<ScalarDriver> drivers;
+    std::vector<ScalarDriver<T>> drivers;
 
 public:
-
-    static AxialDriver getVectorAxialDriver(double x, double y, double z) {
-        return AxialDriver(CVector(x, y, z));
+    static AxialDriver getVectorAxialDriver(T x, T y, T z)
+    {
+        return AxialDriver(CVector<T>(x, y, z));
     }
 
     void applyMask(std::vector<unsigned int> mask)
@@ -201,7 +204,7 @@ public:
             if (mask[i] == 0)
             {
                 // Mask asks to nullify the driver
-                this->drivers[i] = NullDriver();
+                this->drivers[i] = NullDriver<T>();
             }
             else if (mask[i] != 1)
             {
@@ -210,7 +213,7 @@ public:
         }
     }
 
-    void applyMask(CVector mask)
+    void applyMask(CVector<T> mask)
     {
         this->applyMask((std::vector<unsigned int>){(unsigned int)(mask[0]),
                                                     (unsigned int)(mask[1]),
@@ -220,26 +223,26 @@ public:
     AxialDriver()
     {
         this->drivers = {
-            NullDriver(),
-            NullDriver(),
-            NullDriver()};
+            NullDriver<T>(),
+            NullDriver<T>(),
+            NullDriver<T>()};
     }
 
-    AxialDriver(ScalarDriver x,
-                ScalarDriver y,
-                ScalarDriver z)
+    AxialDriver(ScalarDriver<T> x,
+                ScalarDriver<T> y,
+                ScalarDriver<T> z)
     {
         this->drivers = {x, y, z};
     }
 
-    AxialDriver(CVector xyz) : AxialDriver(
-                                   ScalarDriver::getConstantDriver(xyz.x),
-                                   ScalarDriver::getConstantDriver(xyz.y),
-                                   ScalarDriver::getConstantDriver(xyz.z))
+    AxialDriver(CVector<T> xyz) : AxialDriver(
+                                      ScalarDriver<T>::getConstantDriver(xyz.x),
+                                      ScalarDriver<T>::getConstantDriver(xyz.y),
+                                      ScalarDriver<T>::getConstantDriver(xyz.z))
     {
     }
 
-    AxialDriver(std::vector<ScalarDriver> axialDrivers)
+    AxialDriver(std::vector<ScalarDriver<T>> axialDrivers)
     {
         if (axialDrivers.size() != 3)
         {
@@ -248,30 +251,30 @@ public:
         this->drivers = std::move(axialDrivers);
     }
 
-    static AxialDriver getUniAxialDriver(ScalarDriver in, Axis axis)
+    static AxialDriver getUniAxialDriver(ScalarDriver<T> in, Axis axis)
     {
         switch (axis)
         {
         case xaxis:
-            return AxialDriver(in, NullDriver(), NullDriver());
+            return AxialDriver(in, NullDriver<T>(), NullDriver<T>());
         case yaxis:
-            return AxialDriver(NullDriver(), in, NullDriver());
+            return AxialDriver(NullDriver<T>(), in, NullDriver<T>());
         case zaxis:
-            return AxialDriver(NullDriver(), NullDriver(), in);
+            return AxialDriver(NullDriver<T>(), NullDriver<T>(), in);
         }
     }
-    CVector
-    getCurrentAxialDrivers(double time)
+    CVector<T>
+    getCurrentAxialDrivers(T time)
     {
-        return CVector(
+        return CVector<T>(
             this->drivers[0].getCurrentScalarValue(time),
             this->drivers[1].getCurrentScalarValue(time),
             this->drivers[2].getCurrentScalarValue(time));
     }
 
-    CVector getConstantValues()
+    CVector<T> getConstantValues()
     {
-        return CVector(
+        return CVector<T>(
             this->drivers[0].constantValue,
             this->drivers[1].constantValue,
             this->drivers[2].constantValue);
@@ -280,28 +283,29 @@ public:
      * Returns the mask for the Axial Driver.
      * For instance: a vector (1213, 123, 0) returns (1, 1, 0)
      * Note: This is not normalised 
-     * @return CVector: mask for the driver
+     * @return CVector<T>: mask for the driver
      */
-    CVector getUnitAxis()
+    CVector<T> getUnitAxis()
     {
-        return CVector(
+        return CVector<T>(
             this->drivers[0].constantValue != 0.0 ? this->drivers[0].constantValue / std::abs(this->drivers[0].constantValue) : 0.0,
             this->drivers[1].constantValue != 0.0 ? this->drivers[1].constantValue / std::abs(this->drivers[1].constantValue) : 0.0,
             this->drivers[2].constantValue != 0.0 ? this->drivers[2].constantValue / std::abs(this->drivers[2].constantValue) : 0.0);
     }
 };
 
-class NullAxialDriver : public AxialDriver
+template <typename T>
+class NullAxialDriver : public AxialDriver<T>
 {
 public:
     NullAxialDriver() = default;
-    CVector getCurrentAxialDrivers(double time)
+    CVector<T> getCurrentAxialDrivers(T time)
     {
-        return CVector(0., 0., 0.);
+        return CVector<T>(0., 0., 0.);
     }
-    CVector getConstantValues()
+    CVector<T> getConstantValues()
     {
-        return CVector(0., 0., 0.);
+        return CVector<T>(0., 0., 0.);
     }
 };
 
