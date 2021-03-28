@@ -147,7 +147,7 @@ public:
             -1, -1, -1, -1, timeStart, timeStop);
     }
 
-    T getCurrentScalarValue(T time)
+    T getCurrentScalarValue(T &time)
     {
         T returnValue = this->constantValue;
         if (this->update == pulse)

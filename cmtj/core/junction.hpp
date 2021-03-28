@@ -337,7 +337,7 @@ template <typename T>
 class Junction
 {
     friend class Layer<T>;
-    std::vector<std::string> vectorNames = {"x", "y", "z"};
+    const std::vector<const std::string> vectorNames = {"x", "y", "z"};
 
 public:
     enum MRmode
@@ -453,7 +453,7 @@ public:
 
     typedef void (Layer<T>::*scalarDriverSetter)(ScalarDriver<T> &driver);
     typedef void (Layer<T>::*axialDriverSetter)(AxialDriver<T> &driver);
-    void scalarlayerSetter(std::string layerID, scalarDriverSetter functor, ScalarDriver<T> driver)
+    void scalarlayerSetter(std::string &layerID, scalarDriverSetter functor, ScalarDriver<T> driver)
     {
         bool found = false;
         for (auto &l : this->layers)
@@ -469,7 +469,7 @@ public:
             throw std::runtime_error("Failed to find a layer with a given id!");
         }
     }
-    void axiallayerSetter(std::string layerID, axialDriverSetter functor, AxialDriver<T> driver)
+    void axiallayerSetter(std::string &layerID, axialDriverSetter functor, AxialDriver<T> driver)
     {
         bool found = false;
         for (auto &l : this->layers)
@@ -528,39 +528,40 @@ public:
     {
         for (const auto &layer : this->layers)
         {
-            this->log[layer.id + "_K"].emplace_back(layer.K_log);
+            const std::string lId = layer.id;
+            this->log[lId + "_K"].emplace_back(layer.K_log);
             for (int i = 0; i < 3; i++)
             {
-                this->log[layer.id + "_m" + vectorNames[i]].push_back(layer.mag[i]);
-                this->log[layer.id + "_Hext" + vectorNames[i]].push_back(layer.H_log[i]);
-                // this->log[layer.id + "_K" + vectorNames[i]].emplace_back(layer.K_log[i]);
+                this->log[lId + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
+                this->log[lId + "_Hext" + vectorNames[i]].emplace_back(layer.H_log[i]);
+                // this->log[lId + "_K" + vectorNames[i]].emplace_back(layer.K_log[i]);
             }
 
             if (layer.includeSTT)
-                this->log[layer.id + "_I"].emplace_back(layer.I_log);
+                this->log[lId + "_I"].emplace_back(layer.I_log);
 
             if (calculateEnergies)
             {
-                this->log[layer.id + "_EZeeman"].push_back(EnergyDriver<T>::calculateZeemanEnergy(layer.mag,
-                                                                                                  layer.Hext,
-                                                                                                  layer.cellVolume,
-                                                                                                  layer.Ms));
-                // this->log[layer.id + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
+                this->log[lId + "_EZeeman"].emplace_back(EnergyDriver<T>::calculateZeemanEnergy(layer.mag,
+                                                                                             layer.Hext,
+                                                                                             layer.cellVolume,
+                                                                                             layer.Ms));
+                // this->log[lId + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
                 //                                                                                  layer.anisAxis,
                 //                                                                                  layer.K_log,
                 //                                                                                  layer.cellVolume));
-                // this->log[layer.id + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
+                // this->log[lId + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
                 //                                                                    layer.other,
                 //                                                                    layer.J_log,
                 //                                                                    layer.cellSurface);
-                this->log[layer.id + "_EDemag"].push_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
-                                                                                                layer.Hdemag,
-                                                                                                layer.Ms,
-                                                                                                layer.cellVolume));
-                this->log[layer.id + "_EDipole"].push_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
-                                                                                                 layer.Hdipole,
-                                                                                                 layer.Ms,
-                                                                                                 layer.cellVolume));
+                this->log[lId + "_EDemag"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
+                                                                                           layer.Hdemag,
+                                                                                           layer.Ms,
+                                                                                           layer.cellVolume));
+                this->log[lId + "_EDipole"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
+                                                                                            layer.Hdipole,
+                                                                                            layer.Ms,
+                                                                                            layer.cellVolume));
             }
         }
         if (MR_mode == CLASSIC)
@@ -681,7 +682,10 @@ public:
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
                        bool persist = true, bool log = false, bool calculateEnergies = false)
     {
-
+        if (timeStep > writeFrequency)
+        {
+            std::runtime_error("The time step cannot be larger than write frequency!");
+        }
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         T t;
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
