@@ -104,7 +104,7 @@ int main(void)
         {l1, l2}, "", 100, 105);
     mtj.setLayerAnisotropyDriver("free", ScalarDriver<double>::getConstantDriver(305e3));
     mtj.setLayerAnisotropyDriver("bottom", ScalarDriver<double>::getConstantDriver(728e3));
-    mtj.setLayerIECDriver("all", ScalarDriver<double>::getConstantDriver(4e-5));
+    mtj.setIECDriver("free", "bottom", ScalarDriver<double>::getConstantDriver(4e-5));
 
     const double hmin = -800e3;
     const double hmax = 800e3;

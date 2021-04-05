@@ -110,7 +110,8 @@ class Layer
 {
 private:
     ScalarDriver<T> currentDriver = NullDriver<T>();
-    ScalarDriver<T> IECDriver = NullDriver<T>();
+    ScalarDriver<T> IECDriverTop = NullDriver<T>();
+    ScalarDriver<T> IECDriverBottom = NullDriver<T>();
     ScalarDriver<T> anisotropyDriver = NullDriver<T>();
     AxialDriver<T> externalFieldDriver = NullAxialDriver<T>();
     AxialDriver<T> HoeDriver = NullAxialDriver<T>();
@@ -120,11 +121,12 @@ public:
 
     std::string id;
 
-    CVector<T> H_log, Hoe_log, Hconst, mag, anisAxis, anis;
-    CVector<T> Hext, Hdipole, Hdemag, HIEC, Hoe, HAnis, Hthermal, Hfl;
+    CVector<T> H_log, Hoe_log, Hconst, mag, anisAxis, anis, referenceLayer;
+    CVector<T> Hext, Hdipole, Hdemag, HIEC, HIECtop, HIECbottom, Hoe, HAnis, Hthermal, Hfl;
     T K_log = 0.0;
     T Ms = 0.0;
     T J_log = 0.0, I_log = 0.0;
+    T Jbottom_log = 0.0, Jtop_log = 0.0;
     T thickness = 0.0;
 
     std::vector<CVector<T>>
@@ -206,11 +208,6 @@ public:
         this->anisotropyDriver = driver;
     }
 
-    void setIECDriver(ScalarDriver<T> &driver)
-    {
-        this->IECDriver = driver;
-    }
-
     void setExternalFieldDriver(AxialDriver<T> &driver)
     {
         this->externalFieldDriver = driver;
@@ -224,14 +221,29 @@ public:
     {
         this->mag = mag;
     }
+    void setIECDriverBottom(ScalarDriver<T> &driver)
+    {
+        this->IECDriverBottom = driver;
+    }
 
-    const CVector<T> calculateHeff(T time, T timeStep, CVector<T> &stepMag, CVector<T> &otherMag)
+    void setIECDriverTop(ScalarDriver<T> &driver)
+    {
+        this->IECDriverTop = driver;
+    }
+
+    void setReferenceLayer(CVector<T> &reference)
+    {
+        this->referenceLayer = reference;
+    }
+
+    const CVector<T> calculateHeff(T time, T timeStep, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
     {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
-        this->Hdipole = calculate_tensor_interaction(otherMag, this->dipoleTensor, this->Ms);
+        this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleTensor, this->Ms) +
+                        calculate_tensor_interaction(top, this->dipoleTensor, this->Ms);
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
-        this->HIEC = calculateIEC(time, stepMag, otherMag);
+        this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
         this->Hfl = calculateLangevinStochasticField(timeStep);
         const CVector<T> Heff = this->Hext    // external
@@ -283,23 +295,28 @@ public:
         return this->anis * nom;
     }
 
-    CVector<T> calculateIEC(T &time, CVector<T> &stepMag, CVector<T> &coupledMag)
+    CVector<T> calculateIEC_(const T J, CVector<T> stepMag, CVector<T> coupledMag)
     {
-        this->J_log = this->IECDriver.getCurrentScalarValue(time);
-        const T nom = this->J_log / (this->Ms * this->thickness);
+        const T nom = J / (this->Ms * this->thickness);
         return (coupledMag - stepMag) * nom;
         // either of those may be correct -- undecided for now
         // return coupledMag * nom;
     }
 
-    const CVector<T> llg(T time, CVector<T> m, CVector<T> &coupledMag, T &timeStep)
+    CVector<T> calculateIEC(T time, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
     {
-        const CVector<T> heff = calculateHeff(time, timeStep, m, coupledMag);
+        this->Jbottom_log = this->IECDriverBottom.getCurrentScalarValue(time);
+        this->Jtop_log = this->IECDriverTop.getCurrentScalarValue(time);
+        return calculateIEC_(this->Jbottom_log, stepMag, bottom) + calculateIEC_(this->Jtop_log, stepMag, top);
+    }
+
+    const CVector<T> llg(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
+    {
+        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
         if (this->includeSTT)
         {
-            // we will use coupledMag as the reference layer
             this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // damping-like torque factor
             const T aJ = HBAR * this->I_log /
@@ -307,10 +324,10 @@ public:
 
             const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
             // field like
-            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, coupledMag));
+            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, this->referenceLayer));
             const T sttTerm = GYRO * aJ * eta;
 
-            const CVector<T> prod3 = c_cross<T>(m, coupledMag);
+            const CVector<T> prod3 = c_cross<T>(m, this->referenceLayer);
             // first term is "damping-like torque"
             // second term is "field-like torque"
             CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping) + c_cross<T>(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
@@ -320,13 +337,13 @@ public:
         return dmdt;
     }
 
-    void rk4_step(T &time, T &timeStep, CVector<T> &coupledMag)
+    void rk4_step(T time, T timeStep, CVector<T> bottom, CVector<T> top)
     {
         CVector<T> m_t = this->mag;
-        const CVector<T> k1 = llg(time, m_t, coupledMag, timeStep) * timeStep;
-        const CVector<T> k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, coupledMag, timeStep) * timeStep;
-        const CVector<T> k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, coupledMag, timeStep) * timeStep;
-        const CVector<T> k4 = llg(time + timeStep, m_t + k3, coupledMag, timeStep) * timeStep;
+        const CVector<T> k1 = llg(time, m_t, bottom, top, timeStep) * timeStep;
+        const CVector<T> k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, bottom, top, timeStep) * timeStep;
+        const CVector<T> k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, bottom, top, timeStep) * timeStep;
+        const CVector<T> k4 = llg(time + timeStep, m_t + k3, bottom, top, timeStep) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         this->mag = m_t;
@@ -502,9 +519,23 @@ public:
     {
         scalarlayerSetter(layerID, &Layer<T>::setCurrentDriver, driver);
     }
-    void setLayerIECDriver(std::string layerID, ScalarDriver<T> driver)
+    void setIECDriver(std::string bottomLayer, std::string topLayer, ScalarDriver<T> driver)
     {
-        scalarlayerSetter(layerID, &Layer<T>::setIECDriver, driver);
+        bool found = false;
+        for (int i = 0; i < this->layerNo - 1; i++)
+        {
+            // check if the layer above is actually top layer the user specified
+            if ((this->layers[i].id == bottomLayer) && (this->layers[i + 1].id == topLayer))
+            {
+                this->layers[i].setIECDriverTop(driver);
+                this->layers[i + 1].setIECDriverBottom(driver);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to match the layer order or find layer ids!");
+        }
     }
 
     void setLayerMagnetisation(std::string layerID, CVector<T> &mag)
@@ -543,9 +574,9 @@ public:
             if (calculateEnergies)
             {
                 this->log[lId + "_EZeeman"].emplace_back(EnergyDriver<T>::calculateZeemanEnergy(layer.mag,
-                                                                                             layer.Hext,
-                                                                                             layer.cellVolume,
-                                                                                             layer.Ms));
+                                                                                                layer.Hext,
+                                                                                                layer.cellVolume,
+                                                                                                layer.Ms));
                 // this->log[lId + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
                 //                                                                                  layer.anisAxis,
                 //                                                                                  layer.K_log,
@@ -555,13 +586,13 @@ public:
                 //                                                                    layer.J_log,
                 //                                                                    layer.cellSurface);
                 this->log[lId + "_EDemag"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
-                                                                                           layer.Hdemag,
-                                                                                           layer.Ms,
-                                                                                           layer.cellVolume));
+                                                                                              layer.Hdemag,
+                                                                                              layer.Ms,
+                                                                                              layer.cellVolume));
                 this->log[lId + "_EDipole"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
-                                                                                            layer.Hdipole,
-                                                                                            layer.Ms,
-                                                                                            layer.cellVolume));
+                                                                                               layer.Hdipole,
+                                                                                               layer.Ms,
+                                                                                               layer.cellVolume));
             }
         }
         if (MR_mode == CLASSIC)
@@ -620,18 +651,35 @@ public:
          * */
         CVector<T> null;
         this->layers[0].rk4_step(
-            t, timeStep, null);
+            t, timeStep, null, null);
     }
-
     void runMultiLayerRK4Iteration(T &t, T &timeStep)
     {
-        CVector<T> l1mag = this->layers[0].mag;
-        CVector<T> l2mag = this->layers[1].mag;
-        this->layers[0].rk4_step(
-            t, timeStep, l2mag);
-        this->layers[1].rk4_step(
-            t, timeStep, l1mag);
+        std::vector<CVector<T>> magCopies(this->layerNo + 2);
+        // the first and the last layer get 0 coupled
+        magCopies[0] = CVector<T>(0., 0., 0.);
+        magCopies[this->layerNo + 1] = CVector<T>(0., 0., 0.);
+        for (int i = 0; i < this->layerNo; i++)
+        {
+            magCopies[i] = this->layers[i].mag;
+        }
+
+        for (int i = 0; i < this->layerNo; i++)
+        {
+            this->layers[i].rk4_step(
+                t, timeStep, magCopies[i], magCopies[i + 2]);
+        }
     }
+
+    // void runMultiLayerRK4Iteration(T &t, T &timeStep)
+    // {
+    //     CVector<T> l1mag = this->layers[0].mag;
+    //     CVector<T> l2mag = this->layers[1].mag;
+    //     this->layers[0].rk4_step(
+    //         t, timeStep, l2mag);
+    //     this->layers[1].rk4_step(
+    //         t, timeStep, l1mag);
+    // }
 
     std::vector<T> stripMagnetoResistance(std::vector<T> &Rx0,
                                           std::vector<T> &Ry0,
