@@ -41,14 +41,16 @@ public:
            T period,
            T cycle,
            T timeStart,
-           T timeStop) : update(update), constantValue(constantValue),
+           T timeStop) : constantValue(constantValue),
                          amplitude(amplitude),
                          frequency(frequency),
                          phase(phase),
                          period(period),
                          cycle(cycle),
                          timeStart(timeStart),
-                         timeStop(timeStop)
+                         timeStop(timeStop),
+                         update(update)
+
     {
     }
 };
@@ -94,7 +96,8 @@ public:
         T cycle = -1,
         T timeStart = -1,
         T timeStop = -1)
-        : Driver<T>(update, constantValue,
+        : Driver<T>(update,
+                    constantValue,
                     amplitude,
                     frequency,
                     phase,

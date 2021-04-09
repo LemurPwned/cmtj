@@ -88,7 +88,7 @@ public:
         return -MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hext) * cellVolume;
     }
 
-    static T calculateAnisotropyEnergy(CVector<T> mag, CVector<T> anis, CVector<T> K, T cellVolume)
+    static T calculateAnisotropyEnergy(CVector<T> mag, CVector<T> anis, T K, T cellVolume)
     {
         const T sinSq = 1 - pow(c_dot<T>(mag, anis) / (anis.length() * mag.length()), 2);
         return K * sinSq * cellVolume;
@@ -530,6 +530,14 @@ public:
                 this->layers[i].setIECDriverTop(driver);
                 this->layers[i + 1].setIECDriverBottom(driver);
                 found = true;
+                break;
+            }
+            else if ((this->layers[i].id == topLayer) && (this->layers[i + 1].id == bottomLayer))
+            {
+                this->layers[i].setIECDriverTop(driver);
+                this->layers[i + 1].setIECDriverBottom(driver);
+                found = true;
+                break;
             }
         }
         if (!found)
@@ -555,6 +563,22 @@ public:
         }
     }
 
+    CVector<T> getLayerMagnetisation(std::string layerID)
+    {
+        bool found = false;
+        for (auto &l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                return l.mag;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id!");
+        }
+    }
+
     void logLayerParams(T &t, bool calculateEnergies = false)
     {
         for (const auto &layer : this->layers)
@@ -565,7 +589,6 @@ public:
             {
                 this->log[lId + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
                 this->log[lId + "_Hext" + vectorNames[i]].emplace_back(layer.H_log[i]);
-                // this->log[lId + "_K" + vectorNames[i]].emplace_back(layer.K_log[i]);
             }
 
             if (layer.includeSTT)
@@ -577,14 +600,10 @@ public:
                                                                                                 layer.Hext,
                                                                                                 layer.cellVolume,
                                                                                                 layer.Ms));
-                // this->log[lId + "_EAnis"].push_back(EnergyDriver::calculateAnisotropyEnergy(layer.mag,
-                //                                                                                  layer.anisAxis,
-                //                                                                                  layer.K_log,
-                //                                                                                  layer.cellVolume));
-                // this->log[lId + "_EIEC"] = EnergyDriver::calculateDemagEnergy(layer.mag,
-                //                                                                    layer.other,
-                //                                                                    layer.J_log,
-                //                                                                    layer.cellSurface);
+                this->log[lId + "_EAnis"].push_back(EnergyDriver<T>::calculateAnisotropyEnergy(layer.mag,
+                                                                                               layer.anisAxis,
+                                                                                               layer.K_log,
+                                                                                               layer.cellVolume));
                 this->log[lId + "_EDemag"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
                                                                                               layer.Hdemag,
                                                                                               layer.Ms,
@@ -597,12 +616,14 @@ public:
         }
         if (MR_mode == CLASSIC)
         {
-            const auto magnetoresistance = calculateMagnetoresistance(c_dot<T>(this->layers[0].mag, this->layers[1].mag));
+            const auto magnetoresistance = calculateMagnetoresistance(c_dot<T>(this->layers[0].mag,
+                                                                               this->layers[1].mag));
             this->log["R_free_bottom"].emplace_back(magnetoresistance);
         }
         else if (MR_mode == STRIP)
         {
-            const auto magnetoresistance = stripMagnetoResistance(this->Rx0, this->Ry0,
+            const auto magnetoresistance = stripMagnetoResistance(this->Rx0,
+                                                                  this->Ry0,
                                                                   this->AMR_X,
                                                                   this->SMR_X,
                                                                   this->AMR_Y,
@@ -656,9 +677,9 @@ public:
     void runMultiLayerRK4Iteration(T &t, T &timeStep)
     {
         std::vector<CVector<T>> magCopies(this->layerNo + 2);
-        // the first and the last layer get 0 coupled
-        magCopies[0] = CVector<T>(0., 0., 0.);
-        magCopies[this->layerNo + 1] = CVector<T>(0., 0., 0.);
+        // the first and the last layer get 0 vector coupled
+        magCopies[0] = CVector<T>();
+        magCopies[this->layerNo + 1] = CVector<T>();
         for (int i = 0; i < this->layerNo; i++)
         {
             magCopies[i] = this->layers[i].mag;
@@ -670,16 +691,6 @@ public:
                 t, timeStep, magCopies[i], magCopies[i + 2]);
         }
     }
-
-    // void runMultiLayerRK4Iteration(T &t, T &timeStep)
-    // {
-    //     CVector<T> l1mag = this->layers[0].mag;
-    //     CVector<T> l2mag = this->layers[1].mag;
-    //     this->layers[0].rk4_step(
-    //         t, timeStep, l2mag);
-    //     this->layers[1].rk4_step(
-    //         t, timeStep, l1mag);
-    // }
 
     std::vector<T> stripMagnetoResistance(std::vector<T> &Rx0,
                                           std::vector<T> &Ry0,
