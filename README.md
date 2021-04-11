@@ -1,3 +1,4 @@
+# CMTJ
 # CMTJ :rocket
 [![Upload Python Package](https://github.com/LemurPwned/spinpy/actions/workflows/python-publish.yml/badge.svg)](https://github.com/LemurPwned/spinpy/actions/workflows/python-publish.yml)
 
