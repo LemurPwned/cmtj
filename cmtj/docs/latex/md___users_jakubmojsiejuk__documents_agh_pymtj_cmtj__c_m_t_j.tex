@@ -1,0 +1,54 @@
+\hypertarget{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md1}{}\doxysection{Brief description}\label{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md1}
+CMTJ is a library for simulating multilayer magnetic structures. Each structure is called a {\ttfamily junction} and is composed of magnetic {\ttfamily layers}.\hypertarget{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md2}{}\doxysection{Installation}\label{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md2}
+Both C++ and Python interfaces are first-\/class citizens, but because of how this project is structured Python code is generated from the C++ code. In case of linting problems, please report the issue on Github. \hypertarget{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md3}{}\doxysubsection{C++}\label{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md3}
+The C++ library requires no installation, only the inclusion of the headers. The basic headers you\textquotesingle{}ll need are \href{core/junction.hpp}{\texttt{ {\ttfamily junction.\+hpp}}} and \href{core/cvector.hpp}{\texttt{ {\ttfamily cvector.\+hpp}}}. Beyond that, there\textquotesingle{}s \href{core/compute.hpp}{\texttt{ {\ttfamily compute.\+hpp}}} that contains utilities for FFT compute, mainly for Voltage Spin Diode and PIMM. There\textquotesingle{}s also \href{core/stack.hpp}{\texttt{ {\ttfamily stack.\+hpp}}}, for stacking the whole junctions into stacks, but as of now it\textquotesingle{}s WIP.
+
+But if you wish to use functions from \href{core/compute.hpp}{\texttt{ {\ttfamily compute.\+hpp}}}, then there\textquotesingle{}s an extra dependency on {\ttfamily fftw3}. To install it follow the main source page for {\ttfamily fftw3} -- \href{http://www.fftw.org/}{\texttt{ http\+://www.\+fftw.\+org/}}. Here are some quick things that may work for you.
+\begin{DoxyItemize}
+\item Mac\+Os 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{brew install fftw}
+
+\end{DoxyCode}
+
+\item Linux 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{apt-\/get install -\/y libfftw3-\/dev}
+
+\end{DoxyCode}
+
+\item Windows (no idea, please check the fftw source page linked above)
+\end{DoxyItemize}\hypertarget{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md4}{}\doxysubsection{Python}\label{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md4}
+The python package is to be installed from main directory. Go up from this file\textquotesingle{}s directory. Then, launch the pip installation. It should compile the C++ code and bind it to the Python module. Please report all compilation errors so that we may help you debug it.
+
+You\textquotesingle{}ll also need {\ttfamily pybind11} python package\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{pip3 install pybind11}
+
+\end{DoxyCode}
+
+
+Pip installation command\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{pip3 install -\/e .}
+
+\end{DoxyCode}
+\hypertarget{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md5}{}\doxysection{Requirements summary \+:warning\+:}\label{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md5}
+The C++ version basically requires only\+: ~\newline
+
+\begin{DoxyItemize}
+\item FFTW3 (only for \href{core/compute.hpp}{\texttt{ {\ttfamily compute.\+hpp}}}) The library for computing the Fast Fourier Transform, needed for some of the frequency analysis included in the package
+
+The library may be downloaded from the link here \href{http://www.fftw.org/}{\texttt{ http\+://www.\+fftw.\+org/}}. ~\newline
+ However, if you\textquotesingle{}re on the Ubuntu (it may work for some other distros as well), you may install the package with\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{apt-\/get install -\/y libfftw3-\/dev}
+
+\end{DoxyCode}
+
+\item Py\+Bind11 (only if you want to compile the {\ttfamily python3} yourself) Py\+Bind11 allows us to bind pieces of C++ code to be usable from within the Python code. This package {\itshape is not} necessary if you just plan to use the C++ API. Otherwise, if you need to compile the Py\+MTJ yourself, then you should install this package.
+
+The library is available here \href{https://github.com/pybind/pybind11}{\texttt{ https\+://github.\+com/pybind/pybind11}}.
+\end{DoxyItemize}\hypertarget{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md6}{}\doxysection{CMTJ-\/\+SERVER Now Available \+:boom\+:}\label{md___users_jakubmojsiejuk__documents_agh_pymtj_cmtj__c_m_t_j_autotoc_md6}
+For some real-\/world use cases (and a nice server wrapper too\+:exclamation\+:), please check the {\itshape \href{https://github.com/LemurPwned/cmtj-server}{\texttt{ cmtj-\/server project}}}. ~\newline
+ It contains some ready-\/to-\/use examples for the experimental setting. If you\textquotesingle{}d like me to add an experimental setup, post an issue there. For theorethical contributions, submit an issue in this repo. 

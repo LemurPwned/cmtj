@@ -1,0 +1,112 @@
+\hypertarget{class_scalar_driver}{}\doxysection{Scalar\+Driver$<$ T $>$ Class Template Reference}
+\label{class_scalar_driver}\index{ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}}
+Inheritance diagram for Scalar\+Driver$<$ T $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_scalar_driver}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_scalar_driver_a5e319e8b7059bf1c4365035465906ddb}\label{class_scalar_driver_a5e319e8b7059bf1c4365035465906ddb}} 
+{\bfseries Scalar\+Driver} (Update\+Type update=constant, T constant\+Value=0, T amplitude=0, T frequency=-\/1, T phase=0, T period=-\/1, T cycle=-\/1, T time\+Start=-\/1, T time\+Stop=-\/1)
+\item 
+\mbox{\Hypertarget{class_scalar_driver_ae48a5b74015ffca6bc540cc7acad0d8d}\label{class_scalar_driver_ae48a5b74015ffca6bc540cc7acad0d8d}} 
+T {\bfseries get\+Current\+Scalar\+Value} (T \&time)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver_a6b64f0660e9ce623fce8fd2c97326a40}{get\+Constant\+Driver}} (T constant\+Value)
+\item 
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver_a0e00aac7cbdbc1f0be36655f5a71b7b8}{get\+Pulse\+Driver}} (T constant\+Value, T amplitude, T period, T cycle)
+\item 
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver_a84e1567cc548cdb71050a6a4a6f1b719}{get\+Sine\+Driver}} (T constant\+Value, T amplitude, T frequency, T phase)
+\item 
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver_a9a86d99f2871104d167e0d599ac89785}{get\+Step\+Driver}} (T constant\+Value, T amplitude, T time\+Start, T time\+Stop)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_scalar_driver_a63253e305dd10ba7c0d0f18383a9480c}\label{class_scalar_driver_a63253e305dd10ba7c0d0f18383a9480c}} 
+T {\bfseries step\+Update} (T amplitude, T time, T time\+Start, T time\+Stop)
+\item 
+\mbox{\Hypertarget{class_scalar_driver_ad78261de47103bc796355ceec891384e}\label{class_scalar_driver_ad78261de47103bc796355ceec891384e}} 
+T {\bfseries pulse\+Train} (T amplitude, T time, T period, T cycle)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_scalar_driver_a6b64f0660e9ce623fce8fd2c97326a40}\label{class_scalar_driver_a6b64f0660e9ce623fce8fd2c97326a40}} 
+\index{ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}!getConstantDriver@{getConstantDriver}}
+\index{getConstantDriver@{getConstantDriver}!ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{getConstantDriver()}{getConstantDriver()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$\+::get\+Constant\+Driver (\begin{DoxyParamCaption}\item[{T}]{constant\+Value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Constant driver produces a constant signal of a fixed amplitude. 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Value} & constant value of the driver (constant offset/amplitude) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_scalar_driver_a0e00aac7cbdbc1f0be36655f5a71b7b8}\label{class_scalar_driver_a0e00aac7cbdbc1f0be36655f5a71b7b8}} 
+\index{ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}!getPulseDriver@{getPulseDriver}}
+\index{getPulseDriver@{getPulseDriver}!ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{getPulseDriver()}{getPulseDriver()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$\+::get\+Pulse\+Driver (\begin{DoxyParamCaption}\item[{T}]{constant\+Value,  }\item[{T}]{amplitude,  }\item[{T}]{period,  }\item[{T}]{cycle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Produces a square pulse of certain period and cycle 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Value} & offset (vertical) of the pulse. The pulse amplitude will be added to this. \\
+\hline
+{\em amplitude} & amplitude of the pulse signal \\
+\hline
+{\em period} & period of the signal in seconds \\
+\hline
+{\em cycle} & duty cycle of the signal -- a fraction between \mbox{[}0 and 1\mbox{]}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_scalar_driver_a84e1567cc548cdb71050a6a4a6f1b719}\label{class_scalar_driver_a84e1567cc548cdb71050a6a4a6f1b719}} 
+\index{ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}!getSineDriver@{getSineDriver}}
+\index{getSineDriver@{getSineDriver}!ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{getSineDriver()}{getSineDriver()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$\+::get\+Sine\+Driver (\begin{DoxyParamCaption}\item[{T}]{constant\+Value,  }\item[{T}]{amplitude,  }\item[{T}]{frequency,  }\item[{T}]{phase }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Produces a sinusoidal signal with some offset (constant\+Value), amplitude frequency and phase offset. 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Value} & vertical offset. The sine will oscillate around this value. \\
+\hline
+{\em amplitude} & amplitude of the sine wave \\
+\hline
+{\em frequency} & frequency of the sine \\
+\hline
+{\em phase} & phase of the sine in radians. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_scalar_driver_a9a86d99f2871104d167e0d599ac89785}\label{class_scalar_driver_a9a86d99f2871104d167e0d599ac89785}} 
+\index{ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}!getStepDriver@{getStepDriver}}
+\index{getStepDriver@{getStepDriver}!ScalarDriver$<$ T $>$@{ScalarDriver$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{getStepDriver()}{getStepDriver()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+static \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}} \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$\+::get\+Step\+Driver (\begin{DoxyParamCaption}\item[{T}]{constant\+Value,  }\item[{T}]{amplitude,  }\item[{T}]{time\+Start,  }\item[{T}]{time\+Stop }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Get a step driver. It has amplitude between time\+Start and time\+Stop and 0 elsewhere 
+\begin{DoxyParams}{Parameters}
+{\em constant\+Value} & offset of the pulse (vertical) \\
+\hline
+{\em amplitude} & amplitude that is added on top of the constant\+Value \\
+\hline
+{\em time\+Start} & start of the pulse \\
+\hline
+{\em time\+Stop} & when the pulse ends \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jakubmojsiejuk/\+Documents/agh/pymtj/cmtj/core/drivers.\+hpp\end{DoxyCompactItemize}

@@ -1,0 +1,49 @@
+\hypertarget{class_stack}{}\doxysection{Stack Class Reference}
+\label{class_stack}\index{Stack@{Stack}}
+Inheritance diagram for Stack\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_stack}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_stack_ae5e2ea0050f79cb7dac8404c434cac5c}\label{class_stack_ae5e2ea0050f79cb7dac8404c434cac5c}} 
+{\bfseries Stack} (std\+::vector$<$ \mbox{\hyperlink{class_junction}{Junction}} $>$ junction\+List)
+\item 
+\mbox{\Hypertarget{class_stack_a70798aa66e421d9e2656d532f13c5d6a}\label{class_stack_a70798aa66e421d9e2656d532f13c5d6a}} 
+void {\bfseries log\+Stack\+Data} (double t, double resistance)
+\item 
+\mbox{\Hypertarget{class_stack_adbc70ac86b2ebf15f9c85536c3111a1c}\label{class_stack_adbc70ac86b2ebf15f9c85536c3111a1c}} 
+void {\bfseries dump\+Stack\+Data} (std\+::string filename)
+\item 
+\mbox{\Hypertarget{class_stack_a93fdc5859cca965841d48de764913da0}\label{class_stack_a93fdc5859cca965841d48de764913da0}} 
+void {\bfseries run\+Simulation} (double total\+Time, double time\+Step=1e-\/13, double write\+Frequency=1e-\/11)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_stack_a0d8cc0059d18f6929b07557e27272c92}\label{class_stack_a0d8cc0059d18f6929b07557e27272c92}} 
+virtual double {\bfseries calculate\+Stack\+Resistance} (std\+::vector$<$ double $>$ resistances)=0
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_stack_a3cb6dd934f26f7f3b1fd9dcfaa939be8}\label{class_stack_a3cb6dd934f26f7f3b1fd9dcfaa939be8}} 
+std\+::vector$<$ \mbox{\hyperlink{class_junction}{Junction}} $>$ {\bfseries junction\+List}
+\item 
+\mbox{\Hypertarget{class_stack_a0cb705c40bf6b1087a0a90d0fa294ef9}\label{class_stack_a0cb705c40bf6b1087a0a90d0fa294ef9}} 
+std\+::map$<$ std\+::string, std\+::vector$<$ double $>$ $>$ {\bfseries stack\+Log}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_stack_ab5b7300e0646ed2b6b5ea7e1e441a0c3}\label{class_stack_ab5b7300e0646ed2b6b5ea7e1e441a0c3}} 
+class {\bfseries Junction}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jakubmojsiejuk/\+Documents/agh/pymtj/cmtj/core/stack.\+hpp\end{DoxyCompactItemize}

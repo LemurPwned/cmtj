@@ -116,6 +116,10 @@ public:
         }
     }
 
+    /**
+     * Constant driver produces a constant signal of a fixed amplitude.
+     * @param constantValue: constant value of the driver (constant offset/amplitude)
+     */
     static ScalarDriver getConstantDriver(T constantValue)
     {
         return ScalarDriver(
@@ -123,6 +127,13 @@ public:
             constantValue);
     }
 
+    /**
+     * Produces a square pulse of certain period and cycle
+     * @param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.
+     * @param amplitude: amplitude of the pulse signal
+     * @param period: period of the signal in seconds
+     * @param cycle: duty cycle of the signal -- a fraction between [0 and 1]. 
+     */
     static ScalarDriver getPulseDriver(T constantValue, T amplitude, T period, T cycle)
     {
         return ScalarDriver(
@@ -132,6 +143,13 @@ public:
             -1, -1, period, cycle);
     }
 
+    /**
+     * Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
+     * @param constantValue: vertical offset. The sine will oscillate around this value.
+     * @param amplitude: amplitude of the sine wave
+     * @param frequency: frequency of the sine
+     * @param phase: phase of the sine in radians.
+     */
     static ScalarDriver getSineDriver(T constantValue, T amplitude, T frequency, T phase)
     {
         return ScalarDriver(
@@ -140,7 +158,13 @@ public:
             amplitude,
             frequency, phase);
     }
-
+    /**
+     * Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
+     * @param constantValue: offset of the pulse (vertical)
+     * @param amplitude: amplitude that is added on top of the constantValue
+     * @param timeStart: start of the pulse
+     * @param timeStop: when the pulse ends
+     */
     static ScalarDriver getStepDriver(T constantValue, T amplitude, T timeStart, T timeStop)
     {
         return ScalarDriver(

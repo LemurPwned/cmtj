@@ -149,6 +149,28 @@ public:
     std::normal_distribution<T> distribution;
     const T stochasticTorqueMean = 0.0;
     Layer() {}
+    /**
+     * The basic structure is a magnetic layer. 
+     * Its parameters are defined by the constructor and may be altered
+     * by the drivers during the simulation time.  
+     * If you want STT, remember to set the reference vector for the polarisation of the layer.
+     * Use `setReferenceLayer` function to do that.
+     * @param id: identifiable name for a layer -- e.g. "bottom" or "free".
+     * @param mag: initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.
+     * @param anis: anisotropy of the layer. A normalised vector
+     * @param Ms: magnetisation saturation. Unit: Tesla [T].
+     * @param thickness: thickness of the layer. Unit: meter [m].
+     * @param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
+     * @param demagTensor: demagnetisation tensor of the layer.
+     * @param dipoleTensor: dipole tensor of the layer.
+     * @param temperature: resting temperature of the layer. Unit: Kelvin [K].
+     * @param includeSTT: [STT] whether to include STT in LLG equation. Default false
+     * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
+     * @param SlomczewskiSpacerLayerParameter: [STT] Slomczewski parameter. Default 1.0. Dimensionless.
+     * @param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
+     * @param spinPolarisation: [STT] polarisation ratio while passing through reference layer.
+     * @param silent: Default True. If false prints some extra debug connected to noise generation.  
+     */
     Layer(std::string id,
           CVector<T> mag,
           CVector<T> anis,
@@ -231,6 +253,11 @@ public:
         this->IECDriverTop = driver;
     }
 
+    /**
+     * Set reference layer parameter. This is for calculating the spin current
+     * polarisation if `includeSTT` is true.
+     * @param reference: CVector describing the reference layer.
+     */
     void setReferenceLayer(CVector<T> &reference)
     {
         this->referenceLayer = reference;
@@ -310,6 +337,14 @@ public:
         return calculateIEC_(this->Jbottom_log, stepMag, bottom) + calculateIEC_(this->Jtop_log, stepMag, top);
     }
 
+    /**
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * @param time: current simulation time
+     * @param m: current RK45 magnetisation
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step
+     */
     const CVector<T> llg(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
     {
         const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
@@ -373,6 +408,11 @@ public:
     unsigned int logLength = 0;
     int layerNo;
     Junction() {}
+
+    /**
+     * Create a plain junction.
+     * No magnetoresistance is calculated. 
+     */
     Junction(std::vector<Layer<T>> layersToSet, std::string filename = "")
     {
         this->MR_mode = NONE;
@@ -400,6 +440,8 @@ public:
      * Creates a junction with a STRIP magnetoresistance.  
      * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the 
      * length of the layers passed (they directly correspond to each layer).
+     * Calculates the magnetoresistance as per: __see reference__:
+     * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
      * @param Rx0
      * @param Ry0
      * @param AMR_X
@@ -445,6 +487,9 @@ public:
         this->MR_mode = STRIP;
     }
 
+    /**
+     * Clears the simulation log. 
+     **/
     void clearLog()
     {
         this->log.clear();
@@ -519,6 +564,14 @@ public:
     {
         scalarlayerSetter(layerID, &Layer<T>::setCurrentDriver, driver);
     }
+
+    /**
+     * Set IEC interaction between two layers.
+     * The names of the params are only for convention. The IEC will be set 
+     * between bottomLyaer or topLayer, order is irrelevant.
+     * @param bottomLayer: the first layer id
+     * @param topLayer: the second layer id
+     */
     void setIECDriver(std::string bottomLayer, std::string topLayer, ScalarDriver<T> driver)
     {
         bool found = false;
@@ -663,18 +716,24 @@ public:
         }
         logFile.close();
     }
-
+    /**
+     * Single layer RK45 iteration. IEC interaction is turned off.
+     * @param t: current time
+     * @param timeStep: integration step
+     * */
     void runSingleLayerRK4Iteration(T &t, T &timeStep)
     {
-        /**
-         * Single layer iteration. IEC interaction is turned off.
-         * @param t: current time
-         * @param timeStep: integration step
-         * */
+
         CVector<T> null;
         this->layers[0].rk4_step(
             t, timeStep, null, null);
     }
+
+    /**
+     * Multilayer layer RK45 iteration. IEC is calculated.
+     * @param t: current time
+     * @param timeStep: integration step
+     * */
     void runMultiLayerRK4Iteration(T &t, T &timeStep)
     {
         std::vector<CVector<T>> magCopies(this->layerNo + 2);
@@ -693,6 +752,22 @@ public:
         }
     }
 
+    /**
+     * Used when MR_MODE == STRIP 
+     * Magnetoresistance as per:  
+     * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
+     * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the 
+     * length of the layers passed (they directly correspond to each layer).
+     * Calculates the magnetoresistance as per: __see reference__:
+     * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
+     * @param Rx0
+     * @param Ry0
+     * @param AMR_X
+     * @param AMR_Y
+     * @param SMR_X
+     * @param SMR_Y
+     * @param AHE
+     */
     std::vector<T> stripMagnetoResistance(std::vector<T> &Rx0,
                                           std::vector<T> &Ry0,
                                           std::vector<T> &AMR_X,
@@ -716,6 +791,12 @@ public:
         return {1 / Rx_acc, 1 / Ry_acc};
     }
 
+    /**
+     * Calculate classic magnetoresistance.
+     * Only for bilayer structures.
+     * used when MR_MODE == CLASSIC 
+     * @param cosTheta: cosine between two layers.
+    */
     T calculateMagnetoresistance(T cosTheta)
     {
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
@@ -739,8 +820,18 @@ public:
         }
     }
 
+    /**
+     * Main run simulation function. Use it to run the simulation.
+     * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
+     * @param timeStep: the integration step of the RK45 method. Default is 1e-13
+     * @param writeFrequency: how often is the log saved to? Must be no smaller than `timeStep`. Default is 1e-11.
+     * @param persist: whether to save to the filename specified in the Junction constructor. Default is true 
+     * @param log: if you want some verbosity like timing the simulation. Default is false
+     * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default os false.
+     */
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
                        bool persist = true, bool log = false, bool calculateEnergies = false)
+
     {
         if (timeStep > writeFrequency)
         {

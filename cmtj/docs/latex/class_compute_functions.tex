@@ -1,0 +1,68 @@
+\hypertarget{class_compute_functions}{}\doxysection{Compute\+Functions$<$ T $>$ Class Template Reference}
+\label{class_compute_functions}\index{ComputeFunctions$<$ T $>$@{ComputeFunctions$<$ T $>$}}
+
+
+{\ttfamily \#include $<$compute.\+hpp$>$}
+
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static std\+::unordered\+\_\+map$<$ std\+::string, T $>$ \mbox{\hyperlink{class_compute_functions_adbac54f12528370b6875711478b99f40}{calculate\+Voltage\+Spin\+Diode}} (std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$$>$ \&log, const std\+::string res\+Tag, T frequency, T power=10e-\/6, const T min\+Time=10e-\/9)
+\item 
+static std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$ $>$ \mbox{\hyperlink{class_compute_functions_a96d2bfa845cf8d0e2aaf330c3b993547}{spectral\+FFT}} (std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$$>$ \&log, const std\+::vector$<$ std\+::string $>$ \&fft\+Ids, T min\+Time=10.\+0e-\/9, T time\+Step=1e-\/11)
+\item 
+\mbox{\Hypertarget{class_compute_functions_aa8b6608a79d6ef332a2a5953004744d4}\label{class_compute_functions_aa8b6608a79d6ef332a2a5953004744d4}} 
+static std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$ $>$ {\bfseries spectral\+FFTMixed} (std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$$>$ \&log, const std\+::vector$<$ std\+::string $>$ \&tags\+To\+Mix, T time\+Step=1e-\/11)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\newline
+class Compute\+Functions$<$ T $>$}
+
+Provides a static interface for computing useful magnetic properties such as Voltage Spin Diode Effect or FFT on the magnetoresistance. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_compute_functions_adbac54f12528370b6875711478b99f40}\label{class_compute_functions_adbac54f12528370b6875711478b99f40}} 
+\index{ComputeFunctions$<$ T $>$@{ComputeFunctions$<$ T $>$}!calculateVoltageSpinDiode@{calculateVoltageSpinDiode}}
+\index{calculateVoltageSpinDiode@{calculateVoltageSpinDiode}!ComputeFunctions$<$ T $>$@{ComputeFunctions$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{calculateVoltageSpinDiode()}{calculateVoltageSpinDiode()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+static std\+::unordered\+\_\+map$<$std\+::string, T$>$ \mbox{\hyperlink{class_compute_functions}{Compute\+Functions}}$<$ T $>$\+::calculate\+Voltage\+Spin\+Diode (\begin{DoxyParamCaption}\item[{std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$$>$ \&}]{log,  }\item[{const std\+::string}]{res\+Tag,  }\item[{T}]{frequency,  }\item[{T}]{power = {\ttfamily 10e-\/6},  }\item[{const T}]{min\+Time = {\ttfamily 10e-\/9} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Computes the Voltage Spin diode. 
+\begin{DoxyParams}{Parameters}
+{\em log} & This is the log from the simulation. \\
+\hline
+{\em res\+Tag} & Tag to fetch the resistance from the simulation. \\
+\hline
+{\em frequency} & excitation frequency for the current. \\
+\hline
+{\em power} & power assumed in the system (this is somewhat an arbitrary value). \\
+\hline
+{\em min\+Time} & time after which to take the log, preferably when the magnetisation is stable. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_compute_functions_a96d2bfa845cf8d0e2aaf330c3b993547}\label{class_compute_functions_a96d2bfa845cf8d0e2aaf330c3b993547}} 
+\index{ComputeFunctions$<$ T $>$@{ComputeFunctions$<$ T $>$}!spectralFFT@{spectralFFT}}
+\index{spectralFFT@{spectralFFT}!ComputeFunctions$<$ T $>$@{ComputeFunctions$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{spectralFFT()}{spectralFFT()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+static std\+::unordered\+\_\+map$<$std\+::string, std\+::vector$<$T$>$ $>$ \mbox{\hyperlink{class_compute_functions}{Compute\+Functions}}$<$ T $>$\+::spectral\+FFT (\begin{DoxyParamCaption}\item[{std\+::unordered\+\_\+map$<$ std\+::string, std\+::vector$<$ T $>$$>$ \&}]{log,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{fft\+Ids,  }\item[{T}]{min\+Time = {\ttfamily 10.0e-\/9},  }\item[{T}]{time\+Step = {\ttfamily 1e-\/11} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Computes the FFT on a given tag. 
+\begin{DoxyParams}{Parameters}
+{\em log} & This is the log from the simulation. \\
+\hline
+{\em fft\+Ids} & a vector of ids (log keys) for which FFT is to be computed. \\
+\hline
+{\em min\+Time} & minimum waiting time (10e-\/9) by default. Set it so that non-\/harmonic oscillations are not included into FFT computation. \\
+\hline
+{\em time\+Step} & integration step (1e-\/11) by default . \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jakubmojsiejuk/\+Documents/agh/pymtj/cmtj/core/compute.\+hpp\end{DoxyCompactItemize}

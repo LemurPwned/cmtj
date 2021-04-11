@@ -1,0 +1,62 @@
+\hypertarget{class_axial_driver}{}\doxysection{Axial\+Driver$<$ T $>$ Class Template Reference}
+\label{class_axial_driver}\index{AxialDriver$<$ T $>$@{AxialDriver$<$ T $>$}}
+Inheritance diagram for Axial\+Driver$<$ T $>$\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_axial_driver}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_axial_driver_a1ccbc5980a9eb1f3bfb9e72e48efea09}\label{class_axial_driver_a1ccbc5980a9eb1f3bfb9e72e48efea09}} 
+void {\bfseries apply\+Mask} (std\+::vector$<$ unsigned int $>$ mask)
+\item 
+\mbox{\Hypertarget{class_axial_driver_a18ef0b9fd46152245021d4eda81b0602}\label{class_axial_driver_a18ef0b9fd46152245021d4eda81b0602}} 
+void {\bfseries apply\+Mask} (\mbox{\hyperlink{class_c_vector}{CVector}}$<$ T $>$ mask)
+\item 
+\mbox{\Hypertarget{class_axial_driver_a3a842583453154be564a28eea9ccfd20}\label{class_axial_driver_a3a842583453154be564a28eea9ccfd20}} 
+{\bfseries Axial\+Driver} (\mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$ x, \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$ y, \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$ z)
+\item 
+\mbox{\Hypertarget{class_axial_driver_ace200bf578f8c29b3051f73579419978}\label{class_axial_driver_ace200bf578f8c29b3051f73579419978}} 
+{\bfseries Axial\+Driver} (\mbox{\hyperlink{class_c_vector}{CVector}}$<$ T $>$ xyz)
+\item 
+\mbox{\Hypertarget{class_axial_driver_a0d1625a8db76ca288e9604f7ff81a628}\label{class_axial_driver_a0d1625a8db76ca288e9604f7ff81a628}} 
+{\bfseries Axial\+Driver} (std\+::vector$<$ \mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$$>$ axial\+Drivers)
+\item 
+\mbox{\Hypertarget{class_axial_driver_a05d8530ffde61cb0e987efbd853a68e9}\label{class_axial_driver_a05d8530ffde61cb0e987efbd853a68e9}} 
+\mbox{\hyperlink{class_c_vector}{CVector}}$<$ T $>$ {\bfseries get\+Current\+Axial\+Drivers} (T time)
+\item 
+\mbox{\Hypertarget{class_axial_driver_acba4f22664e83970f3167686c718bffe}\label{class_axial_driver_acba4f22664e83970f3167686c718bffe}} 
+\mbox{\hyperlink{class_c_vector}{CVector}}$<$ T $>$ {\bfseries get\+Constant\+Values} ()
+\item 
+\mbox{\hyperlink{class_c_vector}{CVector}}$<$ T $>$ \mbox{\hyperlink{class_axial_driver_aefb1997f7664ac073b3b175b360f588f}{get\+Unit\+Axis}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_axial_driver_acc9410720f77ad1e8682882780722013}\label{class_axial_driver_acc9410720f77ad1e8682882780722013}} 
+static \mbox{\hyperlink{class_axial_driver}{Axial\+Driver}} {\bfseries get\+Vector\+Axial\+Driver} (T x, T y, T z)
+\item 
+\mbox{\Hypertarget{class_axial_driver_a80c927ce58ef77894d868a00626861ab}\label{class_axial_driver_a80c927ce58ef77894d868a00626861ab}} 
+static \mbox{\hyperlink{class_axial_driver}{Axial\+Driver}} {\bfseries get\+Uni\+Axial\+Driver} (\mbox{\hyperlink{class_scalar_driver}{Scalar\+Driver}}$<$ T $>$ in, Axis axis)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_axial_driver_aefb1997f7664ac073b3b175b360f588f}\label{class_axial_driver_aefb1997f7664ac073b3b175b360f588f}} 
+\index{AxialDriver$<$ T $>$@{AxialDriver$<$ T $>$}!getUnitAxis@{getUnitAxis}}
+\index{getUnitAxis@{getUnitAxis}!AxialDriver$<$ T $>$@{AxialDriver$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{getUnitAxis()}{getUnitAxis()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+\mbox{\hyperlink{class_c_vector}{CVector}}$<$T$>$ \mbox{\hyperlink{class_axial_driver}{Axial\+Driver}}$<$ T $>$\+::get\+Unit\+Axis (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Returns the mask for the Axial \mbox{\hyperlink{class_driver}{Driver}}. For instance\+: a vector (1213, 123, 0) returns (1, 1, 0) Note\+: This is not normalised \begin{DoxyReturn}{Returns}
+CVector$<$\+T$>$\+: mask for the driver 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/\+Users/jakubmojsiejuk/\+Documents/agh/pymtj/cmtj/core/drivers.\+hpp\end{DoxyCompactItemize}
