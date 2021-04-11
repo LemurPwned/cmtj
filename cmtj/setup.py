@@ -94,10 +94,10 @@ class BuildExt(build_ext):
         'msvc': [],
         'unix': [],
     }
-
     """
     TBD if below is a problem for some. Leaving JIC
     """
+
     # if sys.platform == 'darwin':
     # darwin_opts = [, '-mmacosx-version-min=10.7']
     # c_opts['unix'] += darwin_opts
@@ -126,9 +126,10 @@ setup(
     name='cmtj',
     version=__version__,
     author='Jakub',
-    email="mojsieju@agh.edu.pl",
+    keywords=['magnetics', 'physics', 'simulation'],
+    author_email="mojsieju@agh.edu.pl",
     url='https://github.com/LemurPwned/spinpy',
-    description='Python bindings for CMTJ library',
+    description='CMTJ - C Magnetic Tunnel Junctions.',
     long_description='Efficient library for simulating magnetic multilayers',
     ext_modules=ext_modules,
     setup_requires=['pybind11>=2.5.0'],

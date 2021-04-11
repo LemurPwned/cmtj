@@ -389,7 +389,7 @@ template <typename T>
 class Junction
 {
     friend class Layer<T>;
-    const std::vector<const std::string> vectorNames = {"x", "y", "z"};
+    const std::vector<std::string> vectorNames = {"x", "y", "z"};
 
 public:
     enum MRmode
@@ -630,6 +630,7 @@ public:
         {
             throw std::runtime_error("Failed to find a layer with a given id!");
         }
+        return CVector();
     }
 
     void logLayerParams(T &t, bool calculateEnergies = false)
