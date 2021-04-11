@@ -212,7 +212,7 @@ public:
     {
         this->externalFieldDriver = driver;
     }
-    void setLayerOerstedFieldDriver(AxialDriver<T> &driver)
+    void setOerstedFieldDriver(AxialDriver<T> &driver)
     {
         this->HoeDriver = driver;
     }
@@ -513,7 +513,7 @@ public:
     }
     void setLayerOerstedFieldDriver(std::string layerID, AxialDriver<T> driver)
     {
-        axiallayerSetter(layerID, &Layer<T>::setLayerOerstedFieldDriver, driver);
+        axiallayerSetter(layerID, &Layer<T>::setOerstedFieldDriver, driver);
     }
     void setLayerCurrentDriver(std::string layerID, ScalarDriver<T> driver)
     {
@@ -631,6 +631,7 @@ public:
                                                                   this->AHE);
             this->log["Rx"].emplace_back(magnetoresistance[0]);
             this->log["Ry"].emplace_back(magnetoresistance[1]);
+            this->log["Rz"].emplace_back(magnetoresistance[2]);
         }
         this->log["time"].emplace_back(t);
         this->logLength++;

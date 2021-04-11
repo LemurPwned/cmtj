@@ -103,7 +103,12 @@ PYBIND11_MODULE(cmtj, m)
              "SlonczewskiSpacerLayerParameter"_a = 1.0,
              "beta"_a = 0.0,
              "spinPolarisation"_a = 0.8,
-             "silent"_a = true);
+             "silent"_a = true)
+        .def("setMagnetisation", &Layer<double>::setMagnetisation)
+        .def("setAnisotropyDriver", &Layer<double>::setAnisotropyDriver)
+        .def("setExternalFieldDriver", &Layer<double>::setExternalFieldDriver)
+        .def("setOerstedFieldDriver", &Layer<double>::setOerstedFieldDriver)
+        .def("setReferenceLayer", &Layer<double>::setReferenceLayer);
 
     py::class_<Junction<double>>(m, "Junction")
         .def(py::init<std::vector<Layer<double>>,
