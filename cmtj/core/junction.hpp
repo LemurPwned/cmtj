@@ -630,7 +630,7 @@ public:
         {
             throw std::runtime_error("Failed to find a layer with a given id!");
         }
-        return CVector();
+        return CVector<T>();
     }
 
     void logLayerParams(T &t, bool calculateEnergies = false)
