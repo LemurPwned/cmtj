@@ -2,8 +2,8 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 import sys
 import setuptools
-import os 
-__version__ = '0.9.0'
+import os
+__version__ = '1.0.0'
 """
 As per 
 https://github.com/pybind/python_example
@@ -13,6 +13,7 @@ https://github.com/pybind/python_example
 #     # use g++ instead of clang on Mac
 #     os.environ["CXX"] = "g++"
 #     os.environ['CC'] = "g++"
+
 
 class get_pybind_include(object):
     """
@@ -35,12 +36,10 @@ ext_modules = [
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
-            '/usr/local/include',
-            './core'
         ],
-        libraries=['fftw3'],
+        libraries=[],
         library_dirs=['/usr/local/lib'],
-        extra_compile_args=['-O3', '-pthread', '-v', '-shared'],
+        extra_compile_args=['-O3', '-v', '-shared'],
         language='c++'),
 ]
 
@@ -96,10 +95,13 @@ class BuildExt(build_ext):
         'unix': [],
     }
 
+    """
+    TBD if below is a problem for some. Leaving JIC
+    """
     # if sys.platform == 'darwin':
-        # darwin_opts = [, '-mmacosx-version-min=10.7']
-        # c_opts['unix'] += darwin_opts
-        # l_opts['unix'] += darwin_opts
+    # darwin_opts = [, '-mmacosx-version-min=10.7']
+    # c_opts['unix'] += darwin_opts
+    # l_opts['unix'] += darwin_opts
 
     def build_extensions(self):
         ct = self.compiler.compiler_type
@@ -124,9 +126,10 @@ setup(
     name='cmtj',
     version=__version__,
     author='Jakub',
+    email="mojsieju@agh.edu.pl",
     url='https://github.com/LemurPwned/spinpy',
     description='Python bindings for CMTJ library',
-    long_description='',
+    long_description='Efficient library for simulating magnetic multilayers',
     ext_modules=ext_modules,
     setup_requires=['pybind11>=2.5.0'],
     cmdclass={'build_ext': BuildExt},
