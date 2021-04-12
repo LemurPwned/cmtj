@@ -389,7 +389,7 @@ template <typename T>
 class Junction
 {
     friend class Layer<T>;
-    const std::vector<const std::string> vectorNames = {"x", "y", "z"};
+    const std::vector<std::string> vectorNames = {"x", "y", "z"};
 
 public:
     enum MRmode
