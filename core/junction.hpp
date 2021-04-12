@@ -1,9 +1,11 @@
 #ifndef JUNCTION_H
 #define JUNCTION_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <complex>
 #include <cstring>
 #include <fstream>
