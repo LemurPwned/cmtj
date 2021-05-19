@@ -24,8 +24,8 @@ jobs:
   other-os-build:
     runs-on: ${{ matrix.os }}
     env:
-      TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
@@ -44,4 +44,4 @@ jobs:
         run: |
           pip install twine
           twine upload dist/*
-        continue-on-error: true
+        continue-on-error: false
