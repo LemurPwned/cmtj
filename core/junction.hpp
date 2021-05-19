@@ -92,7 +92,7 @@ public:
 
     static T calculateAnisotropyEnergy(CVector<T> mag, CVector<T> anis, T K, T cellVolume)
     {
-        const T sinSq = 1 - pow(c_dot<T>(mag, anis) / (anis.length() * mag.length()), 2);
+        const T sinSq = 1.0 - pow(c_dot<T>(mag, anis) / (anis.length() * mag.length()), 2);
         return K * sinSq * cellVolume;
     }
 
@@ -171,7 +171,7 @@ public:
      * @param SlomczewskiSpacerLayerParameter: [STT] Slomczewski parameter. Default 1.0. Dimensionless.
      * @param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
      * @param spinPolarisation: [STT] polarisation ratio while passing through reference layer.
-     * @param silent: Default True. If false prints some extra debug connected to noise generation.  
+     * @param silent: Default true. If false prints some extra debug connected to noise generation.  
      */
     Layer(std::string id,
           CVector<T> mag,
@@ -210,7 +210,8 @@ public:
             std::cout << "Langevin torque std: " << torqueStd << std::endl;
             std::cout << "Cell Volume: " << cellVolume << std::endl;
         }
-        this->distribution = std::normal_distribution<T>(stochasticTorqueMean, torqueStd);
+        // this->distribution = std::normal_distribution<T>(stochasticTorqueMean, torqueStd);
+        this->distribution = std::normal_distribution<T>(stochasticTorqueMean, 1);
     }
 
     T getLangevinStochasticStandardDeviation()
@@ -303,9 +304,9 @@ public:
         CVector<T> res(this->distribution, generator);
         // either of those expressions may be correct -- undecided for now
         const T nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
-                           (MAGNETIC_PERMEABILITY * GYRO * this->cellVolume * this->Ms * timeStep));
+                           (GYRO * this->cellVolume * this->Ms * timeStep));
         return res * nom;
-        // return res;
+        return res;
     }
 
     CVector<T> calculateExternalField(T &time)
@@ -317,8 +318,6 @@ public:
 
     CVector<T> calculateAnisotropy(CVector<T> &stepMag, T &time)
     {
-        // this->K_log = this->anisotropyDriver.getCurrentAxialDrivers(time);
-        // return this->K_log * c_dot<T>(this->anisAxis, this->mag) * 2 / this->Ms;
         this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
         const T nom = (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / (this->Ms);
         return this->anis * nom;
@@ -657,7 +656,7 @@ public:
                                                                                                 layer.cellVolume,
                                                                                                 layer.Ms));
                 this->log[lId + "_EAnis"].push_back(EnergyDriver<T>::calculateAnisotropyEnergy(layer.mag,
-                                                                                               layer.anisAxis,
+                                                                                               layer.anis,
                                                                                                layer.K_log,
                                                                                                layer.cellVolume));
                 this->log[lId + "_EDemag"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
@@ -830,7 +829,7 @@ public:
      * @param writeFrequency: how often is the log saved to? Must be no smaller than `timeStep`. Default is 1e-11.
      * @param persist: whether to save to the filename specified in the Junction constructor. Default is true 
      * @param log: if you want some verbosity like timing the simulation. Default is false
-     * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default os false.
+     * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default is false.
      */
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
                        bool persist = true, bool log = false, bool calculateEnergies = false)

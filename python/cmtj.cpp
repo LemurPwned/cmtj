@@ -9,85 +9,91 @@
 #include <vector>
 
 using namespace pybind11::literals;
+using DJunction = Junction<double>;
+using DLayer = Layer<double>;
+using DVector = CVector<double>;
+using DScalarDriver = ScalarDriver<double>;
+using DAxialDriver = AxialDriver<double>;
+using DNullDriver = NullDriver<double>;
 
 namespace py = pybind11;
 
 #define USING_PY true
 PYBIND11_MODULE(cmtj, m)
 {
-    m.doc() = "Python binding for C++ CMTJ Library";
-
     // helpers
     m.def("c_dot", &c_dot<double>);
-    // Driver Class
-    py::class_<ScalarDriver<double>>(m, "ScalarDriver")
-        .def_static("getConstantDriver",
-                    &ScalarDriver<double>::getConstantDriver,
-                    "constantValue"_a)
-        .def_static("getPulseDriver",
-                    &ScalarDriver<double>::getPulseDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "period"_a,
-                    "cycle"_a)
-        .def_static("getSineDriver",
-                    &ScalarDriver<double>::getSineDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "frequency"_a,
-                    "phase"_a)
-        .def_static("getStepDriver",
-                    &ScalarDriver<double>::getStepDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "timeStart"_a,
-                    "timeStop"_a);
-
-    py::class_<NullDriver<double>, ScalarDriver<double>>(m, "NullDriver")
-        .def(py::init<>());
-
-    py::class_<AxialDriver<double>>(m, "AxialDriver")
-        .def(py::init<ScalarDriver<double>, ScalarDriver<double>, ScalarDriver<double>>())
-        .def(py::init<std::vector<ScalarDriver<double>>>())
-        .def("getVectorAxialDriver", AxialDriver<double>::getVectorAxialDriver)
-        .def("getCurrentAxialDrivers",
-             &AxialDriver<double>::getCurrentAxialDrivers)
-        .def("applyMask", py::overload_cast<CVector<double>>(&AxialDriver<double>::applyMask))
-        .def("applyMask", py::overload_cast<std::vector<unsigned int>>(&AxialDriver<double>::applyMask));
-    // CVector
+    m.doc() = "Python binding for C++ CMTJ Library";
     py::enum_<Axis>(m, "Axis")
         .value("xaxis", xaxis)
         .value("yaxis", yaxis)
         .value("zaxis", zaxis)
         .export_values();
 
-    py::class_<CVector<double>>(m, "CVector")
+    // CVector
+    py::class_<DVector>(m, "CVector")
         .def(py::init<
              double, double, double>())
-        .def_readwrite("x", &CVector<double>::x)
-        .def_readwrite("y", &CVector<double>::y)
-        .def_readwrite("z", &CVector<double>::z)
-        .def("length", &CVector<double>::length);
+        .def_readwrite("x", &DVector::x)
+        .def_readwrite("y", &DVector::y)
+        .def_readwrite("z", &DVector::z)
+        .def("length", &DVector::length);
 
-    py::implicitly_convertible<std::list<double>, CVector<double>>();
-    py::implicitly_convertible<std::vector<double>, CVector<double>>();
+    py::implicitly_convertible<std::list<double>, DVector>();
+    py::implicitly_convertible<std::vector<double>, DVector>();
 
-    py::class_<Layer<double>>(m, "Layer")
+    // Driver Class
+    py::class_<DScalarDriver>(m, "ScalarDriver")
+        .def_static("getConstantDriver",
+                    &DScalarDriver::getConstantDriver,
+                    "constantValue"_a)
+        .def_static("getPulseDriver",
+                    &DScalarDriver::getPulseDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "period"_a,
+                    "cycle"_a)
+        .def_static("getSineDriver",
+                    &DScalarDriver::getSineDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "frequency"_a,
+                    "phase"_a)
+        .def_static("getStepDriver",
+                    &DScalarDriver::getStepDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "timeStart"_a,
+                    "timeStop"_a);
+
+    py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
+        .def(py::init<>());
+
+    py::class_<DAxialDriver>(m, "AxialDriver")
+        .def(py::init<DScalarDriver, DScalarDriver, DScalarDriver>())
+        .def(py::init<std::vector<ScalarDriver<double>>>())
+        .def("getVectorAxialDriver", DAxialDriver::getVectorAxialDriver)
+        .def("getCurrentAxialDrivers",
+             &DAxialDriver::getCurrentAxialDrivers)
+        .def("applyMask", py::overload_cast<DVector>(&DAxialDriver::applyMask))
+        .def("applyMask", py::overload_cast<std::vector<unsigned int>>(&DAxialDriver::applyMask));
+
+    py::class_<DLayer>(m, "Layer")
         .def(py::init<
-                 std::string,                  // id
-                 CVector<double>,              // mag
-                 CVector<double>,              // anis
-                 double,                       // Ms
-                 double,                       // thickness
-                 double,                       // cellSurface
-                 std::vector<CVector<double>>, // demagTensor
-                 std::vector<CVector<double>>, // dipoleTensor
-                 double,                       // temperature
-                 bool,                         // includeSTT
-                 double,                       // damping
-                 double,                       // SlonczewskiSpacerLayerParameter
-                 double,                       // beta
-                 double,                       // spinPolarisation
+                 std::string,          // id
+                 DVector,              // mag
+                 DVector,              // anis
+                 double,               // Ms
+                 double,               // thickness
+                 double,               // cellSurface
+                 std::vector<DVector>, // demagTensor
+                 std::vector<DVector>, // dipoleTensor
+                 double,               // temperature
+                 bool,                 // includeSTT
+                 double,               // damping
+                 double,               // SlonczewskiSpacerLayerParameter
+                 double,               // beta
+                 double,               // spinPolarisation
                  bool>(),
              "id"_a,
              "mag"_a,
@@ -104,19 +110,19 @@ PYBIND11_MODULE(cmtj, m)
              "beta"_a = 0.0,
              "spinPolarisation"_a = 0.8,
              "silent"_a = true)
-        .def("setMagnetisation", &Layer<double>::setMagnetisation)
-        .def("setAnisotropyDriver", &Layer<double>::setAnisotropyDriver)
-        .def("setExternalFieldDriver", &Layer<double>::setExternalFieldDriver)
-        .def("setOerstedFieldDriver", &Layer<double>::setOerstedFieldDriver)
-        .def("setReferenceLayer", &Layer<double>::setReferenceLayer);
+        .def("setMagnetisation", &DLayer::setMagnetisation)
+        .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
+        .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
+        .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
+        .def("setReferenceLayer", &DLayer::setReferenceLayer);
 
-    py::class_<Junction<double>>(m, "Junction")
-        .def(py::init<std::vector<Layer<double>>,
+    py::class_<DJunction>(m, "Junction")
+        .def(py::init<std::vector<DLayer>,
                       std::string>(),
              "layers"_a,
              "filename"_a = "")
         .def(py::init<
-                 std::vector<Layer<double>>,
+                 std::vector<DLayer>,
                  std::string,
                  double, double>(),
              "layers"_a,
@@ -124,7 +130,7 @@ PYBIND11_MODULE(cmtj, m)
              "Rp"_a = 100,
              "Rap"_a = 200)
         .def(py::init<
-                 std::vector<Layer<double>>,
+                 std::vector<DLayer>,
                  std::string,
                  std::vector<double>,
                  std::vector<double>,
@@ -143,10 +149,10 @@ PYBIND11_MODULE(cmtj, m)
              "SMR_Y"_a,
              "AHE"_a)
         // log utils
-        .def("getLog", &Junction<double>::getLog)
-        .def("clearLog", &Junction<double>::clearLog)
+        .def("getLog", &DJunction::getLog)
+        .def("clearLog", &DJunction::clearLog)
 
-        .def("runSimulation", &Junction<double>::runSimulation,
+        .def("runSimulation", &DJunction::runSimulation,
              "totalTime"_a,
              "timeStep"_a = 1e-13,
              "writeFrequency"_a = 1e-11,
@@ -155,14 +161,14 @@ PYBIND11_MODULE(cmtj, m)
              "calculateEnergies"_a = false)
 
         // driver setters
-        .def("setLayerOerstedFieldDriver", &Junction<double>::setLayerOerstedFieldDriver)
-        .def("setLayerExternalFieldDriver", &Junction<double>::setLayerExternalFieldDriver)
-        .def("setLayerCurrentDriver", &Junction<double>::setLayerCurrentDriver)
-        .def("setLayerAnisotropyDriver", &Junction<double>::setLayerAnisotropyDriver)
-        .def("setIECDriver", &Junction<double>::setIECDriver)
-        .def("setLayerOerstedFieldDriver", &Junction<double>::setLayerOerstedFieldDriver)
-        .def("setLayerMagnetisation", &Junction<double>::setLayerMagnetisation)
+        .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
+        .def("setLayerExternalFieldDriver", &DJunction::setLayerExternalFieldDriver)
+        .def("setLayerCurrentDriver", &DJunction::setLayerCurrentDriver)
+        .def("setLayerAnisotropyDriver", &DJunction::setLayerAnisotropyDriver)
+        .def("setIECDriver", &DJunction::setIECDriver)
+        .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
+        .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
         // junction calculations
-        .def("getLayerMagnetisation", &Junction<double>::getLayerMagnetisation)
-        .def("getMagnetoresistance", &Junction<double>::getMagnetoresistance);
+        .def("getLayerMagnetisation", &DJunction::getLayerMagnetisation)
+        .def("getMagnetoresistance", &DJunction::getMagnetoresistance);
 }

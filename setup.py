@@ -32,7 +32,7 @@ ext_modules = [
         'cmtj',
         # Sort input source files to ensure bit-for-bit reproducible builds
         # (https://github.com/pybind/python_example/pull/53)
-        sorted(['python/cmtj.cpp']),
+        sorted([os.path.join('python', 'cmtj.cpp')]),
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
@@ -128,11 +128,14 @@ setup(
     author='Jakub',
     keywords=['magnetics', 'physics', 'simulation'],
     author_email="mojsieju@agh.edu.pl",
-    url='https://github.com/LemurPwned/spinpy',
+    url='https://github.com/LemurPwned/cmtj',
     description='CMTJ - C Magnetic Tunnel Junctions.',
     long_description='Efficient library for simulating magnetic multilayers',
     ext_modules=ext_modules,
-    setup_requires=['pybind11>=2.5.0'],
+    include_package_data=True,
+    packages=["cmtj"],
+    package_data={'cmtj': ["py.typed", "__init__.pyi"]},
+    setup_requires=['pybind11>=2.6.1'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )
