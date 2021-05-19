@@ -1,11 +1,12 @@
 #ifndef DRIVERS_H
 #define DRIVERS_H
 
+#include "cvector.hpp"
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 
-#include "cvector.hpp"
 #include <cassert>
 
 enum UpdateType
