@@ -1,10 +1,13 @@
 
 #ifndef COMPUTE_FUNCTIONS_H
 #define COMPUTE_FUNCTIONS_H
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <iostream>
 #include <algorithm>
 #include <fftw3.h>
 #include <iomanip>
-#include <iostream>
 #include <numeric>
 #include <random>
 #include <stdio.h>

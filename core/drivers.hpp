@@ -2,8 +2,8 @@
 #define DRIVERS_H
 
 #define _USE_MATH_DEFINES
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 #include "cvector.hpp"
 #include <cassert>

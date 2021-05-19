@@ -2,10 +2,9 @@
 #define JUNCTION_H
 
 
-#include <iostream>
 #define _USE_MATH_DEFINES
 #include <cmath>
-
+#include <iostream>
 #include <algorithm>
 #include <chrono>
 #include <complex>
