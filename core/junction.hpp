@@ -1,6 +1,8 @@
 #ifndef JUNCTION_H
 #define JUNCTION_H
 
+
+#include <iostream>
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -10,7 +12,6 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <map>
 #include <numeric>
 #include <random>

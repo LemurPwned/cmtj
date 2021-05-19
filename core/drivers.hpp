@@ -2,11 +2,11 @@
 #define DRIVERS_H
 
 #define _USE_MATH_DEFINES
+#include <iostream>
 #include <cmath>
 
 #include "cvector.hpp"
 #include <cassert>
-#include <iostream>
 
 enum UpdateType
 {
@@ -244,9 +244,9 @@ public:
 
     void applyMask(CVector<T> mask)
     {
-        this->applyMask((std::vector<unsigned int>){(unsigned int)(mask[0]),
-                                                    (unsigned int)(mask[1]),
-                                                    (unsigned int)(mask[2])});
+        this->applyMask(std::vector<unsigned int>{(unsigned int)(mask[0]),
+                                                  (unsigned int)(mask[1]),
+                                                  (unsigned int)(mask[2])});
     }
 
     AxialDriver()
