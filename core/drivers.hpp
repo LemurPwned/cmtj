@@ -1,8 +1,6 @@
 #ifndef DRIVERS_H
 #define DRIVERS_H
 
-
-
 #ifndef M_PI
 #define M_PI (3.14159265358979323846)
 #endif
@@ -27,7 +25,7 @@ class Driver
 public:
     // if the user wants to update, let them do that
     T constantValue, amplitude, frequency, phase,
-        cycle, period, timeStart, timeStop;
+        period, cycle, timeStart, timeStop;
     UpdateType update;
     Driver()
     {

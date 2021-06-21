@@ -1,7 +1,6 @@
 #ifndef JUNCTION_H
 #define JUNCTION_H
 
-
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
@@ -118,7 +117,48 @@ private:
     AxialDriver<T> externalFieldDriver = NullAxialDriver<T>();
     AxialDriver<T> HoeDriver = NullAxialDriver<T>();
 
+    const T stochasticTorqueMean = 0.0;
+
+    Layer(std::string id,
+          CVector<T> mag,
+          CVector<T> anis,
+          T Ms,
+          T thickness,
+          T cellSurface,
+          std::vector<CVector<T>> demagTensor,
+          std::vector<CVector<T>> dipoleTensor,
+          T temperature,
+          T damping,
+          T fieldLikeSpinHallAngle,
+          T dampingLikeSpinHallAngle,
+          T SlonczewskiSpacerLayerParameter,
+          T beta,
+          T spinPolarisation) : id(id),
+                                mag(mag),
+                                anis(anis),
+                                Ms(Ms),
+                                thickness(thickness),
+                                cellSurface(cellSurface),
+                                demagTensor(demagTensor),
+                                dipoleTensor(dipoleTensor),
+                                temperature(temperature),
+                                damping(damping),
+                                fieldLikeSpinHallAngle(fieldLikeSpinHallAngle),
+                                dampingLikeSpinHallAngle(dampingLikeSpinHallAngle),
+                                SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
+                                beta(beta),
+                                spinPolarisation(spinPolarisation)
+    {
+        this->cellVolume = this->cellSurface * this->thickness;
+        // this is Langevin fluctuation field from the Kaiser paper
+        const T torqueStd = this->getLangevinStochasticStandardDeviation();
+        // this->distribution = std::normal_distribution<T>(stochasticTorqueMean, torqueStd);
+        this->distribution = std::normal_distribution<T>(stochasticTorqueMean, 1);
+    }
+
 public:
+    bool includeSTT = false;
+    bool includeSOT = false;
     T cellVolume = 0.0, cellSurface = 0.0;
 
     std::string id;
@@ -139,18 +179,33 @@ public:
     T temperature;
 
     T Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
-
-    bool includeSTT = false;
-
     // LLG params
     T damping;
+
+    // STT params
     T SlonczewskiSpacerLayerParameter;
     T beta; // usually either set to 0 or to damping
     T spinPolarisation;
 
+    // SOT params
+    T fieldLikeSpinHallAngle;
+    T dampingLikeSpinHallAngle;
+
     std::normal_distribution<T> distribution;
-    const T stochasticTorqueMean = 0.0;
     Layer() {}
+    explicit Layer(std::string id,
+                   CVector<T> mag,
+                   CVector<T> anis,
+                   T Ms,
+                   T thickness,
+                   T cellSurface,
+                   std::vector<CVector<T>> demagTensor,
+                   std::vector<CVector<T>> dipoleTensor,
+                   T temperature,
+                   T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+                                      demagTensor, dipoleTensor, temperature,
+                                      damping, 0, 0, 0, 0, 0) {}
+
     /**
      * The basic structure is a magnetic layer. 
      * Its parameters are defined by the constructor and may be altered
@@ -166,52 +221,69 @@ public:
      * @param demagTensor: demagnetisation tensor of the layer.
      * @param dipoleTensor: dipole tensor of the layer.
      * @param temperature: resting temperature of the layer. Unit: Kelvin [K].
-     * @param includeSTT: [STT] whether to include STT in LLG equation. Default false
-     * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
+     * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
+     * @param fieldLikeSpinHallAngle: [SOT] effective spin Hall angle (spin effectiveness) for Hfl.
+     * @param dampingLikeSpinHallAngle: [SOT] effective spin Hall angle (spin effectiveness) for Hdl.
+     */
+    explicit Layer(std::string id,
+                   CVector<T> mag,
+                   CVector<T> anis,
+                   T Ms,
+                   T thickness,
+                   T cellSurface,
+                   std::vector<CVector<T>> demagTensor,
+                   std::vector<CVector<T>> dipoleTensor,
+                   T temperature,
+                   T damping,
+                   T fieldLikeSpinHallAngle,
+                   T dampingLikeSpinHallAngle) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+                                                       demagTensor, dipoleTensor, temperature,
+                                                       damping,
+                                                       fieldLikeSpinHallAngle,
+                                                       dampingLikeSpinHallAngle, 0, 0, 0)
+    {
+        this->includeSTT = false;
+        this->includeSOT = true;
+    }
+
+    /**
+     * The basic structure is a magnetic layer. 
+     * Its parameters are defined by the constructor and may be altered
+     * by the drivers during the simulation time.  
+     * If you want STT, remember to set the reference vector for the polarisation of the layer.
+     * Use `setReferenceLayer` function to do that.
+     * @param id: identifiable name for a layer -- e.g. "bottom" or "free".
+     * @param mag: initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.
+     * @param anis: anisotropy of the layer. A normalised vector
+     * @param Ms: magnetisation saturation. Unit: Tesla [T].
+     * @param thickness: thickness of the layer. Unit: meter [m].
+     * @param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
+     * @param demagTensor: demagnetisation tensor of the layer.
+     * @param dipoleTensor: dipole tensor of the layer.
+     * @param temperature: resting temperature of the layer. Unit: Kelvin [K].
+     * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
      * @param SlomczewskiSpacerLayerParameter: [STT] Slomczewski parameter. Default 1.0. Dimensionless.
      * @param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
      * @param spinPolarisation: [STT] polarisation ratio while passing through reference layer.
-     * @param silent: Default true. If false prints some extra debug connected to noise generation.  
      */
-    Layer(std::string id,
-          CVector<T> mag,
-          CVector<T> anis,
-          T Ms,
-          T thickness,
-          T cellSurface,
-          std::vector<CVector<T>> demagTensor,
-          std::vector<CVector<T>> dipoleTensor,
-          T temperature = 0.0,
-          bool includeSTT = false,
-          T damping = 0.011,
-          T SlonczewskiSpacerLayerParameter = 1.0,
-          T beta = 0.0,
-          T spinPolarisation = 0.8,
-          bool silent = true) : id(id),
-                                mag(mag),
-                                anis(anis),
-                                Ms(Ms),
-                                thickness(thickness),
-                                cellSurface(cellSurface),
-                                demagTensor(demagTensor),
-                                dipoleTensor(dipoleTensor),
-                                temperature(temperature),
-                                includeSTT(includeSTT),
-                                damping(damping),
-                                SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
-                                beta(beta),
-                                spinPolarisation(spinPolarisation)
+    explicit Layer(std::string id,
+                   CVector<T> mag,
+                   CVector<T> anis,
+                   T Ms,
+                   T thickness,
+                   T cellSurface,
+                   std::vector<CVector<T>> demagTensor,
+                   std::vector<CVector<T>> dipoleTensor,
+                   T temperature,
+                   T damping,
+                   T SlonczewskiSpacerLayerParameter,
+                   T beta,
+                   T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+                                               demagTensor, dipoleTensor, temperature,
+                                               damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
-        this->cellVolume = this->cellSurface * this->thickness;
-        // this is Langevin fluctuation field from the Kaiser paper
-        const T torqueStd = this->getLangevinStochasticStandardDeviation();
-        if (!silent)
-        {
-            std::cout << "Langevin torque std: " << torqueStd << std::endl;
-            std::cout << "Cell Volume: " << cellVolume << std::endl;
-        }
-        // this->distribution = std::normal_distribution<T>(stochasticTorqueMean, torqueStd);
-        this->distribution = std::normal_distribution<T>(stochasticTorqueMean, 1);
+        this->includeSTT = true;
+        this->includeSOT = false;
     }
 
     T getLangevinStochasticStandardDeviation()
@@ -226,6 +298,16 @@ public:
     void setCurrentDriver(ScalarDriver<T> &driver)
     {
         this->currentDriver = driver;
+    }
+
+    void setFieldLikeDampingSpinHallAngle(T &angle)
+    {
+        this->fieldLikeSpinHallAngle = angle;
+    }
+
+    void setDampingdLikeDampingSpinHallAngle(T &angle)
+    {
+        this->dampingLikeSpinHallAngle = angle;
     }
 
     void setAnisotropyDriver(ScalarDriver<T> &driver)
@@ -296,6 +378,14 @@ public:
         return this->Hoe_log;
     }
 
+    T calculateTorqueFromSpinHallAngle(T &time, T spinHallAngle)
+    {
+        const T je = this->currentDriver.getCurrentScalarValue();
+        const T prefactor = MAGNETIC_PERMEABILITY * ELECTRON_CHARGE * this->Ms / HBAR;
+        const T Hampl = je * spinHallAngle / (2 * prefactor * this->thickness);
+        return Hampl;
+    }
+
     CVector<T> calculateLangevinStochasticField(T &timeStep)
     {
         if (this->cellVolume == 0.0)
@@ -336,6 +426,38 @@ public:
         this->Jbottom_log = this->IECDriverBottom.getCurrentScalarValue(time);
         this->Jtop_log = this->IECDriverTop.getCurrentScalarValue(time);
         return calculateIEC_(this->Jbottom_log, stepMag, bottom) + calculateIEC_(this->Jtop_log, stepMag, top);
+    }
+
+    /**
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * @param time: current simulation time.
+     * @param m: current RK45 magnetisation.
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step.
+     */
+    CVector<T> calculateLLGWithFieldTorque(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
+    {
+        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
+        const CVector<T> prod = c_cross<T>(m, heff);
+        const CVector<T> prod2 = c_cross<T>(m, prod);
+
+        const double Hdl = this->calculateTorqueFromSpinHallAngle(time, this->dampingLikeSpinHallAngle);
+        const double Hfl = this->calculateTorqueFromSpinHallAngle(time, this->fieldLikeSpinHallAngle);
+        CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
+        if (this->includeSTT)
+        {
+            const CVector<T> flTorque = Hfl * c_cross(m, this->referenceLayer);
+            const CVector<T> dlTorque = Hdl * c_cross(m, c_cross(m, this->referenceLayer));
+            return dmdt - flTorque * GYRO - dlTorque;
+        }
+        else if (this->includeSOT)
+        {
+            const CVector<T> flTorque = Hfl * c_cross(m, (bottom + top));
+            const CVector<T> dlTorque = Hdl * c_cross(m, c_cross(m, (bottom + top)));
+            return dmdt - flTorque * GYRO - dlTorque * GYRO;
+        }
+        return dmdt;
     }
 
     /**
@@ -564,6 +686,15 @@ public:
     void setLayerCurrentDriver(std::string layerID, ScalarDriver<T> driver)
     {
         scalarlayerSetter(layerID, &Layer<T>::setCurrentDriver, driver);
+    }
+
+    void setLayerDampingLikeSpinHallAngle(std::string layerID, ScalarDriver<T> driver)
+    {
+        scalarlayerSetter(layerID, &Layer<T>::setDampingLikeSpinHallAngle, driver);
+    }
+    void setLayerFieldLikeSpinHallAngle(std::string layerID, ScalarDriver<T> driver)
+    {
+        scalarlayerSetter(layerID, &Layer<T>::setFieldLikeSpinHallAngle, driver);
     }
 
     /**

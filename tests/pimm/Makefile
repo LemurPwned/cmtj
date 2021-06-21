@@ -1,4 +1,5 @@
-INC=-I"../core/"
-LIBS=-pthread -lfftw3
+INC=-I"../core/" -I"/opt/homebrew/include/"
+LIBS=-pthread -lfftw3 -L"/opt/homebrew/lib/"
+CXX=clang++
 pimm:
-	g++ -std=c++17 $(INC) $(LIBS) -O3 -march=native pimm.cpp -o pimm
+	$(CXX) -std=c++17 $(INC) $(LIBS) -O3 pimm.cpp -o pimm

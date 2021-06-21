@@ -297,7 +297,8 @@ class ScalarDriver:
     def __init__(self, *args, **kwargs) -> None:
         ...
 
-    def getConstantDriver(self, constantValue: float) -> Any:
+    @staticmethod
+    def getConstantDriver(constantValue: float) -> 'ScalarDriver':
         """
         Constant driver produces a constant signal of a fixed amplitude.
         :param constantValue: constant value of the driver (constant offset/amplitude)
@@ -305,7 +306,8 @@ class ScalarDriver:
         """
         ...
 
-    def getPulseDriver(self, constantValue: float, amplitude: float,
+    @staticmethod
+    def getPulseDriver(constantValue: float, amplitude: 'ScalarDriver',
                        period: float, cycle: float) -> Any:
         """
         Produces a square pulse of certain period and cycle
@@ -317,7 +319,8 @@ class ScalarDriver:
         """
         ...
 
-    def getSineDriver(self, constantValue: float, amplitude: float,
+    @staticmethod
+    def getSineDriver(constantValue: float, amplitude: 'ScalarDriver',
                       frequency: float, phase: float) -> Any:
         """
         Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
@@ -329,8 +332,9 @@ class ScalarDriver:
         """
         ...
 
-    def getStepDriver(self, constantValue: float, amplitude: float,
-                      timeStart: float, timeStop: float) -> Any:
+    @staticmethod
+    def getStepDriver(constantValue: float, amplitude: float,
+                      timeStart: float, timeStop: float) -> 'ScalarDriver':
         """
         Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
         :param constantValue: offset of the pulse (vertical)
