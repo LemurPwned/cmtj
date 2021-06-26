@@ -238,12 +238,7 @@ class Layer:
                  demagTensor: List[CVector],
                  dipoleTensor: List[CVector],
                  temperature: float = ...,
-                 includeSTT: bool = ...,
-                 damping: float = ...,
-                 SlonczewskiSpacerLayerParameter: float = ...,
-                 beta: float = ...,
-                 spinPolarisation: float = ...,
-                 silent: bool = ...) -> None:
+                 damping: float = ...) -> None:
         """
         The basic structure is a magnetic layer. 
         Its parameters are defined by the constructor and may be altered
@@ -259,12 +254,37 @@ class Layer:
         :param demagTensor: demagnetisation tensor of the layer.
         :param dipoleTensor: dipole tensor of the layer.
         :param temperature: resting temperature of the layer. Unit: Kelvin [K].
-        :param includeSTT: [STT] whether to include STT in LLG equation. Default false
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
-        :param SlomczewskiSpacerLayerParameter: [STT] Slomczewski parameter. Default 1.0. Dimensionless.
-        :param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
-        :param spinPolarisation: [STT] polarisation ratio while passing through reference layer.
-        :param silent: Default true. If false prints some extra debug connected to noise generation.  
+        """
+        ...
+
+    @staticmethod
+    def createSOTLayer(
+                 id: str,
+                 mag: CVector,
+                 anis: CVector,
+                 Ms: float,
+                 thickness: float,
+                 cellSurface: float,
+                 demagTensor: List[CVector],
+                 dipoleTensor: List[CVector],
+                 temperature: float = 0,
+                 damping: float = 0.11,
+                 fieldLikeSpinHallAngle: float = 0 ,
+                dampingLikeSpinHallAngle: float = 0) -> 'Layer':
+        """
+        Create SOT layer -- including damping and field-like torques that are 
+        calculated based on the effective Spin Hall angles.
+        :param id: identifiable name for a layer -- e.g. "bottom" or "free".
+        :param mag: initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.
+        :param anis: anisotropy of the layer. A normalised vector
+        :param Ms: magnetisation saturation. Unit: Tesla [T].
+        :param thickness: thickness of the layer. Unit: meter [m].
+        :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
+        :param demagTensor: demagnetisation tensor of the layer.
+        :param dipoleTensor: dipole tensor of the layer.
+        :param temperature: resting temperature of the layer. Unit: Kelvin [K].
+        :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
         """
         ...
 

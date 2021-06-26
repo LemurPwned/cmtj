@@ -89,12 +89,8 @@ PYBIND11_MODULE(cmtj, m)
                  std::vector<DVector>, // demagTensor
                  std::vector<DVector>, // dipoleTensor
                  double,               // temperature
-                 bool,                 // includeSTT
-                 double,               // damping
-                 double,               // SlonczewskiSpacerLayerParameter
-                 double,               // beta
-                 double,               // spinPolarisation
-                 bool>(),
+                 double                // damping
+                 >(),
              "id"_a,
              "mag"_a,
              "anis"_a,
@@ -104,12 +100,20 @@ PYBIND11_MODULE(cmtj, m)
              "demagTensor"_a,
              "dipoleTensor"_a,
              "temperature"_a = 0.0,
-             "includeSTT"_a = false,
-             "damping"_a = 0.011,
-             "SlonczewskiSpacerLayerParameter"_a = 1.0,
-             "beta"_a = 0.0,
-             "spinPolarisation"_a = 0.8,
-             "silent"_a = true)
+             "damping"_a = 0.011)
+        .def_static("createSOTLayer", &DLayer::LayerSOT,
+                    "id"_a,
+                    "mag"_a,
+                    "anis"_a,
+                    "Ms"_a,
+                    "thickness"_a,
+                    "cellSurface"_a,
+                    "demagTensor"_a,
+                    "dipoleTensor"_a,
+                    "temperature"_a = 0.0,
+                    "damping"_a = 0.011,
+                    "fieldLikeSpinHallAngle"_a = 0,
+                    "dampingLikeSpinHallAngle"_a = 0)
         .def("setMagnetisation", &DLayer::setMagnetisation)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)

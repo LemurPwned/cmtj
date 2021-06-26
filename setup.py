@@ -1,8 +1,9 @@
-from setuptools import setup, Extension
+from setuptools import find_namespace_packages, setup, Extension
 from setuptools.command.build_ext import build_ext
 import sys
 import setuptools
 import os
+
 __version__ = '1.0.0'
 """
 As per 
@@ -133,7 +134,7 @@ setup(
     long_description='Efficient library for simulating magnetic multilayers',
     ext_modules=ext_modules,
     include_package_data=True,
-    packages=["cmtj"],
+    namespace_packages=['cmtj'],
     package_data={'cmtj': ["py.typed", "__init__.pyi"]},
     setup_requires=['pybind11>=2.6.1'],
     cmdclass={'build_ext': BuildExt},

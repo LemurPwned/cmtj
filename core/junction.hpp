@@ -159,17 +159,18 @@ private:
 public:
     bool includeSTT = false;
     bool includeSOT = false;
-    T cellVolume = 0.0, cellSurface = 0.0;
 
     std::string id;
+    T Ms = 0.0;
+
+    T thickness = 0.0;
+    T cellVolume = 0.0, cellSurface = 0.0;
 
     CVector<T> H_log, Hoe_log, Hconst, mag, anisAxis, anis, referenceLayer;
     CVector<T> Hext, Hdipole, Hdemag, HIEC, HIECtop, HIECbottom, Hoe, HAnis, Hthermal, Hfl;
     T K_log = 0.0;
-    T Ms = 0.0;
     T J_log = 0.0, I_log = 0.0;
     T Jbottom_log = 0.0, Jtop_log = 0.0;
-    T thickness = 0.0;
 
     std::vector<CVector<T>>
         demagTensor,
@@ -182,14 +183,14 @@ public:
     // LLG params
     T damping;
 
+    // SOT params
+    T fieldLikeSpinHallAngle;
+    T dampingLikeSpinHallAngle;
+
     // STT params
     T SlonczewskiSpacerLayerParameter;
     T beta; // usually either set to 0 or to damping
     T spinPolarisation;
-
-    // SOT params
-    T fieldLikeSpinHallAngle;
-    T dampingLikeSpinHallAngle;
 
     std::normal_distribution<T> distribution;
     Layer() {}
@@ -286,6 +287,33 @@ public:
         this->includeSOT = false;
     }
 
+    inline static Layer<T> LayerSOT(std::string id,
+                                    CVector<T> mag,
+                                    CVector<T> anis,
+                                    T Ms,
+                                    T thickness,
+                                    T cellSurface,
+                                    std::vector<CVector<T>> demagTensor,
+                                    std::vector<CVector<T>> dipoleTensor,
+                                    T damping,
+                                    T fieldLikeSpinHallAngle,
+                                    T dampingLikeSpinHallAngle,
+                                    T temperature = 0.0)
+    {
+        return Layer<T>(id,
+                        mag,
+                        anis,
+                        Ms,
+                        thickness,
+                        cellSurface,
+                        demagTensor,
+                        dipoleTensor,
+                        temperature,
+                        damping,
+                        fieldLikeSpinHallAngle,
+                        dampingLikeSpinHallAngle);
+    }
+
     T getLangevinStochasticStandardDeviation()
     {
         if (this->cellVolume == 0.0)
@@ -380,7 +408,7 @@ public:
 
     T calculateTorqueFromSpinHallAngle(T &time, T spinHallAngle)
     {
-        const T je = this->currentDriver.getCurrentScalarValue();
+        const T je = this->currentDriver.getCurrentScalarValue(time);
         const T prefactor = MAGNETIC_PERMEABILITY * ELECTRON_CHARGE * this->Ms / HBAR;
         const T Hampl = je * spinHallAngle / (2 * prefactor * this->thickness);
         return Hampl;
@@ -430,13 +458,14 @@ public:
 
     /**
      * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * Use the effective spin hall angles formulation for SOT interaction.
      * @param time: current simulation time.
      * @param m: current RK45 magnetisation.
      * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
      * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
      * @param timeStep: RK45 integration step.
      */
-    CVector<T> calculateLLGWithFieldTorque(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
+    const CVector<T> calculateLLGWithFieldTorque(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
     {
         const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
         const CVector<T> prod = c_cross<T>(m, heff);
@@ -447,14 +476,21 @@ public:
         CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
         if (this->includeSTT)
         {
-            const CVector<T> flTorque = Hfl * c_cross(m, this->referenceLayer);
-            const CVector<T> dlTorque = Hdl * c_cross(m, c_cross(m, this->referenceLayer));
-            return dmdt - flTorque * GYRO - dlTorque;
+            const T aJ = HBAR * this->I_log /
+                         (ELECTRON_CHARGE * this->Ms * this->thickness);
+
+            const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
+            // field like
+            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, this->referenceLayer));
+            const T sttTerm = GYRO * aJ * eta;
+
+            const CVector<T> prod3 = c_cross<T>(m, this->referenceLayer);
+            return dmdt + c_cross<T>(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
         }
         else if (this->includeSOT)
         {
-            const CVector<T> flTorque = Hfl * c_cross(m, (bottom + top));
-            const CVector<T> dlTorque = Hdl * c_cross(m, c_cross(m, (bottom + top)));
+            const CVector<T> flTorque = c_cross(m, this->referenceLayer) * Hfl;
+            const CVector<T> dlTorque = c_cross(m, c_cross(m, this->referenceLayer)) * Hdl;
             return dmdt - flTorque * GYRO - dlTorque * GYRO;
         }
         return dmdt;
@@ -498,10 +534,10 @@ public:
     void rk4_step(T time, T timeStep, CVector<T> bottom, CVector<T> top)
     {
         CVector<T> m_t = this->mag;
-        const CVector<T> k1 = llg(time, m_t, bottom, top, timeStep) * timeStep;
-        const CVector<T> k2 = llg(time + 0.5 * timeStep, m_t + k1 * 0.5, bottom, top, timeStep) * timeStep;
-        const CVector<T> k3 = llg(time + 0.5 * timeStep, m_t + k2 * 0.5, bottom, top, timeStep) * timeStep;
-        const CVector<T> k4 = llg(time + timeStep, m_t + k3, bottom, top, timeStep) * timeStep;
+        const CVector<T> k1 = calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep) * timeStep;
+        const CVector<T> k2 = calculateLLGWithFieldTorque(time + 0.5 * timeStep, m_t + k1 * 0.5, bottom, top, timeStep) * timeStep;
+        const CVector<T> k3 = calculateLLGWithFieldTorque(time + 0.5 * timeStep, m_t + k2 * 0.5, bottom, top, timeStep) * timeStep;
+        const CVector<T> k4 = calculateLLGWithFieldTorque(time + timeStep, m_t + k3, bottom, top, timeStep) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         this->mag = m_t;
