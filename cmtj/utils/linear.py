@@ -1,5 +1,6 @@
-import numpy as np 
+import numpy as np
 from typing import Tuple
+
 
 class FieldScan:
     @staticmethod
@@ -11,7 +12,8 @@ class FieldScan:
         return st, ct, sp, cp
 
     @staticmethod
-    def amplitude_scan(start: float, stop: float, steps: int, theta: float, phi: float) -> Tuple[np.ndarray, np.ndarray]:
+    def amplitude_scan(start: float, stop: float, steps: int, theta: float,
+                       phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear magnitude sweep.
         :param start:
@@ -24,13 +26,14 @@ class FieldScan:
         """
         Hspan = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta, phi)
-        Hx = st*cp*Hspan
-        Hy = st*sp * Hspan
-        Hz = ct*Hspan
-        return Hspan, np.vstack((Hx, Hy, Hz))
-    
+        Hx = st * cp * Hspan
+        Hy = st * sp * Hspan
+        Hz = ct * Hspan
+        return Hspan, np.vstack((Hx, Hy, Hz)).T
+
     @staticmethod
-    def theta_scan(start: float, stop: float, steps: int, amplitude: float, phi: float) -> Tuple[np.ndarray, np.ndarray]:
+    def theta_scan(start: float, stop: float, steps: int, amplitude: float,
+                   phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear theta angle sweep.
         :param start:
@@ -41,12 +44,13 @@ class FieldScan:
         """
         theta_span = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta_span, phi)
-        Hx = st*cp*amplitude
-        Hy = st*sp * amplitude
-        Hz = ct*amplitude
-        return theta_span, np.vstack((Hx, Hy, Hz))
+        Hx = st * cp * amplitude
+        Hy = st * sp * amplitude
+        Hz = ct * amplitude
+        return theta_span, np.vstack((Hx, Hy, Hz)).T
 
-    def phi_scan(start: float, stop: float, steps: int, amplitude: float, theta: float) -> Tuple[np.ndarray, np.ndarray]:
+    def phi_scan(start: float, stop: float, steps: int, amplitude: float,
+                 theta: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear phi angle sweep.
         :param start:
@@ -57,7 +61,7 @@ class FieldScan:
         """
         phi_span = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta, phi_span)
-        Hx = st*cp*amplitude
-        Hy = st*sp * amplitude
-        Hz = ct*amplitude
-        return phi_span, np.hstack((Hx, Hy, Hz))
+        Hx = st * cp * amplitude
+        Hy = st * sp * amplitude
+        Hz = ct * amplitude
+        return phi_span, np.vstack((Hx, Hy, Hz)).T
