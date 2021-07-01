@@ -49,6 +49,7 @@ class FieldScan:
         Hz = ct * amplitude
         return theta_span, np.vstack((Hx, Hy, Hz)).T
 
+    @staticmethod
     def phi_scan(start: float, stop: float, steps: int, amplitude: float,
                  theta: float) -> Tuple[np.ndarray, np.ndarray]:
         """
