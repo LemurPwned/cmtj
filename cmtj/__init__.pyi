@@ -280,7 +280,39 @@ class Layer:
         :param demagTensor: demagnetisation tensor of the layer.
         :param dipoleTensor: dipole tensor of the layer.
         :param temperature: resting temperature of the layer. Unit: Kelvin [K].
-        :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
+        :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
+        """
+        ...
+
+    @staticmethod
+    def createSTTLayer(id: str,
+                       mag: CVector,
+                       anis: CVector,
+                       Ms: float,
+                       thickness: float,
+                       cellSurface: float,
+                       demagTensor: List[CVector],
+                       dipoleTensor: List[CVector],
+                       temperature=0.0,
+                       damping=0.011,
+                       SlonczewskiSpacerLayerParameter=1.0,
+                       beta=0.0,
+                       spinPolarisation=0.0) -> 'Layer':
+        """
+        Create STT layer -- with the standard Slomczewski formulation.
+        :param id: identifiable name for a layer -- e.g. "bottom" or "free".
+        :param mag: initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.
+        :param anis: anisotropy of the layer. A normalised vector
+        :param Ms: magnetisation saturation. Unit: Tesla [T].
+        :param thickness: thickness of the layer. Unit: meter [m].
+        :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
+        :param demagTensor: demagnetisation tensor of the layer.
+        :param dipoleTensor: dipole tensor of the layer.
+        :param temperature: resting temperature of the layer. Unit: Kelvin [K].
+        :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
+        :param SlonczewskiSpacerLayerParameter: Slomczewski parameter. Often marked as lambda.
+        :param beta: beta parameter that scales FL/DL ratio.
+        :param spinPolarisation: the spin effectiveness.
         """
         ...
 

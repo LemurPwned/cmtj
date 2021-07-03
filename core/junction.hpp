@@ -287,6 +287,36 @@ public:
         this->includeSOT = false;
     }
 
+    inline static Layer<T> LayerSTT(std::string id,
+                                    CVector<T> mag,
+                                    CVector<T> anis,
+                                    T Ms,
+                                    T thickness,
+                                    T cellSurface,
+                                    std::vector<CVector<T>> demagTensor,
+                                    std::vector<CVector<T>> dipoleTensor,
+                                    T damping,
+                                    T SlonczewskiSpacerLayerParameter,
+                                    T beta,
+                                    T spinPolarisation,
+                                    T temperature = 0.0)
+    {
+        return Layer<T>(
+            id,
+            mag,
+            anis,
+            Ms,
+            thickness,
+            cellSurface,
+            demagTensor,
+            dipoleTensor,
+            temperature,
+            damping,
+            SlonczewskiSpacerLayerParameter,
+            beta,
+            spinPolarisation);
+    }
+
     inline static Layer<T> LayerSOT(std::string id,
                                     CVector<T> mag,
                                     CVector<T> anis,
@@ -465,15 +495,17 @@ public:
      */
     const CVector<T> calculateLLGWithFieldTorque(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
     {
+        // classic LLG first
         const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
 
-        const T Hdl = this->calculateTorque(time, this->dampingLikeTorque);
-        const T Hfl = this->calculateTorque(time, this->fieldLikeTorque);
         CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
+        // extra terms
         if (this->includeSTT)
         {
+            this->I_log = this->currentDriver.getCurrentScalarValue(time);
+            // use standard STT formulation
             const T aJ = HBAR * this->I_log /
                          (ELECTRON_CHARGE * this->Ms * this->thickness);
 
@@ -487,47 +519,15 @@ public:
         }
         else if (this->includeSOT)
         {
+            const T Hdl = this->calculateTorque(time, this->dampingLikeTorque);
+            const T Hfl = this->calculateTorque(time, this->fieldLikeTorque);
+            // use SOT formulation with effective DL and FL fields
             const CVector<T> cm = c_cross(m, this->referenceLayer);
             const CVector<T> ccm = c_cross(m, cm);
             const CVector<T> flTorque = cm * Hfl;
             const CVector<T> dlTorque = ccm * Hdl;
             return dmdt - flTorque * GYRO - dlTorque * GYRO;
         }
-        return dmdt;
-    }
-
-    /**
-     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
-     * @param time: current simulation time
-     * @param m: current RK45 magnetisation
-     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
-     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
-     * @param timeStep: RK45 integration step
-     */
-    const CVector<T> llg(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
-    {
-        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
-        const CVector<T> prod = c_cross<T>(m, heff);
-        const CVector<T> prod2 = c_cross<T>(m, prod);
-        if (this->includeSTT)
-        {
-            this->I_log = this->currentDriver.getCurrentScalarValue(time);
-            // damping-like torque factor
-            const T aJ = HBAR * this->I_log /
-                         (ELECTRON_CHARGE * this->Ms * this->thickness);
-
-            const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
-            // field like
-            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, this->referenceLayer));
-            const T sttTerm = GYRO * aJ * eta;
-
-            const CVector<T> prod3 = c_cross<T>(m, this->referenceLayer);
-            // first term is "damping-like torque"
-            // second term is "field-like torque"
-            CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping) + c_cross<T>(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
-            return dmdt;
-        }
-        CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
         return dmdt;
     }
 
