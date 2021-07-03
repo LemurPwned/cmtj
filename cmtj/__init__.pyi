@@ -1,6 +1,7 @@
 from typing import List, Any, Dict
 
 from typing import overload
+
 xaxis: Any
 yaxis: Any
 zaxis: Any
@@ -12,8 +13,8 @@ def c_dot(arg0, arg1) -> float:
 
 class AxialDriver:
     @overload
-    def __init__(self, arg0: ScalarDriver, arg1: ScalarDriver,
-                 arg2: ScalarDriver) -> None:
+    def __init__(self, x_driver: ScalarDriver, y_driver: ScalarDriver,
+                 z_driver: ScalarDriver) -> None:
         ...
 
     @overload
@@ -87,7 +88,7 @@ class Axis:
 
 
 class CVector:
-    def __init__(self, arg0: float, arg1: float, arg2: float) -> None:
+    def __init__(self, x: float, y: float, z: float) -> None:
         ...
 
     def length(self) -> float:
@@ -155,13 +156,13 @@ class Junction:
     def __init__(*args, **kwargs) -> Any:
         ...
 
-    def clearLog(self) -> None:
+    def clearLog(self) -> Dict[str, Any]:
         """
         Reset current simulation state`
         """
         ...
 
-    def getLayerMagnetisation(self, arg0: str) -> CVector:
+    def getLayerMagnetisation(self, layer_id: str) -> CVector:
         ...
 
     def getLog(self) -> Dict[str, List[float]]:
@@ -191,7 +192,8 @@ class Junction:
         """
         ...
 
-    def setIECDriver(self, arg0: str, arg1: str, arg2: ScalarDriver) -> None:
+    def setIECDriver(self, bottom_layer: str, top_layer: str,
+                     driver: ScalarDriver) -> None:
         """
         Set IEC interaction between two layers.
         The names of the params are only for convention. The IEC will be set 
@@ -201,29 +203,24 @@ class Junction:
         """
         ...
 
-    def setLayerAnisotropyDriver(self, arg0: str, arg1: ScalarDriver) -> None:
+    def setLayerAnisotropyDriver(self, layer_id: str,
+                                 driver: ScalarDriver) -> None:
         ...
 
-    def setLayerCurrentDriver(self, arg0: str, arg1: ScalarDriver) -> None:
+    def setLayerCurrentDriver(self, layer_id: str,
+                              driver: ScalarDriver) -> None:
         ...
 
-    def setLayerExternalFieldDriver(self, arg0: str,
-                                    arg1: AxialDriver) -> None:
+    def setLayerExternalFieldDriver(self, layer_id: str,
+                                    driver: AxialDriver) -> None:
         ...
 
-    def setLayerMagnetisation(self, arg0: str, arg1: CVector) -> None:
-        ...
-
-    @overload
-    def setLayerOerstedFieldDriver(self, arg0: str, arg1: AxialDriver) -> None:
-        ...
-
-    @overload
-    def setLayerOerstedFieldDriver(self, arg0: str, arg1: AxialDriver) -> None:
+    def setLayerMagnetisation(self, layer_id: str, mag: CVector) -> None:
         ...
 
     @overload
-    def setLayerOerstedFieldDriver(*args, **kwargs) -> Any:
+    def setLayerOerstedFieldDriver(self, layer_id: str,
+                                   driver: AxialDriver) -> None:
         ...
 
 
@@ -259,19 +256,18 @@ class Layer:
         ...
 
     @staticmethod
-    def createSOTLayer(
-                 id: str,
-                 mag: CVector,
-                 anis: CVector,
-                 Ms: float,
-                 thickness: float,
-                 cellSurface: float,
-                 demagTensor: List[CVector],
-                 dipoleTensor: List[CVector],
-                 temperature: float = 0,
-                 damping: float = 0.11,
-                 fieldLikeSpinHallAngle: float = 0 ,
-                dampingLikeSpinHallAngle: float = 0) -> 'Layer':
+    def createSOTLayer(id: str,
+                       mag: CVector,
+                       anis: CVector,
+                       Ms: float,
+                       thickness: float,
+                       cellSurface: float,
+                       demagTensor: List[CVector],
+                       dipoleTensor: List[CVector],
+                       temperature: float = 0,
+                       damping: float = 0.11,
+                       fieldLikeTorque: float = 0,
+                       dampingLikeTorque: float = 0) -> 'Layer':
         """
         Create SOT layer -- including damping and field-like torques that are 
         calculated based on the effective Spin Hall angles.
@@ -288,19 +284,19 @@ class Layer:
         """
         ...
 
-    def setAnisotropyDriver(self, arg0: ScalarDriver) -> None:
+    def setAnisotropyDriver(self, driver: ScalarDriver) -> None:
         ...
 
-    def setExternalFieldDriver(self, arg0: AxialDriver) -> None:
+    def setExternalFieldDriver(self, driver: AxialDriver) -> None:
         ...
 
-    def setMagnetisation(self, arg0: CVector) -> None:
+    def setMagnetisation(self, mag: CVector) -> None:
         ...
 
-    def setOerstedFieldDriver(self, arg0: AxialDriver) -> None:
+    def setOerstedFieldDriver(self, driver: AxialDriver) -> None:
         ...
 
-    def setReferenceLayer(self, arg0: CVector) -> None:
+    def setReferenceLayer(self, ref: CVector) -> None:
         ...
 
 
@@ -353,8 +349,8 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getStepDriver(constantValue: float, amplitude: float,
-                      timeStart: float, timeStop: float) -> 'ScalarDriver':
+    def getStepDriver(constantValue: float, amplitude: float, timeStart: float,
+                      timeStop: float) -> 'ScalarDriver':
         """
         Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
         :param constantValue: offset of the pulse (vertical)

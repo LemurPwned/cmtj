@@ -129,8 +129,8 @@ private:
           std::vector<CVector<T>> dipoleTensor,
           T temperature,
           T damping,
-          T fieldLikeSpinHallAngle,
-          T dampingLikeSpinHallAngle,
+          T fieldLikeTorque,
+          T dampingLikeTorque,
           T SlonczewskiSpacerLayerParameter,
           T beta,
           T spinPolarisation) : id(id),
@@ -143,8 +143,8 @@ private:
                                 dipoleTensor(dipoleTensor),
                                 temperature(temperature),
                                 damping(damping),
-                                fieldLikeSpinHallAngle(fieldLikeSpinHallAngle),
-                                dampingLikeSpinHallAngle(dampingLikeSpinHallAngle),
+                                fieldLikeTorque(fieldLikeTorque),
+                                dampingLikeTorque(dampingLikeTorque),
                                 SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
                                 beta(beta),
                                 spinPolarisation(spinPolarisation)
@@ -184,8 +184,8 @@ public:
     T damping;
 
     // SOT params
-    T fieldLikeSpinHallAngle;
-    T dampingLikeSpinHallAngle;
+    T fieldLikeTorque;
+    T dampingLikeTorque;
 
     // STT params
     T SlonczewskiSpacerLayerParameter;
@@ -223,8 +223,8 @@ public:
      * @param dipoleTensor: dipole tensor of the layer.
      * @param temperature: resting temperature of the layer. Unit: Kelvin [K].
      * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
-     * @param fieldLikeSpinHallAngle: [SOT] effective spin Hall angle (spin effectiveness) for Hfl.
-     * @param dampingLikeSpinHallAngle: [SOT] effective spin Hall angle (spin effectiveness) for Hdl.
+     * @param fieldLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hfl.
+     * @param dampingLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hdl.
      */
     explicit Layer(std::string id,
                    CVector<T> mag,
@@ -236,12 +236,12 @@ public:
                    std::vector<CVector<T>> dipoleTensor,
                    T temperature,
                    T damping,
-                   T fieldLikeSpinHallAngle,
-                   T dampingLikeSpinHallAngle) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                                       demagTensor, dipoleTensor, temperature,
-                                                       damping,
-                                                       fieldLikeSpinHallAngle,
-                                                       dampingLikeSpinHallAngle, 0, 0, 0)
+                   T fieldLikeTorque,
+                   T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+                                                demagTensor, dipoleTensor, temperature,
+                                                damping,
+                                                fieldLikeTorque,
+                                                dampingLikeTorque, 0, 0, 0)
     {
         this->includeSTT = false;
         this->includeSOT = true;
@@ -296,8 +296,8 @@ public:
                                     std::vector<CVector<T>> demagTensor,
                                     std::vector<CVector<T>> dipoleTensor,
                                     T damping,
-                                    T fieldLikeSpinHallAngle,
-                                    T dampingLikeSpinHallAngle,
+                                    T fieldLikeTorque,
+                                    T dampingLikeTorque,
                                     T temperature = 0.0)
     {
         return Layer<T>(id,
@@ -310,8 +310,8 @@ public:
                         dipoleTensor,
                         temperature,
                         damping,
-                        fieldLikeSpinHallAngle,
-                        dampingLikeSpinHallAngle);
+                        fieldLikeTorque,
+                        dampingLikeTorque);
     }
 
     T getLangevinStochasticStandardDeviation()
@@ -328,14 +328,14 @@ public:
         this->currentDriver = driver;
     }
 
-    void setFieldLikeDampingSpinHallAngle(T &angle)
+    void setFieldLikeDampingTorque(CVector<T> &torque)
     {
-        this->fieldLikeSpinHallAngle = angle;
+        this->fieldLikeTorque = torque;
     }
 
-    void setDampingdLikeDampingSpinHallAngle(T &angle)
+    void setDampingdLikeDampingTorque(CVector<T> &torque)
     {
-        this->dampingLikeSpinHallAngle = angle;
+        this->dampingLikeTorque = torque;
     }
 
     void setAnisotropyDriver(ScalarDriver<T> &driver)
@@ -406,11 +406,9 @@ public:
         return this->Hoe_log;
     }
 
-    T calculateTorqueFromSpinHallAngle(T &time, T spinHallAngle)
+    T calculateTorque(T &time, T torque)
     {
-        const T je = this->currentDriver.getCurrentScalarValue(time);
-        const T prefactor = MAGNETIC_PERMEABILITY * ELECTRON_CHARGE * this->Ms / HBAR;
-        const T Hampl = je * spinHallAngle / (2 * prefactor * this->thickness);
+        const T Hampl = torque * this->currentDriver.getCurrentScalarValue(time);
         return Hampl;
     }
 
@@ -471,8 +469,8 @@ public:
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
 
-        const double Hdl = this->calculateTorqueFromSpinHallAngle(time, this->dampingLikeSpinHallAngle);
-        const double Hfl = this->calculateTorqueFromSpinHallAngle(time, this->fieldLikeSpinHallAngle);
+        const T Hdl = this->calculateTorque(time, this->dampingLikeTorque);
+        const T Hfl = this->calculateTorque(time, this->fieldLikeTorque);
         CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
         if (this->includeSTT)
         {
@@ -489,8 +487,10 @@ public:
         }
         else if (this->includeSOT)
         {
-            const CVector<T> flTorque = c_cross(m, this->referenceLayer) * Hfl;
-            const CVector<T> dlTorque = c_cross(m, c_cross(m, this->referenceLayer)) * Hdl;
+            const CVector<T> cm = c_cross(m, this->referenceLayer);
+            const CVector<T> ccm = c_cross(m, cm);
+            const CVector<T> flTorque = cm * Hfl;
+            const CVector<T> dlTorque = ccm * Hdl;
             return dmdt - flTorque * GYRO - dlTorque * GYRO;
         }
         return dmdt;
@@ -724,13 +724,13 @@ public:
         scalarlayerSetter(layerID, &Layer<T>::setCurrentDriver, driver);
     }
 
-    void setLayerDampingLikeSpinHallAngle(std::string layerID, ScalarDriver<T> driver)
+    void setLayerDampingLikeTorque(std::string layerID, ScalarDriver<T> driver)
     {
-        scalarlayerSetter(layerID, &Layer<T>::setDampingLikeSpinHallAngle, driver);
+        scalarlayerSetter(layerID, &Layer<T>::setDampingLikeTorque, driver);
     }
-    void setLayerFieldLikeSpinHallAngle(std::string layerID, ScalarDriver<T> driver)
+    void setLayerFieldLikeTorque(std::string layerID, ScalarDriver<T> driver)
     {
-        scalarlayerSetter(layerID, &Layer<T>::setFieldLikeSpinHallAngle, driver);
+        scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorque, driver);
     }
 
     /**

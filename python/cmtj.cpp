@@ -112,8 +112,8 @@ PYBIND11_MODULE(cmtj, m)
                     "dipoleTensor"_a,
                     "temperature"_a = 0.0,
                     "damping"_a = 0.011,
-                    "fieldLikeSpinHallAngle"_a = 0,
-                    "dampingLikeSpinHallAngle"_a = 0)
+                    "fieldLikeTorque"_a = 0.0,
+                    "dampingLikeTorque"_a = 0.0)
         .def("setMagnetisation", &DLayer::setMagnetisation)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
