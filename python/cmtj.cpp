@@ -110,10 +110,10 @@ PYBIND11_MODULE(cmtj, m)
                     "cellSurface"_a,
                     "demagTensor"_a,
                     "dipoleTensor"_a,
-                    "temperature"_a = 0.0,
                     "damping"_a = 0.011,
                     "fieldLikeTorque"_a = 0.0,
-                    "dampingLikeTorque"_a = 0.0)
+                    "dampingLikeTorque"_a = 0.0,
+                    "temperature"_a = 0.0)
         .def_static("createSTTLayer", &DLayer::LayerSTT,
                     "id"_a,
                     "mag"_a,
@@ -123,11 +123,11 @@ PYBIND11_MODULE(cmtj, m)
                     "cellSurface"_a,
                     "demagTensor"_a,
                     "dipoleTensor"_a,
-                    "temperature"_a = 0.0,
                     "damping"_a = 0.011,
                     "SlonczewskiSpacerLayerParameter"_a = 1.0,
                     "beta"_a = 0.0,
-                    "spinPolarisation"_a = 0.0)
+                    "spinPolarisation"_a = 0.0,
+                    "temperature"_a = 0.0)
         .def("setMagnetisation", &DLayer::setMagnetisation)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
