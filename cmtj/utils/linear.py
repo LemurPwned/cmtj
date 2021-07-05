@@ -64,5 +64,5 @@ class FieldScan:
         st, ct, sp, cp = FieldScan._trig_compute(theta, phi_span)
         Hx = st * cp * amplitude
         Hy = st * sp * amplitude
-        Hz = ct * amplitude
+        Hz = ct * amplitude * np.ones_like(Hy)
         return phi_span, np.vstack((Hx, Hy, Hz)).T
