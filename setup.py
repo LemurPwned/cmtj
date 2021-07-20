@@ -4,7 +4,7 @@ import sys
 import setuptools
 import os
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 """
 As per 
 https://github.com/pybind/python_example
@@ -135,6 +135,7 @@ setup(
     ext_modules=ext_modules,
     include_package_data=True,
     namespace_packages=['cmtj'],
+    packages=find_namespace_packages(include=['cmtj.*']),
     package_data={'cmtj': ["py.typed", "*.pyi"]},
     setup_requires=['pybind11>=2.6.1'],
     cmdclass={'build_ext': BuildExt},
