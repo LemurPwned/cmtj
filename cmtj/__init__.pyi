@@ -264,10 +264,10 @@ class Layer:
                        cellSurface: float,
                        demagTensor: List[CVector],
                        dipoleTensor: List[CVector],
-                       temperature: float = 0,
                        damping: float = 0.11,
                        fieldLikeTorque: float = 0,
-                       dampingLikeTorque: float = 0) -> 'Layer':
+                       dampingLikeTorque: float = 0,
+                       temperature: float = 0) -> 'Layer':
         """
         Create SOT layer -- including damping and field-like torques that are 
         calculated based on the effective Spin Hall angles.
@@ -293,11 +293,11 @@ class Layer:
                        cellSurface: float,
                        demagTensor: List[CVector],
                        dipoleTensor: List[CVector],
-                       temperature=0.0,
-                       damping=0.011,
-                       SlonczewskiSpacerLayerParameter=1.0,
-                       beta=0.0,
-                       spinPolarisation=0.0) -> 'Layer':
+                       damping: float = 0.011,
+                       SlonczewskiSpacerLayerParameter: float = 1.0,
+                       beta: float = 0.0,
+                       spinPolarisation: float = 0.0,
+                       temperature: float = 0) -> 'Layer':
         """
         Create STT layer -- with the standard Slomczewski formulation.
         :param id: identifiable name for a layer -- e.g. "bottom" or "free".

@@ -51,6 +51,9 @@ public:
             for (Junction &junction : junctionList)
             {
                 junction.runMultiLayerRK4Iteration(t, timeStep);
+                // change the instant value of the current before the 
+                // the resistance is calculated 
+                // compute the next i+1 input to the current.
                 const auto resistance = junction.getMagnetoresistance();
                 timeResistances.push_back(resistance[0]);
             }

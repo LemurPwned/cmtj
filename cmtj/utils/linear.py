@@ -16,12 +16,12 @@ class FieldScan:
                        phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear magnitude sweep.
-        :param start:
-        :param stop:
-        :param steps: 
-        :param theta:
-        :param phi:
-
+        :param start:  
+        :param stop:  
+        :param steps:   
+        :param theta:  
+        :param phi:  
+  
         :returns: linear amplitude, field vectors
         """
         Hspan = np.linspace(start, stop, endpoint=True, num=steps)
@@ -35,12 +35,12 @@ class FieldScan:
     def theta_scan(start: float, stop: float, steps: int, amplitude: float,
                    phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Compute a linear theta angle sweep.
-        :param start:
-        :param stop:
-        :param steps: 
-        :param magnitude: magnitude of the scanned field
-        :param phi:
+        Compute a linear theta angle sweep.  
+        :param start:  
+        :param stop:  
+        :param steps:   
+        :param magnitude: magnitude of the scanned field.  
+        :param phi:  
         """
         theta_span = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta_span, phi)
@@ -53,12 +53,12 @@ class FieldScan:
     def phi_scan(start: float, stop: float, steps: int, amplitude: float,
                  theta: float) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Compute a linear phi angle sweep.
-        :param start:
-        :param stop:
-        :param steps: 
-        :param magnitude: magnitude of the scanned field
-        :param theta:
+        Compute a linear phi angle sweep.  
+        :param start:  
+        :param stop:  
+        :param steps:   
+        :param magnitude: magnitude of the scanned field  
+        :param theta:  
         """
         phi_span = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta, phi_span)

@@ -1,0 +1,21 @@
+site_name: CMTJ
+
+nav: 
+  - Home: index.md
+  - API:
+      - Core: api/main-reference.md
+      - Utils: 
+        - Linear: api/linear-reference.md
+        - Filters: api/filters-reference.md
+  - Examples: 
+    - Library introduction: CMTJBindingsTutorial.ipynb
+    - Trajectories: trajectory.ipynb
+
+theme:
+  name: "material"
+
+plugins:
+- search
+- mkdocstrings
+- mkdocs-jupyter:
+    include_source: True
