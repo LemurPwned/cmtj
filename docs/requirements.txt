@@ -1,0 +1,9 @@
+sphinx==3.4.3
+sphinx_rtd_theme==0.5.1
+readthedocs-sphinx-search==0.1.0rc3
+mkdocs==1.2.2
+mkdocs-autorefs==0.2.1
+mkdocs-jupyter==0.17.3
+mkdocs-material==7.1.11
+mkdocs-material-extensions==1.0.1
+mkdocstrings==0.15.2
