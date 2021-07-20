@@ -7,4 +7,4 @@ mkdocs-jupyter==0.17.3
 mkdocs-material==7.1.11
 mkdocs-material-extensions==1.0.1
 mkdocstrings==0.15.2
-cmtj==1.1.1
+cmtj==1.1.2
