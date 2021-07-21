@@ -33,7 +33,6 @@ Please cite if you decide to use the project
    year={2021},
 }
 ```
-
 ## Contributions
 All contributions are welcome, please leave an issue if you've encountered any trouble with setup or running the library.
 
