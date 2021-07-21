@@ -1,4 +1,5 @@
-# CMTJ
+
+![Logo](assets/icon-small.svg)  
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![Documentation Status](https://readthedocs.org/projects/cmtj/badge/?version=latest)](https://cmtj.readthedocs.io/en/latest/?badge=latest)
 
@@ -36,3 +37,4 @@ Please cite if you decide to use the project
 
 ## Contributions
 All contributions are welcome, please leave an issue if you've encountered any trouble with setup or running the library.
+

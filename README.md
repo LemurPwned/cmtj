@@ -1,4 +1,5 @@
-# CMTJ
+[![Logo](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)
+# CMTJ[![Logo](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![Documentation Status](https://readthedocs.org/projects/cmtj/badge/?version=latest)](https://cmtj.readthedocs.io/en/latest/?badge=latest)
 
