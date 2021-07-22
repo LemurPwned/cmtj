@@ -1,4 +1,3 @@
-[![Logo](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)
 # CMTJ[![Logo](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![Documentation Status](https://readthedocs.org/projects/cmtj/badge/?version=latest)](https://cmtj.readthedocs.io/en/latest/?badge=latest)
@@ -19,8 +18,13 @@ If you prefer to clone the repo first and then install directly from the source:
 git clone https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
 ```
+
+#### Read the docs
+Documentation: [https://cmtj.readthedocs.io/](https://cmtj.readthedocs.io/)
+
+
 ## WIKI :mortar_board:
-Read more in do [the docs here](cmtj/CMTJ.md).
+Read more in do [the docs here](https://cmtj.readthedocs.io/).
 
 ## Extensions 
 There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the *PyMag* project. It uses CMTJ as a backend for fast computation.
