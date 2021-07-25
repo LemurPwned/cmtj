@@ -436,12 +436,6 @@ public:
         return this->Hoe_log;
     }
 
-    T calculateTorque(T &time, T torque)
-    {
-        const T Hampl = torque * this->currentDriver.getCurrentScalarValue(time);
-        return Hampl;
-    }
-
     CVector<T> calculateLangevinStochasticField(T &timeStep)
     {
         if (this->cellVolume == 0.0)
@@ -519,11 +513,12 @@ public:
         }
         else if (this->includeSOT)
         {
-            const T Hdl = this->calculateTorque(time, this->dampingLikeTorque);
-            const T Hfl = this->calculateTorque(time, this->fieldLikeTorque);
+            this->I_log = this->currentDriver.getCurrentScalarValue(time);
+            const T Hdl = this->dampingLikeTorque * this->I_log;
+            const T Hfl = this->fieldLikeTorque * this->I_log;
             // use SOT formulation with effective DL and FL fields
-            const CVector<T> cm = c_cross(m, this->referenceLayer);
-            const CVector<T> ccm = c_cross(m, cm);
+            const CVector<T> cm = c_cross<T>(m, this->referenceLayer);
+            const CVector<T> ccm = c_cross<T>(m, cm);
             const CVector<T> flTorque = cm * Hfl;
             const CVector<T> dlTorque = ccm * Hdl;
             return dmdt - flTorque * GYRO - dlTorque * GYRO;

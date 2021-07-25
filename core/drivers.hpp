@@ -16,7 +16,8 @@ enum UpdateType
     constant,
     pulse,
     sine,
-    step
+    step,
+    posine
 };
 
 template <typename T>
@@ -163,6 +164,22 @@ public:
             amplitude,
             frequency, phase);
     }
+
+    /**
+     * Produces a positive sine signal with some offset (constantValue), amplitude frequency and phase offset.
+     * @param constantValue: vertical offset. The sine will oscillate around this value.
+     * @param amplitude: amplitude of the sine wave
+     * @param frequency: frequency of the sine
+     * @param phase: phase of the sine in radians.
+     */
+    static ScalarDriver getPosSineDriver(T constantValue, T amplitude, T frequency, T phase)
+    {
+        return ScalarDriver(
+            posine,
+            constantValue,
+            amplitude,
+            frequency, phase);
+    }
     /**
      * Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
      * @param constantValue: offset of the pulse (vertical)
@@ -189,6 +206,10 @@ public:
         else if (this->update == sine)
         {
             returnValue += this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase);
+        }
+        else if (this->update == posine)
+        {
+            returnValue += abs(this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase));
         }
         else if (this->update == step)
         {

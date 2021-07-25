@@ -59,6 +59,12 @@ PYBIND11_MODULE(cmtj, m)
                     "amplitude"_a,
                     "frequency"_a,
                     "phase"_a)
+        .def_static("getPosSineDriver",
+                    &DScalarDriver::getPosSineDriver,
+                    "constantValue"_a,
+                    "amplitude"_a,
+                    "frequency"_a,
+                    "phase"_a)
         .def_static("getStepDriver",
                     &DScalarDriver::getStepDriver,
                     "constantValue"_a,
