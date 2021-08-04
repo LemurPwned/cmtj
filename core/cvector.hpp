@@ -107,6 +107,16 @@ public:
 
         return res;
     };
+    CVector operator-(const CVector &v) const
+    {
+        CVector res(
+            x - v.x,
+            y - v.y,
+            z - v.z);
+
+        return res;
+    };
+
     void operator=(CVector v)
     {
         x = v.x;
@@ -207,6 +217,11 @@ public:
     {
         return {
             this->x, this->y, this->z};
+    }
+
+    operator std::string() const
+    {
+        return "[x:" + x + ", y:" + y + ", z:" + z + "]";
     }
 };
 

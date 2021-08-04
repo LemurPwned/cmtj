@@ -59,6 +59,10 @@ public:
 
     {
     }
+    virtual T getCurrentScalarValue(T &time){
+        return 0;
+    };
+    // virtual CVector<T> getCurrentAxialDrivers(T time){};
 };
 
 template <typename T>
@@ -196,7 +200,7 @@ public:
             -1, -1, -1, -1, timeStart, timeStop);
     }
 
-    T getCurrentScalarValue(T &time)
+    T getCurrentScalarValue(T &time) override
     {
         T returnValue = this->constantValue;
         if (this->update == pulse)
@@ -225,8 +229,9 @@ class NullDriver : public ScalarDriver<T>
 {
 public:
     NullDriver() = default;
-    T getCurrentScalarValue(T time)
+    T getCurrentScalarValue(T &time)
     {
+        std::cout << "IM BEING CALLED" << std::endl;
         return 0.0;
     }
 };

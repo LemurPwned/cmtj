@@ -18,12 +18,13 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <typeinfo>
 
 #include "cvector.hpp"
 #include "drivers.hpp"
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
-#define GYRO 220880.0
+#define GYRO 220880.0 // rad/Ts converted to m/As
 #define TtoAm 795774.715459
 #define HBAR 6.62607015e-34 / (2. * M_PI)
 #define ELECTRON_CHARGE 1.60217662e-19
@@ -110,13 +111,15 @@ template <typename T>
 class Layer
 {
 private:
-    ScalarDriver<T> currentDriver = NullDriver<T>();
-    ScalarDriver<T> IECDriverTop = NullDriver<T>();
-    ScalarDriver<T> IECDriverBottom = NullDriver<T>();
-    ScalarDriver<T> anisotropyDriver = NullDriver<T>();
-    AxialDriver<T> externalFieldDriver = NullAxialDriver<T>();
-    AxialDriver<T> HoeDriver = NullAxialDriver<T>();
+    ScalarDriver<T> temperatureDriver;
+    ScalarDriver<T> currentDriver;
+    ScalarDriver<T> IECDriverTop;
+    ScalarDriver<T> IECDriverBottom;
+    ScalarDriver<T> anisotropyDriver;
+    AxialDriver<T> externalFieldDriver;
+    AxialDriver<T> HoeDriver;
 
+    bool temperatureSet = false;
     const T stochasticTorqueMean = 0.0;
 
     Layer(std::string id,
@@ -149,11 +152,18 @@ private:
                                 beta(beta),
                                 spinPolarisation(spinPolarisation)
     {
+        if (mag.length() == 0)
+        {
+            throw std::runtime_error("Initial magnetisation was set to a zero vector!");
+        }
+        if (anis.length() == 0)
+        {
+            throw std::runtime_error("Anisotropy was set to a zero vector!");
+        }
+        // normalise magnetisation
+        mag.normalize();
         this->cellVolume = this->cellSurface * this->thickness;
-        // this is Langevin fluctuation field from the Kaiser paper
-        const T torqueStd = this->getLangevinStochasticStandardDeviation();
-        // this->distribution = std::normal_distribution<T>(stochasticTorqueMean, torqueStd);
-        this->distribution = std::normal_distribution<T>(stochasticTorqueMean, 1);
+        this->distribution = std::normal_distribution<T>(0, 1);
     }
 
 public:
@@ -344,13 +354,15 @@ public:
                         dampingLikeTorque);
     }
 
-    T getLangevinStochasticStandardDeviation()
+    const bool hasTemperature()
     {
-        if (this->cellVolume == 0.0)
-            return 0.0;
-        const T scaledDamping = 2 * (this->damping) / (1 + pow(this->damping, 2));
-        const T mainFactor = BOLTZMANN_CONST * this->temperature / (GYRO * this->Ms * this->cellVolume);
-        return sqrt(scaledDamping * mainFactor);
+        return this->temperatureSet;
+    }
+
+    void setTemperatureDriver(ScalarDriver<T> &driver)
+    {
+        this->temperatureDriver = driver;
+        temperatureSet = true;
     }
 
     void setCurrentDriver(ScalarDriver<T> &driver)
@@ -384,8 +396,14 @@ public:
 
     void setMagnetisation(CVector<T> &mag)
     {
+        if (mag.length() == 0)
+        {
+            std::runtime_error("Initial magnetisation was set to a zero vector!");
+        }
         this->mag = mag;
+        this->mag.normalize();
     }
+
     void setIECDriverBottom(ScalarDriver<T> &driver)
     {
         this->IECDriverBottom = driver;
@@ -415,7 +433,6 @@ public:
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
-        this->Hfl = calculateLangevinStochasticField(timeStep);
         const CVector<T> Heff = this->Hext    // external
                                 + this->HAnis // anistotropy
                                 + this->HIEC  // IEC
@@ -423,9 +440,7 @@ public:
                                 // demag -- negative contribution
                                 - this->Hdemag
                                 // dipole -- negative contribution
-                                - this->Hdipole
-                                // stochastic field dependent on the temperature
-                                + this->Hfl;
+                                - this->Hdipole;
 
         return Heff;
     }
@@ -434,19 +449,6 @@ public:
     {
         this->Hoe_log = this->HoeDriver.getCurrentAxialDrivers(time);
         return this->Hoe_log;
-    }
-
-    CVector<T> calculateLangevinStochasticField(T &timeStep)
-    {
-        if (this->cellVolume == 0.0)
-            return CVector<T>();
-        // becomes zero if the temperature is 0
-        CVector<T> res(this->distribution, generator);
-        // either of those expressions may be correct -- undecided for now
-        const T nom = sqrt((2 * this->damping * BOLTZMANN_CONST * this->temperature) /
-                           (GYRO * this->cellVolume * this->Ms * timeStep));
-        return res * nom;
-        return res;
     }
 
     CVector<T> calculateExternalField(T &time)
@@ -493,8 +495,8 @@ public:
         const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
-
-        CVector<T> dmdt = (prod * -GYRO) - (prod2 * GYRO * this->damping);
+        const T convTerm = 1 / (1 + pow(this->damping, 2)); // LLGS -> LL form
+        CVector<T> dmdt = prod + prod2 * this->damping;
         // extra terms
         if (this->includeSTT)
         {
@@ -509,7 +511,7 @@ public:
             const T sttTerm = GYRO * aJ * eta;
 
             const CVector<T> prod3 = c_cross<T>(m, this->referenceLayer);
-            return dmdt + c_cross<T>(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta;
+            return (dmdt * -GYRO + c_cross<T>(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta) * convTerm;
         }
         else if (this->includeSOT)
         {
@@ -521,9 +523,9 @@ public:
             const CVector<T> ccm = c_cross<T>(m, cm);
             const CVector<T> flTorque = cm * Hfl;
             const CVector<T> dlTorque = ccm * Hdl;
-            return dmdt - flTorque * GYRO - dlTorque * GYRO;
+            return (dmdt + flTorque + dlTorque) * -GYRO * convTerm;
         }
-        return dmdt;
+        return dmdt * -GYRO * convTerm;
     }
 
     void rk4_step(T time, T timeStep, CVector<T> bottom, CVector<T> top)
@@ -534,6 +536,58 @@ public:
         const CVector<T> k3 = calculateLLGWithFieldTorque(time + 0.5 * timeStep, m_t + k2 * 0.5, bottom, top, timeStep) * timeStep;
         const CVector<T> k4 = calculateLLGWithFieldTorque(time + timeStep, m_t + k3, bottom, top, timeStep) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
+        m_t.normalize();
+        this->mag = m_t;
+    }
+
+    CVector<T> non_stochastic_llg(CVector<T> cm, T time, T timeStep, CVector<T> bottom, CVector<T> top)
+    {
+        return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
+    }
+
+    CVector<T> stochastic_llg(CVector<T> cm, T time, T timeStep, CVector<T> bottom, CVector<T> top, const CVector<T> &dW)
+    {
+        // compute the Langevin fluctuations -- this is the sigma
+        const T Hthermal = this->getLangevinStochasticStandardDeviation(time);
+        const CVector<T> thcross = c_cross(cm, dW);
+        const CVector<T> thcross2 = c_cross(thcross, dW);
+        const T scaling = -Hthermal * GYRO / (1 + pow(this->damping, 2));
+        return (thcross + thcross2) * scaling;
+    }
+
+    T getLangevinStochasticStandardDeviation(T time)
+    {
+        if (this->cellVolume == 0.0)
+            return 0.0;
+        const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
+        const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (MAGNETIC_PERMEABILITY * this->Ms * this->cellVolume);
+        return sqrt(mainFactor);
+    }
+
+    void euler_heun(T time, T timeStep, CVector<T> bottom, CVector<T> top)
+    {
+        // this is Stratonovich integral
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
+        // Brownian motion sample
+        // Generate the noise from the Brownian motion
+        CVector<T> dW = CVector(this->distribution, generator) * sqrt(timeStep);
+        // squared dW -- just utility
+        dW.normalize();
+        // f_n is the vector of non-stochastic part at step n
+        // multiply by timeStep (h) here for convenience
+        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
+        // g_n is the stochastic part of the LLG at step n
+        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW);
+
+        // actual solution
+        // approximate next step ytilde
+        const CVector<T> mapprox = this->mag + g_n;
+        // calculate the approx g_n
+        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW);
+        CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
         m_t.normalize();
         this->mag = m_t;
     }
@@ -701,7 +755,10 @@ public:
             throw std::runtime_error("Failed to find a layer with a given id!");
         }
     }
-
+    void setLayerTemperatureDriver(std::string layerID, ScalarDriver<T> driver)
+    {
+        scalarlayerSetter(layerID, &Layer<T>::setTemperatureDriver, driver);
+    }
     void setLayerAnisotropyDriver(std::string layerID, ScalarDriver<T> driver)
     {
         scalarlayerSetter(layerID, &Layer<T>::setAnisotropyDriver, driver);
@@ -718,7 +775,6 @@ public:
     {
         scalarlayerSetter(layerID, &Layer<T>::setCurrentDriver, driver);
     }
-
     void setLayerDampingLikeTorque(std::string layerID, ScalarDriver<T> driver)
     {
         scalarlayerSetter(layerID, &Layer<T>::setDampingLikeTorque, driver);
@@ -880,25 +936,35 @@ public:
         }
         logFile.close();
     }
+
+    typedef void (Layer<T>::*solver)(T t, T timeStep, CVector<T> bottom, CVector<T> top);
+
     /**
-     * Single layer RK45 iteration. IEC interaction is turned off.
+     * @brief Run Euler-Heun or RK4 method for a single layer.
+     * 
+     * The Euler-Heun method should only be used 
+     * for stochastic simulations where the temperature 
+     * driver is set.
+     * @param functor: solver function.
      * @param t: current time
      * @param timeStep: integration step
-     * */
-    void runSingleLayerRK4Iteration(T &t, T &timeStep)
+     */
+    void runSingleLayerSolver(solver &functor, T &t, T &timeStep)
     {
-
         CVector<T> null;
-        this->layers[0].rk4_step(
+        (this->layers[0].*functor)(
             t, timeStep, null, null);
     }
 
     /**
-     * Multilayer layer RK45 iteration. IEC is calculated.
+     * @brief Select a solver based on the setup.
+     * 
+     * Multilayer layer solver iteration.
+     * @param functor: solver function.
      * @param t: current time
      * @param timeStep: integration step
      * */
-    void runMultiLayerRK4Iteration(T &t, T &timeStep)
+    void runMultiLayerSolver(solver &functor, T &t, T &timeStep)
     {
         std::vector<CVector<T>> magCopies(this->layerNo + 2);
         // the first and the last layer get 0 vector coupled
@@ -911,12 +977,14 @@ public:
 
         for (int i = 0; i < this->layerNo; i++)
         {
-            this->layers[i].rk4_step(
+            (this->layers[i].*functor)(
                 t, timeStep, magCopies[i], magCopies[i + 2]);
         }
     }
 
     /**
+     * @brief Calculate strip magnetoresistance for multilayer.
+     * 
      * Used when MR_MODE == STRIP 
      * Magnetoresistance as per:  
      * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
@@ -1005,16 +1073,30 @@ public:
         T t;
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+        // pick a solver based on drivers
+        auto solv = &Layer<T>::rk4_step;
+        for (auto &l : this->layers)
+        {
+            if (l.hasTemperature())
+            {
+                // if at least one temp. driver is set
+                // then use euler_heun for consistency
+                solv = &Layer<T>::euler_heun;
+                break;
+            }
+        }
+
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             t = i * timeStep;
             if (this->layerNo == 1)
             {
-                runSingleLayerRK4Iteration(t, timeStep);
+                runSingleLayerSolver(solv, t, timeStep);
             }
             else
             {
-                runMultiLayerRK4Iteration(t, timeStep);
+                runMultiLayerSolver(solv, t, timeStep);
             }
 
             if (!(i % writeEvery))
