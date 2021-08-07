@@ -120,7 +120,6 @@ private:
     AxialDriver<T> HoeDriver;
 
     bool temperatureSet = false;
-    const T stochasticTorqueMean = 0.0;
 
     Layer(std::string id,
           CVector<T> mag,
@@ -185,7 +184,6 @@ public:
     std::vector<CVector<T>>
         demagTensor,
         dipoleTensor;
-
     // resting temperature in Kelvin
     T temperature;
 
@@ -521,8 +519,8 @@ public:
             // use SOT formulation with effective DL and FL fields
             const CVector<T> cm = c_cross<T>(m, this->referenceLayer);
             const CVector<T> ccm = c_cross<T>(m, cm);
-            const CVector<T> flTorque = cm * Hfl;
-            const CVector<T> dlTorque = ccm * Hdl;
+            const CVector<T> flTorque = cm * (Hfl - this->damping*Hdl);
+            const CVector<T> dlTorque = ccm * (Hdl + this->damping*Hfl);
             return (dmdt + flTorque + dlTorque) * -GYRO * convTerm;
         }
         return dmdt * -GYRO * convTerm;
@@ -552,15 +550,15 @@ public:
         const CVector<T> thcross = c_cross(cm, dW);
         const CVector<T> thcross2 = c_cross(thcross, dW);
         const T scaling = -Hthermal * GYRO / (1 + pow(this->damping, 2));
-        return (thcross + thcross2) * scaling;
+        return (thcross + thcross2 * this->damping) * scaling;
     }
 
     T getLangevinStochasticStandardDeviation(T time)
     {
         if (this->cellVolume == 0.0)
-            return 0.0;
+            throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (MAGNETIC_PERMEABILITY * this->Ms * this->cellVolume);
+        const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (GYRO * this->Ms * this->cellVolume);
         return sqrt(mainFactor);
     }
 
@@ -580,13 +578,13 @@ public:
         // multiply by timeStep (h) here for convenience
         const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
         // g_n is the stochastic part of the LLG at step n
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW);
+        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW) * sqrt(timeStep);
 
         // actual solution
         // approximate next step ytilde
         const CVector<T> mapprox = this->mag + g_n;
         // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW);
+        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW)*sqrt(timeStep);
         CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
         m_t.normalize();
         this->mag = m_t;

@@ -4,13 +4,12 @@
 #include <iostream>
 #include <stdio.h>
 
-typedef Layer<float> FLayer;
-typedef CVector<float> FVector;
+typedef Layer<double> DLayer;
 
-std::vector<float> generateRange(float start, float stop, float step)
+std::vector<double> generateRange(double start, double stop, double step)
 {
-    std::vector<float> ranges;
-    float current = start;
+    std::vector<double> ranges;
+    double current = start;
     while (current < stop)
     {
         current += step;
@@ -21,53 +20,51 @@ std::vector<float> generateRange(float start, float stop, float step)
 
 int main(void)
 {
-    std::vector<FVector> demagTensor = {
+
+    std::vector<DVector> demagTensor = {
         {0.00022708623583019705, 0., 0.},
         {0., 0.0011629799534817735, 0.},
         {0., 0., 0.99861}};
 
-    std::vector<FVector> dipoleTensor = {
+    std::vector<DVector> dipoleTensor = {
         {0.0, 0., 0.},
         {0., 0.0, 0.},
         {0., 0.0, 0.0}};
 
-    float damping = 0.01;
+    double damping = 0.01;
 
-    float sttOn = false;
-    const float temperature = 0.0;
+    const double temperature = 0.0;
 
-    float surface = 1e-7;
-    float Ms = 1.07;
-    float thickness = 1e-9;
+    double surface = 70e-9*70e-9;
+    double Ms = 1.07;
+    double thickness = 1e-9;
 
-    FLayer l1("free",             // id
-              FVector(0., 0., 1), // mag
-              FVector(0, -0.0871557, 0.996195),
+    DLayer l1("free",             // id
+              DVector(0., 0., 1), // mag
+              DVector(0, -0.0871557, 0.996195),
               Ms,           // Ms
               thickness,    // thickness
               surface,      // surface
               demagTensor,  // demag
               dipoleTensor, // dipole
               temperature,  // temp
-              false,        // STT
               damping       // damping
     );
 
-    FLayer l2("bottom",            // id
-              FVector(0., 0., 1.), // mag
-              FVector(0.34071865, -0.08715574, 0.936116),
+    DLayer l2("bottom",            // id
+              DVector(0., 0., 1.), // mag
+              DVector(0.34071865, -0.08715574, 0.936116),
               Ms,           // Ms
               thickness,    // thickness
               surface,      // surface
               demagTensor,  // demag
               dipoleTensor, // dipole
               temperature,  // temp
-              false,        // STT
               damping       // damping
 
     );
 
-    Junction<float> mtj(
+    Junction<double> mtj(
         {l1, l2},
         "",
         {100, 100},       // Rx0
@@ -78,24 +75,25 @@ int main(void)
         {0, 0},           // SMR_y
         {0, 0}            // AHE
     );
-    mtj.setLayerAnisotropyDriver("free", ScalarDriver<float>::getConstantDriver(305e3));
-    mtj.setLayerAnisotropyDriver("bottom", ScalarDriver<float>::getConstantDriver(728e3));
-    mtj.setIECDriver("free", "bottom", ScalarDriver<float>::getConstantDriver(4e-5));
-    const float hmin = -800e3;
-    const float hmax = 800e3;
-    const int hsteps = 100;
+    mtj.setLayerAnisotropyDriver("free", ScalarDriver<double>::getConstantDriver(305e3));
+    mtj.setLayerAnisotropyDriver("bottom", ScalarDriver<double>::getConstantDriver(728e3));
+    mtj.setIECDriver("free", "bottom", ScalarDriver<double>::getConstantDriver(4e-5));
+    mtj.setLayerTemperatureDriver("all", ScalarDriver<double>::getConstantDriver(300));
+    const double hmin = -800e3;
+    const double hmax = 800e3;
+    const int hsteps = 30;
 
-    const float tStart = 6e-9;
-    const float time = 12e-9;
-    const float tStep = 1e-12;
+    const double tStart = 4e-9;
+    const double time = 8e-9;
+    const double tStep = 1e-13;
     std::ofstream saveFile;
     saveFile.open("VSD_res.csv");
     saveFile << "H;f;Vmix;\n";
 
-    const float HoePulseAmplitude = 5e2;
+    const double HoePulseAmplitude = 5e2;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    const auto frequencies = generateRange(0e9, 48e9, 2e9);
+    const auto frequencies = generateRange(0e9, 40e9, 1e9);
     const auto Hdist = generateRange(hmin, hmax, (hmax - hmin) / hsteps);
     std::cout << "Generated frequency range" << std::endl;
     for (auto &f : frequencies)
@@ -104,15 +102,15 @@ int main(void)
         for (auto &H : Hdist)
         {
             mtj.clearLog();
-            const AxialDriver<float> HDriver(
-                ScalarDriver<float>::getConstantDriver(H * sqrt(2) / 2),
-                ScalarDriver<float>::getConstantDriver(H * sqrt(2) / 2),
-                NullDriver<float>());
+            const AxialDriver<double> HDriver(
+                ScalarDriver<double>::getConstantDriver(H * sqrt(2) / 2),
+                ScalarDriver<double>::getConstantDriver(H * sqrt(2) / 2),
+                NullDriver<double>());
 
-            const AxialDriver<float> HoeDriver(
-                NullDriver<float>(),
-                ScalarDriver<float>::getSineDriver(0, HoePulseAmplitude, f, 0),
-                NullDriver<float>());
+            const AxialDriver<double> HoeDriver(
+                NullDriver<double>(),
+                ScalarDriver<double>::getSineDriver(0, HoePulseAmplitude, f, 0),
+                NullDriver<double>());
 
             mtj.setLayerExternalFieldDriver(
                 "all",
@@ -124,9 +122,8 @@ int main(void)
                 time,
                 tStep, tStep, false, false, false);
 
-            auto vsdMix = ComputeFunctions<float>::calculateVoltageSpinDiode(
+            auto vsdMix = ComputeFunctions<double>::calculateVoltageSpinDiode(
                 mtj.getLog(), "Rx", f, 1, tStart);
-
             saveFile << H << ";" << f << ";" << vsdMix["Vmix"] << ";" << std::endl;
         }
     }
