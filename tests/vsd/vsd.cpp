@@ -32,9 +32,6 @@ int main(void)
         {0., 0.0, 0.0}};
 
     double damping = 0.01;
-
-    const double temperature = 0.0;
-
     double surface = 70e-9*70e-9;
     double Ms = 1.07;
     double thickness = 1e-9;
@@ -47,7 +44,6 @@ int main(void)
               surface,      // surface
               demagTensor,  // demag
               dipoleTensor, // dipole
-              temperature,  // temp
               damping       // damping
     );
 
@@ -59,7 +55,6 @@ int main(void)
               surface,      // surface
               demagTensor,  // demag
               dipoleTensor, // dipole
-              temperature,  // temp
               damping       // damping
 
     );

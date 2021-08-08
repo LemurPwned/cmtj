@@ -129,7 +129,6 @@ private:
           T cellSurface,
           std::vector<CVector<T>> demagTensor,
           std::vector<CVector<T>> dipoleTensor,
-          T temperature,
           T damping,
           T fieldLikeTorque,
           T dampingLikeTorque,
@@ -143,7 +142,6 @@ private:
                                 cellSurface(cellSurface),
                                 demagTensor(demagTensor),
                                 dipoleTensor(dipoleTensor),
-                                temperature(temperature),
                                 damping(damping),
                                 fieldLikeTorque(fieldLikeTorque),
                                 dampingLikeTorque(dampingLikeTorque),
@@ -184,8 +182,6 @@ public:
     std::vector<CVector<T>>
         demagTensor,
         dipoleTensor;
-    // resting temperature in Kelvin
-    T temperature;
 
     T Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
     // LLG params
@@ -210,9 +206,8 @@ public:
                    T cellSurface,
                    std::vector<CVector<T>> demagTensor,
                    std::vector<CVector<T>> dipoleTensor,
-                   T temperature,
                    T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                      demagTensor, dipoleTensor, temperature,
+                                      demagTensor, dipoleTensor,
                                       damping, 0, 0, 0, 0, 0) {}
 
     /**
@@ -229,7 +224,6 @@ public:
      * @param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
      * @param demagTensor: demagnetisation tensor of the layer.
      * @param dipoleTensor: dipole tensor of the layer.
-     * @param temperature: resting temperature of the layer. Unit: Kelvin [K].
      * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
      * @param fieldLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hfl.
      * @param dampingLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hdl.
@@ -242,11 +236,10 @@ public:
                    T cellSurface,
                    std::vector<CVector<T>> demagTensor,
                    std::vector<CVector<T>> dipoleTensor,
-                   T temperature,
                    T damping,
                    T fieldLikeTorque,
                    T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                                demagTensor, dipoleTensor, temperature,
+                                                demagTensor, dipoleTensor,
                                                 damping,
                                                 fieldLikeTorque,
                                                 dampingLikeTorque, 0, 0, 0)
@@ -269,7 +262,6 @@ public:
      * @param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
      * @param demagTensor: demagnetisation tensor of the layer.
      * @param dipoleTensor: dipole tensor of the layer.
-     * @param temperature: resting temperature of the layer. Unit: Kelvin [K].
      * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
      * @param SlomczewskiSpacerLayerParameter: [STT] Slomczewski parameter. Default 1.0. Dimensionless.
      * @param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
@@ -283,12 +275,11 @@ public:
                    T cellSurface,
                    std::vector<CVector<T>> demagTensor,
                    std::vector<CVector<T>> dipoleTensor,
-                   T temperature,
                    T damping,
                    T SlonczewskiSpacerLayerParameter,
                    T beta,
                    T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                               demagTensor, dipoleTensor, temperature,
+                                               demagTensor, dipoleTensor,
                                                damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
         this->includeSTT = true;
@@ -306,8 +297,7 @@ public:
                                     T damping,
                                     T SlonczewskiSpacerLayerParameter,
                                     T beta,
-                                    T spinPolarisation,
-                                    T temperature = 0.0)
+                                    T spinPolarisation)
     {
         return Layer<T>(
             id,
@@ -318,7 +308,6 @@ public:
             cellSurface,
             demagTensor,
             dipoleTensor,
-            temperature,
             damping,
             SlonczewskiSpacerLayerParameter,
             beta,
@@ -335,8 +324,7 @@ public:
                                     std::vector<CVector<T>> dipoleTensor,
                                     T damping,
                                     T fieldLikeTorque,
-                                    T dampingLikeTorque,
-                                    T temperature = 0.0)
+                                    T dampingLikeTorque)
     {
         return Layer<T>(id,
                         mag,
@@ -346,7 +334,6 @@ public:
                         cellSurface,
                         demagTensor,
                         dipoleTensor,
-                        temperature,
                         damping,
                         fieldLikeTorque,
                         dampingLikeTorque);
@@ -368,12 +355,12 @@ public:
         this->currentDriver = driver;
     }
 
-    void setFieldLikeDampingTorque(CVector<T> &torque)
+    void setFieldLikeTorque(CVector<T> &torque)
     {
         this->fieldLikeTorque = torque;
     }
 
-    void setDampingdLikeDampingTorque(CVector<T> &torque)
+    void setDampingLikeTorque(CVector<T> &torque)
     {
         this->dampingLikeTorque = torque;
     }
