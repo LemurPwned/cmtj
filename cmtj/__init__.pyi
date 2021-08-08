@@ -203,6 +203,10 @@ class Junction:
         """
         ...
 
+    def setLayerTemperatureDriver(self, layer_id: str,
+                                  driver: ScalarDriver) -> None:
+        ...
+
     def setLayerAnisotropyDriver(self, layer_id: str,
                                  driver: ScalarDriver) -> None:
         ...
@@ -250,7 +254,6 @@ class Layer:
         :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
         :param demagTensor: demagnetisation tensor of the layer.
         :param dipoleTensor: dipole tensor of the layer.
-        :param temperature: resting temperature of the layer. Unit: Kelvin [K].
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
         """
         ...
@@ -266,8 +269,7 @@ class Layer:
                        dipoleTensor: List[CVector],
                        damping: float = 0.11,
                        fieldLikeTorque: float = 0,
-                       dampingLikeTorque: float = 0,
-                       temperature: float = 0) -> 'Layer':
+                       dampingLikeTorque: float = 0) -> 'Layer':
         """
         Create SOT layer -- including damping and field-like torques that are 
         calculated based on the effective Spin Hall angles.
@@ -296,8 +298,7 @@ class Layer:
                        damping: float = 0.011,
                        SlonczewskiSpacerLayerParameter: float = 1.0,
                        beta: float = 0.0,
-                       spinPolarisation: float = 0.0,
-                       temperature: float = 0) -> 'Layer':
+                       spinPolarisation: float = 0.0) -> 'Layer':
         """
         Create STT layer -- with the standard Slomczewski formulation.
         :param id: identifiable name for a layer -- e.g. "bottom" or "free".
@@ -308,7 +309,6 @@ class Layer:
         :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
         :param demagTensor: demagnetisation tensor of the layer.
         :param dipoleTensor: dipole tensor of the layer.
-        :param temperature: resting temperature of the layer. Unit: Kelvin [K].
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
         :param SlonczewskiSpacerLayerParameter: Slomczewski parameter. Often marked as lambda.
         :param beta: beta parameter that scales FL/DL ratio.
@@ -317,6 +317,9 @@ class Layer:
         ...
 
     def setAnisotropyDriver(self, driver: ScalarDriver) -> None:
+        ...
+
+    def setTemperatureDriver(self, driver: ScalarDriver) -> None:
         ...
 
     def setExternalFieldDriver(self, driver: AxialDriver) -> None:

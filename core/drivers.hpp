@@ -59,10 +59,10 @@ public:
 
     {
     }
-    virtual T getCurrentScalarValue(T &time){
+    virtual T getCurrentScalarValue(T &time)
+    {
         return 0;
     };
-    // virtual CVector<T> getCurrentAxialDrivers(T time){};
 };
 
 template <typename T>
@@ -229,9 +229,8 @@ class NullDriver : public ScalarDriver<T>
 {
 public:
     NullDriver() = default;
-    T getCurrentScalarValue(T &time)
+    T getCurrentScalarValue(T &time) override
     {
-        std::cout << "IM BEING CALLED" << std::endl;
         return 0.0;
     }
 };

@@ -506,8 +506,8 @@ public:
             // use SOT formulation with effective DL and FL fields
             const CVector<T> cm = c_cross<T>(m, this->referenceLayer);
             const CVector<T> ccm = c_cross<T>(m, cm);
-            const CVector<T> flTorque = cm * (Hfl - this->damping*Hdl);
-            const CVector<T> dlTorque = ccm * (Hdl + this->damping*Hfl);
+            const CVector<T> flTorque = cm * (Hfl - this->damping * Hdl);
+            const CVector<T> dlTorque = ccm * (Hdl + this->damping * Hfl);
             return (dmdt + flTorque + dlTorque) * -GYRO * convTerm;
         }
         return dmdt * -GYRO * convTerm;
@@ -571,7 +571,7 @@ public:
         // approximate next step ytilde
         const CVector<T> mapprox = this->mag + g_n;
         // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW)*sqrt(timeStep);
+        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW) * sqrt(timeStep);
         CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
         m_t.normalize();
         this->mag = m_t;
@@ -1000,7 +1000,7 @@ public:
         {
             const T Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
             const T Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
-                         (AMR_Y[i] - SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
+                         (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
             Rx_acc += Rx;
             Ry_acc += Ry;
         }

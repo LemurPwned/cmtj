@@ -73,14 +73,14 @@ int main(void)
     mtj.setLayerAnisotropyDriver("free", ScalarDriver<double>::getConstantDriver(305e3));
     mtj.setLayerAnisotropyDriver("bottom", ScalarDriver<double>::getConstantDriver(728e3));
     mtj.setIECDriver("free", "bottom", ScalarDriver<double>::getConstantDriver(4e-5));
-    mtj.setLayerTemperatureDriver("all", ScalarDriver<double>::getConstantDriver(300));
+    // mtj.setLayerTemperatureDriver("all", ScalarDriver<double>::getConstantDriver(300));
     const double hmin = -800e3;
     const double hmax = 800e3;
-    const int hsteps = 30;
+    const int hsteps = 100;
 
-    const double tStart = 4e-9;
-    const double time = 8e-9;
-    const double tStep = 1e-13;
+    const double tStart = 1e-9;
+    const double time = 4e-9;
+    const double tStep = 4e-12;
     std::ofstream saveFile;
     saveFile.open("VSD_res.csv");
     saveFile << "H;f;Vmix;\n";
@@ -88,7 +88,7 @@ int main(void)
     const double HoePulseAmplitude = 5e2;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    const auto frequencies = generateRange(0e9, 40e9, 1e9);
+    const auto frequencies = generateRange(0e9, 48e9, 1e9);
     const auto Hdist = generateRange(hmin, hmax, (hmax - hmin) / hsteps);
     std::cout << "Generated frequency range" << std::endl;
     for (auto &f : frequencies)
