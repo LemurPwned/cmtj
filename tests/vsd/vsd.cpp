@@ -49,7 +49,6 @@ int main(void)
               demagTensor,  // demag
               dipoleTensor, // dipole
               temperature,  // temp
-              false,        // STT
               damping       // damping
     );
 
@@ -62,7 +61,6 @@ int main(void)
               demagTensor,  // demag
               dipoleTensor, // dipole
               temperature,  // temp
-              false,        // STT
               damping       // damping
 
     );
@@ -85,9 +83,9 @@ int main(void)
     const float hmax = 800e3;
     const int hsteps = 100;
 
-    const float tStart = 6e-9;
-    const float time = 12e-9;
-    const float tStep = 1e-12;
+    const float tStart = 2e-9;
+    const float time = 4e-9;
+    const float tStep = 4e-12;
     std::ofstream saveFile;
     saveFile.open("VSD_res.csv");
     saveFile << "H;f;Vmix;\n";
@@ -95,7 +93,7 @@ int main(void)
     const float HoePulseAmplitude = 5e2;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    const auto frequencies = generateRange(0e9, 48e9, 2e9);
+    const auto frequencies = generateRange(0e9, 48e9, 1e9);
     const auto Hdist = generateRange(hmin, hmax, (hmax - hmin) / hsteps);
     std::cout << "Generated frequency range" << std::endl;
     for (auto &f : frequencies)
