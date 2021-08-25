@@ -222,6 +222,10 @@ public:
 
         return returnValue;
     }
+    void setConstantValue(T &val)
+    {
+        this->constantValue = val;
+    }
 };
 
 template <typename T>

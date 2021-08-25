@@ -131,6 +131,14 @@ public:
         return false;
     };
 
+    bool operator!=(CVector &v)
+    {
+        if (
+            (x == v.x) && (y == v.y) && (y == v.z))
+            return false;
+        return true;
+    };
+
     CVector operator*(T &val)
     {
         CVector res(

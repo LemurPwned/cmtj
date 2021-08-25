@@ -112,9 +112,9 @@ class Layer
 {
 private:
     ScalarDriver<T> temperatureDriver;
-    ScalarDriver<T> currentDriver;
     ScalarDriver<T> IECDriverTop;
     ScalarDriver<T> IECDriverBottom;
+    ScalarDriver<T> currentDriver;
     ScalarDriver<T> anisotropyDriver;
     AxialDriver<T> externalFieldDriver;
     AxialDriver<T> HoeDriver;
@@ -343,7 +343,10 @@ public:
     {
         return this->temperatureSet;
     }
-
+    void modifyCurrentDensity(T density)
+    {
+        this->currentDriver.setConstantValue(density);
+    }
     void setTemperatureDriver(ScalarDriver<T> &driver)
     {
         this->temperatureDriver = driver;
@@ -609,7 +612,7 @@ public:
     Junction(std::vector<Layer<T>> layersToSet, std::string filename = "")
     {
         this->MR_mode = NONE;
-        this->layers = std::move(layersToSet);
+        this->layers = layersToSet;
         this->layerNo = this->layers.size();
         if (this->layerNo == 0)
         {
@@ -620,7 +623,15 @@ public:
     explicit Junction(std::vector<Layer<T>> layersToSet, std::string filename, T Rp, T Rap) : Junction(
                                                                                                   layersToSet, filename)
     {
-        if (this->layerNo != 2)
+        if (this->layerNo == 1)
+        {
+            // we need to check if this layer has a reference layer.
+            if (!this->layers[0].referenceLayer.length())
+            {
+                throw std::invalid_argument("MTJ with a single layer must have a pinning (referenceLayer) set!");
+            }
+        }
+        if (this->layerNo > 2)
         {
             throw std::invalid_argument("This constructor supports only bilayers! Choose the other one with the strip resistance!");
         }
@@ -837,6 +848,35 @@ public:
         return CVector<T>();
     }
 
+    void modifyLayerCurrentDensity(std::string layerID, T val)
+    {
+        bool found = false;
+        for (auto &l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                l.modifyCurrentDensity(val);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id!");
+        }
+    }
+
+    Layer<T> &getLayer(std::string layerID)
+    {
+        for (auto &l : this->layers)
+        {
+            if (l.id == layerID)
+            {
+                return l;
+            }
+        }
+        throw std::runtime_error("Failed to find a layer with a given id!");
+    }
+
     void logLayerParams(T &t, bool calculateEnergies = false)
     {
         for (const auto &layer : this->layers)
@@ -1021,11 +1061,18 @@ public:
 
     std::vector<T> getMagnetoresistance()
     {
-        if (this->MR_mode == CLASSIC)
+        // this is classical bilayer case
+        if (this->MR_mode == CLASSIC && this->layerNo == 2)
         {
             return {calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[1].mag))};
         }
-        else
+        // this is the case when we use the pinning layer
+        else if (this->MR_mode == CLASSIC && this->layerNo == 1)
+        {
+            return {calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[0].referenceLayer))};
+        }
+        // this is strip magnetoresistance
+        else if (this->MR_mode == STRIP)
         {
             return stripMagnetoResistance(this->Rx0,
                                           this->Ry0,
@@ -1034,6 +1081,10 @@ public:
                                           this->AMR_Y,
                                           this->SMR_Y,
                                           this->AHE);
+        }
+        else
+        {
+            throw std::runtime_error("Magnetisation calculation is not supported for this structure!");
         }
     }
 
