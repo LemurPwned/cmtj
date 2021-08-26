@@ -2,7 +2,6 @@
 #define STACK_H
 
 #include "junction.hpp"
-#include "compute.hpp"
 
 template <typename T>
 class Stack
@@ -20,9 +19,9 @@ protected:
 public:
     std::vector<Junction<T>> junctionList;
 
-    void setMagnetisation(unsigned int junctionId, std::string layerID, CVector<T> mag)
+    void setMagnetisation(unsigned int junctionId, std::string layerId, CVector<T> mag)
     {
-        this->junctionList[junctionId].setLayerMagnetisation(layerID, mag);
+        this->junctionList[junctionId].setLayerMagnetisation(layerId, mag);
     }
     void setCoupledCurrentDriver(ScalarDriver<T> cDriver)
     {
@@ -99,7 +98,7 @@ public:
     }
     std::unordered_map<std::string, std::vector<T>> &getLog(unsigned int id)
     {
-        if (id < this->junctionList)
+        if (id <= this->junctionList.size())
         {
             return this->junctionList[id].getLog();
         }
@@ -174,9 +173,15 @@ public:
                     tCurrent = this->computeCouplingCurrentDensity(
                         coupledCurrent, frozenMags[i], frozenMags[i - 1], pol);
                     // modify the standing layer constant current
-                    junctionList[i].modifyLayerCurrentDensity("free", tCurrent);
+                    // junctionList[i].modifyLayerCurrentDensity("free", tCurrent);
+                    junctionList[i].setLayerCurrentDriver("all", ScalarDriver<T>::getSineDriver(
+                                                                     this->currentDriver.constantValue, tCurrent, this->currentDriver.frequency, this->currentDriver.phase));
                 }
-                // junctionList[i].runSingleLayerSolver(solv, t, timeStep);
+                else
+                {
+                    junctionList[i].setLayerCurrentDriver("all", ScalarDriver<T>::getSineDriver(
+                                                                     this->currentDriver.constantValue, this->currentDriver.amplitude, this->currentDriver.frequency, this->currentDriver.phase));
+                }
                 if (this->junctionList[i].layerNo == 1)
                 {
                     junctionList[i].runSingleLayerSolver(solv, t, timeStep);
@@ -206,7 +211,7 @@ public:
 template <typename T>
 class SeriesStack : public Stack<T>
 {
-    T calculateStackResistance(std::vector<T> resistances)
+    T calculateStackResistance(std::vector<T> resistances) override
     {
         const T resSum = std::accumulate(resistances.begin(),
                                          resistances.end(),
@@ -214,13 +219,11 @@ class SeriesStack : public Stack<T>
         return resSum;
     }
 
-    T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p)
+    T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) override
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);
-        // std::cout << "m1 " << m1Comp << " m2 " << m2Comp << std::endl;
         const T coupledI = currentDensity * this->couplingStrength * (m1Comp + m2Comp);
-        // std::cout << "CI " << coupledI << " " << this->couplingStrength << std::endl;
         return coupledI;
     }
 
@@ -230,7 +233,7 @@ public:
 template <typename T>
 class ParallelStack : public Stack<T>
 {
-    T calculateStackResistance(std::vector<T> resistances)
+    T calculateStackResistance(std::vector<T> resistances) override
     {
         T invSum = 0.0;
         std::for_each(resistances.begin(), resistances.end(), [&](T res)
@@ -238,7 +241,7 @@ class ParallelStack : public Stack<T>
         return 1 / invSum;
     }
 
-    T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p)
+    T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) override
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);

@@ -2,6 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "../core/stack.hpp"
 #include "../core/cvector.hpp"
 #include "../core/drivers.hpp"
 #include "../core/junction.hpp"
@@ -15,7 +16,7 @@ using DVector = CVector<double>;
 using DScalarDriver = ScalarDriver<double>;
 using DAxialDriver = AxialDriver<double>;
 using DNullDriver = NullDriver<double>;
-
+using DStack = Stack<double>;
 namespace py = pybind11;
 
 #define USING_PY true
@@ -191,4 +192,27 @@ PYBIND11_MODULE(cmtj, m)
         // junction calculations
         .def("getLayerMagnetisation", &DJunction::getLayerMagnetisation)
         .def("getMagnetoresistance", &DJunction::getMagnetoresistance);
+
+    // stack module
+    py::module stack_module = m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
+    py::class_<SeriesStack<double>>(stack_module, "SeriesStack")
+        .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
+        .def("runSimulation", &SeriesStack<double>::runSimulation,
+             "totalTime"_a,
+             "timeStep"_a = 1e-13,
+             "writeFrequency"_a = 1e-11)
+        .def("setMagnetistation", &SeriesStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
+        .def("setCoupledCurrentDriver", &SeriesStack<double>::setCoupledCurrentDriver, "driver"_a)
+        .def("getLog", py::overload_cast<unsigned int>(&SeriesStack<double>::getLog))
+        .def("getLog", py::overload_cast<>(&SeriesStack<double>::getLog));
+    py::class_<ParallelStack<double>>(stack_module, "ParallelStack")
+        .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
+        .def("runSimulation", &ParallelStack<double>::runSimulation,
+             "totalTime"_a,
+             "timeStep"_a = 1e-13,
+             "writeFrequency"_a = 1e-11)
+        .def("setMagnetistation", &ParallelStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
+        .def("setCoupledCurrentDriver", &ParallelStack<double>::setCoupledCurrentDriver, "driver"_a)
+        .def("getLog", py::overload_cast<unsigned int>(&ParallelStack<double>::getLog))
+        .def("getLog", py::overload_cast<>(&ParallelStack<double>::getLog));
 }

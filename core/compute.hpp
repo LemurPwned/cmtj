@@ -48,7 +48,8 @@ public:
         const T omega = 2 * M_PI * frequency;
         std::vector<T> &resistance = log[resTag];
         auto it = std::find_if(log["time"].begin(), log["time"].end(),
-                               [&minTime](const auto &value) { return value >= minTime; });
+                               [&minTime](const auto &value)
+                               { return value >= minTime; });
         // turn into index
         const int thresIdx = (int)(log["time"].end() - it);
         const int cutSize = log["time"].size() - thresIdx;
@@ -61,7 +62,8 @@ public:
         std::transform(
             log["time"].begin() + thresIdx, log["time"].end(),
             std::back_inserter(current),
-            [&Iampl, &omega](const T &time) { return Iampl * sin(omega * time); });
+            [&Iampl, &omega](const T &time)
+            { return Iampl * sin(omega * time); });
 
         for (unsigned int i = 0; i < cutSize; i++)
         {
@@ -96,7 +98,8 @@ public:
         }
 
         auto it = std::find_if(log["time"].begin(), log["time"].end(),
-                               [&minTime](const auto &value) { return value >= minTime; });
+                               [&minTime](const auto &value)
+                               { return value >= minTime; });
 
         const int thresIdx = (int)(log["time"].end() - it);
         const int cutSize = log["time"].size() - thresIdx;
@@ -137,7 +140,7 @@ public:
             const int outBins = (cutMag.size() + 1) / 2;
             std::vector<T> amplitudes;
             amplitudes.push_back(out[0][0]);
-            for (int i = 1; i < outBins; i++)
+            for (int i = 1; i < outBins - 1; i++)
             {
                 const auto tandem = out[i];
                 const T real = tandem[0];
