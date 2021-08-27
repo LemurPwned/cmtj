@@ -65,7 +65,7 @@ public:
             [&Iampl, &omega](const T &time)
             { return Iampl * sin(omega * time); });
 
-        for (unsigned int i = 0; i < cutSize; i++)
+        for (int i = 0; i < cutSize; i++)
         {
             voltage.push_back(resistance[thresIdx + i] * current[i]);
         }

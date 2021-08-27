@@ -63,6 +63,7 @@ public:
     {
         return 0;
     };
+    virtual ~Driver() = default;
 };
 
 template <typename T>
@@ -360,7 +361,7 @@ class NullAxialDriver : public AxialDriver<T>
 {
 public:
     NullAxialDriver() = default;
-    CVector<T> getCurrentAxialDrivers(T time)
+    CVector<T> getCurrentAxialDrivers([[maybe_unused]] T time)
     {
         return CVector<T>(0., 0., 0.);
     }

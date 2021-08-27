@@ -116,6 +116,8 @@ private:
     ScalarDriver<T> IECDriverBottom;
     ScalarDriver<T> currentDriver;
     ScalarDriver<T> anisotropyDriver;
+    ScalarDriver<T> fieldLikeTorqueDriver;
+    ScalarDriver<T> dampingLikeTorqueDriver;
     AxialDriver<T> externalFieldDriver;
     AxialDriver<T> HoeDriver;
 
@@ -188,6 +190,7 @@ public:
     T damping;
 
     // SOT params
+    bool dynamicSOT = true;
     T fieldLikeTorque;
     T dampingLikeTorque;
 
@@ -246,6 +249,7 @@ public:
     {
         this->includeSTT = false;
         this->includeSOT = true;
+        this->dynamicSOT = false;
     }
 
     /**
@@ -358,14 +362,24 @@ public:
         this->currentDriver = driver;
     }
 
-    void setFieldLikeTorque(CVector<T> &torque)
+    void setFieldLikeTorqueDriver(ScalarDriver<T> &driver)
     {
-        this->fieldLikeTorque = torque;
+        this->includeSOT = true;
+        if (this->includeSTT)
+            throw std::runtime_error("includeSTT was on and now setting SOT interaction!");
+        if (!this->dynamicSOT)
+            throw std::runtime_error("used a static SOT definition, now trying to set it dynamically!");
+        this->fieldLikeTorqueDriver = driver;
     }
 
-    void setDampingLikeTorque(CVector<T> &torque)
+    void setDampingLikeTorqueDriver(ScalarDriver<T> &driver)
     {
-        this->dampingLikeTorque = torque;
+        this->includeSOT = true;
+        if (this->includeSTT)
+            throw std::runtime_error("includeSTT was on and now setting SOT interaction!");
+        if (!this->dynamicSOT)
+            throw std::runtime_error("used a static SOT definition, now trying to set it dynamically!");
+        this->dampingLikeTorqueDriver = driver;
     }
 
     void setAnisotropyDriver(ScalarDriver<T> &driver)
@@ -503,10 +517,21 @@ public:
         }
         else if (this->includeSOT)
         {
-            this->I_log = this->currentDriver.getCurrentScalarValue(time);
-            const T Hdl = this->dampingLikeTorque * this->I_log;
-            const T Hfl = this->fieldLikeTorque * this->I_log;
+            T Hdl, Hfl;
+            // I log current density
             // use SOT formulation with effective DL and FL fields
+            if (this->dynamicSOT)
+            {
+                // dynamic SOT is set when the 
+                Hdl = this->dampingLikeTorqueDriver.getCurrentScalarValue(time);
+                Hfl = this->fieldLikeTorqueDriver.getCurrentScalarValue(time);
+            }
+            else
+            {
+                this->I_log = this->currentDriver.getCurrentScalarValue(time);
+                Hdl = this->dampingLikeTorque * this->I_log;
+                Hfl = this->fieldLikeTorque * this->I_log;
+            }
             const CVector<T> cm = c_cross<T>(m, this->referenceLayer);
             const CVector<T> ccm = c_cross<T>(m, cm);
             const CVector<T> flTorque = cm * (Hfl - this->damping * Hdl);
@@ -602,7 +627,7 @@ public:
     std::unordered_map<std::string, std::vector<T>> log;
     std::string fileSave;
     unsigned int logLength = 0;
-    int layerNo;
+    unsigned int layerNo;
     Junction() {}
 
     /**
@@ -677,13 +702,13 @@ public:
         {
             throw std::invalid_argument("Passed a zero length Layer vector!");
         }
-        if ((this->layerNo != this->Rx0.size()) ||
-            (this->layerNo != this->Ry0.size()) ||
-            (this->layerNo != this->AMR_X.size()) ||
-            (this->layerNo != this->AMR_Y.size()) ||
-            (this->layerNo != this->AHE.size()) ||
-            (this->layerNo != this->SMR_X.size()) ||
-            (this->layerNo != this->SMR_Y.size()))
+        if ((this->layerNo != (unsigned int)this->Rx0.size()) ||
+            (this->layerNo != (unsigned int)this->Ry0.size()) ||
+            (this->layerNo != (unsigned int)this->AMR_X.size()) ||
+            (this->layerNo != (unsigned int)this->AMR_Y.size()) ||
+            (this->layerNo != (unsigned int)this->AHE.size()) ||
+            (this->layerNo != (unsigned int)this->SMR_X.size()) ||
+            (this->layerNo != (unsigned int)this->SMR_Y.size()))
         {
             throw std::invalid_argument("Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
         }
@@ -771,26 +796,26 @@ public:
     {
         scalarlayerSetter(layerID, &Layer<T>::setCurrentDriver, driver);
     }
-    void setLayerDampingLikeTorque(std::string layerID, ScalarDriver<T> driver)
+    void setLayerDampingLikeTorqueDriver(std::string layerID, ScalarDriver<T> driver)
     {
-        scalarlayerSetter(layerID, &Layer<T>::setDampingLikeTorque, driver);
+        scalarlayerSetter(layerID, &Layer<T>::setDampingLikeTorqueDriver, driver);
     }
-    void setLayerFieldLikeTorque(std::string layerID, ScalarDriver<T> driver)
+    void setLayerFieldLikeTorqueDriver(std::string layerID, ScalarDriver<T> driver)
     {
-        scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorque, driver);
+        scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorqueDriver, driver);
     }
 
     /**
      * Set IEC interaction between two layers.
      * The names of the params are only for convention. The IEC will be set 
-     * between bottomLyaer or topLayer, order is irrelevant.
+     * between bottomLayer or topLayer, order is irrelevant.
      * @param bottomLayer: the first layer id
      * @param topLayer: the second layer id
      */
     void setIECDriver(std::string bottomLayer, std::string topLayer, ScalarDriver<T> driver)
     {
         bool found = false;
-        for (int i = 0; i < this->layerNo - 1; i++)
+        for (unsigned int i = 0; i < this->layerNo - 1; i++)
         {
             // check if the layer above is actually top layer the user specified
             if ((this->layers[i].id == bottomLayer) && (this->layers[i + 1].id == topLayer))
@@ -995,12 +1020,12 @@ public:
         // the first and the last layer get 0 vector coupled
         magCopies[0] = CVector<T>();
         magCopies[this->layerNo + 1] = CVector<T>();
-        for (int i = 0; i < this->layerNo; i++)
+        for (unsigned int i = 0; i < this->layerNo; i++)
         {
             magCopies[i] = this->layers[i].mag;
         }
 
-        for (int i = 0; i < this->layerNo; i++)
+        for (unsigned int i = 0; i < this->layerNo; i++)
         {
             (this->layers[i].*functor)(
                 t, timeStep, magCopies[i], magCopies[i + 2]);
@@ -1036,7 +1061,7 @@ public:
         T Rx_acc = 0.0;
         T Ry_acc = 0.0;
 
-        for (int i = 0; i < this->layers.size(); i++)
+        for (unsigned int i = 0; i < this->layers.size(); i++)
         {
             const T Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
             const T Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
