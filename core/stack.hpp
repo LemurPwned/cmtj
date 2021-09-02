@@ -8,11 +8,13 @@ class Stack
 {
     friend class Junction<T>;
 
-protected:
-    T coupledCurrent = 0;
-    T couplingStrength = 0;
+private:
     ScalarDriver<T> currentDriver;
     std::unordered_map<std::string, std::vector<T>> stackLog;
+    bool currentDriverSet = false;
+
+protected:
+    T couplingStrength = 0;
     virtual T calculateStackResistance(std::vector<T> resistances) = 0;
     virtual T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
 
@@ -23,6 +25,33 @@ public:
     {
         this->junctionList[junctionId].setLayerMagnetisation(layerId, mag);
     }
+
+    void setOerstedFieldDriver(AxialDriver<T> oDriver)
+    {
+        for (auto &j : this->junctionList)
+        {
+            j.setLayerOerstedFieldDriver("all", oDriver);
+        }
+    }
+
+    void setExternalFieldDriver(AxialDriver<T> fDriver)
+    {
+        for (auto &j : this->junctionList)
+        {
+            j.setLayerExternalFieldDriver("all", fDriver);
+        }
+    }
+
+    void resetCoupledCurrentDriver()
+    {
+        this->currentDriver = NullDriver<T>();
+        for (auto &j : this->junctionList)
+        {
+            j.setLayerCurrentDriver("all", this->currentDriver);
+        }
+        this->currentDriverSet = false;
+    }
+
     void setCoupledCurrentDriver(ScalarDriver<T> cDriver)
     {
         this->currentDriver = cDriver;
@@ -30,6 +59,7 @@ public:
         {
             j.setLayerCurrentDriver("all", this->currentDriver);
         }
+        this->currentDriverSet = true;
     }
 
     Stack(std::vector<Junction<T>> inputStack)
@@ -76,10 +106,13 @@ public:
         this->couplingStrength = coupling;
     }
 
-    void logStackData(T t, T resistance, T coupledCurrent)
+    void logStackData(T t, T resistance, std::vector<T> timeCurrents)
     {
         this->stackLog["Resistance"].push_back(resistance);
-        this->stackLog["CoupledI"].push_back(coupledCurrent);
+        for (std::size_t j = 0; j < timeCurrents.size(); ++j)
+        {
+            this->stackLog["Current_" + std::to_string(j)].push_back(timeCurrents[j]);
+        }
         this->stackLog["time"].push_back(t);
     }
 
@@ -143,6 +176,7 @@ public:
                 {
                     // if at least one temp. driver is set
                     // then use euler_heun for consistency
+                    std::cout << "Warning: using Euler-Heun in stack computation" << std::endl;
                     solv = &Layer<T>::euler_heun;
                     goto labelEndLoop;
                 }
@@ -152,6 +186,7 @@ public:
         T coupledCurrent = 0;
         T tCurrent = 0;
         std::vector<T> timeResistances(junctionList.size());
+        std::vector<T> timeCurrents(junctionList.size());
         std::vector<CVector<T>> frozenMags(junctionList.size());
 
         const CVector<T> pol = this->getPolarisationVector();
@@ -161,50 +196,48 @@ public:
 
             t = i * timeStep;
             coupledCurrent = this->currentDriver.getCurrentScalarValue(t);
-            // stash the magnetisations first
-            for (std::size_t i = 0; i < junctionList.size(); ++i)
-                frozenMags[i] = junctionList[i].getLayerMagnetisation("free");
 
-            for (std::size_t i = 0; i < junctionList.size(); ++i)
+            // stash the magnetisations first
+            for (std::size_t j = 0; j < junctionList.size(); ++j)
+                frozenMags[j] = junctionList[j].getLayerMagnetisation("free");
+
+            for (std::size_t j = 0; j < junctionList.size(); ++j)
             {
                 // skip first junction
-                if (i > 0)
+                // modify the standing layer constant current
+                if (j > 0)
+                    tCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
+                                                    coupledCurrent, frozenMags[j], frozenMags[j - 1], pol);
+                else
+                    tCurrent = coupledCurrent;
+
+                junctionList[j].setLayerCurrentDriver("all", ScalarDriver<T>::getConstantDriver(
+                                                                 tCurrent));
+
+                // solve the equation
+                if (this->junctionList[j].layerNo == 1)
                 {
-                    tCurrent = this->computeCouplingCurrentDensity(
-                        coupledCurrent, frozenMags[i], frozenMags[i - 1], pol);
-                    // modify the standing layer constant current
-                    // junctionList[i].modifyLayerCurrentDensity("free", tCurrent);
-                    junctionList[i].setLayerCurrentDriver("all", ScalarDriver<T>::getSineDriver(
-                                                                     this->currentDriver.constantValue, tCurrent, this->currentDriver.frequency, this->currentDriver.phase));
+                    junctionList[j].runSingleLayerSolver(solv, t, timeStep);
                 }
                 else
                 {
-                    junctionList[i].setLayerCurrentDriver("all", ScalarDriver<T>::getSineDriver(
-                                                                     this->currentDriver.constantValue, this->currentDriver.amplitude, this->currentDriver.frequency, this->currentDriver.phase));
-                }
-                if (this->junctionList[i].layerNo == 1)
-                {
-                    junctionList[i].runSingleLayerSolver(solv, t, timeStep);
-                }
-                else
-                {
-                    junctionList[i].runMultiLayerSolver(solv, t, timeStep);
+                    junctionList[j].runMultiLayerSolver(solv, t, timeStep);
                 }
 
                 // change the instant value of the current before the
                 // the resistance is calculated
-                // compute the next i+1 input to the current.
-                const auto resistance = junctionList[i].getMagnetoresistance();
-                timeResistances.push_back(resistance[0]);
+                // compute the next j+1 input to the current.
+                const auto resistance = junctionList[j].getMagnetoresistance();
+                timeResistances[j] = resistance[0];
+                timeCurrents[j] = tCurrent;
             }
             if (!(i % writeEvery))
             {
                 const T magRes = this->calculateStackResistance(timeResistances);
-                this->logStackData(t, magRes, tCurrent);
-                for (auto &j : this->junctionList)
-                    j.logLayerParams(t, false);
+                this->logStackData(t, magRes, timeCurrents);
+                for (auto &jun : this->junctionList)
+                    jun.logLayerParams(t, false);
             }
-            timeResistances.clear();
         }
     }
 };
