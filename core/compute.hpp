@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fftw3.h>
+#include <complex>
 #include <iomanip>
 #include <numeric>
 #include <random>
@@ -51,8 +52,9 @@ public:
                                [&minTime](const auto &value)
                                { return value >= minTime; });
         // turn into index
-        const int thresIdx = (int)(log["time"].end() - it);
+        const int thresIdx = (int)(it - log["time"].begin());
         const int cutSize = log["time"].size() - thresIdx;
+
         // Rpp
         const T RppMax = *std::max_element(resistance.begin() + thresIdx, resistance.end());
         const T RppMin = *std::min_element(resistance.begin() + thresIdx, resistance.end());
@@ -100,15 +102,12 @@ public:
         auto it = std::find_if(log["time"].begin(), log["time"].end(),
                                [&minTime](const auto &value)
                                { return value >= minTime; });
-
-        const int thresIdx = (int)(log["time"].end() - it);
+        const int thresIdx = (int)(it - log["time"].begin());
         const int cutSize = log["time"].size() - thresIdx;
-
         // plan creation is not thread safe
         const T normalizer = timeStep * cutSize;
         const int maxIt = (cutSize % 2) ? cutSize / 2 : (cutSize - 1) / 2;
         std::vector<T> frequencySteps(maxIt);
-        frequencySteps[0] = 0;
         for (int i = 1; i <= maxIt; i++)
         {
             frequencySteps[i - 1] = (i - 1) / normalizer;
@@ -126,10 +125,10 @@ public:
             }
             std::vector<T> cutMag(log[tag].begin() + thresIdx, log[tag].end());
             // define FFT plan
-            fftw_complex out[cutMag.size()];
+            std::complex<T> *out = new std::complex<T>[cutMag.size()];
             fftw_plan plan = fftw_plan_dft_r2c_1d(cutMag.size(),
                                                   cutMag.data(),
-                                                  out,
+                                                  reinterpret_cast<fftw_complex *>(out),
                                                   FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
 
             if (plan == NULL)
@@ -138,16 +137,20 @@ public:
             }
             fftw_execute(plan);
             const int outBins = (cutMag.size() + 1) / 2;
-            std::vector<T> amplitudes;
-            amplitudes.push_back(out[0][0]);
+            std::vector<T> amplitudes, phases;
+            const double norm = (double)cutSize / 2;
+            amplitudes.push_back(out[0].real());
+            phases.push_back(0.);
             for (int i = 1; i < outBins - 1; i++)
             {
                 const auto tandem = out[i];
-                const T real = tandem[0];
-                const T img = tandem[1];
+                T real = tandem.real() / norm; //  [0];
+                T img = tandem.imag() / norm;  // [1];
                 amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
+                phases.push_back(atan2(img, real));
             }
             spectralFFTResult[tag + "_amplitude"] = std::move(amplitudes);
+            spectralFFTResult[tag + "_phase"] = std::move(phases);
             fftw_destroy_plan(plan);
         }
         return spectralFFTResult;
@@ -188,10 +191,10 @@ public:
         }
 
         // define FFT plan
-        fftw_complex out[mixedSignal.size()];
+        std::complex<T> *out = new std::complex<T>[mixedSignal.size()];
         fftw_plan plan = fftw_plan_dft_r2c_1d(mixedSignal.size(),
                                               mixedSignal.data(),
-                                              out,
+                                              reinterpret_cast<fftw_complex *>(out),
                                               FFTW_ESTIMATE); // here it's weird, FFT_FORWARD produces an empty plan
 
         if (plan == NULL)
@@ -202,11 +205,12 @@ public:
         const int outBins = (mixedSignal.size() + 1) / 2;
         std::vector<T> amplitudes;
         amplitudes.push_back(out[0][0]);
+        const double norm = (double)cutSize / 2;
         for (int i = 1; i < outBins; i++)
         {
             const auto tandem = out[i];
-            const T real = tandem[0];
-            const T img = tandem[1];
+            T real = tandem.real() / norm; //  [0];
+            T img = tandem.imag() / norm;  // [1];
             amplitudes.push_back(sqrt(pow(real, 2) + pow(img, 2)));
         }
         spectralFFTResult["mixed_amplitude"] = std::move(amplitudes);

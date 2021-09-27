@@ -106,6 +106,15 @@ public:
         return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hdemag) * cellVolume;
     }
 };
+
+enum Reference
+{
+    NONE = 0,
+    FIXED,
+    TOP,
+    BOTTOM
+};
+
 static std::default_random_engine generator;
 template <typename T>
 class Layer
@@ -123,6 +132,8 @@ private:
 
     bool temperatureSet = false;
 
+    Reference referenceType = NONE;
+
     Layer(std::string id,
           CVector<T> mag,
           CVector<T> anis,
@@ -130,7 +141,6 @@ private:
           T thickness,
           T cellSurface,
           std::vector<CVector<T>> demagTensor,
-          std::vector<CVector<T>> dipoleTensor,
           T damping,
           T fieldLikeTorque,
           T dampingLikeTorque,
@@ -143,7 +153,6 @@ private:
                                 thickness(thickness),
                                 cellSurface(cellSurface),
                                 demagTensor(demagTensor),
-                                dipoleTensor(dipoleTensor),
                                 damping(damping),
                                 fieldLikeTorque(fieldLikeTorque),
                                 dampingLikeTorque(dampingLikeTorque),
@@ -181,9 +190,9 @@ public:
     T J_log = 0.0, I_log = 0.0;
     T Jbottom_log = 0.0, Jtop_log = 0.0;
 
-    std::vector<CVector<T>>
-        demagTensor,
-        dipoleTensor;
+    std::vector<CVector<T>> demagTensor;
+    std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
+    std::vector<CVector<T>> dipoleTop = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
 
     T Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
     // LLG params
@@ -208,9 +217,8 @@ public:
                    T thickness,
                    T cellSurface,
                    std::vector<CVector<T>> demagTensor,
-                   std::vector<CVector<T>> dipoleTensor,
                    T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                      demagTensor, dipoleTensor,
+                                      demagTensor,
                                       damping, 0, 0, 0, 0, 0) {}
 
     /**
@@ -226,7 +234,6 @@ public:
      * @param thickness: thickness of the layer. Unit: meter [m].
      * @param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
      * @param demagTensor: demagnetisation tensor of the layer.
-     * @param dipoleTensor: dipole tensor of the layer.
      * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
      * @param fieldLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hfl.
      * @param dampingLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hdl.
@@ -238,11 +245,10 @@ public:
                    T thickness,
                    T cellSurface,
                    std::vector<CVector<T>> demagTensor,
-                   std::vector<CVector<T>> dipoleTensor,
                    T damping,
                    T fieldLikeTorque,
                    T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                                demagTensor, dipoleTensor,
+                                                demagTensor,
                                                 damping,
                                                 fieldLikeTorque,
                                                 dampingLikeTorque, 0, 0, 0)
@@ -265,7 +271,6 @@ public:
      * @param thickness: thickness of the layer. Unit: meter [m].
      * @param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
      * @param demagTensor: demagnetisation tensor of the layer.
-     * @param dipoleTensor: dipole tensor of the layer.
      * @param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
      * @param SlomczewskiSpacerLayerParameter: [STT] Slomczewski parameter. Default 1.0. Dimensionless.
      * @param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
@@ -278,12 +283,11 @@ public:
                    T thickness,
                    T cellSurface,
                    std::vector<CVector<T>> demagTensor,
-                   std::vector<CVector<T>> dipoleTensor,
                    T damping,
                    T SlonczewskiSpacerLayerParameter,
                    T beta,
                    T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                               demagTensor, dipoleTensor,
+                                               demagTensor,
                                                damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
         this->includeSTT = true;
@@ -297,7 +301,6 @@ public:
                                     T thickness,
                                     T cellSurface,
                                     std::vector<CVector<T>> demagTensor,
-                                    std::vector<CVector<T>> dipoleTensor,
                                     T damping,
                                     T SlonczewskiSpacerLayerParameter,
                                     T beta,
@@ -311,7 +314,6 @@ public:
             thickness,
             cellSurface,
             demagTensor,
-            dipoleTensor,
             damping,
             SlonczewskiSpacerLayerParameter,
             beta,
@@ -325,7 +327,6 @@ public:
                                     T thickness,
                                     T cellSurface,
                                     std::vector<CVector<T>> demagTensor,
-                                    std::vector<CVector<T>> dipoleTensor,
                                     T damping,
                                     T fieldLikeTorque,
                                     T dampingLikeTorque)
@@ -337,24 +338,30 @@ public:
                         thickness,
                         cellSurface,
                         demagTensor,
-                        dipoleTensor,
                         damping,
                         fieldLikeTorque,
                         dampingLikeTorque);
+    }
+
+    void setTopDipoleTensor(std::vector<CVector<T>> dipoleTensor)
+    {
+        this->dipoleTop = dipoleTensor;
+    }
+
+    void setBottomDipoleTensor(std::vector<CVector<T>> dipoleTensor)
+    {
+        this->dipoleBottom = dipoleTensor;
     }
 
     const bool hasTemperature()
     {
         return this->temperatureSet;
     }
-    void modifyCurrentDensity(T density)
-    {
-        this->currentDriver.setConstantValue(density);
-    }
+
     void setTemperatureDriver(ScalarDriver<T> &driver)
     {
         this->temperatureDriver = driver;
-        temperatureSet = true;
+        this->temperatureSet = true;
     }
 
     void setCurrentDriver(ScalarDriver<T> &driver)
@@ -400,7 +407,7 @@ public:
     {
         if (mag.length() == 0)
         {
-            std::runtime_error("Initial magnetisation was set to a zero vector!");
+            throw std::runtime_error("Initial magnetisation was set to a zero vector!");
         }
         this->mag = mag;
         this->mag.normalize();
@@ -417,21 +424,42 @@ public:
     }
 
     /**
-     * Set reference layer parameter. This is for calculating the spin current
+     * Set reference layer parameter. This is for calculating the spin current 
      * polarisation if `includeSTT` is true.
      * @param reference: CVector describing the reference layer.
      */
     void setReferenceLayer(CVector<T> &reference)
     {
         this->referenceLayer = reference;
+        this->referenceType = FIXED;
+    }
+
+    void setReferenceLayer(Reference reference)
+    {
+        if ((reference == FIXED) && (!this->referenceLayer.length()))
+        {
+            throw std::runtime_error("Cannot set fixed polarisation layer to 0! Set reference to NONE to disable reference.");
+        }
+        this->referenceType = reference;
+    }
+
+    CVector<T> getReferenceLayer()
+    {
+        // TODO: return other mags when the reference layer is not fixed.
+        return this->referenceLayer;
+    }
+
+    Reference getReferenceType()
+    {
+        return this->referenceType;
     }
 
     const CVector<T> calculateHeff(T time, T timeStep, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
     {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
-        this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleTensor, this->Ms) +
-                        calculate_tensor_interaction(top, this->dipoleTensor, this->Ms);
+        this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
+                        calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
@@ -499,6 +527,26 @@ public:
         const CVector<T> prod2 = c_cross<T>(m, prod);
         const T convTerm = 1 / (1 + pow(this->damping, 2)); // LLGS -> LL form
         CVector<T> dmdt = prod + prod2 * this->damping;
+        CVector<T> reference;
+
+        // decide what is to be the reference for (s)LLG-STT
+        // dynamically substitute other active layers
+        switch (this->referenceType)
+        {
+            // TODO: add the warning if reference layer is top/bottom and empty
+        case FIXED:
+            reference = this->referenceLayer;
+            break;
+        case TOP:
+            reference = top;
+            break;
+        case BOTTOM:
+            reference = bottom;
+            break;
+        default:
+            break;
+        }
+
         // extra terms
         if (this->includeSTT)
         {
@@ -506,14 +554,17 @@ public:
             // use standard STT formulation
             const T aJ = HBAR * this->I_log /
                          (ELECTRON_CHARGE * this->Ms * this->thickness);
-
-            const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
             // field like
-            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, this->referenceLayer));
+            // this is more complex model
+            // const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
+            // const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
+            // this is simplified
+            const T eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
             const T sttTerm = GYRO * aJ * eta;
-
-            const CVector<T> prod3 = c_cross<T>(m, this->referenceLayer);
-            return (dmdt * -GYRO + c_cross<T>(m, prod3) * -sttTerm + prod3 * sttTerm * this->beta) * convTerm;
+            const CVector<T> fieldLike = c_cross<T>(m, reference);
+            // damping like
+            const CVector<T> dampingLike = c_cross<T>(m, fieldLike);
+            return (dmdt * -GYRO + dampingLike * -sttTerm + fieldLike * sttTerm * this->beta) * convTerm;
         }
         else if (this->includeSOT)
         {
@@ -522,7 +573,7 @@ public:
             // use SOT formulation with effective DL and FL fields
             if (this->dynamicSOT)
             {
-                // dynamic SOT is set when the 
+                // dynamic SOT is set when the driver is present
                 Hdl = this->dampingLikeTorqueDriver.getCurrentScalarValue(time);
                 Hfl = this->fieldLikeTorqueDriver.getCurrentScalarValue(time);
             }
@@ -532,7 +583,7 @@ public:
                 Hdl = this->dampingLikeTorque * this->I_log;
                 Hfl = this->fieldLikeTorque * this->I_log;
             }
-            const CVector<T> cm = c_cross<T>(m, this->referenceLayer);
+            const CVector<T> cm = c_cross<T>(m, reference);
             const CVector<T> ccm = c_cross<T>(m, cm);
             const CVector<T> flTorque = cm * (Hfl - this->damping * Hdl);
             const CVector<T> dlTorque = ccm * (Hdl + this->damping * Hfl);
@@ -586,7 +637,7 @@ public:
         }
         // Brownian motion sample
         // Generate the noise from the Brownian motion
-        CVector<T> dW = CVector(this->distribution, generator) * sqrt(timeStep);
+        CVector<T> dW = CVector<T>(this->distribution, generator) * sqrt(timeStep);
         // squared dW -- just utility
         dW.normalize();
         // f_n is the vector of non-stochastic part at step n
@@ -730,18 +781,6 @@ public:
         return this->log;
     }
 
-    Layer<T> &findLayerByID(std::string lID)
-    {
-        for (auto &l : layers)
-        {
-            if (l.id == lID)
-            {
-                return l;
-            }
-        }
-        throw std::runtime_error("Failed to find the specified layer!");
-    }
-
     typedef void (Layer<T>::*scalarDriverSetter)(ScalarDriver<T> &driver);
     typedef void (Layer<T>::*axialDriverSetter)(AxialDriver<T> &driver);
     void scalarlayerSetter(std::string &layerID, scalarDriverSetter functor, ScalarDriver<T> driver)
@@ -858,36 +897,38 @@ public:
 
     CVector<T> getLayerMagnetisation(std::string layerID)
     {
-        bool found = false;
-        for (auto &l : this->layers)
-        {
-            if (l.id == layerID || layerID == "all")
-            {
-                return l.mag;
-            }
-        }
-        if (!found)
-        {
-            throw std::runtime_error("Failed to find a layer with a given id!");
-        }
-        return CVector<T>();
+        return getLayer(layerID).mag;
     }
 
-    void modifyLayerCurrentDensity(std::string layerID, T val)
+    Reference getLayerReferenceType(std::string layerID)
     {
-        bool found = false;
-        for (auto &l : this->layers)
+        return getLayer(layerID).referenceType;
+    }
+
+    void setLayerReferenceLayer(std::string layerID, CVector<T> referenceLayer)
+    {
+        if (layerID == "all")
         {
-            if (l.id == layerID || layerID == "all")
+            for (auto &l : this->layers)
             {
-                l.modifyCurrentDensity(val);
-                found = true;
+                l.setReferenceLayer(referenceLayer);
             }
         }
-        if (!found)
+        else
+            getLayer(layerID).setReferenceLayer(referenceLayer);
+    }
+
+    void setLayerReferenceType(std::string layerID, Reference referenceType)
+    {
+        if (layerID == "all")
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            for (auto &l : this->layers)
+            {
+                l.setReferenceLayer(referenceType);
+            }
         }
+        else
+            getLayer(layerID).setReferenceLayer(referenceType);
     }
 
     Layer<T> &getLayer(std::string layerID)
@@ -942,6 +983,10 @@ public:
             const auto magnetoresistance = calculateMagnetoresistance(c_dot<T>(this->layers[0].mag,
                                                                                this->layers[1].mag));
             this->log["R_free_bottom"].emplace_back(magnetoresistance);
+        }
+        else if (this->MR_mode == CLASSIC && this->layerNo == 1)
+        {
+            this->log["R"].emplace_back(calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[0].referenceLayer)));
         }
         else if (MR_mode == STRIP)
         {
