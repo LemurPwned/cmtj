@@ -17,7 +17,8 @@ enum UpdateType
     pulse,
     sine,
     step,
-    posine
+    posine,
+    halfsine
 };
 
 template <typename T>
@@ -185,6 +186,15 @@ public:
             amplitude,
             frequency, phase);
     }
+
+    static ScalarDriver getHalfSineDriver(T constantValue, T amplitude, T frequency, T phase)
+    {
+        return ScalarDriver(
+            halfsine,
+            constantValue,
+            amplitude,
+            frequency, phase);
+    }
     /**
      * Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
      * @param constantValue: offset of the pulse (vertical)
@@ -215,6 +225,14 @@ public:
         else if (this->update == posine)
         {
             returnValue += abs(this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase));
+        }
+        else if (this->update == halfsine)
+        {
+            const T tamp = this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase);
+            if (tamp <= 0)
+            {
+                returnValue += tamp; // ? tamp >= 0. : 0.;
+            }
         }
         else if (this->update == step)
         {

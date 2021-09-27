@@ -140,19 +140,18 @@ public:
 
     const CVector<T> getPolarisationVector()
     {
-        std::vector<CVector<T>> polarisation(junctionList.size());
-        for (std::size_t i = 0; i < junctionList.size(); ++i)
-            polarisation[i] = junctionList[i].getLayer("free").referenceLayer;
-
-        if (!(std::adjacent_find(polarisation.begin(), polarisation.end(), std::not_equal_to<>()) == polarisation.end()))
+        CVector<T> probe = junctionList[0].getLayer("free").referenceLayer;
+        for (std::size_t i = 1; i < junctionList.size(); ++i)
         {
-            throw std::runtime_error("Polarisation vectors are not equal in stack");
+            if (probe != junctionList[i].getLayer("free").referenceLayer)
+                throw std::runtime_error("Polarisation vectors are not equal in stack");
         }
-        if (!polarisation[0].length())
+
+        if (!probe.length())
         {
             throw std::runtime_error("Polarisation is not set!");
         }
-        return polarisation[0];
+        return probe;
     }
 
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11)

@@ -43,6 +43,13 @@ PYBIND11_MODULE(cmtj, m)
         .value("yaxis", yaxis)
         .value("zaxis", zaxis)
         .export_values();
+
+    py::enum_<Reference>(m, "Reference")
+        .value("none", NONE)
+        .value("fixed", FIXED)
+        .value("top", TOP)
+        .value("bottom", BOTTOM)
+        .export_values();
     // Driver Class
     py::class_<DScalarDriver>(m, "ScalarDriver")
         .def_static("getConstantDriver",
@@ -94,7 +101,6 @@ PYBIND11_MODULE(cmtj, m)
                  double,               // thickness
                  double,               // cellSurface
                  std::vector<DVector>, // demagTensor
-                 std::vector<DVector>, // dipoleTensor
                  double                // damping
                  >(),
              "id"_a,
@@ -104,7 +110,6 @@ PYBIND11_MODULE(cmtj, m)
              "thickness"_a,
              "cellSurface"_a,
              "demagTensor"_a,
-             "dipoleTensor"_a,
              "damping"_a = 0.011)
         .def_static("createSOTLayer", &DLayer::LayerSOT,
                     "id"_a,
@@ -114,7 +119,6 @@ PYBIND11_MODULE(cmtj, m)
                     "thickness"_a,
                     "cellSurface"_a,
                     "demagTensor"_a,
-                    "dipoleTensor"_a,
                     "damping"_a = 0.011,
                     "fieldLikeTorque"_a = 0.0,
                     "dampingLikeTorque"_a = 0.0)
@@ -126,7 +130,6 @@ PYBIND11_MODULE(cmtj, m)
                     "thickness"_a,
                     "cellSurface"_a,
                     "demagTensor"_a,
-                    "dipoleTensor"_a,
                     "damping"_a = 0.011,
                     "SlonczewskiSpacerLayerParameter"_a = 1.0,
                     "beta"_a = 0.0,
@@ -135,7 +138,15 @@ PYBIND11_MODULE(cmtj, m)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
         .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
-        .def("setReferenceLayer", &DLayer::setReferenceLayer);
+        // reference layers 
+        .def("setReferenceLayer", py::overload_cast<DVector &>(&DLayer::setReferenceLayer))
+        .def("setReferenceLayer", py::overload_cast<Reference>(&DLayer::setReferenceLayer))
+
+        .def("setFieldLikeTorqueDriver", &DLayer::setFieldLikeTorqueDriver)
+        .def("setDampingLikeTorqueDriver", &DLayer::setDampingLikeTorqueDriver)
+        .def("setTemperatureDriver", &DLayer::setTemperatureDriver)
+        .def("setTopDipoleTensor", &DLayer::setTopDipoleTensor)
+        .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor);
 
     py::class_<DJunction>(m, "Junction")
         .def(py::init<std::vector<DLayer>,
@@ -189,6 +200,11 @@ PYBIND11_MODULE(cmtj, m)
         .def("setIECDriver", &DJunction::setIECDriver)
         .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
         .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
+        // temp
+        .def("setLayerTemperatureDriver", &DJunction::setLayerTemperatureDriver)
+        // SOT setters
+        .def("setLayerFieldLikeTorqueDriver", &DJunction::setLayerFieldLikeTorqueDriver)
+        .def("setLayerDampingLikeTorqueDriver", &DJunction::setLayerDampingLikeTorqueDriver)
         // junction calculations
         .def("getLayerMagnetisation", &DJunction::getLayerMagnetisation)
         .def("getMagnetoresistance", &DJunction::getMagnetoresistance);

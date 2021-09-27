@@ -123,23 +123,39 @@ public:
         y = v.y;
         z = v.z;
     }
-    bool operator==(CVector &v)
+    bool operator==(CVector& v)
     {
         if (
-            (x == v.x) && (y == v.y) && (y == v.z))
+            (x == v.x) && (y == v.y) && (z == v.z))
             return true;
         return false;
     };
 
-    bool operator!=(CVector &v)
+    bool operator==(const CVector& v) const
     {
         if (
-            (x == v.x) && (y == v.y) && (y == v.z))
+            (x == v.x) && (y == v.y) && (z == v.z))
+            return true;
+        return false;
+    };
+
+    bool operator!=(CVector& v)
+    {
+        if (
+            (x == v.x) && (y == v.y) && (z == v.z))
             return false;
         return true;
     };
 
-    CVector operator*(T &val)
+    bool operator!=(const CVector& v) const
+    {
+        if (
+            (x == v.x) && (y == v.y) && (z == v.z))
+            return false;
+        return true;
+    };
+
+    CVector operator*(T& val)
     {
         CVector res(
             x * val,
