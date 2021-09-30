@@ -1111,11 +1111,11 @@ public:
             const T Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
             const T Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
                          (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
-            Rx_acc += Rx;
-            Ry_acc += Ry;
+            Rx_acc += 1/Rx;
+            Ry_acc += 1/Ry;
         }
 
-        return {1 / Rx_acc, 1 / Ry_acc};
+        return {1 / Rx_acc, 1 / Ry_acc, 0.};
     }
 
     /**
