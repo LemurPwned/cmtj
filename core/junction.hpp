@@ -136,6 +136,9 @@ private:
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> IECDriverTop;
     ScalarDriver<T> IECDriverBottom;
+    ScalarDriver<T> IECQuadDriverTop;
+    ScalarDriver<T> IECQuadDriverBottom;
+
     ScalarDriver<T> currentDriver;
     ScalarDriver<T> anisotropyDriver;
     ScalarDriver<T> fieldLikeTorqueDriver;
@@ -198,10 +201,13 @@ public:
     T cellVolume = 0.0, cellSurface = 0.0;
 
     CVector<T> H_log, Hoe_log, Hconst, mag, anisAxis, anis, referenceLayer;
-    CVector<T> Hext, Hdipole, Hdemag, HIEC, HIECtop, HIECbottom, Hoe, HAnis, Hthermal, Hfl;
-    T K_log = 0.0;
-    T J_log = 0.0, I_log = 0.0;
+    CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfl;
+
+    CVector<T> HIEC, HIECtop, HIECbottom;
     T Jbottom_log = 0.0, Jtop_log = 0.0;
+    T J2bottom_log = 0.0, J2top_log = 0.0;
+    T K_log = 0.0;
+    T I_log = 0.0;
 
     std::vector<CVector<T>> demagTensor;
     std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
@@ -436,6 +442,16 @@ public:
         this->IECDriverTop = driver;
     }
 
+    void setQuadIECDriverTop(ScalarDriver<T> &driver)
+    {
+        this->IECQuadDriverTop = driver;
+    }
+
+    void setQuadIECDriverBottom(ScalarDriver<T> &driver)
+    {
+        this->IECQuadDriverBottom = driver;
+    }
+
     /**
      * Set reference layer parameter. This is for calculating the spin current
      * polarisation if `includeSTT` is true.
@@ -514,19 +530,24 @@ public:
         return this->anis * nom;
     }
 
-    CVector<T> calculateIEC_(const T J, CVector<T> stepMag, CVector<T> coupledMag)
+    CVector<T> calculateIEC_(const T J, const T J2, CVector<T> stepMag, CVector<T> coupledMag)
     {
         const T nom = J / (this->Ms * this->thickness);
-        // return (coupledMag - stepMag) * nom;
-        // either of those may be correct -- undecided for now
-        return coupledMag * nom;
+        // return (coupledMag - stepMag) * nom; // alternative form
+        return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
     }
 
     CVector<T> calculateIEC(T time, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
     {
         this->Jbottom_log = this->IECDriverBottom.getCurrentScalarValue(time);
         this->Jtop_log = this->IECDriverTop.getCurrentScalarValue(time);
-        return calculateIEC_(this->Jbottom_log, stepMag, bottom) + calculateIEC_(this->Jtop_log, stepMag, top);
+
+        this->J2bottom_log = this->IECQuadDriverBottom.getCurrentScalarValue(time);
+        this->J2top_log = this->IECQuadDriverTop.getCurrentScalarValue(time);
+
+        return calculateIEC_(this->Jbottom_log,
+                             this->J2bottom_log, stepMag, bottom) +
+               calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
     }
 
     const CVector<T> solveLLG(T time, CVector<T> m, T timeStep, CVector<T> bottom, CVector<T> top, CVector<T> heff)
@@ -632,7 +653,7 @@ public:
         m_t.normalize();
         this->mag = m_t;
     }
-    
+
     void rk4_stepDipoleInjection(T time, T timeStep, CVector<T> bottom, CVector<T> top, CVector<T> dipole)
     {
         CVector<T> m_t = this->mag;
@@ -909,6 +930,33 @@ public:
             {
                 this->layers[i].setIECDriverTop(driver);
                 this->layers[i + 1].setIECDriverBottom(driver);
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to match the layer order or find layer ids!");
+        }
+    }
+
+    void setQuadIECDriver(std::string bottomLayer, std::string topLayer, ScalarDriver<T> driver)
+    {
+        bool found = false;
+        for (unsigned int i = 0; i < this->layerNo - 1; i++)
+        {
+            // check if the layer above is actually top layer the user specified
+            if ((this->layers[i].id == bottomLayer) && (this->layers[i + 1].id == topLayer))
+            {
+                this->layers[i].setQuadIECDriverTop(driver);
+                this->layers[i + 1].setQuadIECDriverBottom(driver);
+                found = true;
+                break;
+            }
+            else if ((this->layers[i].id == topLayer) && (this->layers[i + 1].id == bottomLayer))
+            {
+                this->layers[i].setQuadIECDriverTop(driver);
+                this->layers[i + 1].setQuadIECDriverBottom(driver);
                 found = true;
                 break;
             }

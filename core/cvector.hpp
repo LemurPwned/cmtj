@@ -6,7 +6,9 @@
 template <typename T>
 class CVector
 {
+
 public:
+    // friend std::ostream& operator<<(std::ostream &o, const CVector<T> &obj);
     T x, y, z;
     CVector()
     {
@@ -219,7 +221,7 @@ public:
     {
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
     }; // Magnitude
-    
+
     void normalize()
     {
         T mag = this->length();
@@ -249,9 +251,10 @@ public:
             this->x, this->y, this->z};
     }
 
-    operator std::string() const
+    friend std::ostream &operator<<(std::ostream &o, const CVector<T> &obj)
     {
-        return "[x:" + x + ", y:" + y + ", z:" + z + "]";
+        o << "[x:" << obj.x << ", y:" << obj.y << ", z:" << obj.z << "]";
+        return o;
     }
 };
 
