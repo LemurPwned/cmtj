@@ -21,6 +21,29 @@ double power2(double x)
     return pow(x, 2);
 }
 
+auto generateRandomBinaryInput(int size)
+{
+    // https://stackoverflow.com/questions/38333326/eigen-random-binary-vector-with-t-1s
+    std::vector<int> esv(size, 0);
+    std::fill_n(esv.begin(), (int)(size / 2), 1);
+    Eigen::Map<Eigen::VectorXi> es(esv.data(), esv.size());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(std::begin(esv), std::end(esv), g);
+    return es;
+}
+
+auto generateTrainSignal(auto es, int delay, int size)
+{
+    // AND
+    std::vector<int> trainY(es.size(), 0);
+    for (int i = delay; i < es.size(); i++)
+    {
+        trainY[i] = es[i] * es[i - delay];
+    }
+    return trainY;
+}
+
 auto logisitcRegression(Eigen::MatrixXd X, Eigen::VectorXd Y, int k, int reservoirStates)
 {
     const double eps = 1e-3;

@@ -3,6 +3,40 @@
 
 #include "junction.hpp"
 
+/** 
+ * The idea is to have any set of junctions coupled with any 
+ * kind of variable -- let's say for now:
+ * - anisotropy
+ * - IEC
+ * - SOT
+ * 
+ **/
+
+// template <typename T>
+// class StackCouplingSetter
+// {
+// private:
+//     T couplingStrength;
+//     ScalarDriver<T> couplingDriver;
+
+// public:
+//     StackCouplingSetter(T couplingStrength, ScalarDriver<T> couplingDriver) : couplingStrength(couplingStrength),
+//                                                                               couplingDriver(couplingDriver){};
+//     virtual void coupledDriverSetter(auto &stack) = 0;
+// };
+
+// class StackAnisotropyCoupling : public StackCouplingSetter
+// {
+//     StackAnisotropyCoupling(T couplingStrength, ScalarDriver<T> couplingDriver) : StackCouplingSetter(couplingStrength, couplingDriver) {}
+//     void coupledDriverSetter(Stack<T> &stack) override
+//     {
+//         for (std::size_t j = 0; j < stack.junctionList.size(); ++j)
+//         {
+                
+//         }
+//     }
+// };
+
 template <typename T>
 class Stack
 {
@@ -135,7 +169,7 @@ public:
         {
             return this->junctionList[id].getLog();
         }
-        throw std::runtime_error("Asking for id of non-existing junction!");
+        throw std::runtime_error("Asking for id of a non-existing junction!");
     }
 
     const CVector<T> getPolarisationVector()

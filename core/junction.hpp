@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <vector>
 #include <typeinfo>
+#include <array>
 
 #include "cvector.hpp"
 #include "drivers.hpp"
@@ -55,6 +56,18 @@ double operator"" _mT(long double tesla)
 template <typename T>
 inline CVector<T> calculate_tensor_interaction(CVector<T> &m,
                                                std::vector<CVector<T>> &tensor,
+                                               T &Ms)
+{
+    CVector<T> res(
+        tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
+        tensor[1][0] * m[0] + tensor[1][1] * m[1] + tensor[1][2] * m[2],
+        tensor[2][0] * m[0] + tensor[2][1] * m[1] + tensor[2][2] * m[2]);
+    return res * (Ms / MAGNETIC_PERMEABILITY);
+}
+
+template <typename T>
+inline CVector<T> calculate_tensor_interaction(CVector<T> &m,
+                                               std::array<CVector<T>, 3> &tensor,
                                                T &Ms)
 {
     CVector<T> res(
@@ -222,9 +235,9 @@ public:
                                       damping, 0, 0, 0, 0, 0) {}
 
     /**
-     * The basic structure is a magnetic layer. 
+     * The basic structure is a magnetic layer.
      * Its parameters are defined by the constructor and may be altered
-     * by the drivers during the simulation time.  
+     * by the drivers during the simulation time.
      * If you want STT, remember to set the reference vector for the polarisation of the layer.
      * Use `setReferenceLayer` function to do that.
      * @param id: identifiable name for a layer -- e.g. "bottom" or "free".
@@ -259,9 +272,9 @@ public:
     }
 
     /**
-     * The basic structure is a magnetic layer. 
+     * The basic structure is a magnetic layer.
      * Its parameters are defined by the constructor and may be altered
-     * by the drivers during the simulation time.  
+     * by the drivers during the simulation time.
      * If you want STT, remember to set the reference vector for the polarisation of the layer.
      * Use `setReferenceLayer` function to do that.
      * @param id: identifiable name for a layer -- e.g. "bottom" or "free".
@@ -424,7 +437,7 @@ public:
     }
 
     /**
-     * Set reference layer parameter. This is for calculating the spin current 
+     * Set reference layer parameter. This is for calculating the spin current
      * polarisation if `includeSTT` is true.
      * @param reference: CVector describing the reference layer.
      */
@@ -456,10 +469,16 @@ public:
 
     const CVector<T> calculateHeff(T time, T timeStep, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
     {
-        this->Hext = calculateExternalField(time);
-        this->Hoe = calculateHOeField(time);
         this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
                         calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
+        return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole);
+    }
+
+    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top, CVector<T> &dipole)
+    {
+        this->Hext = calculateExternalField(time);
+        this->Hoe = calculateHOeField(time);
+
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
@@ -470,7 +489,7 @@ public:
                                 // demag -- negative contribution
                                 - this->Hdemag
                                 // dipole -- negative contribution
-                                - this->Hdipole;
+                                - dipole;
 
         return Heff;
     }
@@ -498,9 +517,9 @@ public:
     CVector<T> calculateIEC_(const T J, CVector<T> stepMag, CVector<T> coupledMag)
     {
         const T nom = J / (this->Ms * this->thickness);
-        return (coupledMag - stepMag) * nom;
+        // return (coupledMag - stepMag) * nom;
         // either of those may be correct -- undecided for now
-        // return coupledMag * nom;
+        return coupledMag * nom;
     }
 
     CVector<T> calculateIEC(T time, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
@@ -510,19 +529,8 @@ public:
         return calculateIEC_(this->Jbottom_log, stepMag, bottom) + calculateIEC_(this->Jtop_log, stepMag, top);
     }
 
-    /**
-     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
-     * Use the effective spin hall angles formulation for SOT interaction.
-     * @param time: current simulation time.
-     * @param m: current RK45 magnetisation.
-     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
-     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
-     * @param timeStep: RK45 integration step.
-     */
-    const CVector<T> calculateLLGWithFieldTorque(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
+    const CVector<T> solveLLG(T time, CVector<T> m, T timeStep, CVector<T> bottom, CVector<T> top, CVector<T> heff)
     {
-        // classic LLG first
-        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
         const T convTerm = 1 / (1 + pow(this->damping, 2)); // LLGS -> LL form
@@ -591,6 +599,27 @@ public:
         }
         return dmdt * -GYRO * convTerm;
     }
+    const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, CVector<T> dipole, T timeStep)
+    {
+        // classic LLG first
+        const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole);
+        return solveLLG(time, m, timeStep, bottom, top, heff);
+    }
+    /**
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * Use the effective spin hall angles formulation for SOT interaction.
+     * @param time: current simulation time.
+     * @param m: current RK45 magnetisation.
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step.
+     */
+    const CVector<T> calculateLLGWithFieldTorque(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, T timeStep)
+    {
+        // classic LLG first
+        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
+        return solveLLG(time, m, timeStep, bottom, top, heff);
+    }
 
     void rk4_step(T time, T timeStep, CVector<T> bottom, CVector<T> top)
     {
@@ -599,6 +628,18 @@ public:
         const CVector<T> k2 = calculateLLGWithFieldTorque(time + 0.5 * timeStep, m_t + k1 * 0.5, bottom, top, timeStep) * timeStep;
         const CVector<T> k3 = calculateLLGWithFieldTorque(time + 0.5 * timeStep, m_t + k2 * 0.5, bottom, top, timeStep) * timeStep;
         const CVector<T> k4 = calculateLLGWithFieldTorque(time + timeStep, m_t + k3, bottom, top, timeStep) * timeStep;
+        m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
+        m_t.normalize();
+        this->mag = m_t;
+    }
+    
+    void rk4_stepDipoleInjection(T time, T timeStep, CVector<T> bottom, CVector<T> top, CVector<T> dipole)
+    {
+        CVector<T> m_t = this->mag;
+        const CVector<T> k1 = calculateLLGWithFieldTorqueDipoleInjection(time, m_t, bottom, top, dipole, timeStep) * timeStep;
+        const CVector<T> k2 = calculateLLGWithFieldTorqueDipoleInjection(time + 0.5 * timeStep, m_t + k1 * 0.5, bottom, top, dipole, timeStep) * timeStep;
+        const CVector<T> k3 = calculateLLGWithFieldTorqueDipoleInjection(time + 0.5 * timeStep, m_t + k2 * 0.5, bottom, top, dipole, timeStep) * timeStep;
+        const CVector<T> k4 = calculateLLGWithFieldTorqueDipoleInjection(time + timeStep, m_t + k3, bottom, top, dipole, timeStep) * timeStep;
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         this->mag = m_t;
@@ -683,7 +724,7 @@ public:
 
     /**
      * Create a plain junction.
-     * No magnetoresistance is calculated. 
+     * No magnetoresistance is calculated.
      */
     Junction(std::vector<Layer<T>> layersToSet, std::string filename = "")
     {
@@ -717,8 +758,8 @@ public:
     }
 
     /**
-     * Creates a junction with a STRIP magnetoresistance.  
-     * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the 
+     * Creates a junction with a STRIP magnetoresistance.
+     * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the
      * length of the layers passed (they directly correspond to each layer).
      * Calculates the magnetoresistance as per: __see reference__:
      * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
@@ -768,7 +809,7 @@ public:
     }
 
     /**
-     * Clears the simulation log. 
+     * Clears the simulation log.
      **/
     void clearLog()
     {
@@ -846,7 +887,7 @@ public:
 
     /**
      * Set IEC interaction between two layers.
-     * The names of the params are only for convention. The IEC will be set 
+     * The names of the params are only for convention. The IEC will be set
      * between bottomLayer or topLayer, order is irrelevant.
      * @param bottomLayer: the first layer id
      * @param topLayer: the second layer id
@@ -1036,9 +1077,9 @@ public:
 
     /**
      * @brief Run Euler-Heun or RK4 method for a single layer.
-     * 
-     * The Euler-Heun method should only be used 
-     * for stochastic simulations where the temperature 
+     *
+     * The Euler-Heun method should only be used
+     * for stochastic simulations where the temperature
      * driver is set.
      * @param functor: solver function.
      * @param t: current time
@@ -1053,7 +1094,7 @@ public:
 
     /**
      * @brief Select a solver based on the setup.
-     * 
+     *
      * Multilayer layer solver iteration.
      * @param functor: solver function.
      * @param t: current time
@@ -1061,13 +1102,14 @@ public:
      * */
     void runMultiLayerSolver(solver &functor, T &t, T &timeStep)
     {
-        std::vector<CVector<T>> magCopies(this->layerNo + 2);
+        std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
+        // magCopies.resize(this->layerNo + 2)
         // the first and the last layer get 0 vector coupled
-        magCopies[0] = CVector<T>();
-        magCopies[this->layerNo + 1] = CVector<T>();
+        // magCopies[0] = CVector<T>();
+        // magCopies.at(this->layerNo + 1) = CVector<T>();
         for (unsigned int i = 0; i < this->layerNo; i++)
         {
-            magCopies[i] = this->layers[i].mag;
+            magCopies[i + 1] = this->layers[i].mag;
         }
 
         for (unsigned int i = 0; i < this->layerNo; i++)
@@ -1079,11 +1121,11 @@ public:
 
     /**
      * @brief Calculate strip magnetoresistance for multilayer.
-     * 
-     * Used when MR_MODE == STRIP 
-     * Magnetoresistance as per:  
+     *
+     * Used when MR_MODE == STRIP
+     * Magnetoresistance as per:
      * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
-     * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the 
+     * Each of the Rx0, Ry, AMR, AMR and SMR is list matching the
      * length of the layers passed (they directly correspond to each layer).
      * Calculates the magnetoresistance as per: __see reference__:
      * Spin Hall magnetoresistance in metallic bilayers by Kim, J. et al.
@@ -1111,8 +1153,8 @@ public:
             const T Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
             const T Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
                          (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
-            Rx_acc += 1/Rx;
-            Ry_acc += 1/Ry;
+            Rx_acc += 1. / Rx;
+            Ry_acc += 1. / Ry;
         }
 
         return {1 / Rx_acc, 1 / Ry_acc, 0.};
@@ -1121,9 +1163,9 @@ public:
     /**
      * Calculate classic magnetoresistance.
      * Only for bilayer structures.
-     * used when MR_MODE == CLASSIC 
+     * used when MR_MODE == CLASSIC
      * @param cosTheta: cosine between two layers.
-    */
+     */
     T calculateMagnetoresistance(T cosTheta)
     {
         return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
@@ -1163,7 +1205,7 @@ public:
      * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
      * @param timeStep: the integration step of the RK45 method. Default is 1e-13
      * @param writeFrequency: how often is the log saved to? Must be no smaller than `timeStep`. Default is 1e-11.
-     * @param persist: whether to save to the filename specified in the Junction constructor. Default is true 
+     * @param persist: whether to save to the filename specified in the Junction constructor. Default is true
      * @param log: if you want some verbosity like timing the simulation. Default is false
      * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default is false.
      */

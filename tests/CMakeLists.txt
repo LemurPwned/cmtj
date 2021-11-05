@@ -4,6 +4,7 @@ project(CMTJ)
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 20)
 
+find_package (Eigen3 3.4 REQUIRED NO_MODULE)
 
 ######## FFTW DOWNLOADS ########
 
@@ -61,6 +62,8 @@ macro(package_add_test TESTNAME)
     set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
 endmacro()
 # package_add_test(test_fft test_fft.cpp)
-package_add_test(test_sot test_sot.cpp)
-package_add_test(test_vector test_vector.cpp)
-package_add_test(test_layer test_layer.cpp)
+# package_add_test(test_sot test_sot.cpp)
+# package_add_test(test_vector test_vector.cpp)
+# package_add_test(test_layer test_layer.cpp)
+package_add_test(test_reservoir test_reservoir.cpp)
+target_link_libraries(test_reservoir Eigen3::Eigen)

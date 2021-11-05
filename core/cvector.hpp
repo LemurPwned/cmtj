@@ -123,7 +123,7 @@ public:
         y = v.y;
         z = v.z;
     }
-    bool operator==(CVector& v)
+    bool operator==(CVector &v)
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -131,7 +131,7 @@ public:
         return false;
     };
 
-    bool operator==(const CVector& v) const
+    bool operator==(const CVector &v) const
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -139,7 +139,7 @@ public:
         return false;
     };
 
-    bool operator!=(CVector& v)
+    bool operator!=(CVector &v)
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -147,7 +147,7 @@ public:
         return true;
     };
 
-    bool operator!=(const CVector& v) const
+    bool operator!=(const CVector &v) const
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -155,7 +155,7 @@ public:
         return true;
     };
 
-    CVector operator*(T& val)
+    CVector operator*(T &val)
     {
         CVector res(
             x * val,
@@ -214,6 +214,12 @@ public:
     {
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
     }; // Magnitude
+
+    T length() const
+    {
+        return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+    }; // Magnitude
+    
     void normalize()
     {
         T mag = this->length();

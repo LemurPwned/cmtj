@@ -32,8 +32,8 @@ PYBIND11_MODULE(cmtj, m)
              double, double, double>())
         .def_readwrite("x", &DVector::x)
         .def_readwrite("y", &DVector::y)
-        .def_readwrite("z", &DVector::z)
-        .def("length", &DVector::length);
+        .def_readwrite("z", &DVector::z);
+        // .def("length", &DVector::length);
 
     py::implicitly_convertible<std::list<double>, DVector>();
     py::implicitly_convertible<std::vector<double>, DVector>();
@@ -138,7 +138,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
         .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
-        // reference layers 
+        // reference layers
         .def("setReferenceLayer", py::overload_cast<DVector &>(&DLayer::setReferenceLayer))
         .def("setReferenceLayer", py::overload_cast<Reference>(&DLayer::setReferenceLayer))
 
