@@ -1150,11 +1150,9 @@ public:
      * */
     void runMultiLayerSolver(solver &functor, T &t, T &timeStep)
     {
+        // initialise with 0 CVectors
         std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
-        // magCopies.resize(this->layerNo + 2)
         // the first and the last layer get 0 vector coupled
-        // magCopies[0] = CVector<T>();
-        // magCopies.at(this->layerNo + 1) = CVector<T>();
         for (unsigned int i = 0; i < this->layerNo; i++)
         {
             magCopies[i + 1] = this->layers[i].mag;
