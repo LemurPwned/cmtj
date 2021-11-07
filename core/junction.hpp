@@ -200,7 +200,7 @@ public:
     T thickness = 0.0;
     T cellVolume = 0.0, cellSurface = 0.0;
 
-    CVector<T> H_log, Hoe_log, Hconst, mag, anisAxis, anis, referenceLayer;
+    CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
     CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfl;
 
     CVector<T> HIEC, HIECtop, HIECbottom;
@@ -213,7 +213,6 @@ public:
     std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
     std::vector<CVector<T>> dipoleTop = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
 
-    T Hstart = 0.0, Hstop = 0.0, Hstep = 0.0;
     // LLG params
     T damping;
 
@@ -532,9 +531,10 @@ public:
 
     CVector<T> calculateIEC_(const T J, const T J2, CVector<T> stepMag, CVector<T> coupledMag)
     {
-        const T nom = J / (this->Ms * this->thickness);
+        // const T nom = J / (this->Ms * this->thickness);
         // return (coupledMag - stepMag) * nom; // alternative form
-        return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
+        // return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
+        return coupledMag*(J + J2*c_dot(coupledMag, stepMag))/(this->Ms*this->thickness);
     }
 
     CVector<T> calculateIEC(T time, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)

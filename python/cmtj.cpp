@@ -33,7 +33,7 @@ PYBIND11_MODULE(cmtj, m)
         .def_readwrite("x", &DVector::x)
         .def_readwrite("y", &DVector::y)
         .def_readwrite("z", &DVector::z);
-        // .def("length", &DVector::length);
+    // .def("length", &DVector::length);
 
     py::implicitly_convertible<std::list<double>, DVector>();
     py::implicitly_convertible<std::vector<double>, DVector>();
@@ -198,6 +198,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerCurrentDriver", &DJunction::setLayerCurrentDriver)
         .def("setLayerAnisotropyDriver", &DJunction::setLayerAnisotropyDriver)
         .def("setIECDriver", &DJunction::setIECDriver)
+        .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
         .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
         .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
         // temp
