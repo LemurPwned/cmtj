@@ -204,7 +204,7 @@ public:
         fftw_execute(plan);
         const int outBins = (mixedSignal.size() + 1) / 2;
         std::vector<T> amplitudes;
-        amplitudes.push_back(out[0][0]);
+        amplitudes.push_back(out[0].real());
         const double norm = (double)cutSize / 2;
         for (int i = 1; i < outBins; i++)
         {

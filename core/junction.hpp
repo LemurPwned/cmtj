@@ -128,6 +128,13 @@ enum Reference
     BOTTOM
 };
 
+enum SolverMode
+{
+    EULER_HEUN = 0,
+    RK4 = 1,
+    DORMAND_PRICE = 2
+};
+
 static std::default_random_engine generator;
 template <typename T>
 class Layer
@@ -225,6 +232,8 @@ public:
     T SlonczewskiSpacerLayerParameter;
     T beta; // usually either set to 0 or to damping
     T spinPolarisation;
+
+    T hopt = -1.0;
 
     std::normal_distribution<T> distribution;
     Layer() {}
@@ -534,7 +543,7 @@ public:
         // const T nom = J / (this->Ms * this->thickness);
         // return (coupledMag - stepMag) * nom; // alternative form
         // return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
-        return coupledMag*(J + J2*c_dot(coupledMag, stepMag))/(this->Ms*this->thickness);
+        return coupledMag * (J + J2 * c_dot(coupledMag, stepMag)) / (this->Ms * this->thickness);
     }
 
     CVector<T> calculateIEC(T time, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
@@ -666,6 +675,54 @@ public:
         this->mag = m_t;
     }
 
+    void dormandPriceStep(T time, T timeStep, CVector<T> bottom, CVector<T> top)
+    {
+        CVector<T> m_t = this->mag;
+        CVector<T> e_t;
+        std::array<CVector<T>, 7> K;
+        if (this->hopt < 0)
+        {
+            this->hopt = timeStep;
+        }
+        // define Buchter tableau below
+        // there are redundant zeros, but for clarity, we'll leave them
+        const std::array<double, 7> c = {
+            0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1.};
+        const std::array<double, 7> b = {
+            35. / 384., 0, 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.};
+        const std::array<double, 7> b2 = {
+            5179. / 57600., 0, 7571. / 16695., 393. / 640., -92097. / 339200., 187. / 2100., 1. / 40.};
+        // extra braces are required even though the struct is 2D only
+        const std::array<std::array<double, 7>, 7> aCoefs = {{{0, 0, 0, 0, 0, 0, 0},
+                                                              {1. / 5., 0, 0, 0, 0, 0, 0},
+                                                              {3. / 40., 9. / 40., 0, 0, 0, 0, 0},
+                                                              {44. / 45., -56. / 15., 32. / 9., 0, 0, 0, 0},
+                                                              {19372. / 6561., -25360. / 2187., 64448. / 6561., -212. / 729., 0, 0, 0},
+                                                              {9017. / 3168., -355. / 33., 46732. / 5247., 49. / 176., -5103. / 18656., 0, 0},
+                                                              {35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.}}};
+        // compute the first
+        K[0] = calculateLLGWithFieldTorque(time, this->mag, bottom, top, this->hopt);
+        m_t = m_t + K[0] * b[0] * this->hopt;
+        for (int i = 1; i < 7; i++)
+        {
+            CVector<T> kS;
+            for (int j = 0; j < i; j++)
+            {
+                kS = kS + K[j] * aCoefs[i][j];
+            }
+            K[i] = calculateLLGWithFieldTorque(time + c[i] * this->hopt, this->mag + kS * this->hopt,
+                                               bottom, top, this->hopt);
+            m_t = m_t + K[i] * b[i] * this->hopt;           // this is function estimate
+            e_t = e_t + K[i] * (b[i] - b2[i]) * this->hopt; // this is error estimate
+        }
+        // adapt the step size
+        const T eps = 1e-3;
+        const T s = pow((eps * timeStep) / (2 * e_t.length()), 1. / 5.);
+        this->hopt = s * timeStep;
+        m_t.normalize();
+        this->mag = m_t;
+    }
+
     CVector<T> non_stochastic_llg(CVector<T> cm, T time, T timeStep, CVector<T> bottom, CVector<T> top)
     {
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
@@ -732,6 +789,7 @@ public:
         CLASSIC = 1,
         STRIP = 2
     };
+
     MRmode MR_mode;
     std::vector<Layer<T>> layers;
     T Rp, Rap = 0.0;
@@ -827,6 +885,29 @@ public:
         }
         this->fileSave = std::move(filename);
         this->MR_mode = STRIP;
+    }
+
+    /**
+     * @brief Select a solver for the LLGS/sLLGS solutions
+     * Available: DormandPrice, EulerHeun, RK4
+     * @param solverMode one of EULER_HEUN, DORMAND_PRICE or RK4
+     */
+    const auto selectSolver(SolverMode solverMode)
+    {
+        switch (solverMode)
+        {
+        case EULER_HEUN:
+            return &Layer<T>::euler_heun;
+
+        case DORMAND_PRICE:
+            return &Layer<T>::dormandPriceStep;
+
+        case RK4:
+            return &Layer<T>::rk4_step;
+
+        default:
+            return &Layer<T>::rk4_step;
+        }
     }
 
     /**
@@ -1121,7 +1202,7 @@ public:
         logFile.close();
     }
 
-    typedef void (Layer<T>::*solver)(T t, T timeStep, CVector<T> bottom, CVector<T> top);
+    typedef void (Layer<T>::*solverFn)(T t, T timeStep, CVector<T> bottom, CVector<T> top);
 
     /**
      * @brief Run Euler-Heun or RK4 method for a single layer.
@@ -1133,7 +1214,7 @@ public:
      * @param t: current time
      * @param timeStep: integration step
      */
-    void runSingleLayerSolver(solver &functor, T &t, T &timeStep)
+    void runSingleLayerSolver(solverFn &functor, T &t, T &timeStep)
     {
         CVector<T> null;
         (this->layers[0].*functor)(
@@ -1148,7 +1229,7 @@ public:
      * @param t: current time
      * @param timeStep: integration step
      * */
-    void runMultiLayerSolver(solver &functor, T &t, T &timeStep)
+    void runMultiLayerSolver(solverFn &functor, T &t, T &timeStep)
     {
         // initialise with 0 CVectors
         std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
@@ -1254,9 +1335,11 @@ public:
      * @param persist: whether to save to the filename specified in the Junction constructor. Default is true
      * @param log: if you want some verbosity like timing the simulation. Default is false
      * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default is false.
+     * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
      */
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
-                       bool persist = true, bool log = false, bool calculateEnergies = false)
+                       bool persist = true, bool log = false, bool calculateEnergies = false,
+                       SolverMode mode = RK4)
 
     {
         if (timeStep > writeFrequency)
@@ -1268,15 +1351,15 @@ public:
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
+        auto solver = this->selectSolver(mode);
         // pick a solver based on drivers
-        auto solv = &Layer<T>::rk4_step;
         for (auto &l : this->layers)
         {
             if (l.hasTemperature())
             {
                 // if at least one temp. driver is set
                 // then use euler_heun for consistency
-                solv = &Layer<T>::euler_heun;
+                solver = this->selectSolver(EULER_HEUN);
                 break;
             }
         }
@@ -1286,11 +1369,11 @@ public:
             t = i * timeStep;
             if (this->layerNo == 1)
             {
-                runSingleLayerSolver(solv, t, timeStep);
+                runSingleLayerSolver(solver, t, timeStep);
             }
             else
             {
-                runMultiLayerSolver(solv, t, timeStep);
+                runMultiLayerSolver(solver, t, timeStep);
             }
 
             if (!(i % writeEvery))
