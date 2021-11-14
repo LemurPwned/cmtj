@@ -1,0 +1,171 @@
+---
+author:
+- LemurPwned
+date: June 2021
+title: Macromagnetic models
+---
+# Introduction
+
+In this section we will walk through the basics of the LLG equation and the transformation to the LL-form of the LLG equation.
+The LLG equation is a "proper" equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that 
+allows us to solve it numerically (no implicit term on $\frac{dm}{dt}$).
+
+
+# Landau Lifshitz form of Landau Lifshitz-Gilbert equation
+
+Standard form of the LLG-SOT equation:
+
+$$\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma|\tau_{fl}|\textbf{m} \times \phi-\gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi$$ 
+
+Multiply that
+equation $\times m$: 
+
+$$\begin{gathered}
+       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma|\tau_{fl}| \textbf{m} \times \textbf{m} \times \phi-   \gamma|\tau_{dl}|\textbf{m} \times \textbf{m}\times\textbf{m}\times \phi \\ 
+   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi\end{gathered}$$
+
+Substitute RHS of the derived equation above into $\textbf{m}\times \frac{d\textbf{m}}{dt}$:
+
+$$\begin{gathered}
+  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -   
+   \gamma|\tau_{fl}|\textbf{m} \times \phi \\ - 
+    \gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi \\ 
+     \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\ 
+     - \gamma|\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] \\ 
+     -  \gamma|\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]\end{gathered}$$
+
+Rearranging the terms gives: 
+
+$$\begin{aligned}
+    \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &\\
+     + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] &\\
+     +  |\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]]\end{aligned}$$ 
+     
+In this form, $\gamma$ is the gyromagnetic ratio and is equal to $\gamma \approx 2.2e5 \frac{m}{As}$.
+The last part can be re-arranged to: 
+
+$$\begin{aligned}
+(...) + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] + |\tau_{dl}|[\textbf{m}\times\textbf{m}\times\phi - \alpha\textbf{m}\times \phi]]&\\ = \textbf{m} \times \phi(|\tau_{fl}| - \alpha|\tau_{dl}|) + \textbf{m}\times\textbf{m}\times\phi(|\tau_{dl}| + \alpha|\tau_{fl}|)\end{aligned}$$
+
+What is evident in this form of LL form of the LLG equation is the
+mixing of the torques with damping as the scaling factor (the field-like
+term for instance now becomes $|\tau_{fl}| - \alpha|\tau_{dl}|$). Proper
+LL-form of the LLGS equation is:
+
+$$(...)+ \frac{-\gamma}{1 + \alpha^2}[
+    \tau'_1 \textbf{m}\times(\textbf{m}\times \phi)
+    + \tau'_2 \textbf{m}\times \phi]$$
+
+## STT interaction
+
+The origin of STT is different, thus, we use a different set of
+quantities: 
+
+$$\begin{gathered}
+    |H_{dl}| = \beta |H_{fl}|, \quad \beta \in [0, 1] \\ 
+    a_j = \frac{\hbar j_e}{eM_s t_{FM}} \\ 
+    \eta = \frac{\sigma \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\sigma}\end{gathered}$$
+
+Given those two terms above, the non-torque part remains the same:
+
+$$... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m}\times \sigma$$
+
+Then, equation only changes the coefficients scaling the
+damping-like and field-like torques.
+
+# Stochastic LLGS
+
+## Stratonovich formulation of the s-LLGS SDE
+
+A stochastic formulation of LLGS will take the form of a Stratonovich
+SDE: 
+
+$$\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t$$ 
+
+where $f(X_t, t)$ is the deterministic part of the
+equation and $g(X_t, t)$ is the stochastic part of the equation.
+$\mathrm{d}W$ is \"derivative-like\" of the Brownian motion. The symbol
+$\circ$ denotes the Stratonovich product which distinguishes it from
+Ito's SDE. By assuming that the effective field contains thermal
+fluctuations
+$\mathbf{H}_{\mathrm{eff}} \rightarrow \mathbf{H}_{\mathrm{eff}} + \mathbf{H}_{\mathrm{T}}$
+we transform the standard LLGS equation into the form that fits
+Stratonovich SDE. The
+thermal fluctuations have zero mean and a preset standard deviation:
+
+$$\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)\Delta t }{M_sV\gamma_0}}$$
+
+where $V$ is the volume of the cell (layer), $\Delta t$ is the
+integration time and $k_bT(t)$ is the thermal energy of the system. As a
+result, $\sigma(t)$ should be dimensionless. Finally, we set
+$f \rightarrow \mathbf{f}(\mathbf{m}_t, t)$ to
+LL form where $\mathbf{H}_{\mathrm{eff}}$ contains no
+stochastic (thermal) parts and the $g$, the stochastic part, to the
+following: 
+
+$$\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  = 
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]$$ 
+    
+with $\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)$, a
+multinomial Gaussian distributed random vector (here we make a
+transition from $W$ being a generalised Brownian process to a Wiener
+process). The form of the above follows from the distributive
+properties of cross-product over addition. Furthermore, there is some
+evidence that the second term in that equation should be skipped if the noise is
+sufficiently small which seems to be the case for up to room temperature
+experiments.
+
+## Numerical solutions
+### Modelling the thermal field
+In the following, we will have $\Delta W$ instead of $\mathrm{d}W$.
+$\Delta W(t) = W(t + \Delta t) - W(t)$, since we discretised the motion.
+Because of that (and later evident in e.g. Milstein scheme) we need to normalise by the integration
+step. Thus:
+
+$$\mathbf{H}_T(t)h = \sigma\Delta W(t) = \sigma \sqrt{h} \xi_t$$ 
+
+where $\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)$.
+
+### Milstein derivative-free expansion
+
+The Milstein scheme is suitable both for Ito and Stratonovich calculus
+and it converges both strongly and weakly to the order 1 (1 strong
+Taylor scheme). Normally, a derivative approach to Milstein scheme is:
+
+$$Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + \frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h]$$ 
+
+where $h$ is the integration step.
+$\Lambda = 0$ for Stratonovich formulation and $\Lambda = 1$ for Ito's.
+$g_n' = \frac{dg(Y_n)}{dY_n}$ is the first derivative of the stochastic
+part of the Stratonovich SDE. In the derivative free approach, we transform
+Milstein derivative-free expression with RK approximation of the derivative by
+setting:
+
+$$\frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h] \approx \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)][(\Delta W)^2 - \Lambda h]$$ 
+
+where $\hat{Y}_n = Y_n + f_nh g_n\sqrt{h}$. Hence, to solve the Stratonovich sLLGS SDE, we combine and:
+
+$$Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + + \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)](\Delta W)^2 $$ 
+
+Additionally, we set $\Delta W_n = [W_{t+h} - W_t] \sim \sqrt{h}\mathcal{N}(0, 1)$ to set it properly in the context of
+sLLGS).
+
+### Euler-Heun method
+
+Euler-Heun method is suitable for Stratonovich SDEs as Euler-Maruyama
+can only be applied to Ito's SDEs. The update of the step is:
+
+$$Y_{n+1} = Y_n + f_n h + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n$$
+
+where $\hat{Y}_n = Y_n + g_n\Delta W_n$. Contrary to the Milstein
+method, it is easier to the user the Euler-Heun due to the lack of
+quadratic terms of $\Delta W_n$. The cost is in the convergence order
+which is 0.5 for strong convergence and 1 for weak convergence. For the
+solution, we substitute $Y_n = \mathbf{m_t}$,
+$f_n = \mathbf{f}_n(\mathbf{m_t}, t)$,
+$g_n= \mathbf{g}_n(\mathbf{m_t}, t)$.
+
+
+### References
+[Numerical Integration of SDEs: A Short Tutorial,
+Thomas Schaffter, January 19, 2010](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwilpP-T5p_yAhXjAxAIHZosBBgQFnoECAgQAw&url=https%3A%2F%2Finfoscience.epfl.ch%2Frecord%2F143450%2Ffiles%2Fsde_tutorial.pdf&usg=AOvVaw1VNG29Y2knOPBB3Hic2QvU)

@@ -1,0 +1,643 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <meta name="author" content="['LemurPwned']">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.1.11">
+    
+    
+      
+        <title>Macromagnetic models - CMTJ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3754935a.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    
+      
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#introduction" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CMTJ" class="md-header__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CMTJ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Macromagnetic models
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m10-3a5 5 0 0 1 5 5 5 5 0 0 1-5 5H7a5 5 0 0 1-5-5 5 5 0 0 1 5-5h10M7 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 3 3 0 0 0-3-3H7z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CMTJ" class="md-nav__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../assets/icon.svg" alt="logo">
+
+    </a>
+    CMTJ
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      <label class="md-nav__link" for="__nav_2">
+        Theory
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Theory" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Theory
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        LLG Equation
+      </a>
+      
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      <label class="md-nav__link" for="__nav_3">
+        API
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/main-reference/" class="md-nav__link">
+        Core
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" >
+      
+      <label class="md-nav__link" for="__nav_3_2">
+        Utils
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Utils" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_2">
+          <span class="md-nav__icon md-icon"></span>
+          Utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/linear-reference/" class="md-nav__link">
+        Linear
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/filters-reference/" class="md-nav__link">
+        Filters
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      <label class="md-nav__link" for="__nav_4">
+        Examples
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CMTJBindingsTutorial/" class="md-nav__link">
+        Library introduction
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../trajectory/" class="md-nav__link">
+        Generating trajectories
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="introduction">Introduction</h1>
+<p>In this section we will walk through the basics of the LLG equation and the transformation to the LL-form of the LLG equation.
+The LLG equation is a "proper" equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that 
+allows us to solve it numerically (no implicit term on <span class="arithmatex">\(\frac{dm}{dt}\)</span>).</p>
+<h1 id="landau-lifshitz-form-of-landau-lifshitz-gilbert-equation">Landau Lifshitz form of Landau Lifshitz-Gilbert equation</h1>
+<p>Standard form of the LLG-SOT equation:</p>
+<div class="arithmatex">\[\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma|\tau_{fl}|\textbf{m} \times \phi-\gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi\]</div>
+<p>Multiply that
+equation <span class="arithmatex">\(\times m\)</span>: </p>
+<div class="arithmatex">\[\begin{gathered}
+       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma|\tau_{fl}| \textbf{m} \times \textbf{m} \times \phi-   \gamma|\tau_{dl}|\textbf{m} \times \textbf{m}\times\textbf{m}\times \phi \\ 
+   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi\end{gathered}\]</div>
+<p>Substitute RHS of the derived equation above into <span class="arithmatex">\(\textbf{m}\times \frac{d\textbf{m}}{dt}\)</span>:</p>
+<div class="arithmatex">\[\begin{gathered}
+  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -   
+   \gamma|\tau_{fl}|\textbf{m} \times \phi \\ - 
+    \gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi \\ 
+     \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\ 
+     - \gamma|\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] \\ 
+     -  \gamma|\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]\end{gathered}\]</div>
+<p>Rearranging the terms gives: </p>
+<div class="arithmatex">\[\begin{aligned}
+    \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &amp;\\
+     + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] &amp;\\
+     +  |\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]]\end{aligned}\]</div>
+<p>In this form, <span class="arithmatex">\(\gamma\)</span> is the gyromagnetic ratio and is equal to <span class="arithmatex">\(\gamma \approx 2.2e5 \frac{m}{As}\)</span>.
+The last part can be re-arranged to: </p>
+<div class="arithmatex">\[\begin{aligned}
+(...) + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] + |\tau_{dl}|[\textbf{m}\times\textbf{m}\times\phi - \alpha\textbf{m}\times \phi]]&amp;\\ = \textbf{m} \times \phi(|\tau_{fl}| - \alpha|\tau_{dl}|) + \textbf{m}\times\textbf{m}\times\phi(|\tau_{dl}| + \alpha|\tau_{fl}|)\end{aligned}\]</div>
+<p>What is evident in this form of LL form of the LLG equation is the
+mixing of the torques with damping as the scaling factor (the field-like
+term for instance now becomes <span class="arithmatex">\(|\tau_{fl}| - \alpha|\tau_{dl}|\)</span>). Proper
+LL-form of the LLGS equation is:</p>
+<div class="arithmatex">\[(...)+ \frac{-\gamma}{1 + \alpha^2}[
+    \tau'_1 \textbf{m}\times(\textbf{m}\times \phi)
+    + \tau'_2 \textbf{m}\times \phi]\]</div>
+<h2 id="stt-interaction">STT interaction</h2>
+<p>The origin of STT is different, thus, we use a different set of
+quantities: </p>
+<div class="arithmatex">\[\begin{gathered}
+    |H_{dl}| = \beta |H_{fl}|, \quad \beta \in [0, 1] \\ 
+    a_j = \frac{\hbar j_e}{eM_s t_{FM}} \\ 
+    \eta = \frac{\sigma \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\sigma}\end{gathered}\]</div>
+<p>Given those two terms above, the non-torque part remains the same:</p>
+<div class="arithmatex">\[... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m}\times \sigma\]</div>
+<p>Then, equation only changes the coefficients scaling the
+damping-like and field-like torques.</p>
+<h1 id="stochastic-llgs">Stochastic LLGS</h1>
+<h2 id="stratonovich-formulation-of-the-s-llgs-sde">Stratonovich formulation of the s-LLGS SDE</h2>
+<p>A stochastic formulation of LLGS will take the form of a Stratonovich
+SDE: </p>
+<div class="arithmatex">\[\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t\]</div>
+<p>where <span class="arithmatex">\(f(X_t, t)\)</span> is the deterministic part of the
+equation and <span class="arithmatex">\(g(X_t, t)\)</span> is the stochastic part of the equation.
+<span class="arithmatex">\(\mathrm{d}W\)</span> is \"derivative-like\" of the Brownian motion. The symbol
+<span class="arithmatex">\(\circ\)</span> denotes the Stratonovich product which distinguishes it from
+Ito's SDE. By assuming that the effective field contains thermal
+fluctuations
+<span class="arithmatex">\(\mathbf{H}_{\mathrm{eff}} \rightarrow \mathbf{H}_{\mathrm{eff}} + \mathbf{H}_{\mathrm{T}}\)</span>
+we transform the standard LLGS equation into the form that fits
+Stratonovich SDE. The
+thermal fluctuations have zero mean and a preset standard deviation:</p>
+<div class="arithmatex">\[\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)\Delta t }{M_sV\gamma_0}}\]</div>
+<p>where <span class="arithmatex">\(V\)</span> is the volume of the cell (layer), <span class="arithmatex">\(\Delta t\)</span> is the
+integration time and <span class="arithmatex">\(k_bT(t)\)</span> is the thermal energy of the system. As a
+result, <span class="arithmatex">\(\sigma(t)\)</span> should be dimensionless. Finally, we set
+<span class="arithmatex">\(f \rightarrow \mathbf{f}(\mathbf{m}_t, t)\)</span> to
+LL form where <span class="arithmatex">\(\mathbf{H}_{\mathrm{eff}}\)</span> contains no
+stochastic (thermal) parts and the <span class="arithmatex">\(g\)</span>, the stochastic part, to the
+following: </p>
+<div class="arithmatex">\[\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  = 
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]\]</div>
+<p>with <span class="arithmatex">\(\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)\)</span>, a
+multinomial Gaussian distributed random vector (here we make a
+transition from <span class="arithmatex">\(W\)</span> being a generalised Brownian process to a Wiener
+process). The form of the above follows from the distributive
+properties of cross-product over addition. Furthermore, there is some
+evidence that the second term in that equation should be skipped if the noise is
+sufficiently small which seems to be the case for up to room temperature
+experiments.</p>
+<h2 id="numerical-solutions">Numerical solutions</h2>
+<h3 id="modelling-the-thermal-field">Modelling the thermal field</h3>
+<p>In the following, we will have <span class="arithmatex">\(\Delta W\)</span> instead of <span class="arithmatex">\(\mathrm{d}W\)</span>.
+<span class="arithmatex">\(\Delta W(t) = W(t + \Delta t) - W(t)\)</span>, since we discretised the motion.
+Because of that (and later evident in e.g. Milstein scheme) we need to normalise by the integration
+step. Thus:</p>
+<div class="arithmatex">\[\mathbf{H}_T(t)h = \sigma\Delta W(t) = \sigma \sqrt{h} \xi_t\]</div>
+<p>where <span class="arithmatex">\(\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)\)</span>.</p>
+<h3 id="milstein-derivative-free-expansion">Milstein derivative-free expansion</h3>
+<p>The Milstein scheme is suitable both for Ito and Stratonovich calculus
+and it converges both strongly and weakly to the order 1 (1 strong
+Taylor scheme). Normally, a derivative approach to Milstein scheme is:</p>
+<div class="arithmatex">\[Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + \frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h]\]</div>
+<p>where <span class="arithmatex">\(h\)</span> is the integration step.
+<span class="arithmatex">\(\Lambda = 0\)</span> for Stratonovich formulation and <span class="arithmatex">\(\Lambda = 1\)</span> for Ito's.
+<span class="arithmatex">\(g_n' = \frac{dg(Y_n)}{dY_n}\)</span> is the first derivative of the stochastic
+part of the Stratonovich SDE. In the derivative free approach, we transform
+Milstein derivative-free expression with RK approximation of the derivative by
+setting:</p>
+<div class="arithmatex">\[\frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h] \approx \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)][(\Delta W)^2 - \Lambda h]\]</div>
+<p>where <span class="arithmatex">\(\hat{Y}_n = Y_n + f_nh g_n\sqrt{h}\)</span>. Hence, to solve the Stratonovich sLLGS SDE, we combine and:</p>
+<div class="arithmatex">\[Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + + \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)](\Delta W)^2 \]</div>
+<p>Additionally, we set <span class="arithmatex">\(\Delta W_n = [W_{t+h} - W_t] \sim \sqrt{h}\mathcal{N}(0, 1)\)</span> to set it properly in the context of
+sLLGS).</p>
+<h3 id="euler-heun-method">Euler-Heun method</h3>
+<p>Euler-Heun method is suitable for Stratonovich SDEs as Euler-Maruyama
+can only be applied to Ito's SDEs. The update of the step is:</p>
+<div class="arithmatex">\[Y_{n+1} = Y_n + f_n h + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n\]</div>
+<p>where <span class="arithmatex">\(\hat{Y}_n = Y_n + g_n\Delta W_n\)</span>. Contrary to the Milstein
+method, it is easier to the user the Euler-Heun due to the lack of
+quadratic terms of <span class="arithmatex">\(\Delta W_n\)</span>. The cost is in the convergence order
+which is 0.5 for strong convergence and 1 for weak convergence. For the
+solution, we substitute <span class="arithmatex">\(Y_n = \mathbf{m_t}\)</span>,
+<span class="arithmatex">\(f_n = \mathbf{f}_n(\mathbf{m_t}, t)\)</span>,
+<span class="arithmatex">\(g_n= \mathbf{g}_n(\mathbf{m_t}, t)\)</span>.</p>
+<h3 id="references">References</h3>
+<p><a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;ved=2ahUKEwilpP-T5p_yAhXjAxAIHZosBBgQFnoECAgQAw&amp;url=https%3A%2F%2Finfoscience.epfl.ch%2Frecord%2F143450%2Ffiles%2Fsde_tutorial.pdf&amp;usg=AOvVaw1VNG29Y2knOPBB3Hic2QvU">Numerical Integration of SDEs: A Short Tutorial,
+Thomas Schaffter, January 19, 2010</a></p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Home
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../../api/main-reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Core" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Core
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.477d984a.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.ddd52ceb.min.js"></script>
+      
+        <script src="../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
