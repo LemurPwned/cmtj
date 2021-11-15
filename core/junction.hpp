@@ -465,7 +465,7 @@ public:
      * polarisation if `includeSTT` is true.
      * @param reference: CVector describing the reference layer.
      */
-    void setReferenceLayer(CVector<T> &reference)
+    void setReferenceLayer(CVector<T> reference)
     {
         this->referenceLayer = reference;
         this->referenceType = FIXED;
@@ -571,7 +571,7 @@ public:
         // dynamically substitute other active layers
         switch (this->referenceType)
         {
-            // TODO: add the warning if reference layer is top/bottom and empty
+        // TODO: add the warning if reference layer is top/bottom and empty
         case FIXED:
             reference = this->referenceLayer;
             break;
@@ -594,10 +594,10 @@ public:
                          (ELECTRON_CHARGE * this->Ms * this->thickness);
             // field like
             // this is more complex model
-            // const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
-            // const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
-            // this is simplified
-            const T eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
+            const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
+            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
+            // this is simplified but incorrect if magnetisation is -1
+            // const T eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
             const T sttTerm = GYRO * aJ * eta;
             const CVector<T> fieldLike = c_cross<T>(m, reference);
             // damping like
@@ -661,6 +661,10 @@ public:
         m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
         m_t.normalize();
         this->mag = m_t;
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
     }
 
     void rk4_stepDipoleInjection(T time, T timeStep, CVector<T> bottom, CVector<T> top, CVector<T> dipole)
@@ -680,10 +684,13 @@ public:
         CVector<T> m_t = this->mag;
         CVector<T> e_t;
         std::array<CVector<T>, 7> K;
-        if (this->hopt < 0)
-        {
-            this->hopt = timeStep;
-        }
+        // if (this->hopt < 0)
+        // {
+        // }
+        // this makes the step non-adaptive 
+        // we will deal with this problem later, this requires consistency in step
+        // across all the layers
+        this->hopt = timeStep;
         // define Buchter tableau below
         // there are redundant zeros, but for clarity, we'll leave them
         const std::array<double, 7> c = {
@@ -721,6 +728,10 @@ public:
         this->hopt = s * timeStep;
         m_t.normalize();
         this->mag = m_t;
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
     }
 
     CVector<T> non_stochastic_llg(CVector<T> cm, T time, T timeStep, CVector<T> bottom, CVector<T> top)
@@ -1148,15 +1159,15 @@ public:
                                                                                                layer.cellVolume));
             }
         }
-        if (MR_mode == CLASSIC)
+        if (this->MR_mode == CLASSIC && this->layerNo == 1)
+        {
+            this->log["R"].emplace_back(calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[0].referenceLayer)));
+        }
+        else if (MR_mode == CLASSIC && this->layerNo > 1)
         {
             const auto magnetoresistance = calculateMagnetoresistance(c_dot<T>(this->layers[0].mag,
                                                                                this->layers[1].mag));
             this->log["R_free_bottom"].emplace_back(magnetoresistance);
-        }
-        else if (this->MR_mode == CLASSIC && this->layerNo == 1)
-        {
-            this->log["R"].emplace_back(calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[0].referenceLayer)));
         }
         else if (MR_mode == STRIP)
         {
@@ -1350,7 +1361,6 @@ public:
         T t;
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
         auto solver = this->selectSolver(mode);
         // pick a solver based on drivers
         for (auto &l : this->layers)

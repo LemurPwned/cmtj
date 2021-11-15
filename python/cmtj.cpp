@@ -50,6 +50,12 @@ PYBIND11_MODULE(cmtj, m)
         .value("top", TOP)
         .value("bottom", BOTTOM)
         .export_values();
+
+    py::enum_<SolverMode>(m, "SolverMode")
+        .value("RK4", RK4)
+        .value("EulerHeun", EULER_HEUN)
+        .value("DormandPrice", DORMAND_PRICE)
+        .export_values();
     // Driver Class
     py::class_<DScalarDriver>(m, "ScalarDriver")
         .def_static("getConstantDriver",
@@ -190,7 +196,8 @@ PYBIND11_MODULE(cmtj, m)
              "writeFrequency"_a = 1e-11,
              "persist"_a = false,
              "log"_a = false,
-             "calculateEnergies"_a = false)
+             "calculateEnergies"_a = false,
+             "solverMode"_a = RK4)
 
         // driver setters
         .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
