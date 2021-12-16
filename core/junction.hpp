@@ -687,7 +687,7 @@ public:
         // if (this->hopt < 0)
         // {
         // }
-        // this makes the step non-adaptive 
+        // this makes the step non-adaptive
         // we will deal with this problem later, this requires consistency in step
         // across all the layers
         this->hopt = timeStep;
@@ -807,7 +807,7 @@ public:
 
     std::vector<T> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
     std::unordered_map<std::string, std::vector<T>> log;
-    std::string fileSave;
+    // std::string fileSave;
     unsigned int logLength = 0;
     unsigned int layerNo;
     Junction() {}
@@ -816,7 +816,7 @@ public:
      * Create a plain junction.
      * No magnetoresistance is calculated.
      */
-    Junction(std::vector<Layer<T>> layersToSet, std::string filename = "")
+    Junction(std::vector<Layer<T>> layersToSet)
     {
         this->MR_mode = NONE;
         this->layers = layersToSet;
@@ -825,10 +825,10 @@ public:
         {
             throw std::invalid_argument("Passed a zero length Layer vector!");
         }
-        this->fileSave = std::move(filename);
+        // this->fileSave = std::move(filename);
     }
-    explicit Junction(std::vector<Layer<T>> layersToSet, std::string filename, T Rp, T Rap) : Junction(
-                                                                                                  layersToSet, filename)
+    explicit Junction(std::vector<Layer<T>> layersToSet, T Rp, T Rap) : Junction(
+                                                                            layersToSet)
     {
         if (this->layerNo == 1)
         {
@@ -862,7 +862,6 @@ public:
      * @param AHE
      */
     explicit Junction(std::vector<Layer<T>> layersToSet,
-                      std::string filename,
                       std::vector<T> Rx0,
                       std::vector<T> Ry0,
                       std::vector<T> AMR_X,
@@ -894,7 +893,7 @@ public:
         {
             throw std::invalid_argument("Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
         }
-        this->fileSave = std::move(filename);
+        // this->fileSave = std::move(filename);
         this->MR_mode = STRIP;
     }
 
@@ -1187,16 +1186,16 @@ public:
     }
 
     void
-    saveLogs()
+    saveLogs(std::string filename)
     {
-        if (this->fileSave == "")
+        if (filename == "")
         {
             // if there's an empty fn, don't save
-            std::cout << "Ignoring file save to an empty filename" << std::endl;
+            throw std::runtime_error("The filename may not be empty!");
             return;
         }
         std::ofstream logFile;
-        logFile.open(this->fileSave);
+        logFile.open(filename);
         for (const auto &keyPair : this->log)
         {
             logFile << keyPair.first << ";";
@@ -1349,7 +1348,7 @@ public:
      * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
      */
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
-                       bool persist = true, bool log = false, bool calculateEnergies = false,
+                       bool log = false, bool calculateEnergies = false,
                        SolverMode mode = RK4)
 
     {
@@ -1392,8 +1391,6 @@ public:
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        if (persist)
-            saveLogs();
         if (log)
         {
             std::cout << "Steps in simulation: " << totalIterations << std::endl;

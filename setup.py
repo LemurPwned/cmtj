@@ -4,7 +4,7 @@ import sys
 import setuptools
 import os
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 """
 As per 
 https://github.com/pybind/python_example
@@ -39,7 +39,9 @@ ext_modules = [
             get_pybind_include(),
         ],
         libraries=[],
-        library_dirs=['/usr/local/lib'],
+        library_dirs=[
+            '/usr/local/lib',
+        ],
         extra_compile_args=['-O3', '-v', '-shared'],
         language='c++'),
 ]
@@ -127,11 +129,11 @@ setup(
     name='cmtj',
     version=__version__,
     author='Jakub',
-    keywords=['magnetics', 'physics', 'simulation'],
+    keywords=['magnetics', 'physics', 'simulation', 'spintronics'],
     author_email="mojsieju@agh.edu.pl",
     url='https://github.com/LemurPwned/cmtj',
     description='CMTJ - C Magnetic Tunnel Junctions.',
-    long_description='Efficient library for simulating magnetic multilayers',
+    long_description='Fast library for simulating magnetic multilayers.',
     ext_modules=ext_modules,
     include_package_data=True,
     namespace_packages=['cmtj'],

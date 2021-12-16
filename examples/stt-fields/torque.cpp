@@ -104,8 +104,8 @@ int main(void)
     const double tStep = 1e-11;
     std::ofstream saveFile;
     saveFile.open("Torque_res.csv");
-    // saveFile << "H;Vmix;phase\n";
-    saveFile << "H;Vmix;indx\n";
+    saveFile << "H;Vmix;phase\n";
+    // saveFile << "H;Vmix;indx\n";
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     const auto frequencies = {0.8e9};
@@ -155,9 +155,9 @@ int main(void)
             {
                 const double multiplierHann = 0.5 * (1 - cos(2 * M_PI * i / (log[resTag].size() - 1)));
                 const double v = log[resTag][i] * Irf * sin(2 * M_PI * f * log["time"][i]);
-                // mixingVoltage.push_back(v*multiplierHann);
-                mixingVoltage.push_back(v);
-                saveFile << -H << ';' << v << ";" << i << std::endl;
+                mixingVoltage.push_back(v*multiplierHann);
+                // mixingVoltage.push_back(v);
+                // saveFile << -H << ';' << v << ";" << i << std::endl;
             }
 
             // const double maxV = *std::max_element(mixingVoltage.begin(), mixingVoltage.end());
@@ -171,8 +171,6 @@ int main(void)
             // find 1f and 2f spectra
             auto it1f = std::lower_bound(spectrum["frequencies"].begin(), spectrum["frequencies"].end(), f);
             auto it2f = std::lower_bound(spectrum["frequencies"].begin(), spectrum["frequencies"].end(), 2 * f);
-            // auto it1f = std::find(spectrum["frequencies"].begin(), spectrum["frequencies"].end(), f);
-            // auto it2f = std::find(spectrum["frequencies"].begin(), spectrum["frequencies"].end(), 2 * f);
             if (it1f == spectrum["frequencies"].end() || it2f == spectrum["frequencies"].end())
             {
                 throw std::runtime_error("Increase T to fit in 2f and 1f frequencies!");
@@ -180,7 +178,7 @@ int main(void)
             const int indx1f = it1f - spectrum["frequencies"].begin();
             const int indx2f = it2f - spectrum["frequencies"].begin();
 
-            // saveFile << H << ";" << spectrum["mixing_voltage_amplitude"][indx1f] << ";" << spectrum["mixing_voltage_amplitude"][indx2f] * cos(spectrum["mixing_voltage_phase"][indx2f]) << std::endl;
+            saveFile << H << ";" << spectrum["mixing_voltage_amplitude"][indx1f] << ";" << spectrum["mixing_voltage_amplitude"][indx2f] * cos(spectrum["mixing_voltage_phase"][indx2f]) << std::endl;
         }
     }
 

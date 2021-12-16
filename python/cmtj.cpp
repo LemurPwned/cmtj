@@ -24,7 +24,7 @@ PYBIND11_MODULE(cmtj, m)
 {
     // helpers
     m.def("c_dot", &c_dot<double>);
-    m.doc() = "Python binding for C++ CMTJ Library";
+    m.doc() = "Python binding for C++ CMTJ Library.";
 
     // CVector
     py::class_<DVector>(m, "CVector")
@@ -145,7 +145,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
         .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
         // reference layers
-        .def("setReferenceLayer", py::overload_cast<DVector &>(&DLayer::setReferenceLayer))
+        .def("setReferenceLayer", py::overload_cast<DVector>(&DLayer::setReferenceLayer))
         .def("setReferenceLayer", py::overload_cast<Reference>(&DLayer::setReferenceLayer))
 
         .def("setFieldLikeTorqueDriver", &DLayer::setFieldLikeTorqueDriver)
@@ -155,21 +155,15 @@ PYBIND11_MODULE(cmtj, m)
         .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor);
 
     py::class_<DJunction>(m, "Junction")
+        .def(py::init<std::vector<DLayer>>(),
+             "layers"_a)
         .def(py::init<std::vector<DLayer>,
-                      std::string>(),
+                      double, double>(),
              "layers"_a,
-             "filename"_a = "")
-        .def(py::init<
-                 std::vector<DLayer>,
-                 std::string,
-                 double, double>(),
-             "layers"_a,
-             "filename"_a,
              "Rp"_a = 100,
              "Rap"_a = 200)
         .def(py::init<
                  std::vector<DLayer>,
-                 std::string,
                  std::vector<double>,
                  std::vector<double>,
                  std::vector<double>,
@@ -178,7 +172,6 @@ PYBIND11_MODULE(cmtj, m)
                  std::vector<double>,
                  std::vector<double>>(),
              "layers"_a,
-             "filename"_a,
              "Rx0"_a,
              "Ry0"_a,
              "AMR_X"_a,
@@ -189,12 +182,12 @@ PYBIND11_MODULE(cmtj, m)
         // log utils
         .def("getLog", &DJunction::getLog)
         .def("clearLog", &DJunction::clearLog)
+        .def("saveLog", &DJunction::saveLogs, "filename"_a)
 
         .def("runSimulation", &DJunction::runSimulation,
              "totalTime"_a,
              "timeStep"_a = 1e-13,
              "writeFrequency"_a = 1e-11,
-             "persist"_a = false,
              "log"_a = false,
              "calculateEnergies"_a = false,
              "solverMode"_a = RK4)
