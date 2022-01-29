@@ -1,6 +1,6 @@
 import numpy as np
 from .filters import Filters
-
+from .linear import FieldScan
 # constants
 OetoAm = 79.57747
 AmtoOe = 1. / OetoAm
@@ -19,3 +19,6 @@ def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray,
     fs = 1.0 / integration_step
     SD_dc = Filters.butter_lowpass_filter(SD, cutoff=10e6, fs=fs, order=3)
     return np.mean(SD_dc)
+
+
+__all__ = ["Filters", "FieldScan"]
