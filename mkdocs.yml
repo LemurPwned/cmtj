@@ -1,19 +1,23 @@
 site_name: CMTJ
-
+repo_url: https://github.com/LemurPwned/cmtj
+repo_name: LemurPwned/cmtj
 nav:
   - Home: index.md
   - Theory:
     - LLG Equation: physics/macromagnetic_models.md
   - API:
-      - Core: api/main-reference.md
+      - Core: gen-docs/cmtj.md
       - Utils:
           - Linear: api/linear-reference.md
           - Filters: api/filters-reference.md
+      - Stack: gen-docs/stack.md
   - Examples:
       - Library introduction: CMTJBindingsTutorial.ipynb
       - Trajectories: trajectory.ipynb
 
 theme:
+  icon:
+    repo: material/github
   name: "material"
   logo: assets/icon.svg
   palette:
@@ -30,9 +34,14 @@ theme:
         
 plugins:
   - search
-  - mkdocstrings
+  - mkdocstrings:
+      selection:
+        docstring_style: "restructured-text"
   - mkdocs-jupyter:
       include_source: True
+  - git-revision-date:
+      enabled_if_env: CI
+      enable_creation_date: true
 
 markdown_extensions:
   - pymdownx.arithmatex:

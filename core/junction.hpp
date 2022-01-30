@@ -595,9 +595,9 @@ public:
             // field like
             // this is more complex model
             const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
-            const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
-            // this is simplified but incorrect if magnetisation is -1
-            // const T eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
+            // const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
+            // this is simplified
+            const T eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
             const T sttTerm = GYRO * aJ * eta;
             const CVector<T> fieldLike = c_cross<T>(m, reference);
             // damping like

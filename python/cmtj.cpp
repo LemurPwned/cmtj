@@ -220,6 +220,10 @@ PYBIND11_MODULE(cmtj, m)
              "writeFrequency"_a = 1e-11)
         .def("setMagnetistation", &SeriesStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
         .def("setCoupledCurrentDriver", &SeriesStack<double>::setCoupledCurrentDriver, "driver"_a)
+        .def("setExternalFieldDriver", &SeriesStack<double>::setExternalFieldDriver, "driver"_a)
+        .def("setCouplingStrength", &SeriesStack<double>::setCouplingStrength, "coupling"_a)
+        // logging 
+        .def("clearLogs", &ParallelStack<double>::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&SeriesStack<double>::getLog))
         .def("getLog", py::overload_cast<>(&SeriesStack<double>::getLog));
     py::class_<ParallelStack<double>>(stack_module, "ParallelStack")
@@ -230,6 +234,11 @@ PYBIND11_MODULE(cmtj, m)
              "writeFrequency"_a = 1e-11)
         .def("setMagnetistation", &ParallelStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
         .def("setCoupledCurrentDriver", &ParallelStack<double>::setCoupledCurrentDriver, "driver"_a)
+        .def("setExternalFieldDriver", &ParallelStack<double>::setExternalFieldDriver, "driver"_a)
+        .def("setCouplingStrength", &ParallelStack<double>::setCouplingStrength, "coupling"_a)
+        // logging 
+        .def("clearLogs", &ParallelStack<double>::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&ParallelStack<double>::getLog))
         .def("getLog", py::overload_cast<>(&ParallelStack<double>::getLog));
+
 }

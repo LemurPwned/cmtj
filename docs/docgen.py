@@ -21,6 +21,8 @@ arg_cdoc = r'(\@param ([A-z0-9]+)\:(.+)\n)'
 c_cdoc_rgx = re.compile(cdoc_regex)
 c_arg_rgx = re.compile(arg_cdoc)
 
+GEN_FOLDER = "gen-docs"
+
 
 @dataclass
 class PythonDocstring:
@@ -91,8 +93,10 @@ def extract_cpp_docs(file_text):
 
 def create_api_markdown_file(src_filename):
     _, file_extension = os.path.splitext(src_filename)
-    target_filename = os.path.basename(src_filename).replace(
+    target_filename = os.path.basename(os.path.dirname(src_filename)).replace(
         file_extension, ".md")
+    if not target_filename.endswith(".md"):
+        target_filename += ".md"
 
     md_fn = ""
     with open(src_filename, 'r') as f:
@@ -108,10 +112,17 @@ def create_api_markdown_file(src_filename):
                 md_fn += f"\n{sig}\n"
             md_fn += "  \n"
 
-    with open(target_filename, 'w') as f:
+    with open(
+            os.path.join(os.path.dirname(__file__), GEN_FOLDER,
+                         target_filename), 'w') as f:
         f.write(md_fn)
 
 
 if __name__ == "__main__":
-    fn = "/Users/jm/repos/cmtj/cmtj/stack/__init__.pyi"
-    create_api_markdown_file(fn)
+    fn_lists = [
+        *glob.glob(
+            os.path.join(os.path.dirname(__file__), '..', "cmtj/*/*.pyi")),
+        *glob.glob(os.path.join(os.path.dirname(__file__), '..', "cmtj/*.pyi"))
+    ]
+    for fn in fn_lists:
+        create_api_markdown_file(fn)

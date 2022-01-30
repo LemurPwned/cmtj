@@ -240,6 +240,7 @@ public:
                 // modify the standing layer constant current
                 if (j > 0)
                     tCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
+                                                    // j -> k, j-1 -> k'
                                                     coupledCurrent, frozenMags[j], frozenMags[j - 1], pol);
                 else
                     tCurrent = coupledCurrent;
@@ -304,7 +305,7 @@ class ParallelStack : public Stack<T>
         T invSum = 0.0;
         std::for_each(resistances.begin(), resistances.end(), [&](T res)
                       { invSum += 1.0 / res; });
-        return 1 / invSum;
+        return 1. / invSum;
     }
 
     T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) override
