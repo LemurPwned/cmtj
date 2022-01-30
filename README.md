@@ -1,4 +1,3 @@
-
 <img style="float: right; max-width: 150px;" src="docs/assets/icon.svg">
 
 # CMTJ 
@@ -21,6 +20,11 @@ If you prefer to clone the repo first and then install directly from the source:
 git clone https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
 ```
+
+#### Read the docs
+Documentation: [https://cmtj.readthedocs.io/](https://cmtj.readthedocs.io/)
+
+
 ## WIKI :mortar_board:
 Read more in do [the docs here](https://lemurpwned.github.io/cmtj/).
 
