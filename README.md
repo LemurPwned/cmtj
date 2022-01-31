@@ -1,4 +1,4 @@
-<img style="float: right; max-width: 150px;" src="docs/assets/icon.svg">
+<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
 
 # CMTJ 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
