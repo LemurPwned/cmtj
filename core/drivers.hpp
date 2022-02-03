@@ -17,7 +17,8 @@ enum UpdateType
     pulse,
     sine,
     step,
-    posine
+    posine,
+    halfsine
 };
 
 template <typename T>
@@ -59,6 +60,11 @@ public:
 
     {
     }
+    virtual T getCurrentScalarValue(T &time)
+    {
+        return 0;
+    };
+    virtual ~Driver() = default;
 };
 
 template <typename T>
@@ -180,6 +186,15 @@ public:
             amplitude,
             frequency, phase);
     }
+
+    static ScalarDriver getHalfSineDriver(T constantValue, T amplitude, T frequency, T phase)
+    {
+        return ScalarDriver(
+            halfsine,
+            constantValue,
+            amplitude,
+            frequency, phase);
+    }
     /**
      * Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
      * @param constantValue: offset of the pulse (vertical)
@@ -196,7 +211,7 @@ public:
             -1, -1, -1, -1, timeStart, timeStop);
     }
 
-    T getCurrentScalarValue(T &time)
+    T getCurrentScalarValue(T &time) override
     {
         T returnValue = this->constantValue;
         if (this->update == pulse)
@@ -211,12 +226,24 @@ public:
         {
             returnValue += abs(this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase));
         }
+        else if (this->update == halfsine)
+        {
+            const T tamp = this->amplitude * sin(2 * M_PI * time * this->frequency + this->phase);
+            if (tamp <= 0)
+            {
+                returnValue += tamp; // ? tamp >= 0. : 0.;
+            }
+        }
         else if (this->update == step)
         {
             returnValue += stepUpdate(this->amplitude, time, this->timeStart, this->timeStop);
         }
 
         return returnValue;
+    }
+    void setConstantValue(T &val)
+    {
+        this->constantValue = val;
     }
 };
 
@@ -225,7 +252,7 @@ class NullDriver : public ScalarDriver<T>
 {
 public:
     NullDriver() = default;
-    T getCurrentScalarValue(T time)
+    T getCurrentScalarValue(T &time) override
     {
         return 0.0;
     }
@@ -352,7 +379,7 @@ class NullAxialDriver : public AxialDriver<T>
 {
 public:
     NullAxialDriver() = default;
-    CVector<T> getCurrentAxialDrivers(T time)
+    CVector<T> getCurrentAxialDrivers([[maybe_unused]] T time)
     {
         return CVector<T>(0., 0., 0.);
     }
