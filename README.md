@@ -2,7 +2,7 @@
 
 # CMTJ 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
-[![Documentation Status](https://readthedocs.org/projects/cmtj/badge/?version=latest)](https://lemurpwned.github.io/cmtj/)
+[![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
 
 ## Short description
 The library allows for macromagnetic simulation of multilayer spintronic structures.
@@ -22,7 +22,7 @@ python3 -m pip install .
 ```
 
 #### Read the docs
-Documentation: [https://cmtj.readthedocs.io/](https://cmtj.readthedocs.io/)
+Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
 
 
 ## WIKI :mortar_board:
@@ -34,10 +34,12 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 ## Citing 
 Please cite if you decide to use the project
 ```bibtex 
-@article{pymag2021,
-   title={{P}yMag - a tool for designing and investigation multilayer spintronics devices},
-   author={Sławomir Ziętek, Jakub Mojsiejuk, Krzysztof Grochot, Stanisław Łazarski, Witold Skowroński},
-   year={2021},
+@article{zietek_numerical_2022,
+	title = {Numerical Model Of Harmonic Hall Voltage Detection For Spintronic Devices},
+	url = {https://arxiv.org/abs/2202.00364v1},
+	author = {Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz},
+	urldate = {2022-02-03},
+	date = {2022-02-01}
 }
 ```
 ## Contributions
