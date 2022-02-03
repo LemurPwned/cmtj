@@ -12,7 +12,7 @@ A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only
 #### Installation :rocket:
 Installation is as easy as doing:
 ```bash
-python3 -m install cmtj
+python3 -m pip install cmtj
 ```
 
 If you prefer to clone the repo first and then install directly from the source:
