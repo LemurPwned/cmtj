@@ -10,7 +10,7 @@ Python code is generated from the C++ code. In case of linting problems, please 
 The C++ library requires no installation, only the inclusion of the headers.
 The basic headers you'll need are [`junction.hpp`](core/junction.hpp) and [`cvector.hpp`](core/cvector.hpp).
 Beyond that, there's [`compute.hpp`](core/compute.hpp) that contains utilities for FFT compute, mainly for Voltage Spin Diode and PIMM.
-There's also [`stack.hpp`](core/stack.hpp), for stacking the whole junctions into stacks, but as of now it's WIP. 
+There's also [`stack.hpp`](core/stack.hpp), for stacking the whole junctions into stacks. 
 
 But if you wish to use functions from [`compute.hpp`](core/compute.hpp), then there's an extra dependency on `fftw3`. 
 To install it follow the main source page for `fftw3` -- [http://www.fftw.org/](http://www.fftw.org/).

@@ -6,7 +6,9 @@
 template <typename T>
 class CVector
 {
+
 public:
+    // friend std::ostream& operator<<(std::ostream &o, const CVector<T> &obj);
     T x, y, z;
     CVector()
     {
@@ -107,6 +109,16 @@ public:
 
         return res;
     };
+    CVector operator-(const CVector &v) const
+    {
+        CVector res(
+            x - v.x,
+            y - v.y,
+            z - v.z);
+
+        return res;
+    };
+
     void operator=(CVector v)
     {
         x = v.x;
@@ -116,9 +128,33 @@ public:
     bool operator==(CVector &v)
     {
         if (
-            (x == v.x) && (y == v.y) && (y == v.z))
+            (x == v.x) && (y == v.y) && (z == v.z))
             return true;
         return false;
+    };
+
+    bool operator==(const CVector &v) const
+    {
+        if (
+            (x == v.x) && (y == v.y) && (z == v.z))
+            return true;
+        return false;
+    };
+
+    bool operator!=(CVector &v)
+    {
+        if (
+            (x == v.x) && (y == v.y) && (z == v.z))
+            return false;
+        return true;
+    };
+
+    bool operator!=(const CVector &v) const
+    {
+        if (
+            (x == v.x) && (y == v.y) && (z == v.z))
+            return false;
+        return true;
     };
 
     CVector operator*(T &val)
@@ -180,6 +216,12 @@ public:
     {
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
     }; // Magnitude
+
+    T length() const
+    {
+        return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+    }; // Magnitude
+
     void normalize()
     {
         T mag = this->length();
@@ -207,6 +249,12 @@ public:
     {
         return {
             this->x, this->y, this->z};
+    }
+
+    friend std::ostream &operator<<(std::ostream &o, const CVector<T> &obj)
+    {
+        o << "[x:" << obj.x << ", y:" << obj.y << ", z:" << obj.z << "]";
+        return o;
     }
 };
 

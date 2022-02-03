@@ -9,8 +9,7 @@ class Filters:
                                pass_freq: Tuple[float, float],
                                fs: float,
                                order: int = 5):
-        """
-        Basic bandpass (notch) butterworth filter.  
+        """Basic bandpass (notch) butterworth filter.  
         :param data: input data.  
         :param pass_freq: the tuple of (low, high) band frequencies.  
         :param fs: sampling frequency.
@@ -41,12 +40,11 @@ class Filters:
                               cutoff: float,
                               fs: float,
                               order: int = 5):
-        """
-        Low pass digital filter.  
-        :param data: data to be filtered.  
-        :param cutoff: cutoff frequency of the filter.   
-        :param fs: sampling frequency.  
-        :param order: order of the filter.  
+        """Low pass digital filter.     
+        :param data: data to be filtered.    
+        :param cutoff: cutoff frequency of the filter.     
+        :param fs: sampling frequency.    
+        :param order: order of the filter.     
         """
         nyq = 0.5 * fs
         normal_cutoff = cutoff / nyq

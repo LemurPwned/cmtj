@@ -1,6 +1,8 @@
-# CMTJ[![Logo](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)](https://vectr.com/lemurpwned/kLyXuKsnD.svg?width=80&height=80&select=kLyXuKsnDpage0)
+<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
+
+# CMTJ 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
-[![Documentation Status](https://readthedocs.org/projects/cmtj/badge/?version=latest)](https://cmtj.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/cmtj/badge/?version=latest)](https://lemurpwned.github.io/cmtj/)
 
 ## Short description
 The library allows for macromagnetic simulation of multilayer spintronic structures.
@@ -24,7 +26,7 @@ Documentation: [https://cmtj.readthedocs.io/](https://cmtj.readthedocs.io/)
 
 
 ## WIKI :mortar_board:
-Read more in do [the docs here](https://cmtj.readthedocs.io/).
+Read more in do [the docs here](https://lemurpwned.github.io/cmtj/).
 
 ## Extensions 
 There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the *PyMag* project. It uses CMTJ as a backend for fast computation.

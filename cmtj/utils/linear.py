@@ -12,10 +12,14 @@ class FieldScan:
         return st, ct, sp, cp
 
     @staticmethod
-    def amplitude_scan(start: float, stop: float, steps: int, theta: float,
-                       phi: float) -> Tuple[np.ndarray, np.ndarray]:
+    def amplitude_scan(start: float,
+                       stop: float,
+                       steps: int,
+                       theta: float,
+                       phi: float,
+                       back: bool = False) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Compute a linear magnitude sweep.
+        Compute a linear magnitude sweep. Angles given in deg.
         :param start:  
         :param stop:  
         :param steps:   
@@ -29,13 +33,19 @@ class FieldScan:
         Hx = st * cp * Hspan
         Hy = st * sp * Hspan
         Hz = ct * Hspan
+        if back:
+            forward = np.vstack((Hx, Hy, Hz)).T
+            back = forward[::-1]
+            return np.concatenate((Hspan, Hspan[::-1]),
+                                  axis=0), np.concatenate((forward, back),
+                                                          axis=0)
         return Hspan, np.vstack((Hx, Hy, Hz)).T
 
     @staticmethod
     def theta_scan(start: float, stop: float, steps: int, amplitude: float,
                    phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Compute a linear theta angle sweep.  
+        Compute a linear theta angle sweep. Angles given in deg.
         :param start:  
         :param stop:  
         :param steps:   
@@ -53,7 +63,7 @@ class FieldScan:
     def phi_scan(start: float, stop: float, steps: int, amplitude: float,
                  theta: float) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Compute a linear phi angle sweep.  
+        Compute a linear phi angle sweep. Angles given in deg.
         :param start:  
         :param stop:  
         :param steps:   
