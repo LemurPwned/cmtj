@@ -4,6 +4,7 @@ import numpy as np
 
 
 class FieldScan:
+
     @staticmethod
     def _trig_compute(theta, phi) -> Tuple:
         st = np.sin(np.deg2rad(theta))
@@ -39,15 +40,14 @@ class FieldScan:
         if back:
             forward = np.vstack((Hx, Hy, Hz)).T
             back = forward[::-1]
-            return np.concatenate((Hspan, Hspan[::-1]), axis=0), np.concatenate(
-                (forward, back), axis=0
-            )
+            return np.concatenate((Hspan, Hspan[::-1]),
+                                  axis=0), np.concatenate((forward, back),
+                                                          axis=0)
         return Hspan, np.vstack((Hx, Hy, Hz)).T
 
     @staticmethod
-    def theta_scan(
-        start: float, stop: float, steps: int, amplitude: float, phi: float
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def theta_scan(start: float, stop: float, steps: int, amplitude: float,
+                   phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear theta angle sweep. Angles given in deg.
         :param start:
@@ -64,9 +64,8 @@ class FieldScan:
         return theta_span, np.vstack((Hx, Hy, Hz)).T
 
     @staticmethod
-    def phi_scan(
-        start: float, stop: float, steps: int, amplitude: float, theta: float
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def phi_scan(start: float, stop: float, steps: int, amplitude: float,
+                 theta: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear phi angle sweep. Angles given in deg.
         :param start:

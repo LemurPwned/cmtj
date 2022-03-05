@@ -14,9 +14,8 @@ hplanck = 6.6260e-34
 hbar = hplanck / (2 * np.pi)
 
 
-def compute_sd(
-    dynamic_r: np.ndarray, dynamic_i: np.ndarray, integration_step: float
-) -> np.ndarray:
+def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray,
+               integration_step: float) -> np.ndarray:
     """Computes the SD voltage
     :param dynamic_r: magnetoresistance from log
     :param dynamic_i: excitation current
@@ -30,8 +29,8 @@ def compute_sd(
 
 def calculate_resistance(Rx0, Ry0, AMR, AHE, SMR, m, number_of_layers, l, w):
     if m.ndim == 2:
-        SxAll = np.zeros((number_of_layers,))
-        SyAll = np.zeros((number_of_layers,))
+        SxAll = np.zeros((number_of_layers, ))
+        SyAll = np.zeros((number_of_layers, ))
 
     elif m.ndim == 3:
         SxAll = np.zeros((number_of_layers, m.shape[2]))
@@ -39,12 +38,9 @@ def calculate_resistance(Rx0, Ry0, AMR, AHE, SMR, m, number_of_layers, l, w):
 
     for i in range(0, number_of_layers):
         w_l = w[i] / l[i]
-        SxAll[i] = 1 / (Rx0[i] + (AMR[i] * m[i, 0] ** 2 + SMR[i] * m[i, 1] ** 2))
-        SyAll[i] = 1 / (
-            Ry0[i]
-            + 0.5 * AHE[i] * m[i, 2]
-            + (w_l) * (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1]
-        )
+        SxAll[i] = 1 / (Rx0[i] + (AMR[i] * m[i, 0]**2 + SMR[i] * m[i, 1]**2))
+        SyAll[i] = 1 / (Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) *
+                        (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1])
 
     Rx = 1 / np.sum(SxAll, axis=0)
     Ry = 1 / np.sum(SyAll, axis=0)

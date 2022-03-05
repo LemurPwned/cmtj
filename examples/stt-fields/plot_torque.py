@@ -5,11 +5,12 @@ from scipy.fft import fft, fftfreq
 from scipy.signal.windows import hann
 
 
-def find_max_f_frequency(freqs: np.ndarray, values: np.ndarray, frequency: float):
+def find_max_f_frequency(freqs: np.ndarray, values: np.ndarray,
+                         frequency: float):
     # take between 0 and max
-    freqs_pos_freq = np.argwhere(
-        (freqs <= 1.001 * frequency) & (freqs >= 0.999 * frequency) & (freqs > 0)
-    ).ravel()
+    freqs_pos_freq = np.argwhere((freqs <= 1.001 * frequency)
+                                 & (freqs >= 0.999 * frequency)
+                                 & (freqs > 0)).ravel()
     max_freq_indx = np.argmax(values[freqs_pos_freq])
     max_value = np.max(values[freqs_pos_freq])
     max_freq = freqs[freqs_pos_freq][max_freq_indx]
@@ -33,8 +34,8 @@ if "phase" not in df.columns:
         amp = np.abs(y)
         phase = np.angle(y)
         freqs = fftfreq(len(y), tstep)
-        y = y[: len(y) // 2]
-        freqs = freqs[: len(freqs) // 2]
+        y = y[:len(y) // 2]
+        freqs = freqs[:len(freqs) // 2]
 
         max_phase2f, max_freq = find_max_f_frequency(freqs, phase, 2 * f)
         print("Diff", abs(max_freq - 2 * f))
@@ -52,13 +53,11 @@ elif "frequency" in df.columns:
     amp_diagram, phase_diagram = [], []
     for H in Hscan:
         sub_h = df.loc[df["H"] == H]
-        max_value, max_freq = find_max_f_frequency(
-            sub_h["f"].values, sub_h["Vmix"].values, cf
-        )
+        max_value, max_freq = find_max_f_frequency(sub_h["f"].values,
+                                                   sub_h["Vmix"].values, cf)
 
         max_value_phase, max_freq_phrase = find_max_f_frequency(
-            sub_h["f"].values, sub_h["phase"].values, 2 * cf
-        )
+            sub_h["f"].values, sub_h["phase"].values, 2 * cf)
         if abs(max_freq - cf):
             print("AMP DIFF", max_freq)
         if abs(max_freq_phrase - 2 * cf):

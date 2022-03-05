@@ -35,7 +35,7 @@ class PythonDocstring:
         rtype_map = {}
         first_bracket = self.signature.index("(")
         second_bracket = self.signature.index(")")
-        args = self.signature[first_bracket + 1 : second_bracket].split(",")
+        args = self.signature[first_bracket + 1:second_bracket].split(",")
         args = [arg.strip() for arg in args if arg != "self"]
         for arg in args:
             if ":" in arg:
@@ -56,10 +56,8 @@ class PythonDocstring:
         type_map, rtype_map = self.extract_signature_types()
 
         arg_template = "**`{}`** | `{}` | {} | `{}`"
-        table = (
-            """Name | Type | Description | Default\n"""
-            """------ | ---- | ----------- | -------"""
-        )
+        table = ("""Name | Type | Description | Default\n"""
+                 """------ | ---- | ----------- | -------""")
         table = "#### **Parameters** \n" + table
         arg_count = 0
         for arg in py_arg_rgx.findall(self.docstring):
@@ -75,7 +73,8 @@ class PythonDocstring:
                     rtype_map.get(real_arg, "-"),
                 )
         fnsignature = self.docstring.split(":param")[0].strip()
-        sig = self.signature.replace("\n", "").replace("\t", "").replace("    ", "")
+        sig = self.signature.replace("\n", "").replace("\t",
+                                                       "").replace("    ", "")
         if arg_count:
             return f"### `{sig}`\n\n{fnsignature}\n{table}\n\n"
         return f"### `{sig}`\n\n{fnsignature}\n\n\n"
@@ -100,8 +99,7 @@ def extract_cpp_docs(file_text):
 def create_api_markdown_file(src_filename):
     _, file_extension = os.path.splitext(src_filename)
     target_filename = os.path.basename(os.path.dirname(src_filename)).replace(
-        file_extension, ".md"
-    )
+        file_extension, ".md")
     if not target_filename.endswith(".md"):
         target_filename += ".md"
 
@@ -120,15 +118,17 @@ def create_api_markdown_file(src_filename):
             md_fn += "  \n"
 
     with open(
-        os.path.join(os.path.dirname(__file__), GEN_FOLDER, target_filename), "w"
-    ) as f:
+            os.path.join(os.path.dirname(__file__), GEN_FOLDER,
+                         target_filename), "w") as f:
         f.write(md_fn)
 
 
 if __name__ == "__main__":
     fn_lists = [
-        *glob.glob(os.path.join(os.path.dirname(__file__), "..", "cmtj/*/*.pyi")),
-        *glob.glob(os.path.join(os.path.dirname(__file__), "..", "cmtj/*.pyi")),
+        *glob.glob(
+            os.path.join(os.path.dirname(__file__), "..", "cmtj/*/*.pyi")),
+        *glob.glob(os.path.join(os.path.dirname(__file__), "..",
+                                "cmtj/*.pyi")),
     ]
     for fn in fn_lists:
         create_api_markdown_file(fn)

@@ -37,6 +37,7 @@ public:
         this->phase = 0.0;
         this->period = 0.0;
         this->timeStart = 0.0;
+        this->cycle = 0.0;
         this->timeStop = 0.0;
         this->update = constant;
     };
@@ -245,7 +246,7 @@ public:
 
         return returnValue;
     }
-    void setConstantValue(T &val)
+    void setConstantValue(const T &val)
     {
         this->constantValue = val;
     }

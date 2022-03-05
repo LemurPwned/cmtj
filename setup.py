@@ -86,7 +86,8 @@ def cpp_flag(compiler):
         if has_flag(compiler, flag):
             return flag
 
-    raise RuntimeError("Unsupported compiler -- at least C++11 support " "is needed!")
+    raise RuntimeError("Unsupported compiler -- at least C++11 support "
+                       "is needed!")
 
 
 class BuildExt(build_ext):
@@ -122,7 +123,8 @@ class BuildExt(build_ext):
 
         for ext in self.extensions:
             ext.define_macros = [
-                ("VERSION_INFO", '"{}"'.format(self.distribution.get_version()))
+                ("VERSION_INFO",
+                 '"{}"'.format(self.distribution.get_version()))
             ]
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts

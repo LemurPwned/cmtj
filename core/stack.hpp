@@ -1,6 +1,16 @@
 #ifndef CORE_STACK_HPP_
 #define CORE_STACK_HPP_
 
+#include <__algorithm/for_each.h>  // for for_each
+#include <stddef.h>                // for size_t
+#include <iostream>                // for operator<<, ofstream, string, basi...
+#include <numeric>                 // for accumulate
+#include <stdexcept>               // for runtime_error
+#include <string>                  // for operator+, operator==, to_string
+#include <unordered_map>           // for unordered_map
+#include <vector>                  // for vector
+#include "cvector.hpp"             // for CVector
+#include "drivers.hpp"             // for ScalarDriver, AxialDriver, NullDriver
 #include "junction.hpp"
 
 /**

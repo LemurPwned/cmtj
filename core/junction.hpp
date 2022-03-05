@@ -2,23 +2,17 @@
 #define CORE_JUNCTION_HPP_
 
 #define _USE_MATH_DEFINES
+#include <__algorithm/find_if.h>  // for find_if
+#include <stdexcept>              // for runtime_error, invalid_argument
+#include <type_traits>            // for enable_if<>::type
 #include <cmath>
 #include <iostream>
-#include <algorithm>
 #include <chrono>
-#include <complex>
-#include <cstring>
 #include <fstream>
-#include <iomanip>
-#include <map>
-#include <numeric>
 #include <random>
-#include <stdio.h>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <typeinfo>
 #include <array>
 
 #include "cvector.hpp"
@@ -54,9 +48,9 @@ double operator"" _mT(long double tesla)
 }
 
 template <typename T>
-inline CVector<T> calculate_tensor_interaction(CVector<T> &m,
-                                               std::vector<CVector<T>> &tensor,
-                                               T &Ms)
+inline CVector<T> calculate_tensor_interaction(const CVector<T>& m,
+    const std::vector<CVector<T>>& tensor,
+    const T& Ms)
 {
     CVector<T> res(
         tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
@@ -66,9 +60,9 @@ inline CVector<T> calculate_tensor_interaction(CVector<T> &m,
 }
 
 template <typename T>
-inline CVector<T> calculate_tensor_interaction(CVector<T> &m,
-                                               std::array<CVector<T>, 3> &tensor,
-                                               T &Ms)
+inline CVector<T> calculate_tensor_interaction(const CVector<T>& m,
+    const std::array<CVector<T>, 3>& tensor,
+    const T& Ms)
 {
     CVector<T> res(
         tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
@@ -78,7 +72,7 @@ inline CVector<T> calculate_tensor_interaction(CVector<T> &m,
 }
 
 template <typename T>
-inline CVector<T> c_cross(const CVector<T> &a, const CVector<T> &b)
+inline CVector<T> c_cross(const CVector<T>& a, const CVector<T>& b)
 {
     CVector<T> res(
         a[1] * b[2] - a[2] * b[1],
@@ -89,7 +83,7 @@ inline CVector<T> c_cross(const CVector<T> &a, const CVector<T> &b)
 }
 
 template <typename T>
-inline T c_dot(CVector<T> &a, CVector<T> &b)
+inline T c_dot(const CVector<T>& a, const CVector<T>& b)
 {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
@@ -156,32 +150,34 @@ private:
     bool temperatureSet = false;
 
     Reference referenceType = NONE;
+    std::normal_distribution<T> distribution = std::normal_distribution<T>(0, 1);
 
-    Layer(std::string id,
-          CVector<T> mag,
-          CVector<T> anis,
-          T Ms,
-          T thickness,
-          T cellSurface,
-          std::vector<CVector<T>> demagTensor,
-          T damping,
-          T fieldLikeTorque,
-          T dampingLikeTorque,
-          T SlonczewskiSpacerLayerParameter,
-          T beta,
-          T spinPolarisation) : id(id),
-                                mag(mag),
-                                anis(anis),
-                                Ms(Ms),
-                                thickness(thickness),
-                                cellSurface(cellSurface),
-                                demagTensor(demagTensor),
-                                damping(damping),
-                                fieldLikeTorque(fieldLikeTorque),
-                                dampingLikeTorque(dampingLikeTorque),
-                                SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
-                                beta(beta),
-                                spinPolarisation(spinPolarisation)
+    Layer(
+        const std::string& id,
+        CVector<T> mag,
+        CVector<T> anis,
+        T Ms,
+        T thickness,
+        T cellSurface,
+        const std::vector<CVector<T>>& demagTensor,
+        T damping,
+        T fieldLikeTorque,
+        T dampingLikeTorque,
+        T SlonczewskiSpacerLayerParameter,
+        T beta,
+        T spinPolarisation) : id(id),
+        mag(mag),
+        anis(anis),
+        Ms(Ms),
+        thickness(thickness),
+        cellSurface(cellSurface),
+        demagTensor(demagTensor),
+        damping(damping),
+        fieldLikeTorque(fieldLikeTorque),
+        dampingLikeTorque(dampingLikeTorque),
+        SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
+        beta(beta),
+        spinPolarisation(spinPolarisation)
     {
         if (mag.length() == 0)
         {
@@ -194,7 +190,7 @@ private:
         // normalise magnetisation
         mag.normalize();
         this->cellVolume = this->cellSurface * this->thickness;
-        this->distribution = std::normal_distribution<T>(0, 1);
+        // this->distribution =
     }
 
 public:
@@ -208,7 +204,7 @@ public:
     T cellVolume = 0.0, cellSurface = 0.0;
 
     CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
-    CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfl;
+    CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation;
 
     CVector<T> Hfl_v, Hdl_v;
 
@@ -219,8 +215,8 @@ public:
     T I_log = 0.0;
 
     std::vector<CVector<T>> demagTensor;
-    std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
-    std::vector<CVector<T>> dipoleTop = std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
+    std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{ CVector<T>(), CVector<T>(), CVector<T>() };
+    std::vector<CVector<T>> dipoleTop = std::vector<CVector<T>>{ CVector<T>(), CVector<T>(), CVector<T>() };
 
     // LLG params
     T damping;
@@ -237,18 +233,17 @@ public:
 
     T hopt = -1.0;
 
-    std::normal_distribution<T> distribution;
     Layer() {}
-    explicit Layer(std::string id,
-                   CVector<T> mag,
-                   CVector<T> anis,
-                   T Ms,
-                   T thickness,
-                   T cellSurface,
-                   std::vector<CVector<T>> demagTensor,
-                   T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                      demagTensor,
-                                      damping, 0, 0, 0, 0, 0) {}
+    explicit Layer(const std::string& id,
+        CVector<T> mag,
+        CVector<T> anis,
+        T Ms,
+        T thickness,
+        T cellSurface,
+        const std::vector<CVector<T>>& demagTensor,
+        T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+            demagTensor,
+            damping, 0, 0, 0, 0, 0) {}
 
     /**
      * The basic structure is a magnetic layer.
@@ -267,20 +262,20 @@ public:
      * @param fieldLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hfl.
      * @param dampingLikeTorque: [SOT] effective spin Hall angle (spin effectiveness) for Hdl.
      */
-    explicit Layer(std::string id,
-                   CVector<T> mag,
-                   CVector<T> anis,
-                   T Ms,
-                   T thickness,
-                   T cellSurface,
-                   std::vector<CVector<T>> demagTensor,
-                   T damping,
-                   T fieldLikeTorque,
-                   T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                                demagTensor,
-                                                damping,
-                                                fieldLikeTorque,
-                                                dampingLikeTorque, 0, 0, 0)
+    explicit Layer(const std::string& id,
+        CVector<T> mag,
+        CVector<T> anis,
+        T Ms,
+        T thickness,
+        T cellSurface,
+        const std::vector<CVector<T>>& demagTensor,
+        T damping,
+        T fieldLikeTorque,
+        T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+            demagTensor,
+            damping,
+            fieldLikeTorque,
+            dampingLikeTorque, 0, 0, 0)
     {
         this->includeSTT = false;
         this->includeSOT = true;
@@ -305,35 +300,35 @@ public:
      * @param beta: [STT] beta parameter for the STT. Default 0.0. Dimensionless.
      * @param spinPolarisation: [STT] polarisation ratio while passing through reference layer.
      */
-    explicit Layer(std::string id,
-                   CVector<T> mag,
-                   CVector<T> anis,
-                   T Ms,
-                   T thickness,
-                   T cellSurface,
-                   std::vector<CVector<T>> demagTensor,
-                   T damping,
-                   T SlonczewskiSpacerLayerParameter,
-                   T beta,
-                   T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
-                                               demagTensor,
-                                               damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
+    explicit Layer(const std::string& id,
+        CVector<T> mag,
+        CVector<T> anis,
+        T Ms,
+        T thickness,
+        T cellSurface,
+        const std::vector<CVector<T>>& demagTensor,
+        T damping,
+        T SlonczewskiSpacerLayerParameter,
+        T beta,
+        T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+            demagTensor,
+            damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
         this->includeSTT = true;
         this->includeSOT = false;
     }
 
-    inline static Layer<T> LayerSTT(std::string id,
-                                    CVector<T> mag,
-                                    CVector<T> anis,
-                                    T Ms,
-                                    T thickness,
-                                    T cellSurface,
-                                    std::vector<CVector<T>> demagTensor,
-                                    T damping,
-                                    T SlonczewskiSpacerLayerParameter,
-                                    T beta,
-                                    T spinPolarisation)
+    inline static Layer<T> LayerSTT(const std::string& id,
+        CVector<T> mag,
+        CVector<T> anis,
+        T Ms,
+        T thickness,
+        T cellSurface,
+        const std::vector<CVector<T>>& demagTensor,
+        T damping,
+        T SlonczewskiSpacerLayerParameter,
+        T beta,
+        T spinPolarisation)
     {
         return Layer<T>(
             id,
@@ -349,35 +344,35 @@ public:
             spinPolarisation);
     }
 
-    inline static Layer<T> LayerSOT(std::string id,
-                                    CVector<T> mag,
-                                    CVector<T> anis,
-                                    T Ms,
-                                    T thickness,
-                                    T cellSurface,
-                                    std::vector<CVector<T>> demagTensor,
-                                    T damping,
-                                    T fieldLikeTorque,
-                                    T dampingLikeTorque)
+    inline static Layer<T> LayerSOT(const std::string& id,
+        CVector<T> mag,
+        CVector<T> anis,
+        T Ms,
+        T thickness,
+        T cellSurface,
+        const std::vector<CVector<T>>& demagTensor,
+        T damping,
+        T fieldLikeTorque,
+        T dampingLikeTorque)
     {
         return Layer<T>(id,
-                        mag,
-                        anis,
-                        Ms,
-                        thickness,
-                        cellSurface,
-                        demagTensor,
-                        damping,
-                        fieldLikeTorque,
-                        dampingLikeTorque);
+            mag,
+            anis,
+            Ms,
+            thickness,
+            cellSurface,
+            demagTensor,
+            damping,
+            fieldLikeTorque,
+            dampingLikeTorque);
     }
 
-    void setTopDipoleTensor(std::vector<CVector<T>> dipoleTensor)
+    void setTopDipoleTensor(const std::vector<CVector<T>>& dipoleTensor)
     {
         this->dipoleTop = dipoleTensor;
     }
 
-    void setBottomDipoleTensor(std::vector<CVector<T>> dipoleTensor)
+    void setBottomDipoleTensor(const std::vector<CVector<T>>& dipoleTensor)
     {
         this->dipoleBottom = dipoleTensor;
     }
@@ -387,25 +382,25 @@ public:
         return this->temperatureSet;
     }
 
-    void setTemperatureDriver(ScalarDriver<T> &driver)
+    void setTemperatureDriver(const ScalarDriver<T>& driver)
     {
         this->temperatureDriver = driver;
         this->temperatureSet = true;
     }
 
-    void setNonStochasticLangevinDriver(ScalarDriver<T> &driver)
+    void setNonStochasticLangevinDriver(const ScalarDriver<T>& driver)
     {
         this->temperatureDriver = driver;
         // do not set the SDE flag here
         this->temperatureSet = false;
     }
 
-    void setCurrentDriver(ScalarDriver<T> &driver)
+    void setCurrentDriver(const ScalarDriver<T>& driver)
     {
         this->currentDriver = driver;
     }
 
-    void setFieldLikeTorqueDriver(ScalarDriver<T> &driver)
+    void setFieldLikeTorqueDriver(const ScalarDriver<T>& driver)
     {
         this->includeSOT = true;
         if (this->includeSTT)
@@ -415,7 +410,7 @@ public:
         this->fieldLikeTorqueDriver = driver;
     }
 
-    void setDampingLikeTorqueDriver(ScalarDriver<T> &driver)
+    void setDampingLikeTorqueDriver(const ScalarDriver<T>& driver)
     {
         this->includeSOT = true;
         if (this->includeSTT)
@@ -425,21 +420,21 @@ public:
         this->dampingLikeTorqueDriver = driver;
     }
 
-    void setAnisotropyDriver(ScalarDriver<T> &driver)
+    void setAnisotropyDriver(const ScalarDriver<T>& driver)
     {
         this->anisotropyDriver = driver;
     }
 
-    void setExternalFieldDriver(AxialDriver<T> &driver)
+    void setExternalFieldDriver(const AxialDriver<T>& driver)
     {
         this->externalFieldDriver = driver;
     }
-    void setOerstedFieldDriver(AxialDriver<T> &driver)
+    void setOerstedFieldDriver(const AxialDriver<T>& driver)
     {
         this->HoeDriver = driver;
     }
 
-    void setMagnetisation(CVector<T> &mag)
+    void setMagnetisation(CVector<T>& mag)
     {
         if (mag.length() == 0)
         {
@@ -449,22 +444,22 @@ public:
         this->mag.normalize();
     }
 
-    void setIECDriverBottom(ScalarDriver<T> &driver)
+    void setIECDriverBottom(const ScalarDriver<T>& driver)
     {
         this->IECDriverBottom = driver;
     }
 
-    void setIECDriverTop(ScalarDriver<T> &driver)
+    void setIECDriverTop(const ScalarDriver<T>& driver)
     {
         this->IECDriverTop = driver;
     }
 
-    void setQuadIECDriverTop(ScalarDriver<T> &driver)
+    void setQuadIECDriverTop(const ScalarDriver<T>& driver)
     {
         this->IECQuadDriverTop = driver;
     }
 
-    void setQuadIECDriverBottom(ScalarDriver<T> &driver)
+    void setQuadIECDriverBottom(const ScalarDriver<T>& driver)
     {
         this->IECQuadDriverBottom = driver;
     }
@@ -500,14 +495,14 @@ public:
         return this->referenceType;
     }
 
-    const CVector<T> calculateHeff(T time, T timeStep, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
+    const CVector<T> calculateHeff(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top)
     {
         this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
-                        calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
+            calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
         return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole);
     }
 
-    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top, CVector<T> &dipole)
+    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole)
     {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
@@ -515,34 +510,34 @@ public:
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
-        this->Hfl = this->nonStochasticLangevin(time, timeStep);
+        this->Hfluctuation = this->nonStochasticLangevin(time, timeStep);
         const CVector<T> Heff = this->Hext    // external
-                                + this->HAnis // anistotropy
-                                + this->HIEC  // IEC
-                                + this->Hoe   // Oersted field
-                                + this->Hfl
-                                // demag -- negative contribution
-                                - this->Hdemag
-                                // dipole -- negative contribution
-                                - dipole;
+            + this->HAnis // anistotropy
+            + this->HIEC  // IEC
+            + this->Hoe   // Oersted field
+            + this->Hfluctuation
+            // demag -- negative contribution
+            - this->Hdemag
+            // dipole -- negative contribution
+            - dipole;
 
         return Heff;
     }
 
-    CVector<T> calculateHOeField(T &time)
+    CVector<T> calculateHOeField(const T& time)
     {
         this->Hoe_log = this->HoeDriver.getCurrentAxialDrivers(time);
         return this->Hoe_log;
     }
 
-    CVector<T> calculateExternalField(T &time)
+    CVector<T> calculateExternalField(const T& time)
     {
         this->H_log =
             this->externalFieldDriver.getCurrentAxialDrivers(time);
         return this->H_log;
     }
 
-    CVector<T> calculateAnisotropy(CVector<T> &stepMag, T &time)
+    CVector<T> calculateAnisotropy(const CVector<T>& stepMag, T& time)
     {
         this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
         const T nom = (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / (this->Ms);
@@ -557,7 +552,7 @@ public:
         return coupledMag * (J + J2 * c_dot(coupledMag, stepMag)) / (this->Ms * this->thickness);
     }
 
-    CVector<T> calculateIEC(T time, CVector<T> &stepMag, CVector<T> &bottom, CVector<T> &top)
+    CVector<T> calculateIEC(T time, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top)
     {
         this->Jbottom_log = this->IECDriverBottom.getCurrentScalarValue(time);
         this->Jtop_log = this->IECDriverTop.getCurrentScalarValue(time);
@@ -566,8 +561,8 @@ public:
         this->J2top_log = this->IECQuadDriverTop.getCurrentScalarValue(time);
 
         return calculateIEC_(this->Jbottom_log,
-                             this->J2bottom_log, stepMag, bottom) +
-               calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
+            this->J2bottom_log, stepMag, bottom) +
+            calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
     }
 
     const CVector<T> solveLLG(T time, CVector<T> m, T timeStep, CVector<T> bottom, CVector<T> top, CVector<T> heff)
@@ -582,7 +577,7 @@ public:
         // dynamically substitute other active layers
         switch (this->referenceType)
         {
-        // TODO: add the warning if reference layer is top/bottom and empty
+            // TODO: add the warning if reference layer is top/bottom and empty
         case FIXED:
             reference = this->referenceLayer;
             break;
@@ -602,7 +597,7 @@ public:
             this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // use standard STT formulation
             const T aJ = HBAR * this->I_log /
-                         (ELECTRON_CHARGE * this->Ms * this->thickness);
+                (ELECTRON_CHARGE * this->Ms * this->thickness);
             // field like
             // this is more complex model
             const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
@@ -643,8 +638,8 @@ public:
         return dmdt * -GYRO * convTerm;
     }
     const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, CVector<T> m,
-                                                                CVector<T> bottom, CVector<T> top,
-                                                                CVector<T> dipole, T timeStep)
+        CVector<T> bottom, CVector<T> top,
+        CVector<T> dipole, T timeStep)
     {
         // classic LLG first
         const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole);
@@ -709,19 +704,19 @@ public:
         // define Buchter tableau below
         // there are redundant zeros, but for clarity, we'll leave them
         const std::array<double, 7> c = {
-            0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1.};
+            0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1. };
         const std::array<double, 7> b = {
-            35. / 384., 0, 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.};
+            35. / 384., 0, 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0. };
         const std::array<double, 7> b2 = {
-            5179. / 57600., 0, 7571. / 16695., 393. / 640., -92097. / 339200., 187. / 2100., 1. / 40.};
+            5179. / 57600., 0, 7571. / 16695., 393. / 640., -92097. / 339200., 187. / 2100., 1. / 40. };
         // extra braces are required even though the struct is 2D only
-        const std::array<std::array<double, 7>, 7> aCoefs = {{{0, 0, 0, 0, 0, 0, 0},
+        const std::array<std::array<double, 7>, 7> aCoefs = { {{0, 0, 0, 0, 0, 0, 0},
                                                               {1. / 5., 0, 0, 0, 0, 0, 0},
                                                               {3. / 40., 9. / 40., 0, 0, 0, 0, 0},
                                                               {44. / 45., -56. / 15., 32. / 9., 0, 0, 0, 0},
                                                               {19372. / 6561., -25360. / 2187., 64448. / 6561., -212. / 729., 0, 0, 0},
                                                               {9017. / 3168., -355. / 33., 46732. / 5247., 49. / 176., -5103. / 18656., 0, 0},
-                                                              {35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.}}};
+                                                              {35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.}} };
         // compute the first
         K[0] = calculateLLGWithFieldTorque(time, this->mag, bottom, top, this->hopt);
         m_t = m_t + K[0] * b[0] * this->hopt;
@@ -733,7 +728,7 @@ public:
                 kS = kS + K[j] * aCoefs[i][j];
             }
             K[i] = calculateLLGWithFieldTorque(time + c[i] * this->hopt, this->mag + kS * this->hopt,
-                                               bottom, top, this->hopt);
+                bottom, top, this->hopt);
             m_t = m_t + K[i] * b[i] * this->hopt;           // this is function estimate
             e_t = e_t + K[i] * (b[i] - b2[i]) * this->hopt; // this is error estimate
         }
@@ -754,13 +749,13 @@ public:
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
     }
 
-    CVector<T> stochastic_llg(CVector<T> cm, T time, T timeStep, CVector<T> bottom, CVector<T> top, const CVector<T> &dW)
+    CVector<T> stochastic_llg(CVector<T> cm, T time, T timeStep, CVector<T> bottom, CVector<T> top, const CVector<T>& dW)
     {
         // compute the Langevin fluctuations -- this is the sigma
-        const T Hthermal = this->getLangevinStochasticStandardDeviation(time);
+        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time);
         const CVector<T> thcross = c_cross(cm, dW);
         const CVector<T> thcross2 = c_cross(thcross, dW);
-        const T scaling = -Hthermal * GYRO / (1 + pow(this->damping, 2));
+        const T scaling = -Hthermal_temp * GYRO / (1 + pow(this->damping, 2));
         return (thcross + thcross2 * this->damping) * scaling;
     }
 
@@ -777,7 +772,7 @@ public:
     {
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
-        CVector<T> dW = CVector<T>(this->distribution, generator);
+        const CVector<T> dW = CVector<T>(this->distribution, generator);
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         const T prefactor = 2 * this->damping * BOLTZMANN_CONST * temp / (this->Ms * GYRO * this->cellVolume * timeStep);
         return dW * sqrt(prefactor);
@@ -816,7 +811,7 @@ template <typename T>
 class Junction
 {
     friend class Layer<T>;
-    const std::vector<std::string> vectorNames = {"x", "y", "z"};
+    const std::vector<std::string> vectorNames = { "x", "y", "z" };
 
 public:
     enum MRmode
@@ -841,7 +836,7 @@ public:
      * Create a plain junction.
      * No magnetoresistance is calculated.
      */
-    Junction(std::vector<Layer<T>> layersToSet)
+    explicit Junction(const std::vector<Layer<T>>& layersToSet)
     {
         this->MR_mode = NONE;
         this->layers = layersToSet;
@@ -852,8 +847,8 @@ public:
         }
         // this->fileSave = std::move(filename);
     }
-    explicit Junction(std::vector<Layer<T>> layersToSet, T Rp, T Rap) : Junction(
-                                                                            layersToSet)
+    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap) : Junction(
+        layersToSet)
     {
         if (this->layerNo == 1)
         {
@@ -886,20 +881,20 @@ public:
      * @param SMR_Y
      * @param AHE
      */
-    explicit Junction(std::vector<Layer<T>> layersToSet,
-                      std::vector<T> Rx0,
-                      std::vector<T> Ry0,
-                      std::vector<T> AMR_X,
-                      std::vector<T> AMR_Y,
-                      std::vector<T> SMR_X,
-                      std::vector<T> SMR_Y,
-                      std::vector<T> AHE) : Rx0(std::move(Rx0)),
-                                            Ry0(std::move(Ry0)),
-                                            AMR_X(std::move(AMR_X)),
-                                            AMR_Y(std::move(AMR_Y)),
-                                            SMR_X(std::move(SMR_X)),
-                                            SMR_Y(std::move(SMR_Y)),
-                                            AHE(std::move(AHE))
+    explicit Junction(const std::vector<Layer<T>>& layersToSet,
+        std::vector<T> Rx0,
+        std::vector<T> Ry0,
+        std::vector<T> AMR_X,
+        std::vector<T> AMR_Y,
+        std::vector<T> SMR_X,
+        std::vector<T> SMR_Y,
+        std::vector<T> AHE) : Rx0(std::move(Rx0)),
+        Ry0(std::move(Ry0)),
+        AMR_X(std::move(AMR_X)),
+        AMR_Y(std::move(AMR_Y)),
+        SMR_X(std::move(SMR_X)),
+        SMR_Y(std::move(SMR_Y)),
+        AHE(std::move(AHE))
 
     {
         this->layers = std::move(layersToSet);
@@ -954,17 +949,17 @@ public:
         this->logLength = 0;
     }
 
-    std::unordered_map<std::string, std::vector<T>> &getLog()
+    std::unordered_map<std::string, std::vector<T>>& getLog()
     {
         return this->log;
     }
 
-    typedef void (Layer<T>::*scalarDriverSetter)(ScalarDriver<T> &driver);
-    typedef void (Layer<T>::*axialDriverSetter)(AxialDriver<T> &driver);
-    void scalarlayerSetter(std::string &layerID, scalarDriverSetter functor, ScalarDriver<T> driver)
+    typedef void (Layer<T>::* scalarDriverSetter)(const ScalarDriver<T>& driver);
+    typedef void (Layer<T>::* axialDriverSetter)(const AxialDriver<T>& driver);
+    void scalarlayerSetter(const std::string& layerID, scalarDriverSetter functor, ScalarDriver<T> driver)
     {
         bool found = false;
-        for (auto &l : this->layers)
+        for (auto& l : this->layers)
         {
             if (l.id == layerID || layerID == "all")
             {
@@ -977,10 +972,10 @@ public:
             throw std::runtime_error("Failed to find a layer with a given id!");
         }
     }
-    void axiallayerSetter(std::string &layerID, axialDriverSetter functor, AxialDriver<T> driver)
+    void axiallayerSetter(const std::string& layerID, axialDriverSetter functor, AxialDriver<T> driver)
     {
         bool found = false;
-        for (auto &l : this->layers)
+        for (auto& l : this->layers)
         {
             if (l.id == layerID || layerID == "all")
             {
@@ -1033,7 +1028,7 @@ public:
      * @param bottomLayer: the first layer id
      * @param topLayer: the second layer id
      */
-    void setIECDriver(std::string bottomLayer, std::string topLayer, ScalarDriver<T> driver)
+    void setIECDriver(const std::string& bottomLayer, const std::string& topLayer, ScalarDriver<T> driver)
     {
         bool found = false;
         for (unsigned int i = 0; i < this->layerNo - 1; i++)
@@ -1060,7 +1055,7 @@ public:
         }
     }
 
-    void setQuadIECDriver(std::string bottomLayer, std::string topLayer, ScalarDriver<T> driver)
+    void setQuadIECDriver(const std::string& bottomLayer, const std::string& topLayer, ScalarDriver<T> driver)
     {
         bool found = false;
         for (unsigned int i = 0; i < this->layerNo - 1; i++)
@@ -1087,10 +1082,10 @@ public:
         }
     }
 
-    void setLayerMagnetisation(std::string layerID, CVector<T> &mag)
+    void setLayerMagnetisation(const std::string& layerID, CVector<T>& mag)
     {
         bool found = false;
-        for (auto &l : this->layers)
+        for (auto& l : this->layers)
         {
             if (l.id == layerID || layerID == "all")
             {
@@ -1104,21 +1099,21 @@ public:
         }
     }
 
-    CVector<T> getLayerMagnetisation(std::string layerID)
+    CVector<T> getLayerMagnetisation(const std::string& layerID)
     {
         return getLayer(layerID).mag;
     }
 
-    Reference getLayerReferenceType(std::string layerID)
+    Reference getLayerReferenceType(const std::string& layerID)
     {
         return getLayer(layerID).referenceType;
     }
 
-    void setLayerReferenceLayer(std::string layerID, CVector<T> referenceLayer)
+    void setLayerReferenceLayer(const std::string& layerID, CVector<T> referenceLayer)
     {
         if (layerID == "all")
         {
-            for (auto &l : this->layers)
+            for (auto& l : this->layers)
             {
                 l.setReferenceLayer(referenceLayer);
             }
@@ -1127,11 +1122,11 @@ public:
             getLayer(layerID).setReferenceLayer(referenceLayer);
     }
 
-    void setLayerReferenceType(std::string layerID, Reference referenceType)
+    void setLayerReferenceType(const std::string& layerID, Reference referenceType)
     {
         if (layerID == "all")
         {
-            for (auto &l : this->layers)
+            for (auto& l : this->layers)
             {
                 l.setReferenceLayer(referenceType);
             }
@@ -1140,21 +1135,22 @@ public:
             getLayer(layerID).setReferenceLayer(referenceType);
     }
 
-    Layer<T> &getLayer(std::string layerID)
+    Layer<T>& getLayer(const std::string& layerID)
     {
-        for (auto &l : this->layers)
-        {
-            if (l.id == layerID)
-            {
-                return l;
-            }
+
+        const auto res = std::find_if(
+            this->layers.begin(), this->layers.end(),
+            [layerID](const auto& l) -> bool {return (l.id == layerID);}
+        );
+        if (res != this->layers.end()) {
+            return *res;
         }
         throw std::runtime_error("Failed to find a layer with a given id!");
     }
 
-    void logLayerParams(T &t, T timeStep, bool calculateEnergies = false)
+    void logLayerParams(T& t, T timeStep, bool calculateEnergies = false)
     {
-        for (const auto &layer : this->layers)
+        for (const auto& layer : this->layers)
         {
             const std::string lId = layer.id;
 
@@ -1173,7 +1169,7 @@ public:
                     this->log[lId + "_Hiec" + vectorNames[i]].emplace_back(layer.HIEC[i]);
                     this->log[lId + "_Hanis" + vectorNames[i]].emplace_back(layer.HAnis[i]);
                     this->log[lId + "_Hdemag" + vectorNames[i]].emplace_back(layer.Hdemag[i]);
-                    this->log[lId + "_Hth" + vectorNames[i]].emplace_back(layer.Hfl[i]);
+                    this->log[lId + "_Hth" + vectorNames[i]].emplace_back(layer.Hfluctuation[i]);
                     if (layer.includeSOT)
                     {
                         this->log[lId + "_Hfl" + vectorNames[i]].emplace_back(layer.Hfl_v[i]);
@@ -1196,18 +1192,18 @@ public:
         else if (MR_mode == CLASSIC && this->layerNo > 1)
         {
             const auto magnetoresistance = calculateMagnetoresistance(c_dot<T>(this->layers[0].mag,
-                                                                               this->layers[1].mag));
+                this->layers[1].mag));
             this->log["R_free_bottom"].emplace_back(magnetoresistance);
         }
         else if (MR_mode == STRIP)
         {
             const auto magnetoresistance = stripMagnetoResistance(this->Rx0,
-                                                                  this->Ry0,
-                                                                  this->AMR_X,
-                                                                  this->SMR_X,
-                                                                  this->AMR_Y,
-                                                                  this->SMR_Y,
-                                                                  this->AHE);
+                this->Ry0,
+                this->AMR_X,
+                this->SMR_X,
+                this->AMR_Y,
+                this->SMR_Y,
+                this->AHE);
             this->log["Rx"].emplace_back(magnetoresistance[0]);
             this->log["Ry"].emplace_back(magnetoresistance[1]);
             this->log["Rz"].emplace_back(magnetoresistance[2]);
@@ -1217,24 +1213,23 @@ public:
     }
 
     void
-    saveLogs(std::string filename)
+        saveLogs(std::string filename)
     {
         if (filename == "")
         {
             // if there's an empty fn, don't save
             throw std::runtime_error("The filename may not be empty!");
-            return;
         }
         std::ofstream logFile;
         logFile.open(filename);
-        for (const auto &keyPair : this->log)
+        for (const auto& keyPair : this->log)
         {
             logFile << keyPair.first << ";";
         }
         logFile << "\n";
         for (unsigned int i = 0; i < logLength; i++)
         {
-            for (const auto &keyPair : this->log)
+            for (const auto& keyPair : this->log)
             {
                 logFile << keyPair.second[i] << ";";
             }
@@ -1243,7 +1238,7 @@ public:
         logFile.close();
     }
 
-    typedef void (Layer<T>::*solverFn)(T t, T timeStep, CVector<T> bottom, CVector<T> top);
+    typedef void (Layer<T>::* solverFn)(T t, T timeStep, CVector<T> bottom, CVector<T> top);
 
     /**
      * @brief Run Euler-Heun or RK4 method for a single layer.
@@ -1255,7 +1250,7 @@ public:
      * @param t: current time
      * @param timeStep: integration step
      */
-    void runSingleLayerSolver(solverFn &functor, T &t, T &timeStep)
+    void runSingleLayerSolver(solverFn& functor, T& t, T& timeStep)
     {
         CVector<T> null;
         (this->layers[0].*functor)(
@@ -1270,7 +1265,7 @@ public:
      * @param t: current time
      * @param timeStep: integration step
      * */
-    void runMultiLayerSolver(solverFn &functor, T &t, T &timeStep)
+    void runMultiLayerSolver(solverFn& functor, T& t, T& timeStep)
     {
         // initialise with 0 CVectors
         std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
@@ -1305,13 +1300,13 @@ public:
      * @param SMR_Y
      * @param AHE
      */
-    std::vector<T> stripMagnetoResistance(std::vector<T> &Rx0,
-                                          std::vector<T> &Ry0,
-                                          std::vector<T> &AMR_X,
-                                          std::vector<T> &SMR_X,
-                                          std::vector<T> &AMR_Y,
-                                          std::vector<T> &SMR_Y,
-                                          std::vector<T> &AHE)
+    std::vector<T> stripMagnetoResistance(const std::vector<T>& Rx0,
+        const std::vector<T>& Ry0,
+        const std::vector<T>& AMR_X,
+        const std::vector<T>& SMR_X,
+        const std::vector<T>& AMR_Y,
+        const std::vector<T>& SMR_Y,
+        const std::vector<T>& AHE)
     {
         T Rx_acc = 0.0;
         T Ry_acc = 0.0;
@@ -1320,12 +1315,12 @@ public:
         {
             const T Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) + SMR_X[i] * pow(this->layers[i].mag.y, 2);
             const T Ry = Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
-                         (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
+                (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
             Rx_acc += 1. / Rx;
             Ry_acc += 1. / Ry;
         }
 
-        return {1 / Rx_acc, 1 / Ry_acc, 0.};
+        return { 1 / Rx_acc, 1 / Ry_acc, 0. };
     }
 
     /**
@@ -1344,23 +1339,23 @@ public:
         // this is classical bilayer case
         if (this->MR_mode == CLASSIC && this->layerNo == 2)
         {
-            return {calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[1].mag))};
+            return { calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[1].mag)) };
         }
         // this is the case when we use the pinning layer
         else if (this->MR_mode == CLASSIC && this->layerNo == 1)
         {
-            return {calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[0].referenceLayer))};
+            return { calculateMagnetoresistance(c_dot<T>(layers[0].mag, layers[0].referenceLayer)) };
         }
         // this is strip magnetoresistance
         else if (this->MR_mode == STRIP)
         {
             return stripMagnetoResistance(this->Rx0,
-                                          this->Ry0,
-                                          this->AMR_X,
-                                          this->SMR_X,
-                                          this->AMR_Y,
-                                          this->SMR_Y,
-                                          this->AHE);
+                this->Ry0,
+                this->AMR_X,
+                this->SMR_X,
+                this->AMR_Y,
+                this->SMR_Y,
+                this->AHE);
         }
         else
         {
@@ -1379,8 +1374,8 @@ public:
      * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
      */
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
-                       bool log = false, bool calculateEnergies = false,
-                       SolverMode mode = RK4)
+        bool log = false, bool calculateEnergies = false,
+        SolverMode mode = RK4)
 
     {
         if (timeStep > writeFrequency)
@@ -1388,12 +1383,11 @@ public:
             std::runtime_error("The time step cannot be larger than write frequency!");
         }
         const unsigned int totalIterations = (int)(totalTime / timeStep);
-        T t;
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         auto solver = this->selectSolver(mode);
         // pick a solver based on drivers
-        for (auto &l : this->layers)
+        for (auto& l : this->layers)
         {
             if (l.hasTemperature())
             {
@@ -1406,7 +1400,7 @@ public:
 
         for (unsigned int i = 0; i < totalIterations; i++)
         {
-            t = i * timeStep;
+            T t = i * timeStep;
             if (this->layerNo == 1)
             {
                 runSingleLayerSolver(solver, t, timeStep);
@@ -1431,4 +1425,4 @@ public:
     }
 };
 
-#endif // CORE_JUNCTION_HPP_
+#endif  // CORE_JUNCTION_HPP_

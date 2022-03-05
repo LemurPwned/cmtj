@@ -2,12 +2,13 @@
 #define CORE_CVECTOR_HPP_
 #include <random>
 #include <stdio.h>
+#include <iostream>
 #include <vector>
 template <typename T>
 class CVector
 {
 
- public:
+public:
     // friend std::ostream& operator<<(std::ostream &o, const CVector<T> &obj);
     T x, y, z;
     CVector()
@@ -33,22 +34,22 @@ class CVector
         this->y = y;
         this->z = z;
     }
-    CVector(const CVector &v)
+    CVector(const CVector& v)
     {
         this->x = v.x;
         this->y = v.y;
         this->z = v.z;
     }
 
-    CVector(const std::normal_distribution<T> &distribution, std::default_random_engine &generator)
+    CVector(std::normal_distribution<T> dist, std::default_random_engine& generator)
     {
         // the noise should be independent in each direction
-        this->x = distribution(generator);
-        this->y = distribution(generator);
-        this->z = distribution(generator);
+        this->x = dist(generator);
+        this->y = dist(generator);
+        this->z = dist(generator);
     }
 
-    CVector &operator+=(const CVector &v)
+    CVector& operator+=(const CVector& v)
     {
         this->x += v.x;
         this->y += v.y;
@@ -56,7 +57,7 @@ class CVector
         return *this;
     }
 
-    CVector &operator-=(const CVector &v)
+    CVector& operator-=(const CVector& v)
     {
         this->x -= v.x;
         this->y -= v.y;
@@ -73,7 +74,7 @@ class CVector
         return res;
     };
 
-    CVector operator+(const CVector &v) const
+    CVector operator+(const CVector& v) const
     {
         CVector res(
             x + v.x,
@@ -83,15 +84,7 @@ class CVector
         return res;
     };
 
-    CVector operator+(const T &val) const
-    {
-        CVector res(
-            x + val,
-            y + val,
-            z + val);
-        return res;
-    }
-    CVector operator+(T &val) const
+    CVector operator+(const T& val) const
     {
         CVector res(
             x + val,
@@ -109,7 +102,7 @@ class CVector
 
         return res;
     };
-    CVector operator-(const CVector &v) const
+    CVector operator-(const CVector& v) const
     {
         CVector res(
             x - v.x,
@@ -125,7 +118,7 @@ class CVector
         y = v.y;
         z = v.z;
     }
-    bool operator==(CVector &v)
+    bool operator==(const CVector& v)
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -133,7 +126,7 @@ class CVector
         return false;
     };
 
-    bool operator==(const CVector &v) const
+    bool operator==(const CVector& v) const
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -141,7 +134,7 @@ class CVector
         return false;
     };
 
-    bool operator!=(CVector &v)
+    bool operator!=(const CVector& v)
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -149,7 +142,7 @@ class CVector
         return true;
     };
 
-    bool operator!=(const CVector &v) const
+    bool operator!=(const CVector& v) const
     {
         if (
             (x == v.x) && (y == v.y) && (z == v.z))
@@ -157,7 +150,7 @@ class CVector
         return true;
     };
 
-    CVector operator*(T &val)
+    CVector operator*(const T& val)
     {
         CVector res(
             x * val,
@@ -166,7 +159,7 @@ class CVector
         return res;
     };
 
-    CVector operator*(const T &val) const
+    CVector operator*(const T& val) const
     {
         const CVector res(
             x * val,
@@ -183,7 +176,7 @@ class CVector
             z / val);
         return res;
     };
-    T operator[](int &i)
+    T operator[](const int& i)
     {
         if (i == 0)
             return x;
@@ -193,17 +186,7 @@ class CVector
             return z;
     }
 
-    T operator[](int &i) const
-    {
-        if (i == 0)
-            return x;
-        else if (i == 1)
-            return y;
-        else
-            return z;
-    }
-
-    T operator[](const int &i) const
+    T operator[](const int& i) const
     {
         if (i == 0)
             return x;
@@ -232,15 +215,15 @@ class CVector
             z = z / mag;
         }
     };
-    void setX(T &vx)
+    void setX(const T& vx)
     {
         this->x = vx;
     }
-    void setY(T &vy)
+    void setY(const T& vy)
     {
         this->y = vy;
     }
-    void setZ(T &vz)
+    void setZ(const T& vz)
     {
         this->z = vz;
     }
@@ -248,10 +231,10 @@ class CVector
     std::vector<T> tolist()
     {
         return {
-            this->x, this->y, this->z};
+            this->x, this->y, this->z };
     }
 
-    friend std::ostream &operator<<(std::ostream &o, const CVector<T> &obj)
+    friend std::ostream& operator<<(std::ostream& o, const CVector<T>& obj)
     {
         o << "[x:" << obj.x << ", y:" << obj.y << ", z:" << obj.z << "]";
         return o;
