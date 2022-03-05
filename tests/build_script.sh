@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # builds the test suite
 rm -rf ./build

@@ -1,5 +1,5 @@
-#ifndef JUNCTION_H
-#define JUNCTION_H
+#ifndef CORE_JUNCTION_HPP_
+#define CORE_JUNCTION_HPP_
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -210,6 +210,8 @@ public:
     CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
     CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfl;
 
+    CVector<T> Hfl_v, Hdl_v;
+
     CVector<T> HIEC, HIECtop, HIECbottom;
     T Jbottom_log = 0.0, Jtop_log = 0.0;
     T J2bottom_log = 0.0, J2top_log = 0.0;
@@ -391,6 +393,13 @@ public:
         this->temperatureSet = true;
     }
 
+    void setNonStochasticLangevinDriver(ScalarDriver<T> &driver)
+    {
+        this->temperatureDriver = driver;
+        // do not set the SDE flag here
+        this->temperatureSet = false;
+    }
+
     void setCurrentDriver(ScalarDriver<T> &driver)
     {
         this->currentDriver = driver;
@@ -506,10 +515,12 @@ public:
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
+        this->Hfl = this->nonStochasticLangevin(time, timeStep);
         const CVector<T> Heff = this->Hext    // external
                                 + this->HAnis // anistotropy
                                 + this->HIEC  // IEC
                                 + this->Hoe   // Oersted field
+                                + this->Hfl
                                 // demag -- negative contribution
                                 - this->Hdemag
                                 // dipole -- negative contribution
@@ -621,6 +632,8 @@ public:
                 Hdl = this->dampingLikeTorque * this->I_log;
                 Hfl = this->fieldLikeTorque * this->I_log;
             }
+            this->Hfl_v = reference * (Hfl - this->damping * Hdl);
+            this->Hdl_v = reference * (Hdl + this->damping * Hfl);
             const CVector<T> cm = c_cross<T>(m, reference);
             const CVector<T> ccm = c_cross<T>(m, cm);
             const CVector<T> flTorque = cm * (Hfl - this->damping * Hdl);
@@ -629,7 +642,9 @@ public:
         }
         return dmdt * -GYRO * convTerm;
     }
-    const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, CVector<T> m, CVector<T> bottom, CVector<T> top, CVector<T> dipole, T timeStep)
+    const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, CVector<T> m,
+                                                                CVector<T> bottom, CVector<T> top,
+                                                                CVector<T> dipole, T timeStep)
     {
         // classic LLG first
         const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole);
@@ -756,6 +771,16 @@ public:
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
         const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (GYRO * this->Ms * this->cellVolume);
         return sqrt(mainFactor);
+    }
+
+    CVector<T> nonStochasticLangevin(T time, T timeStep)
+    {
+        if (this->cellVolume == 0.0)
+            throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
+        CVector<T> dW = CVector<T>(this->distribution, generator);
+        const T temp = this->temperatureDriver.getCurrentScalarValue(time);
+        const T prefactor = 2 * this->damping * BOLTZMANN_CONST * temp / (this->Ms * GYRO * this->cellVolume * timeStep);
+        return dW * sqrt(prefactor);
     }
 
     void euler_heun(T time, T timeStep, CVector<T> bottom, CVector<T> top)
@@ -972,6 +997,10 @@ public:
     {
         scalarlayerSetter(layerID, &Layer<T>::setTemperatureDriver, driver);
     }
+    void setLayerNonStochasticLangevinDriver(std::string layerID, ScalarDriver<T> driver)
+    {
+        scalarlayerSetter(layerID, &Layer<T>::setNonStochasticLangevinDriver, driver);
+    }
     void setLayerAnisotropyDriver(std::string layerID, ScalarDriver<T> driver)
     {
         scalarlayerSetter(layerID, &Layer<T>::setAnisotropyDriver, driver);
@@ -1123,39 +1152,41 @@ public:
         throw std::runtime_error("Failed to find a layer with a given id!");
     }
 
-    void logLayerParams(T &t, bool calculateEnergies = false)
+    void logLayerParams(T &t, T timeStep, bool calculateEnergies = false)
     {
         for (const auto &layer : this->layers)
         {
             const std::string lId = layer.id;
-            this->log[lId + "_K"].emplace_back(layer.K_log);
-            for (int i = 0; i < 3; i++)
-            {
-                this->log[lId + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
-                this->log[lId + "_Hext" + vectorNames[i]].emplace_back(layer.H_log[i]);
-            }
-
-            if (layer.includeSTT)
-                this->log[lId + "_I"].emplace_back(layer.I_log);
 
             if (calculateEnergies)
             {
-                this->log[lId + "_EZeeman"].emplace_back(EnergyDriver<T>::calculateZeemanEnergy(layer.mag,
-                                                                                                layer.Hext,
-                                                                                                layer.cellVolume,
-                                                                                                layer.Ms));
-                this->log[lId + "_EAnis"].push_back(EnergyDriver<T>::calculateAnisotropyEnergy(layer.mag,
-                                                                                               layer.anis,
-                                                                                               layer.K_log,
-                                                                                               layer.cellVolume));
-                this->log[lId + "_EDemag"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
-                                                                                              layer.Hdemag,
-                                                                                              layer.Ms,
-                                                                                              layer.cellVolume));
-                this->log[lId + "_EDipole"].emplace_back(EnergyDriver<T>::calculateDemagEnergy(layer.mag,
-                                                                                               layer.Hdipole,
-                                                                                               layer.Ms,
-                                                                                               layer.cellVolume));
+                // TODO: avoid recomputation at a cost of a slight error
+                // recompute the current Heff to avoid shadow persistence of the layer parameters
+                // const CVector<T> heff = calculateHeff(t, timeStep, layer.m, layer.bottom, layer.top);
+                this->log[lId + "_K"].emplace_back(layer.K_log);
+                this->log[lId + "_Jbottom"].emplace_back(layer.Jbottom_log);
+                this->log[lId + "_Jtop"].emplace_back(layer.Jtop_log);
+                this->log[lId + "_I"].emplace_back(layer.I_log);
+                for (int i = 0; i < 3; i++)
+                {
+                    this->log[lId + "_Hext" + vectorNames[i]].emplace_back(layer.Hext[i]);
+                    this->log[lId + "_Hiec" + vectorNames[i]].emplace_back(layer.HIEC[i]);
+                    this->log[lId + "_Hanis" + vectorNames[i]].emplace_back(layer.HAnis[i]);
+                    this->log[lId + "_Hdemag" + vectorNames[i]].emplace_back(layer.Hdemag[i]);
+                    this->log[lId + "_Hth" + vectorNames[i]].emplace_back(layer.Hfl[i]);
+                    if (layer.includeSOT)
+                    {
+                        this->log[lId + "_Hfl" + vectorNames[i]].emplace_back(layer.Hfl_v[i]);
+                        this->log[lId + "_Hdl" + vectorNames[i]].emplace_back(layer.Hdl_v[i]);
+                    }
+                }
+                if (layer.includeSTT | layer.includeSOT)
+                    this->log[lId + "_I"].emplace_back(layer.I_log);
+            }
+            // always save magnetisation
+            for (int i = 0; i < 3; i++)
+            {
+                this->log[lId + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
             }
         }
         if (this->MR_mode == CLASSIC && this->layerNo == 1)
@@ -1387,7 +1418,7 @@ public:
 
             if (!(i % writeEvery))
             {
-                logLayerParams(t, calculateEnergies);
+                logLayerParams(t, timeStep, calculateEnergies);
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -1400,4 +1431,4 @@ public:
     }
 };
 
-#endif
+#endif // CORE_JUNCTION_HPP_

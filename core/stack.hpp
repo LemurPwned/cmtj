@@ -1,15 +1,15 @@
-#ifndef STACK_H
-#define STACK_H
+#ifndef CORE_STACK_HPP_
+#define CORE_STACK_HPP_
 
 #include "junction.hpp"
 
-/** 
- * The idea is to have any set of junctions coupled with any 
+/**
+ * The idea is to have any set of junctions coupled with any
  * kind of variable -- let's say for now:
  * - anisotropy
  * - IEC
  * - SOT
- * 
+ *
  **/
 
 // template <typename T>
@@ -32,7 +32,7 @@
 //     {
 //         for (std::size_t j = 0; j < stack.junctionList.size(); ++j)
 //         {
-                
+
 //         }
 //     }
 // };
@@ -270,7 +270,7 @@ public:
                 const T magRes = this->calculateStackResistance(timeResistances);
                 this->logStackData(t, magRes, timeCurrents);
                 for (auto &jun : this->junctionList)
-                    jun.logLayerParams(t, false);
+                    jun.logLayerParams(t, timeStep, false);
             }
         }
     }
@@ -295,7 +295,7 @@ class SeriesStack : public Stack<T>
     }
 
 public:
-    SeriesStack(std::vector<Junction<T>> jL) : Stack<T>(jL) {}
+    explicit SeriesStack(std::vector<Junction<T>> jL) : Stack<T>(jL) {}
 };
 template <typename T>
 class ParallelStack : public Stack<T>
@@ -317,6 +317,6 @@ class ParallelStack : public Stack<T>
     }
 
 public:
-    ParallelStack(std::vector<Junction<T>> jL) : Stack<T>(jL) {}
+    explicit ParallelStack(std::vector<Junction<T>> jL) : Stack<T>(jL) {}
 };
-#endif
+#endif // CORE_STACK_HPP_

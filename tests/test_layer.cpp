@@ -75,4 +75,3 @@ TEST_F(JunctionTest, TemperatureSolver)
         "free", ScalarDriver<double>::getConstantDriver(100));
     ASSERT_TRUE(mtj->layers[0].hasTemperature()); // this enforces the solver
 }
-

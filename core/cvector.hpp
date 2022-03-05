@@ -1,5 +1,5 @@
-#ifndef CVECTOR_H
-#define CVECTOR_H
+#ifndef CORE_CVECTOR_HPP_
+#define CORE_CVECTOR_HPP_
 #include <random>
 #include <stdio.h>
 #include <vector>
@@ -7,7 +7,7 @@ template <typename T>
 class CVector
 {
 
-public:
+ public:
     // friend std::ostream& operator<<(std::ostream &o, const CVector<T> &obj);
     T x, y, z;
     CVector()
@@ -16,7 +16,7 @@ public:
         this->y = 0.0;
         this->z = 0.0;
     }
-    CVector(std::vector<T> vec)
+    explicit CVector(std::vector<T> vec)
     {
         if (vec.size() != 3)
         {
@@ -40,7 +40,7 @@ public:
         this->z = v.z;
     }
 
-    CVector(std::normal_distribution<T> &distribution, std::default_random_engine &generator)
+    CVector(const std::normal_distribution<T> &distribution, std::default_random_engine &generator)
     {
         // the noise should be independent in each direction
         this->x = distribution(generator);
@@ -258,4 +258,4 @@ public:
     }
 };
 
-#endif
+#endif // CORE_CVECTOR_HPP_

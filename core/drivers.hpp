@@ -144,7 +144,7 @@ public:
      * @param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.
      * @param amplitude: amplitude of the pulse signal
      * @param period: period of the signal in seconds
-     * @param cycle: duty cycle of the signal -- a fraction between [0 and 1]. 
+     * @param cycle: duty cycle of the signal -- a fraction between [0 and 1].
      */
     static ScalarDriver getPulseDriver(T constantValue, T amplitude, T period, T cycle)
     {
@@ -204,6 +204,10 @@ public:
      */
     static ScalarDriver getStepDriver(T constantValue, T amplitude, T timeStart, T timeStop)
     {
+        if (timeStop <= timeStart)
+        {
+            throw std::runtime_error("Start time cannot be later than stop time!");
+        }
         return ScalarDriver(
             step,
             constantValue,
@@ -315,14 +319,14 @@ public:
         this->drivers = {x, y, z};
     }
 
-    AxialDriver(CVector<T> xyz) : AxialDriver(
-                                      ScalarDriver<T>::getConstantDriver(xyz.x),
-                                      ScalarDriver<T>::getConstantDriver(xyz.y),
-                                      ScalarDriver<T>::getConstantDriver(xyz.z))
+    explicit AxialDriver(CVector<T> xyz) : AxialDriver(
+                                               ScalarDriver<T>::getConstantDriver(xyz.x),
+                                               ScalarDriver<T>::getConstantDriver(xyz.y),
+                                               ScalarDriver<T>::getConstantDriver(xyz.z))
     {
     }
 
-    AxialDriver(std::vector<ScalarDriver<T>> axialDrivers)
+    explicit AxialDriver(std::vector<ScalarDriver<T>> axialDrivers)
     {
         if (axialDrivers.size() != 3)
         {
@@ -342,6 +346,7 @@ public:
         case zaxis:
             return AxialDriver(NullDriver<T>(), NullDriver<T>(), in);
         }
+        return AxialDriver(NullDriver<T>(), NullDriver<T>(), NullDriver<T>());
     }
     CVector<T>
     getCurrentAxialDrivers(T time)
@@ -362,7 +367,7 @@ public:
     /**
      * Returns the mask for the Axial Driver.
      * For instance: a vector (1213, 123, 0) returns (1, 1, 0)
-     * Note: This is not normalised 
+     * Note: This is not normalised
      * @return CVector<T>: mask for the driver
      */
     CVector<T> getUnitAxis()

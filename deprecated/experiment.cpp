@@ -1,4 +1,3 @@
-#include "parallel.hpp"
 #include "junction.hpp"
 
 void threadedSimulation(Junction cjx, double minField, double maxField, int numberOfPoints, std::ofstream &vsdFile)

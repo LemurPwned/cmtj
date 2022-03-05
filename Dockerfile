@@ -1,6 +1,6 @@
-FROM ubuntu:18.04 
+FROM ubuntu:18.04
 
-WORKDIR /app 
+WORKDIR /app
 
 # let's copy all the necessary files
 COPY cmtj/core/*.hpp cmtj/setup.py cmtj/cpp/Makefile app/

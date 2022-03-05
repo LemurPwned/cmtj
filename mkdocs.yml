@@ -4,7 +4,7 @@ repo_name: LemurPwned/cmtj
 nav:
   - Home: index.md
   - Theory:
-    - LLG Equation: physics/macromagnetic_models.md
+      - LLG Equation: physics/macromagnetic_models.md
   - API:
       - Core: gen-docs/cmtj.md
       - Utils:
@@ -31,7 +31,7 @@ theme:
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
-        
+
 plugins:
   - search
   - mkdocstrings:
@@ -46,7 +46,7 @@ plugins:
 markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
-      
+
 extra_javascript:
   - javascripts/config.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6

@@ -1,3 +1,2 @@
 #!/bin/bash
-find *.cpp | entr sh -c "./build_script.sh"   
-
+find *.cpp | entr sh -c "./build_script.sh"
