@@ -6,7 +6,6 @@ from matplotlib.pyplot import axis
 
 
 class EnergyCompute:
-
     def __init__(self, cell_surface: float, thickness: float,
                  log: Dict[str, List[float]]) -> None:
         self.cell_surface = cell_surface
