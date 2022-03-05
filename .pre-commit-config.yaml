@@ -1,12 +1,14 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
-# exclude: "^\
-#   (third-party/.*)|\
-#   (build/.*)|\
-#   (.github/.*)|\
-#   (.vscode/.*)
-#   "
+exclude: "^\
+  (third-party/.*)|\
+  (build/.*)|\
+  (.github/.*)|\
+  (.vscode/.*)|\
+  (^tests)
+  "
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
@@ -45,8 +47,7 @@ repos:
     rev: v1.3.5
     hooks:
       - id: cppcheck
-        files: "^core/.+.hpp"
-      - id: clang-format
-      - id: oclint
-      - id: uncrustify
+      # - id: clang-format
+      # - id: oclint
+      # - id: uncrustify
       - id: include-what-you-use
