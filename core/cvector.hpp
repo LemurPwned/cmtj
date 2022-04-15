@@ -1,9 +1,10 @@
 #ifndef CORE_CVECTOR_HPP_
 #define CORE_CVECTOR_HPP_
-#include <random>
-#include <stdio.h>
-#include <iostream>
-#include <vector>
+
+#include <__functional/function.h>  // for function
+#include <iostream>                 // for operator<<, ostream
+#include <stdexcept>                // for runtime_error
+#include <vector>                   // for vector
 template <typename T>
 class CVector
 {
@@ -41,12 +42,20 @@ public:
         this->z = v.z;
     }
 
-    CVector(std::normal_distribution<T> dist, std::default_random_engine& generator)
+    // CVector(std::normal_distribution<T> dist, std::mt19937& generator)
+    // {
+    //     // the noise should be independent in each direction
+    //     this->x = dist(generator);
+    //     this->y = dist(generator);
+    //     this->z = dist(generator);
+    // }
+
+    explicit CVector(const std::function<T()>& generator)
     {
         // the noise should be independent in each direction
-        this->x = dist(generator);
-        this->y = dist(generator);
-        this->z = dist(generator);
+        this->x = generator();
+        this->y = generator();
+        this->z = generator();
     }
 
     CVector& operator+=(const CVector& v)

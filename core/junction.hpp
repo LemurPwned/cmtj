@@ -13,20 +13,22 @@
 
 #define _USE_MATH_DEFINES
 #include <fstream>                // for file save
-#include <__algorithm/find_if.h>  // for find_if
-#include <array>                  // for array, array<>::value_type
-#include <chrono>                 // for seconds, steady_clock, duration
-#include <cmath>                  // for isnan, M_PI
-#include <iostream>               // for string, operator<<, basic_ostream
-#include <random>                 // for mt19937
-#include <stdexcept>              // for runtime_error, invalid_argument
-#include <string>                 // for operator+, operator==, basic_string
-#include <type_traits>            // for enable_if<>::type
-#include <unordered_map>          // for unordered_map
-#include <vector>                 // for vector, __vector_base<>::value_type
-#include "cvector.hpp"            // for CVector
-#include "drivers.hpp"            // for ScalarDriver, AxialDriver
-#include "noise.hpp"              // for OneFNoise
+#include <__algorithm/find_if.h>    // for find_if
+#include <__functional/bind.h>      // for bind
+#include <__functional/function.h>  // for function
+#include <array>                    // for array, array<>::value_type
+#include <chrono>                   // for seconds, steady_clock, duration
+#include <cmath>                    // for isnan, M_PI
+#include <iostream>                 // for string, operator<<, basic_ostream
+#include <random>                   // for mt19937, normal_distribution
+#include <stdexcept>                // for runtime_error, invalid_argument
+#include <string>                   // for operator+, operator==, basic_string
+#include <type_traits>              // for enable_if<>::type
+#include <unordered_map>            // for unordered_map
+#include <vector>                   // for vector, __vector_base<>::value_type
+#include "cvector.hpp"              // for CVector
+#include "drivers.hpp"              // for ScalarDriver, AxialDriver
+#include "noise.hpp"                // for OneFNoise
 
 #define MAGNETIC_PERMEABILITY 12.57e-7
 #define GYRO 220880.0 // rad/Ts converted to m/As
@@ -166,6 +168,9 @@ private:
     bool pinkNoiseSet = false;
 
     Reference referenceType = NONE;
+
+    std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), generator);
+
 
     Layer(
         const std::string& id,
@@ -812,7 +817,7 @@ public:
     {
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
-        const CVector<T> dW = CVector<T>(this->distribution, generator);
+        const CVector<T> dW = CVector<T>(this->distribution);
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         const T prefactor = 2 * this->damping * BOLTZMANN_CONST * temp / (this->Ms * GYRO * this->cellVolume * timeStep);
         return dW * sqrt(prefactor);
@@ -820,7 +825,7 @@ public:
 
     CVector<T> nonStochasticOneFNoise(T time, T timestep) {
         const T pinkNoise = this->ofn->tick();
-        const CVector<T> dW2 = CVector<T>(this->distribution, generator);
+        const CVector<T> dW2 = CVector<T>(this->distribution);
         return dW2 * pinkNoise;
     }
 
@@ -837,8 +842,8 @@ public:
         // Brownian motion sample
         // Generate the noise from the Brownian motion
         // dW2 is used for 1/f noise generation
-        CVector<T> dW = CVector<T>(this->distribution, generator) * sqrt(timeStep);
-        CVector<T> dW2 = CVector<T>(this->distribution, generator) * sqrt(timeStep);
+        CVector<T> dW = CVector<T>(this->distribution) * sqrt(timeStep);
+        CVector<T> dW2 = CVector<T>(this->distribution) * sqrt(timeStep);
         // squared dW -- just utility
         dW.normalize();
         dW2.normalize();
