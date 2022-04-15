@@ -22,30 +22,30 @@
  *
  **/
 
-// template <typename T>
-// class StackCouplingSetter
-// {
-// private:
-//     T couplingStrength;
-//     ScalarDriver<T> couplingDriver;
+ // template <typename T>
+ // class StackCouplingSetter
+ // {
+ // private:
+ //     T couplingStrength;
+ //     ScalarDriver<T> couplingDriver;
 
-// public:
-//     StackCouplingSetter(T couplingStrength, ScalarDriver<T> couplingDriver) : couplingStrength(couplingStrength),
-//                                                                               couplingDriver(couplingDriver){};
-//     virtual void coupledDriverSetter(auto &stack) = 0;
-// };
+ // public:
+ //     StackCouplingSetter(T couplingStrength, ScalarDriver<T> couplingDriver) : couplingStrength(couplingStrength),
+ //                                                                               couplingDriver(couplingDriver){};
+ //     virtual void coupledDriverSetter(auto &stack) = 0;
+ // };
 
-// class StackAnisotropyCoupling : public StackCouplingSetter
-// {
-//     StackAnisotropyCoupling(T couplingStrength, ScalarDriver<T> couplingDriver) : StackCouplingSetter(couplingStrength, couplingDriver) {}
-//     void coupledDriverSetter(Stack<T> &stack) override
-//     {
-//         for (std::size_t j = 0; j < stack.junctionList.size(); ++j)
-//         {
+ // class StackAnisotropyCoupling : public StackCouplingSetter
+ // {
+ //     StackAnisotropyCoupling(T couplingStrength, ScalarDriver<T> couplingDriver) : StackCouplingSetter(couplingStrength, couplingDriver) {}
+ //     void coupledDriverSetter(Stack<T> &stack) override
+ //     {
+ //         for (std::size_t j = 0; j < stack.junctionList.size(); ++j)
+ //         {
 
-//         }
-//     }
-// };
+ //         }
+ //     }
+ // };
 
 template <typename T>
 class Stack
@@ -65,22 +65,22 @@ protected:
 public:
     std::vector<Junction<T>> junctionList;
 
-    void setMagnetisation(unsigned int junctionId, std::string layerId, CVector<T> mag)
+    void setMagnetisation(unsigned int junctionId, const std::string& layerId, CVector<T> mag)
     {
         this->junctionList[junctionId].setLayerMagnetisation(layerId, mag);
     }
 
-    void setOerstedFieldDriver(AxialDriver<T> oDriver)
+    void setOerstedFieldDriver(const AxialDriver<T>& oDriver)
     {
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
             j.setLayerOerstedFieldDriver("all", oDriver);
         }
     }
 
-    void setExternalFieldDriver(AxialDriver<T> fDriver)
+    void setExternalFieldDriver(const AxialDriver<T>& fDriver)
     {
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
             j.setLayerExternalFieldDriver("all", fDriver);
         }
@@ -89,17 +89,17 @@ public:
     void resetCoupledCurrentDriver()
     {
         this->currentDriver = NullDriver<T>();
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
             j.setLayerCurrentDriver("all", this->currentDriver);
         }
         this->currentDriverSet = false;
     }
 
-    void setCoupledCurrentDriver(ScalarDriver<T> cDriver)
+    void setCoupledCurrentDriver(const ScalarDriver<T>& cDriver)
     {
         this->currentDriver = cDriver;
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
             j.setLayerCurrentDriver("all", this->currentDriver);
         }
@@ -109,8 +109,7 @@ public:
     Stack(std::vector<Junction<T>> inputStack)
     {
         this->junctionList = std::move(inputStack);
-
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
             if (j.MR_mode != Junction<T>::MRmode::CLASSIC)
             {
@@ -119,7 +118,7 @@ public:
         }
     }
     void
-    saveLogs(std::string fileSave)
+        saveLogs(std::string fileSave)
     {
         if (fileSave == "")
         {
@@ -129,14 +128,14 @@ public:
         }
         std::ofstream logFile;
         logFile.open(fileSave);
-        for (const auto &keyPair : this->stackLog)
+        for (const auto& keyPair : this->stackLog)
         {
             logFile << keyPair.first << ";";
         }
         logFile << "\n";
         for (unsigned int i = 0; i < this->stackLog["time"].size(); i++)
         {
-            for (const auto &keyPair : this->stackLog)
+            for (const auto& keyPair : this->stackLog)
             {
                 logFile << keyPair.second[i] << ";";
             }
@@ -162,18 +161,18 @@ public:
 
     void clearLogs()
     {
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
             j.clearLog();
         }
         this->stackLog.clear();
     }
 
-    std::unordered_map<std::string, std::vector<T>> &getLog()
+    std::unordered_map<std::string, std::vector<T>>& getLog()
     {
         return this->stackLog;
     }
-    std::unordered_map<std::string, std::vector<T>> &getLog(unsigned int id)
+    std::unordered_map<std::string, std::vector<T>>& getLog(unsigned int id)
     {
         if (id <= this->junctionList.size())
         {
@@ -207,13 +206,12 @@ public:
         {
             std::runtime_error("The time step cannot be larger than write frequency!");
         }
-        T t;
 
         // pick a solver based on drivers
         auto solv = &Layer<T>::rk4_step;
-        for (auto &j : this->junctionList)
+        for (auto& j : this->junctionList)
         {
-            for (auto &l : j.layers)
+            for (auto& l : j.layers)
             {
                 if (l.hasTemperature())
                 {
@@ -226,8 +224,7 @@ public:
             }
         }
     labelEndLoop:
-        T coupledCurrent = 0;
-        T tCurrent = 0;
+        T tCurrent;
         std::vector<T> timeResistances(junctionList.size());
         std::vector<T> timeCurrents(junctionList.size());
         std::vector<CVector<T>> frozenMags(junctionList.size());
@@ -237,8 +234,8 @@ public:
         for (unsigned int i = 0; i < totalIterations; i++)
         {
 
-            t = i * timeStep;
-            coupledCurrent = this->currentDriver.getCurrentScalarValue(t);
+            T t = i * timeStep;
+            T coupledCurrent = this->currentDriver.getCurrentScalarValue(t);
 
             // stash the magnetisations first
             for (std::size_t j = 0; j < junctionList.size(); ++j)
@@ -250,13 +247,13 @@ public:
                 // modify the standing layer constant current
                 if (j > 0)
                     tCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
-                                                    // j -> k, j-1 -> k'
-                                                    coupledCurrent, frozenMags[j], frozenMags[j - 1], pol);
+                        // j -> k, j-1 -> k'
+                        coupledCurrent, frozenMags[j], frozenMags[j - 1], pol);
                 else
                     tCurrent = coupledCurrent;
 
                 junctionList[j].setLayerCurrentDriver("all", ScalarDriver<T>::getConstantDriver(
-                                                                 tCurrent));
+                    tCurrent));
 
                 // solve the equation
                 if (this->junctionList[j].layerNo == 1)
@@ -279,7 +276,7 @@ public:
             {
                 const T magRes = this->calculateStackResistance(timeResistances);
                 this->logStackData(t, magRes, timeCurrents);
-                for (auto &jun : this->junctionList)
+                for (auto& jun : this->junctionList)
                     jun.logLayerParams(t, timeStep, false);
             }
         }
@@ -291,8 +288,8 @@ class SeriesStack : public Stack<T>
     T calculateStackResistance(std::vector<T> resistances) override
     {
         const T resSum = std::accumulate(resistances.begin(),
-                                         resistances.end(),
-                                         0.0);
+            resistances.end(),
+            0.0);
         return resSum;
     }
 
@@ -305,7 +302,7 @@ class SeriesStack : public Stack<T>
     }
 
 public:
-    explicit SeriesStack(std::vector<Junction<T>> jL) : Stack<T>(jL) {}
+    explicit SeriesStack(const std::vector<Junction<T>>& jL) : Stack<T>(jL) {}
 };
 template <typename T>
 class ParallelStack : public Stack<T>
@@ -314,7 +311,7 @@ class ParallelStack : public Stack<T>
     {
         T invSum = 0.0;
         std::for_each(resistances.begin(), resistances.end(), [&](T res)
-                      { invSum += 1.0 / res; });
+            { invSum += 1.0 / res; });
         return 1. / invSum;
     }
 
@@ -327,6 +324,6 @@ class ParallelStack : public Stack<T>
     }
 
 public:
-    explicit ParallelStack(std::vector<Junction<T>> jL) : Stack<T>(jL) {}
+    explicit ParallelStack(const std::vector<Junction<T>>& jL) : Stack<T>(jL) {}
 };
 #endif // CORE_STACK_HPP_

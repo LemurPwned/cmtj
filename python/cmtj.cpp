@@ -29,7 +29,7 @@ PYBIND11_MODULE(cmtj, m)
     // CVector
     py::class_<DVector>(m, "CVector")
         .def(py::init<
-             double, double, double>())
+            double, double, double>())
         .def_readwrite("x", &DVector::x)
         .def_readwrite("y", &DVector::y)
         .def_readwrite("z", &DVector::z);
@@ -59,33 +59,39 @@ PYBIND11_MODULE(cmtj, m)
     // Driver Class
     py::class_<DScalarDriver>(m, "ScalarDriver")
         .def_static("getConstantDriver",
-                    &DScalarDriver::getConstantDriver,
-                    "constantValue"_a)
+            &DScalarDriver::getConstantDriver,
+            "constantValue"_a)
         .def_static("getPulseDriver",
-                    &DScalarDriver::getPulseDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "period"_a,
-                    "cycle"_a)
+            &DScalarDriver::getPulseDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "period"_a,
+            "cycle"_a)
         .def_static("getSineDriver",
-                    &DScalarDriver::getSineDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "frequency"_a,
-                    "phase"_a)
+            &DScalarDriver::getSineDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "frequency"_a,
+            "phase"_a)
         .def_static("getPosSineDriver",
-                    &DScalarDriver::getPosSineDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "frequency"_a,
-                    "phase"_a)
+            &DScalarDriver::getPosSineDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "frequency"_a,
+            "phase"_a)
         .def_static("getStepDriver",
-                    &DScalarDriver::getStepDriver,
-                    "constantValue"_a,
-                    "amplitude"_a,
-                    "timeStart"_a,
-                    "timeStop"_a);
-
+            &DScalarDriver::getStepDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "timeStart"_a,
+            "timeStop"_a)
+        .def_static("getTrapezoidDriver",
+            &DScalarDriver::getTrapezoidDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "timeStart"_a,
+            "edgeTime"_a,
+            "steadyTime"_a);
     py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
         .def(py::init<>());
 
@@ -94,58 +100,58 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<std::vector<ScalarDriver<double>>>())
         .def("getVectorAxialDriver", DAxialDriver::getVectorAxialDriver)
         .def("getCurrentAxialDrivers",
-             &DAxialDriver::getCurrentAxialDrivers)
+            &DAxialDriver::getCurrentAxialDrivers)
         .def("applyMask", py::overload_cast<DVector>(&DAxialDriver::applyMask))
         .def("applyMask", py::overload_cast<std::vector<unsigned int>>(&DAxialDriver::applyMask));
 
     py::class_<DLayer>(m, "Layer")
         .def(py::init<
-                 std::string,          // id
-                 DVector,              // mag
-                 DVector,              // anis
-                 double,               // Ms
-                 double,               // thickness
-                 double,               // cellSurface
-                 std::vector<DVector>, // demagTensor
-                 double                // damping
-                 >(),
-             "id"_a,
-             "mag"_a,
-             "anis"_a,
-             "Ms"_a,
-             "thickness"_a,
-             "cellSurface"_a,
-             "demagTensor"_a,
-             "damping"_a = 0.011)
+            std::string,          // id
+            DVector,              // mag
+            DVector,              // anis
+            double,               // Ms
+            double,               // thickness
+            double,               // cellSurface
+            std::vector<DVector>, // demagTensor
+            double                // damping
+        >(),
+            "id"_a,
+            "mag"_a,
+            "anis"_a,
+            "Ms"_a,
+            "thickness"_a,
+            "cellSurface"_a,
+            "demagTensor"_a,
+            "damping"_a = 0.011)
         .def_static("createSOTLayer", &DLayer::LayerSOT,
-                    "id"_a,
-                    "mag"_a,
-                    "anis"_a,
-                    "Ms"_a,
-                    "thickness"_a,
-                    "cellSurface"_a,
-                    "demagTensor"_a,
-                    "damping"_a = 0.011,
-                    "fieldLikeTorque"_a = 0.0,
-                    "dampingLikeTorque"_a = 0.0)
+            "id"_a,
+            "mag"_a,
+            "anis"_a,
+            "Ms"_a,
+            "thickness"_a,
+            "cellSurface"_a,
+            "demagTensor"_a,
+            "damping"_a = 0.011,
+            "fieldLikeTorque"_a = 0.0,
+            "dampingLikeTorque"_a = 0.0)
         .def_static("createSTTLayer", &DLayer::LayerSTT,
-                    "id"_a,
-                    "mag"_a,
-                    "anis"_a,
-                    "Ms"_a,
-                    "thickness"_a,
-                    "cellSurface"_a,
-                    "demagTensor"_a,
-                    "damping"_a = 0.011,
-                    "SlonczewskiSpacerLayerParameter"_a = 1.0,
-                    "beta"_a = 0.0,
-                    "spinPolarisation"_a = 0.0)
+            "id"_a,
+            "mag"_a,
+            "anis"_a,
+            "Ms"_a,
+            "thickness"_a,
+            "cellSurface"_a,
+            "demagTensor"_a,
+            "damping"_a = 0.011,
+            "SlonczewskiSpacerLayerParameter"_a = 1.0,
+            "beta"_a = 0.0,
+            "spinPolarisation"_a = 0.0)
         .def("setMagnetisation", &DLayer::setMagnetisation)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
         .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
         // reference layers
-        .def("setReferenceLayer", py::overload_cast<DVector>(&DLayer::setReferenceLayer))
+        .def("setReferenceLayer", py::overload_cast<const DVector&>(&DLayer::setReferenceLayer))
         .def("setReferenceLayer", py::overload_cast<Reference>(&DLayer::setReferenceLayer))
 
         .def("setFieldLikeTorqueDriver", &DLayer::setFieldLikeTorqueDriver)
@@ -156,41 +162,41 @@ PYBIND11_MODULE(cmtj, m)
 
     py::class_<DJunction>(m, "Junction")
         .def(py::init<std::vector<DLayer>>(),
-             "layers"_a)
+            "layers"_a)
         .def(py::init<std::vector<DLayer>,
-                      double, double>(),
-             "layers"_a,
-             "Rp"_a = 100,
-             "Rap"_a = 200)
+            double, double>(),
+            "layers"_a,
+            "Rp"_a = 100,
+            "Rap"_a = 200)
         .def(py::init<
-                 std::vector<DLayer>,
-                 std::vector<double>,
-                 std::vector<double>,
-                 std::vector<double>,
-                 std::vector<double>,
-                 std::vector<double>,
-                 std::vector<double>,
-                 std::vector<double>>(),
-             "layers"_a,
-             "Rx0"_a,
-             "Ry0"_a,
-             "AMR_X"_a,
-             "AMR_Y"_a,
-             "SMR_X"_a,
-             "SMR_Y"_a,
-             "AHE"_a)
+            std::vector<DLayer>,
+            std::vector<double>,
+            std::vector<double>,
+            std::vector<double>,
+            std::vector<double>,
+            std::vector<double>,
+            std::vector<double>,
+            std::vector<double>>(),
+            "layers"_a,
+            "Rx0"_a,
+            "Ry0"_a,
+            "AMR_X"_a,
+            "AMR_Y"_a,
+            "SMR_X"_a,
+            "SMR_Y"_a,
+            "AHE"_a)
         // log utils
         .def("getLog", &DJunction::getLog)
         .def("clearLog", &DJunction::clearLog)
         .def("saveLog", &DJunction::saveLogs, "filename"_a)
-
+        // main run
         .def("runSimulation", &DJunction::runSimulation,
-             "totalTime"_a,
-             "timeStep"_a = 1e-13,
-             "writeFrequency"_a = 1e-11,
-             "log"_a = false,
-             "calculateEnergies"_a = false,
-             "solverMode"_a = RK4)
+            "totalTime"_a,
+            "timeStep"_a = 1e-13,
+            "writeFrequency"_a = 1e-11,
+            "log"_a = false,
+            "calculateEnergies"_a = false,
+            "solverMode"_a = RK4)
 
         // driver setters
         .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
@@ -201,9 +207,10 @@ PYBIND11_MODULE(cmtj, m)
         .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
         .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
         .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
-        // temp
+        // noise
         .def("setLayerTemperatureDriver", &DJunction::setLayerTemperatureDriver)
         .def("setLayerNonStochasticLangevinDriver", &DJunction::setLayerNonStochasticLangevinDriver)
+        .def("setLayerOneFNoise", &DJunction::setLayerOneFNoise)
         // SOT setters
         .def("setLayerFieldLikeTorqueDriver", &DJunction::setLayerFieldLikeTorqueDriver)
         .def("setLayerDampingLikeTorqueDriver", &DJunction::setLayerDampingLikeTorqueDriver)
@@ -219,9 +226,9 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<SeriesStack<double>>(stack_module, "SeriesStack")
         .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
         .def("runSimulation", &SeriesStack<double>::runSimulation,
-             "totalTime"_a,
-             "timeStep"_a = 1e-13,
-             "writeFrequency"_a = 1e-11)
+            "totalTime"_a,
+            "timeStep"_a = 1e-13,
+            "writeFrequency"_a = 1e-11)
         .def("setMagnetistation", &SeriesStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
         .def("setCoupledCurrentDriver", &SeriesStack<double>::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &SeriesStack<double>::setExternalFieldDriver, "driver"_a)
@@ -233,9 +240,9 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<ParallelStack<double>>(stack_module, "ParallelStack")
         .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
         .def("runSimulation", &ParallelStack<double>::runSimulation,
-             "totalTime"_a,
-             "timeStep"_a = 1e-13,
-             "writeFrequency"_a = 1e-11)
+            "totalTime"_a,
+            "timeStep"_a = 1e-13,
+            "writeFrequency"_a = 1e-11)
         .def("setMagnetistation", &ParallelStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
         .def("setCoupledCurrentDriver", &ParallelStack<double>::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &ParallelStack<double>::setExternalFieldDriver, "driver"_a)
