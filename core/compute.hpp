@@ -33,7 +33,7 @@ public:
      */
     static std::unordered_map<std::string, T> calculateVoltageSpinDiode(
         std::unordered_map<std::string, std::vector<T>> &log,
-        const std::string resTag,
+        const std::string &resTag,
         T frequency, T power = 10e-6, const T minTime = 10e-9)
     {
         if (log.empty())

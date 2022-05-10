@@ -5,11 +5,13 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
-#include "cvector.hpp"
+#include <stdlib.h>     // for abs
+#include <cassert>      // for assert
 #define _USE_MATH_DEFINES
-#include <cmath>
-#include <iostream>
-#include <cassert>
+#include <cmath>        // for M_PI
+#include <stdexcept>    // for runtime_error
+#include <vector>       // for vector
+#include "cvector.hpp"  // for CVector
 
 enum UpdateType
 {
@@ -18,17 +20,19 @@ enum UpdateType
     sine,
     step,
     posine,
-    halfsine
+    halfsine,
+    trapezoid
 };
 
 template <typename T>
 class Driver
 {
-public:
+protected:
     // if the user wants to update, let them do that
     T constantValue, amplitude, frequency, phase,
         period, cycle, timeStart, timeStop;
     UpdateType update;
+public:
     Driver()
     {
         this->constantValue = 0.0;
@@ -42,26 +46,26 @@ public:
         this->update = constant;
     };
     Driver(UpdateType update,
-           T constantValue,
-           T amplitude,
-           T frequency,
-           T phase,
-           T period,
-           T cycle,
-           T timeStart,
-           T timeStop) : constantValue(constantValue),
-                         amplitude(amplitude),
-                         frequency(frequency),
-                         phase(phase),
-                         period(period),
-                         cycle(cycle),
-                         timeStart(timeStart),
-                         timeStop(timeStop),
-                         update(update)
+        T constantValue,
+        T amplitude,
+        T frequency,
+        T phase,
+        T period,
+        T cycle,
+        T timeStart,
+        T timeStop) : constantValue(constantValue),
+        amplitude(amplitude),
+        frequency(frequency),
+        phase(phase),
+        period(period),
+        cycle(cycle),
+        timeStart(timeStart),
+        timeStop(timeStop),
+        update(update)
 
     {
     }
-    virtual T getCurrentScalarValue(T &time)
+    virtual T getCurrentScalarValue(T& time)
     {
         return 0;
     };
@@ -71,6 +75,9 @@ public:
 template <typename T>
 class ScalarDriver : public Driver<T>
 {
+private:
+    T edgeTime = 0;
+    T steadyTime = 0;
 protected:
     T stepUpdate(T amplitude, T time, T timeStart, T timeStop)
     {
@@ -98,6 +105,26 @@ protected:
         }
     }
 
+    T trapezoidalUpdate(T amplitude, T time, T timeStart, T edgeTime, T steadyTime) {
+        if (time < timeStart) {
+            return 0;
+        }
+        // growth
+        else if (time <= timeStart + edgeTime) {
+            return  (amplitude / edgeTime) * (time - timeStart);
+        }
+        // steady
+        else if (time <= timeStart + edgeTime + steadyTime) {
+            return amplitude;
+        }
+        // decay
+        else if (time <= timeStart + 2 * edgeTime + steadyTime) {
+            return  amplitude - (amplitude / edgeTime) * (time - (timeStart + edgeTime + steadyTime));
+        }
+        return 0;
+    }
+
+
 public:
     ScalarDriver(
         UpdateType update = constant,
@@ -108,17 +135,21 @@ public:
         T period = -1,
         T cycle = -1,
         T timeStart = -1,
-        T timeStop = -1)
+        T timeStop = -1,
+        T edgeTime = -1,
+        T steadyTime = -1)
         : Driver<T>(update,
-                    constantValue,
-                    amplitude,
-                    frequency,
-                    phase,
-                    period,
-                    cycle,
-                    timeStart,
-                    timeStop)
+            constantValue,
+            amplitude,
+            frequency,
+            phase,
+            period,
+            cycle,
+            timeStart,
+            timeStop)
     {
+        this->edgeTime = edgeTime;
+        this->steadyTime = steadyTime;
         if (update == pulse && ((period == -1) || (cycle == -1)))
         {
             throw std::runtime_error("Selected pulse train driver type but either period or cycle were not set");
@@ -216,7 +247,16 @@ public:
             -1, -1, -1, -1, timeStart, timeStop);
     }
 
-    T getCurrentScalarValue(T &time) override
+
+    static ScalarDriver getTrapezoidDriver(T constantValue, T amplitude, T timeStart, T edgeTime, T steadyTime) {
+        return ScalarDriver(
+            trapezoid,
+            constantValue,
+            amplitude,
+            -1, -1, -1, -1, timeStart, -1, edgeTime, steadyTime);
+    }
+
+    T getCurrentScalarValue(T& time) override
     {
         T returnValue = this->constantValue;
         if (this->update == pulse)
@@ -243,21 +283,26 @@ public:
         {
             returnValue += stepUpdate(this->amplitude, time, this->timeStart, this->timeStop);
         }
+        else if (this->update == trapezoid) {
+            returnValue += trapezoidalUpdate(this->amplitude, time, this->timeStart, this->edgeTime, this->steadyTime);
+        }
 
         return returnValue;
     }
-    void setConstantValue(const T &val)
+    void setConstantValue(const T& val)
     {
         this->constantValue = val;
     }
 };
+
+
 
 template <typename T>
 class NullDriver : public ScalarDriver<T>
 {
 public:
     NullDriver() = default;
-    T getCurrentScalarValue(T &time) override
+    T getCurrentScalarValue(T& time) override
     {
         return 0.0;
     }
@@ -269,6 +314,7 @@ enum Axis
     yaxis,
     zaxis
 };
+
 template <typename T>
 class AxialDriver : public Driver<T>
 {
@@ -301,8 +347,8 @@ public:
     void applyMask(CVector<T> mask)
     {
         this->applyMask(std::vector<unsigned int>{(unsigned int)(mask[0]),
-                                                  (unsigned int)(mask[1]),
-                                                  (unsigned int)(mask[2])});
+            (unsigned int)(mask[1]),
+            (unsigned int)(mask[2])});
     }
 
     AxialDriver()
@@ -310,20 +356,20 @@ public:
         this->drivers = {
             NullDriver<T>(),
             NullDriver<T>(),
-            NullDriver<T>()};
+            NullDriver<T>() };
     }
 
     AxialDriver(ScalarDriver<T> x,
-                ScalarDriver<T> y,
-                ScalarDriver<T> z)
+        ScalarDriver<T> y,
+        ScalarDriver<T> z)
     {
-        this->drivers = {x, y, z};
+        this->drivers = { x, y, z };
     }
 
-    explicit AxialDriver(CVector<T> xyz) : AxialDriver(
-                                               ScalarDriver<T>::getConstantDriver(xyz.x),
-                                               ScalarDriver<T>::getConstantDriver(xyz.y),
-                                               ScalarDriver<T>::getConstantDriver(xyz.z))
+    explicit AxialDriver(const CVector<T>& xyz) : AxialDriver(
+        ScalarDriver<T>::getConstantDriver(xyz.x),
+        ScalarDriver<T>::getConstantDriver(xyz.y),
+        ScalarDriver<T>::getConstantDriver(xyz.z))
     {
     }
 
@@ -336,7 +382,7 @@ public:
         this->drivers = std::move(axialDrivers);
     }
 
-    static AxialDriver getUniAxialDriver(ScalarDriver<T> in, Axis axis)
+    static AxialDriver getUniAxialDriver(const ScalarDriver<T>& in, Axis axis)
     {
         switch (axis)
         {
@@ -350,7 +396,7 @@ public:
         return AxialDriver(NullDriver<T>(), NullDriver<T>(), NullDriver<T>());
     }
     CVector<T>
-    getCurrentAxialDrivers(T time)
+        getCurrentAxialDrivers(T time)
     {
         return CVector<T>(
             this->drivers[0].getCurrentScalarValue(time),

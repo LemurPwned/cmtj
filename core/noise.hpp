@@ -1,7 +1,15 @@
 /**
- * @brief Pink Noise generator from the Music DSP
+ * @file noise.hpp
+ * @author Jakub
+ * @brief One F generator, based on the Pink Noise generator from the Music DSP
  * https://www.musicdsp.org/en/latest/Synthesis/220-trammell-pink-noise-c-class.html
-*/
+ * Second version is custom and gives better results, but builds on the initial one.
+ * @version 1.0
+ * @date 2022-03-22
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 
 #ifndef _PinkNoise_H
 #define _PinkNoise_H
@@ -58,6 +66,7 @@ private:
     int sources;
     std::vector<T> state;
     std::geometric_distribution<int> geom_distr;
+    // Mersenne twister is higher quality than the default one
     std::mt19937 generator;
     std::uniform_real_distribution<T> float_dist;
     std::vector<int> trials;
@@ -72,15 +81,19 @@ public:
         // start off with random values in the state
         std::generate(this->state.begin(), this->state.end(), [&] { return this->float_dist(generator);});
         // try out the binding stuff
-
-        // this->sumTrack = std::accumulate(this->state.begin(), this->state.end(), 0.);
     }
-
+    /**
+     * @brief This function works faster if p is a large number (p > 0.5)
+     *
+     * @return T sum of the state
+     */
     T tick() {
         std::generate(this->trials.begin(), this->trials.end(), [&] { return this->geom_distr(generator);});
         std::sort(this->trials.begin(), this->trials.end());
         const auto uniq = std::unique(this->trials.begin(), this->trials.end());
         // compute the distance of the last unique element
+        // this basically takes only the unique elements of the trials
+        // because if we repeatedly change the same index, we don't get any advantage
         const auto lastIndx = std::distance(this->trials.begin(), uniq);
         for (int i = 0; i < lastIndx; ++i) {
             const auto t = this->trials[i];
@@ -89,10 +102,14 @@ public:
             }
         }
         return this->scale * std::accumulate(state.begin(), state.end(), 0.);
-
     }
 
-    T oldTick() {
+    /**
+     * @brief This function works faster if the p is a small number (p < 0.5)
+     *
+     * @return T sum of the state
+     */
+    T tick2() {
         std::generate(this->trials.begin(), this->trials.end(), [&] { return this->geom_distr(generator);});
         for (const auto& t : this->trials) {
             if (t < this->sources) {
@@ -101,7 +118,6 @@ public:
         }
         return this->scale * std::accumulate(state.begin(), state.end(), 0.);
     }
-
 };
 
 
