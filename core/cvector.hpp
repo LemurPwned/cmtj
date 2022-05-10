@@ -1,7 +1,7 @@
 #ifndef CORE_CVECTOR_HPP_
 #define CORE_CVECTOR_HPP_
 
-#include <__functional/function.h>  // for function
+#include <functional>               // for function
 #include <iostream>                 // for operator<<, ostream
 #include <stdexcept>                // for runtime_error
 #include <vector>                   // for vector

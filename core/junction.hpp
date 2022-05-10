@@ -12,10 +12,9 @@
 #define CORE_JUNCTION_HPP_
 
 #define _USE_MATH_DEFINES
-#include <fstream>                // for file save
-#include <__algorithm/find_if.h>    // for find_if
-#include <__functional/bind.h>      // for bind
-#include <__functional/function.h>  // for function
+#include <fstream>                  // for file save
+#include <algorithm>                // for find_if
+#include <functional>               // for bind, function
 #include <array>                    // for array, array<>::value_type
 #include <chrono>                   // for seconds, steady_clock, duration
 #include <cmath>                    // for isnan, M_PI

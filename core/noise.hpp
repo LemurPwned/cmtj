@@ -14,10 +14,8 @@
 #ifndef _PinkNoise_H
 #define _PinkNoise_H
 
-#include <__algorithm/generate.h>  // for generate
-#include <__algorithm/sort.h>      // for sort
-#include <__algorithm/unique.h>    // for unique
-#include <__iterator/distance.h>   // for distance
+#include <algorithm>               // for generate, sort, unique
+#include <iterator>                // for distance
 #include <cstdlib>                 // for rand, srand, NULL, RAND_MAX, size_t
 #include <ctime>                   // for time
 #include <numeric>                 // for accumulate
