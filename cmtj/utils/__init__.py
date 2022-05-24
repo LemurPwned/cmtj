@@ -27,7 +27,8 @@ def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray,
     return np.mean(SD_dc)
 
 
-def calculate_resistance(Rx0, Ry0, AMR, AHE, SMR, m, number_of_layers, l, w):
+def calculate_resistance_parallel(Rx0, Ry0, AMR, AHE, SMR, m, number_of_layers,
+                                  l, w):
     if m.ndim == 2:
         SxAll = np.zeros((number_of_layers, ))
         SyAll = np.zeros((number_of_layers, ))
@@ -44,6 +45,27 @@ def calculate_resistance(Rx0, Ry0, AMR, AHE, SMR, m, number_of_layers, l, w):
 
     Rx = 1 / np.sum(SxAll, axis=0)
     Ry = 1 / np.sum(SyAll, axis=0)
+    return Rx, Ry
+
+
+def calculate_resistance_series(Rx0, Ry0, AMR, AHE, SMR, m, number_of_layers,
+                                l, w):
+    if m.ndim == 2:
+        SxAll = np.zeros((number_of_layers, ))
+        SyAll = np.zeros((number_of_layers, ))
+
+    elif m.ndim == 3:
+        SxAll = np.zeros((number_of_layers, m.shape[2]))
+        SyAll = np.zeros((number_of_layers, m.shape[2]))
+
+    for i in range(0, number_of_layers):
+        w_l = w[i] / l[i]
+        SxAll[i] = (Rx0[i] + (AMR[i] * m[i, 0]**2 + SMR[i] * m[i, 1]**2))
+        SyAll[i] = (Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) *
+                    (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1])
+
+    Rx = np.sum(SxAll, axis=0)
+    Ry = np.sum(SyAll, axis=0)
     return Rx, Ry
 
 

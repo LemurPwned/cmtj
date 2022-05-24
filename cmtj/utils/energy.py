@@ -1,8 +1,6 @@
 from typing import Dict, List
 
 import numpy as np
-from attr import fields_dict
-from matplotlib.pyplot import axis
 
 
 class EnergyCompute:
