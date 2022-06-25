@@ -158,7 +158,10 @@ PYBIND11_MODULE(cmtj, m)
         .def("setDampingLikeTorqueDriver", &DLayer::setDampingLikeTorqueDriver)
         .def("setTemperatureDriver", &DLayer::setTemperatureDriver)
         .def("setTopDipoleTensor", &DLayer::setTopDipoleTensor)
-        .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor);
+        .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor)
+        .def("setAlternativeSTT", &DLayer::setAlternativeSTT)
+        // getters
+        .def("getId", &DLayer::getId);
 
     py::class_<DJunction>(m, "Junction")
         .def(py::init<std::vector<DLayer>>(),
@@ -217,9 +220,13 @@ PYBIND11_MODULE(cmtj, m)
         // Reference setters
         .def("setLayerReferenceType", &DJunction::setLayerReferenceType)
         .def("setLayerReferenceLayer", &DJunction::setLayerReferenceLayer)
+        // other setters
+        .def("setLayerAlternativeSTT", &DJunction::setLayerAlternativeSTT)
         // junction calculations
         .def("getLayerMagnetisation", &DJunction::getLayerMagnetisation)
-        .def("getMagnetoresistance", &DJunction::getMagnetoresistance);
+        .def("getMagnetoresistance", &DJunction::getMagnetoresistance)
+        // getters
+        .def("getLayerIds", &DJunction::getLayerIds);
 
     // stack module
     py::module stack_module = m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
@@ -237,6 +244,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("clearLogs", &ParallelStack<double>::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&SeriesStack<double>::getLog))
         .def("getLog", py::overload_cast<>(&SeriesStack<double>::getLog));
+
     py::class_<ParallelStack<double>>(stack_module, "ParallelStack")
         .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
         .def("runSimulation", &ParallelStack<double>::runSimulation,
