@@ -55,3 +55,16 @@ class Filters:
         b, a = butter(order, normal_cutoff, btype="low", analog=False)
         y = lfilter(b, a, data, zi=None)
         return y
+
+    @staticmethod
+    def detrend_axis(arr, axis):
+        """Detrend axis for better spectrum visibility.
+        :param arr: input array (spectrum)
+        :param axis: axis along which to detrend
+        """
+        medians = np.median(arr, axis=axis)
+        if axis:
+            detrended = (arr.T - medians).T
+        else:
+            detrended = arr - medians
+        return detrended

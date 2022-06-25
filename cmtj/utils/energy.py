@@ -4,9 +4,14 @@ import numpy as np
 
 
 class EnergyCompute:
+    """Energy density in [J/m^3] computing functions"""
 
     def __init__(self, cell_surface: float, thickness: float,
                  log: Dict[str, List[float]]) -> None:
+        """Initialise energy computation class
+        :param cell_surface: surface of the cell in [m^2]
+        :param thickness: thickness of the cell in [m]
+        :param log: log of the simulation (directly from .getLog())"""
         self.cell_surface = cell_surface
         self.thickness = thickness
         self.cell_volumne = self.cell_surface * thickness
@@ -46,6 +51,8 @@ class EnergyCompute:
     def calculate_energy_from_field(self, m: np.ndarray,
                                     field_vector: np.ndarray) -> np.ndarray:
         """
+        :param m: magnetisation
+        :param field_vector: magnetic field vector (can be external, Oersted etc.)
         Compute generic energy density
         E = H * (mi0 Ms/V)
         where mi0 Ms is in [T], Ms in [A/m], H in [A/m]
@@ -55,6 +62,8 @@ class EnergyCompute:
     def calculate_energy_from_field_interfacial(
             self, m: np.ndarray, field_vector: np.ndarray) -> np.ndarray:
         """
+        :param m: magnetisation
+        :param field_vector: magnetic field vector (can be IEC etc.)
         Compute generic energy density
         E = H * (mi0 Ms/A)
         where mi0 Ms is in [T], Ms in [A/m], H in [A/m]

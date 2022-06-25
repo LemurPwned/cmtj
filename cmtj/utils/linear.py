@@ -9,6 +9,10 @@ class FieldScan:
 
     @staticmethod
     def _trig_compute(theta, phi) -> Tuple:
+        """Compute trigonometric functions for theta and phi.
+        :param theta: theta angle in [deg].
+        :param phi: phi angle in [deg].
+        :returns: trigonometric functions for theta and phi."""
         st = np.sin(np.deg2rad(theta))
         ct = np.cos(np.deg2rad(theta))
         sp = np.sin(np.deg2rad(phi))
@@ -17,6 +21,11 @@ class FieldScan:
 
     @staticmethod
     def angle2vector(theta, phi, amplitude=1) -> CVector:
+        """Convert spherical coordinates to cartesian coordinates.
+        :param theta: polar angle in degrees.
+        :param phi: azimuthal angle in degrees.
+        :param amplitude: amplitude of target vector.
+        :returns: cartesian vector."""
         st, ct, sp, cp = FieldScan._trig_compute(theta, phi)
         return CVector(
             st * cp * amplitude,
@@ -26,9 +35,12 @@ class FieldScan:
 
     @staticmethod
     def vector2angle(x, y, z) -> Tuple:
-        """
-        https://github.com/numpy/numpy/issues/5228
+        """Convert cartesian coordinates to spherical coordinates.
+        :param x: x coordinate of the vector.
+        :param y: y coordinate of the vector.
+        :param z: z coordinate of the vector.
         :returns (theta, phi, r)
+        https://github.com/numpy/numpy/issues/5228
         """
         r = np.sqrt(x**2 + y**2 + z**2)
         theta = np.rad2deg(np.arctan2(np.sqrt(x**2 + y**2), z))
@@ -38,8 +50,9 @@ class FieldScan:
     @staticmethod
     def cvector2angle(vector: CVector) -> Tuple:
         """
-        https://github.com/numpy/numpy/issues/5228
+        :param vector: cartesian vector.
         :returns (theta, phi, r)
+        https://github.com/numpy/numpy/issues/5228
         """
         return FieldScan.vector2angle(vector.x, vector.y, vector.z)
 
@@ -54,12 +67,11 @@ class FieldScan:
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear magnitude sweep. Angles given in deg.
-        :param start:
-        :param stop:
-        :param steps:
-        :param theta:
-        :param phi:
-
+        :param start: start of the sweep
+        :param stop: end of the sweep
+        :param steps: number of steps
+        :param theta: polar angle in deg.
+        :param phi: azimuthal angle in deg.
         :returns: linear amplitude, field vectors
         """
         Hspan = np.linspace(start, stop, endpoint=True, num=steps)
@@ -80,11 +92,11 @@ class FieldScan:
                    phi: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear theta angle sweep. Angles given in deg.
-        :param start:
-        :param stop:
-        :param steps:
+        :param start: polar angle start of the sweep
+        :param stop: polar angle end of the sweep
+        :param steps: number of steps
         :param magnitude: magnitude of the scanned field.
-        :param phi:
+        :param phi: azimuthal angle in deg.
         """
         theta_span = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta_span, phi)
@@ -98,11 +110,11 @@ class FieldScan:
                  theta: float) -> Tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear phi angle sweep. Angles given in deg.
-        :param start:
-        :param stop:
-        :param steps:
+        :param start: azimuthal angle start of the sweep
+        :param stop: azimuthal angle end of the sweep
+        :param steps: number of steps
         :param magnitude: magnitude of the scanned field
-        :param theta:
+        :param theta: polar angle in deg.
         """
         phi_span = np.linspace(start, stop, endpoint=True, num=steps)
         st, ct, sp, cp = FieldScan._trig_compute(theta, phi_span)
