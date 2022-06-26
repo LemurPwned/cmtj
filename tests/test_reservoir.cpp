@@ -81,9 +81,9 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
     std::vector<CVector<double>> demagTensor = {
         {0.0405132594942993, -2.11556045217049e-13, -3.54967543157989e-14},
         {-2.11556045217049e-13, 0.0405132594942993, -3.55034146894455e-14},
-        {-3.54967543157989e-14, -3.55034146894455e-14, 0.998973481008816}};
+        {-3.54967543157989e-14, -3.55034146894455e-14, 0.998973481008816} };
     const double Ms = 1.63;
-    const double gap = 20e-9;
+    const double gap = 60e-9;
     const double thickness = 1e-9;
     const double radius = 20e-9;
     const double surface = M_PI * pow(radius, 2);
@@ -93,36 +93,66 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
 
     const int delay = 1;
     std::vector<double> trainingSignal = {
-        0, 0, 1, 1, 0, 0, 1, 1, 1};
+        0, 0, 1, 1, 0, 0, 1, 1, 1 };
 
     std::vector<double> ysignalAndN1 = {
-        0, 0, 1, 0, 0, 0, 1, 1, 0};
+        0, 0, 1, 0, 0, 0, 1, 1, 0 };
     ASSERT_EQ(trainingSignal.size(), ysignalAndN1.size());
 
     const std::vector<std::vector<DVector>>
-        coordinateMatrix = {{
+        coordinateMatrix = {
+                            // {
+                            //     DVector(0, 5 * gap, 0),
+                            //     DVector(gap, 5 * gap, 0.),
+                            // },
+
+                            // {
+                            //     DVector(0, 4 * gap, 0),
+                            //     DVector(gap, 4 * gap, 0.),
+                            // },
+                            // {
+                            //     DVector(0, 3 * gap, 0),
+                            //     DVector(gap, 3 * gap, 0.),
+                            // },
+
+                            // {
+                            //     DVector(0, 2 * gap, 0),
+                            //     DVector(gap, 2 * gap, 0.),
+                            // },
+
+                             {
                                 DVector(0, gap, 0),
                                 DVector(gap, gap, 0.),
                             },
                             {
                                 DVector(0, 0, 0),
                                 DVector(gap, 0, 0.),
-                            }};
-
+                            } };
+    // print coordinate matrix
+    std::cout << "Coordinate matrix" << std::endl;
+    for (auto& row : coordinateMatrix)
+    {
+        for (auto& col : row)
+        {
+            std::cout << col << " ";
+        }
+        std::cout << std::endl;
+    }
     Layer<double> l1("free",                      // id
-                     CVector<double>(0., 0., 1.), // mag
-                     CVector<double>(0., 0., 1.), // anis
-                     Ms,                          // Ms
-                     thickness,                   // thickness
-                     surface,                     // surface
-                     demagTensor,                 // demag
-                     0.5                          // damping
+        CVector<double>(0., 0., 1.), // mag
+        CVector<double>(0., 0., 1.), // anis
+        Ms,                          // Ms
+        thickness,                   // thickness
+        surface,                     // surface
+        demagTensor,                 // demag
+        0.5                          // damping
     );
     auto anisDriver = ScalarDriver<double>::getConstantDriver(
         Ku0);
     l1.setAnisotropyDriver(anisDriver);
     const std::vector<std::vector<Layer<double>>> layerMatrix = {
         {l1, l1}, {l1, l1}};
+        //  {l1, l1} , {l1, l1} , {l1, l1}, {l1, l1} };
 
     auto reservoir = Reservoir(coordinateMatrix, layerMatrix);
     const int k = trainingSignal.size();
@@ -135,8 +165,8 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
         // pass the signal to the first group
         const double polariser = trainingSignal[step] == 1 ? 1 : -1;
         reservoir.setLayerExternalField(0,
-                                        AxialDriver<double>(
-                                            CVector<double>(0, 0, polariser * Hmax)));
+            AxialDriver<double>(
+                CVector<double>(0, 0, polariser * Hmax)));
         // STAGE 2
         // change the anisotropy to 0 for Group II and III
         std::cout << "STAGE 2" << std::endl;
@@ -194,7 +224,7 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
     }
     Eigen::Map<Eigen::VectorXd> Y(ysignalAndN1.data(), ysignalAndN1.size());
     std::cout << "X:\n"
-              << mat << std::endl;
+        << mat << std::endl;
     std::cout << "Y: " << Y.transpose() << std::endl;
     std::cout << "Y: [" << Y.rows() << " " << Y.cols() << "]" << std::endl;
     Eigen::VectorXd weights = logisitcRegression(

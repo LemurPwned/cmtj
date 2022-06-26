@@ -247,7 +247,14 @@ public:
             -1, -1, -1, -1, timeStart, timeStop);
     }
 
-
+    /**
+     * Get a trapezoidal driver. It has amplitude between timeStart and timeStop and 0 elsewhere
+     * @param constantValue: offset of the pulse (vertical)
+     * @param amplitude: amplitude that is added on top of the constantValue
+     * @param timeStart: start of the pulse
+     * @param edgeTime: time it takes to reach the maximum amplitude
+     * @param steadyTime: time it spends in a steady state
+     */
     static ScalarDriver getTrapezoidDriver(T constantValue, T amplitude, T timeStart, T edgeTime, T steadyTime) {
         return ScalarDriver(
             trapezoid,

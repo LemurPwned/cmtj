@@ -38,7 +38,7 @@ class Reservoir
 private:
     // log stuff
     const std::string intendedKeys = {
-        "m_"};
+        "m_" };
     std::vector<std::string> logKeys;
     unsigned int logLength;
     std::unordered_map<std::string, std::vector<double>> reservoirLog;
@@ -79,6 +79,7 @@ private:
             const unsigned int i1 = std::get<1>(elIndx0);
             const unsigned int j0 = std::get<0>(elIndx1);
             const unsigned int j1 = std::get<1>(elIndx1);
+            std::cout << "i0: " << i0 << " i1: " << i1 << " j0: " << j0 << " j1: " << j1 << std::endl;
             // // const unsigned int j0 = (int)consideredPair[1] / cols; // first position of the second element
             // // const unsigned int j1 = consideredPair[1] % cols;      // second position of the second element
 
@@ -104,16 +105,21 @@ private:
             elementIndx % this->cols);
     }
 
-    const tensor getDipoleTensorFromRelPositions(CVector<double> r1, CVector<double> r2)
+    const tensor getDipoleTensorFromRelPositions(const CVector<double>& r1, const CVector<double>& r2)
     {
         const CVector<double> rij = r2 - r1; // 1-2 distance vector
         const double r_mag = pow(rij.length(), 2);
         const double mult = 3 / (4 * M_PI * pow(rij.length(), 5));
         const tensor dipoleTensor = {
-            CVector<double>(pow(rij.x, 2) - r_mag / 3, rij.x * rij.y, rij.x * rij.z) * mult,
-            CVector<double>(rij.x * rij.y, pow(rij.y, 2) - r_mag / 3, rij.y * rij.z) * mult,
-            CVector<double>(rij.x * rij.z, rij.y * rij.z, pow(rij.z, 2) - r_mag / 3) * mult};
-
+            CVector<double>(pow(rij.x, 2) - (r_mag / 3), rij.x * rij.y, rij.x * rij.z) * mult,
+            CVector<double>(rij.x * rij.y, pow(rij.y, 2) - (r_mag / 3), rij.y * rij.z) * mult,
+            CVector<double>(rij.x * rij.z, rij.y * rij.z, pow(rij.z, 2) - (r_mag / 3)) * mult };
+        // print dipole tensor
+        // std::cout << "Dipole tensor: " << std::endl;
+        // for (auto& row : dipoleTensor)
+        // {
+        //     std::cout << row << " " << std::endl;
+        // }
         return dipoleTensor;
     }
 
@@ -123,8 +129,8 @@ private:
         for (unsigned int i = 0; i < this->reservoirDipoleTensor[currentIndx].size(); i++)
         {
             HdipoleEff += calculate_tensor_interaction(this->frozenMMatrix[i],
-                                                       this->reservoirDipoleTensor[currentIndx][i],
-                                                       this->MsMatrix[i]);
+                this->reservoirDipoleTensor[currentIndx][i],
+                this->MsMatrix[i]);
         }
         return HdipoleEff * volumeNormaliser;
     }
@@ -134,7 +140,7 @@ public:
     unsigned int noElements;
 
     Reservoir(std::vector<std::vector<DVector>> coordinateMatrix, std::vector<std::vector<Layer<double>>> layerMatrix) : coordinateMatrix(std::move(coordinateMatrix)),
-                                                                                                                         layerMatrix(std::move(layerMatrix))
+        layerMatrix(std::move(layerMatrix))
     {
         this->rows = this->coordinateMatrix.size();
         this->cols = this->coordinateMatrix[0].size();
@@ -196,7 +202,7 @@ public:
         }
     }
 
-    Layer<double> &getLayer(unsigned int index)
+    Layer<double>& getLayer(unsigned int index)
     {
         const auto coords = getMatrixCoordinates(index);
         const unsigned int i0 = std::get<0>(coords);
@@ -204,18 +210,18 @@ public:
         return this->layerMatrix[i0][i1];
     }
 
-    void setAllExternalField(AxialDriver<double> hdriver)
+    void setAllExternalField(const AxialDriver<double>& hdriver)
     {
-        for (auto &r : this->layerMatrix)
+        for (auto& r : this->layerMatrix)
         {
-            for (auto &l : r)
+            for (auto& l : r)
             {
                 l.setExternalFieldDriver(hdriver);
             }
         }
     }
 
-    void setLayerExternalField(unsigned int index, AxialDriver<double> hDriver)
+    void setLayerExternalField(unsigned int index, const AxialDriver<double>& hDriver)
     {
         this->getLayer(index).setExternalFieldDriver(hDriver);
     }
@@ -234,7 +240,7 @@ public:
     }
 
     void
-    saveLogs(std::string fileSave)
+        saveLogs(std::string fileSave)
     {
         if (fileSave == "")
         {
@@ -244,14 +250,14 @@ public:
         }
         std::ofstream logFile;
         logFile.open(fileSave);
-        for (const auto &keyPair : this->reservoirLog)
+        for (const auto& keyPair : this->reservoirLog)
         {
             logFile << keyPair.first << ";";
         }
         logFile << "\n";
         for (unsigned int i = 0; i < this->reservoirLog["time"].size(); i++)
         {
-            for (const auto &keyPair : this->reservoirLog)
+            for (const auto& keyPair : this->reservoirLog)
             {
                 logFile << keyPair.second[i] << ";";
             }
@@ -266,14 +272,13 @@ public:
 
     void runSimulation(double totalTime, double timeStep)
     {
-        double t;
         const double totalIterations = (int)(totalTime / timeStep);
         // this->clearLogs();
         // this->prepareLog(totalIterations);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
         {
-            t = i * timeStep;
+            double t = i * timeStep;
             runSolver(t, timeStep);
             logReservoirkData(t);
         }

@@ -62,7 +62,7 @@ All contributions are welcome, please leave an issue if you've encountered any t
 ## Precommit
 
 There's a `.pre-commit-config.yaml` that does some basic python and cpp lints and checks. More static analysis to come in the future.
-This may be run by
+This may be run with:
 
 ```
 pre-commit run -v
@@ -92,7 +92,7 @@ There are couple of stages to building the documentation
    More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.
 3. Parse stubs to Markdown.
    This stage is done by running:
-   `bash python3 docs/docgen.py `
+   `python3 docs/docgen.py `
    The deployment of the documentation is done via:
 
 ```bash

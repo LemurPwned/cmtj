@@ -33,7 +33,6 @@ int main(void)
 
     float damping = 0.01;
 
-    float sttOn = false;
     const float temperature = 0.0;
 
     float surface = 1e-7;
@@ -47,8 +46,6 @@ int main(void)
               thickness,    // thickness
               surface,      // surface
               demagTensor,  // demag
-              dipoleTensor, // dipole
-              temperature,  // temp
               damping       // damping
     );
 
@@ -59,8 +56,6 @@ int main(void)
               thickness,    // thickness
               surface,      // surface
               demagTensor,  // demag
-              dipoleTensor, // dipole
-              temperature,  // temp
               damping       // damping
 
     );
