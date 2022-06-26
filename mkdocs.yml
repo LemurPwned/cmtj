@@ -3,13 +3,19 @@ repo_url: https://github.com/LemurPwned/cmtj
 repo_name: LemurPwned/cmtj
 nav:
   - Home: index.md
+  - Overview: overview.md
   - Theory:
       - LLG Equation: physics/macromagnetic_models.md
   - API:
       - Core: gen-docs/cmtj.md
       - Utils:
+          - General: api/general-reference.md
           - Linear: api/linear-reference.md
           - Filters: api/filters-reference.md
+          - Energy: api/energy-reference.md
+          - Plotting: api/plotting-reference.md
+          - Procedures: api/procedures-reference.md
+          - Parallel: api/parallel-reference.md
       - Stack: gen-docs/stack.md
   - Examples:
       - Library introduction: CMTJBindingsTutorial.ipynb
