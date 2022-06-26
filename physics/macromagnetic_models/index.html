@@ -242,6 +242,21 @@
 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -249,18 +264,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_2">
+        <label class="md-nav__link" for="__nav_3">
           Theory
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Theory" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
+        <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
           Theory
         </label>
@@ -307,18 +322,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_3">
+        <label class="md-nav__link" for="__nav_4">
           API
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="API" data-md-level="1">
-        <label class="md-nav__title" for="__nav_3">
+        <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
           API
         </label>
@@ -347,22 +362,36 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_3_2">
+        <label class="md-nav__link" for="__nav_4_2">
           Utils
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Utils" data-md-level="2">
-        <label class="md-nav__title" for="__nav_3_2">
+        <label class="md-nav__title" for="__nav_4_2">
           <span class="md-nav__icon md-icon"></span>
           Utils
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/general-reference/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
           
             
               
@@ -386,6 +415,62 @@
     <li class="md-nav__item">
       <a href="../../api/filters-reference/" class="md-nav__link">
         Filters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/energy-reference/" class="md-nav__link">
+        Energy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plotting-reference/" class="md-nav__link">
+        Plotting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/procedures-reference/" class="md-nav__link">
+        Procedures
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/parallel-reference/" class="md-nav__link">
+        Parallel
       </a>
     </li>
   
@@ -430,18 +515,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_4">
+        <label class="md-nav__link" for="__nav_5">
           Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Examples" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
+        <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
           Examples
         </label>
@@ -518,47 +603,59 @@
 
 <h1 id="introduction">Introduction</h1>
 <p>In this section we will walk through the basics of the LLG equation and the transformation to the LL-form of the LLG equation.
-The LLG equation is a "proper" equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that 
+The LLG equation is a "proper" equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that
 allows us to solve it numerically (no implicit term on <span class="arithmatex">\(\frac{dm}{dt}\)</span>).</p>
 <h1 id="landau-lifshitz-form-of-landau-lifshitz-gilbert-equation">Landau Lifshitz form of Landau Lifshitz-Gilbert equation</h1>
 <p>Standard form of the LLG-SOT equation:</p>
 <div class="arithmatex">\[\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma|\tau_{fl}|\textbf{m} \times \phi-\gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi\]</div>
 <p>Multiply that
-equation <span class="arithmatex">\(\times m\)</span>: </p>
-<div class="arithmatex">\[\begin{gathered}
-       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma|\tau_{fl}| \textbf{m} \times \textbf{m} \times \phi-   \gamma|\tau_{dl}|\textbf{m} \times \textbf{m}\times\textbf{m}\times \phi \\ 
-   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi\end{gathered}\]</div>
+equation <span class="arithmatex">\(\times m\)</span>:</p>
+<div class="arithmatex">\[
+\begin{gathered}
+       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma|\tau_{fl}| \textbf{m} \times \textbf{m} \times \phi-   \gamma|\tau_{dl}|\textbf{m} \times \textbf{m}\times\textbf{m}\times \phi \\
+   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi\end{gathered}
+\]</div>
 <p>Substitute RHS of the derived equation above into <span class="arithmatex">\(\textbf{m}\times \frac{d\textbf{m}}{dt}\)</span>:</p>
-<div class="arithmatex">\[\begin{gathered}
-  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -   
-   \gamma|\tau_{fl}|\textbf{m} \times \phi \\ - 
-    \gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi \\ 
-     \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\ 
-     - \gamma|\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] \\ 
-     -  \gamma|\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]\end{gathered}\]</div>
-<p>Rearranging the terms gives: </p>
-<div class="arithmatex">\[\begin{aligned}
+<div class="arithmatex">\[
+\begin{gathered}
+  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -
+   \gamma|\tau_{fl}|\textbf{m} \times \phi \\ -
+    \gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi \\
+     \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\
+     - \gamma|\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] \\
+     -  \gamma|\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]\end{gathered}
+\]</div>
+<p>Rearranging the terms gives:</p>
+<div class="arithmatex">\[
+\begin{aligned}
     \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &amp;\\
      + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] &amp;\\
-     +  |\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]]\end{aligned}\]</div>
+     +  |\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]]\end{aligned}
+\]</div>
 <p>In this form, <span class="arithmatex">\(\gamma\)</span> is the gyromagnetic ratio and is equal to <span class="arithmatex">\(\gamma \approx 2.2e5 \frac{m}{As}\)</span>.
-The last part can be re-arranged to: </p>
-<div class="arithmatex">\[\begin{aligned}
-(...) + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] + |\tau_{dl}|[\textbf{m}\times\textbf{m}\times\phi - \alpha\textbf{m}\times \phi]]&amp;\\ = \textbf{m} \times \phi(|\tau_{fl}| - \alpha|\tau_{dl}|) + \textbf{m}\times\textbf{m}\times\phi(|\tau_{dl}| + \alpha|\tau_{fl}|)\end{aligned}\]</div>
+The last part can be re-arranged to:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+(...) + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] + |\tau_{dl}|[\textbf{m}\times\textbf{m}\times\phi - \alpha\textbf{m}\times \phi]]&amp;\\ = \textbf{m} \times \phi(|\tau_{fl}| - \alpha|\tau_{dl}|) + \textbf{m}\times\textbf{m}\times\phi(|\tau_{dl}| + \alpha|\tau_{fl}|)\end{aligned}
+\]</div>
 <p>What is evident in this form of LL form of the LLG equation is the
 mixing of the torques with damping as the scaling factor (the field-like
 term for instance now becomes <span class="arithmatex">\(|\tau_{fl}| - \alpha|\tau_{dl}|\)</span>). Proper
 LL-form of the LLGS equation is:</p>
-<div class="arithmatex">\[(...)+ \frac{-\gamma}{1 + \alpha^2}[
+<div class="arithmatex">\[
+(...)+ \frac{-\gamma}{1 + \alpha^2}[
     \tau'_1 \textbf{m}\times(\textbf{m}\times \phi)
-    + \tau'_2 \textbf{m}\times \phi]\]</div>
+    + \tau'_2 \textbf{m}\times \phi]
+\]</div>
 <h2 id="stt-interaction">STT interaction</h2>
 <p>The origin of STT is different, thus, we use a different set of
-quantities: </p>
-<div class="arithmatex">\[\begin{gathered}
-    |H_{dl}| = \beta |H_{fl}|, \quad \beta \in [0, 1] \\ 
-    a_j = \frac{\hbar j_e}{eM_s t_{FM}} \\ 
-    \eta = \frac{\sigma \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\sigma}\end{gathered}\]</div>
+quantities:</p>
+<div class="arithmatex">\[
+\begin{gathered}
+    |H_{dl}| = \beta |H_{fl}|, \quad \beta \in [0, 1] \\
+    a_j = \frac{\hbar j_e}{eM_s t_{FM}} \\
+    \eta = \frac{\sigma \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\sigma}\end{gathered}
+\]</div>
 <p>Given those two terms above, the non-torque part remains the same:</p>
 <div class="arithmatex">\[... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m}\times \sigma\]</div>
 <p>Then, equation only changes the coefficients scaling the
@@ -566,7 +663,7 @@ damping-like and field-like torques.</p>
 <h1 id="stochastic-llgs">Stochastic LLGS</h1>
 <h2 id="stratonovich-formulation-of-the-s-llgs-sde">Stratonovich formulation of the s-LLGS SDE</h2>
 <p>A stochastic formulation of LLGS will take the form of a Stratonovich
-SDE: </p>
+SDE:</p>
 <div class="arithmatex">\[\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t\]</div>
 <p>where <span class="arithmatex">\(f(X_t, t)\)</span> is the deterministic part of the
 equation and <span class="arithmatex">\(g(X_t, t)\)</span> is the stochastic part of the equation.
@@ -585,9 +682,11 @@ result, <span class="arithmatex">\(\sigma(t)\)</span> should be dimensionless. F
 <span class="arithmatex">\(f \rightarrow \mathbf{f}(\mathbf{m}_t, t)\)</span> to
 LL form where <span class="arithmatex">\(\mathbf{H}_{\mathrm{eff}}\)</span> contains no
 stochastic (thermal) parts and the <span class="arithmatex">\(g\)</span>, the stochastic part, to the
-following: </p>
-<div class="arithmatex">\[\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  = 
-    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]\]</div>
+following:</p>
+<div class="arithmatex">\[
+\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
+\]</div>
 <p>with <span class="arithmatex">\(\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)\)</span>, a
 multinomial Gaussian distributed random vector (here we make a
 transition from <span class="arithmatex">\(W\)</span> being a generalised Brownian process to a Wiener
@@ -647,7 +746,7 @@ Thomas Schaffter, January 19, 2010</a></p>
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home" rel="prev">
+        <a href="../../overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -656,7 +755,7 @@ Thomas Schaffter, January 19, 2010</a></p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Home
+              Overview
             </div>
           </div>
         </a>

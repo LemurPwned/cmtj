@@ -241,22 +241,37 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_2">
+        <label class="md-nav__link" for="__nav_3">
           Theory
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Theory" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
+        <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
           Theory
         </label>
@@ -295,18 +310,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_3">
+        <label class="md-nav__link" for="__nav_4">
           API
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="API" data-md-level="1">
-        <label class="md-nav__title" for="__nav_3">
+        <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
           API
         </label>
@@ -337,22 +352,36 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_3_2">
+        <label class="md-nav__link" for="__nav_4_2">
           Utils
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Utils" data-md-level="2">
-        <label class="md-nav__title" for="__nav_3_2">
+        <label class="md-nav__title" for="__nav_4_2">
           <span class="md-nav__icon md-icon"></span>
           Utils
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../general-reference/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
           
             
               
@@ -432,6 +461,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#cmtj.utils.filters.Filters.detrend_axis" class="md-nav__link">
+    detrend_axis()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -441,6 +477,62 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energy-reference/" class="md-nav__link">
+        Energy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plotting-reference/" class="md-nav__link">
+        Plotting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../procedures-reference/" class="md-nav__link">
+        Procedures
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parallel-reference/" class="md-nav__link">
+        Parallel
+      </a>
     </li>
   
 
@@ -484,18 +576,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_4">
+        <label class="md-nav__link" for="__nav_5">
           Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Examples" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
+        <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
           Examples
         </label>
@@ -588,6 +680,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#cmtj.utils.filters.Filters.detrend_axis" class="md-nav__link">
+    detrend_axis()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -646,14 +745,15 @@ Filters        </code>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Filters</span><span class="p">:</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                                <span class="n">pass_freq</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
                                <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Basic bandpass (notch) butterworth filter.  </span>
-<span class="sd">        :param data: input data.  </span>
-<span class="sd">        :param pass_freq: the tuple of (low, high) band frequencies.  </span>
+        <span class="sd">&quot;&quot;&quot;Basic bandpass (notch) butterworth filter.</span>
+<span class="sd">        :param data: input data.</span>
+<span class="sd">        :param pass_freq: the tuple of (low, high) band frequencies.</span>
 <span class="sd">        :param fs: sampling frequency.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Nyquist is half of the sampling freq</span>
@@ -662,17 +762,19 @@ Filters        </code>
             <span class="k">if</span> <span class="n">pass_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">pass_freq</span> <span class="o">=</span> <span class="mf">0.1</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span>
-                                  <span class="p">[</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">,</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">],</span>
-                                  <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span>
-                                  <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span>
+                        <span class="n">order</span><span class="p">,</span>
+                        <span class="p">[</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">,</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">],</span>
+                        <span class="n">btype</span><span class="o">=</span><span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
+                        <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">nyq</span><span class="p">,</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">,</span>
                           <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error in filtering&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pass_freq</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[</span><span class="n">pass_freq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pass_freq</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
-                          <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span>
+                          <span class="n">btype</span><span class="o">=</span><span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
                           <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">y</span>
@@ -682,17 +784,30 @@ Filters        </code>
                               <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                               <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                               <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Low pass digital filter.     </span>
-<span class="sd">        :param data: data to be filtered.    </span>
-<span class="sd">        :param cutoff: cutoff frequency of the filter.     </span>
-<span class="sd">        :param fs: sampling frequency.    </span>
-<span class="sd">        :param order: order of the filter.     </span>
+        <span class="sd">&quot;&quot;&quot;Low pass digital filter.</span>
+<span class="sd">        :param data: data to be filtered.</span>
+<span class="sd">        :param cutoff: cutoff frequency of the filter.</span>
+<span class="sd">        :param fs: sampling frequency.</span>
+<span class="sd">        :param order: order of the filter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
         <span class="n">normal_cutoff</span> <span class="o">=</span> <span class="n">cutoff</span> <span class="o">/</span> <span class="n">nyq</span>
-        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">y</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">detrend_axis</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detrend axis for better spectrum visibility.</span>
+<span class="sd">        :param arr: input array (spectrum)</span>
+<span class="sd">        :param axis: axis along which to detrend</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">medians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axis</span><span class="p">:</span>
+            <span class="n">detrended</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">medians</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">detrended</span> <span class="o">=</span> <span class="n">arr</span> <span class="o">-</span> <span class="n">medians</span>
+        <span class="k">return</span> <span class="n">detrended</span>
 </code></pre></div>
         </details>
 
@@ -723,39 +838,11 @@ Filters        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Basic bandpass (notch) butterworth filter.  </p>
+      <p>Basic bandpass (notch) butterworth filter.
+:param data: input data.
+:param pass_freq: the tuple of (low, high) band frequencies.
+:param fs: sampling frequency.</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>data</code></td>
-        <td><code>ndarray</code></td>
-        <td><p>input data.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>pass_freq</code></td>
-        <td><code>Tuple[float, float]</code></td>
-        <td><p>the tuple of (low, high) band frequencies.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>fs</code></td>
-        <td><code>float</code></td>
-        <td><p>sampling frequency.</p></td>
-        <td><em>required</em></td>
-      </tr>
-  </tbody>
-</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -763,9 +850,9 @@ Filters        </code>
                            <span class="n">pass_freq</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
                            <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                            <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Basic bandpass (notch) butterworth filter.  </span>
-<span class="sd">    :param data: input data.  </span>
-<span class="sd">    :param pass_freq: the tuple of (low, high) band frequencies.  </span>
+    <span class="sd">&quot;&quot;&quot;Basic bandpass (notch) butterworth filter.</span>
+<span class="sd">    :param data: input data.</span>
+<span class="sd">    :param pass_freq: the tuple of (low, high) band frequencies.</span>
 <span class="sd">    :param fs: sampling frequency.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Nyquist is half of the sampling freq</span>
@@ -774,17 +861,19 @@ Filters        </code>
         <span class="k">if</span> <span class="n">pass_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">pass_freq</span> <span class="o">=</span> <span class="mf">0.1</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span>
-                              <span class="p">[</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">,</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">],</span>
-                              <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span>
-                              <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span>
+                    <span class="n">order</span><span class="p">,</span>
+                    <span class="p">[</span><span class="mf">0.9</span> <span class="o">*</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">,</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">],</span>
+                    <span class="n">btype</span><span class="o">=</span><span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
+                    <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">nyq</span><span class="p">,</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">,</span>
                       <span class="n">pass_freq</span> <span class="o">/</span> <span class="n">nyq</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Error in filtering&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pass_freq</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
         <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[</span><span class="n">pass_freq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pass_freq</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
-                      <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span>
+                      <span class="n">btype</span><span class="o">=</span><span class="s2">&quot;bandpass&quot;</span><span class="p">,</span>
                       <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">y</span>
@@ -811,45 +900,12 @@ Filters        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Low pass digital filter.     </p>
+      <p>Low pass digital filter.
+:param data: data to be filtered.
+:param cutoff: cutoff frequency of the filter.
+:param fs: sampling frequency.
+:param order: order of the filter.</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>data</code></td>
-        <td><code>ndarray</code></td>
-        <td><p>data to be filtered.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>cutoff</code></td>
-        <td><code>float</code></td>
-        <td><p>cutoff frequency of the filter.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>fs</code></td>
-        <td><code>float</code></td>
-        <td><p>sampling frequency.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>order</code></td>
-        <td><code>int</code></td>
-        <td><p>order of the filter.</p></td>
-        <td><code>5</code></td>
-      </tr>
-  </tbody>
-</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -857,17 +913,58 @@ Filters        </code>
                           <span class="n">cutoff</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                           <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                           <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Low pass digital filter.     </span>
-<span class="sd">    :param data: data to be filtered.    </span>
-<span class="sd">    :param cutoff: cutoff frequency of the filter.     </span>
-<span class="sd">    :param fs: sampling frequency.    </span>
-<span class="sd">    :param order: order of the filter.     </span>
+    <span class="sd">&quot;&quot;&quot;Low pass digital filter.</span>
+<span class="sd">    :param data: data to be filtered.</span>
+<span class="sd">    :param cutoff: cutoff frequency of the filter.</span>
+<span class="sd">    :param fs: sampling frequency.</span>
+<span class="sd">    :param order: order of the filter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
     <span class="n">normal_cutoff</span> <span class="o">=</span> <span class="n">cutoff</span> <span class="o">/</span> <span class="n">nyq</span>
-    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">zi</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">y</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h3 id="cmtj.utils.filters.Filters.detrend_axis" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">detrend_axis</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span></code>
+
+  <span class="doc doc-properties">
+      <small class="doc doc-property doc-property-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Detrend axis for better spectrum visibility.
+:param arr: input array (spectrum)
+:param axis: axis along which to detrend</p>
+
+        <details class="quote">
+          <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">detrend_axis</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detrend axis for better spectrum visibility.</span>
+<span class="sd">    :param arr: input array (spectrum)</span>
+<span class="sd">    :param axis: axis along which to detrend</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">medians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axis</span><span class="p">:</span>
+        <span class="n">detrended</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">medians</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">detrended</span> <span class="o">=</span> <span class="n">arr</span> <span class="o">-</span> <span class="n">medians</span>
+    <span class="k">return</span> <span class="n">detrended</span>
 </code></pre></div>
         </details>
     </div>
@@ -895,6 +992,9 @@ Filters        </code>
     </div>
 
   </div>
+
+<p>selection:
+docstring_style: "restructured-text"</p>
 
               
             </article>
@@ -924,13 +1024,13 @@ Filters        </code>
       
       
         
-        <a href="../../gen-docs/stack/" class="md-footer__link md-footer__link--next" aria-label="Next: Stack" rel="next">
+        <a href="../energy-reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Energy" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Stack
+              Energy
             </div>
           </div>
           <div class="md-footer__button md-icon">

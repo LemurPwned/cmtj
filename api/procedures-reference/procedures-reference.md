@@ -1,3 +1,3 @@
-::: cmtj.utils.linear
+::: cmtj.utils.procedures
 selection:
 docstring_style: "restructured-text"
