@@ -165,7 +165,7 @@ private:
     bool nonStochasticOneFSet = true;
     bool temperatureSet = false;
     bool pinkNoiseSet = false;
-
+    bool alternativeSTTSet = false;
     Reference referenceType = NONE;
 
     std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), generator);
@@ -385,6 +385,19 @@ public:
             fieldLikeTorque,
             dampingLikeTorque);
     }
+
+    /**
+     * @brief Get the Id object
+     *
+     * @return const std::string
+     */
+    const std::string getId() const { return id; }
+    /**
+     * @brief Set the Alternative STT formulation
+     *
+     * @param alternativeSTT: True if you want to use the alternative STT formulation.
+     */
+    void setAlternativeSTT(bool alternativeSTT) { this->alternativeSTTSet = alternativeSTT; }
 
     void setTopDipoleTensor(const std::vector<CVector<T>>& dipoleTensor)
     {
@@ -630,11 +643,16 @@ public:
             const T aJ = HBAR * this->I_log /
                 (ELECTRON_CHARGE * this->Ms * this->thickness);
             // field like
-            // this is more complex model
-            // const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
-            // const T eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
-            // this is simplified
-            const T eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
+            T eta = 0;
+            if (this->alternativeSTTSet) {
+                // this is simplified
+                eta = (this->spinPolarisation) / (1 + this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
+            }
+            else {
+                // this is more complex model (classical STT)
+                const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
+                eta = (this->spinPolarisation * slonSq) / (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
+            }
             const T sttTerm = GYRO * aJ * eta;
             const CVector<T> fieldLike = c_cross<T>(m, reference);
             // damping like
@@ -998,6 +1016,20 @@ public:
     }
 
     /**
+     * @brief Get Ids of the layers in the junction.
+     * @return vector of layer ids.
+     */
+    const std::vector<std::string> getLayerIds() const
+    {
+        std::vector<std::string> ids;
+        for (const auto& layer : this->layers)
+        {
+            ids.push_back(layer.id);
+        }
+        return ids;
+    }
+
+    /**
      * Clears the simulation log.
      **/
     void clearLog()
@@ -1076,6 +1108,19 @@ public:
     void setLayerFieldLikeTorqueDriver(const std::string& layerID, const ScalarDriver<T>& driver)
     {
         scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorqueDriver, driver);
+    }
+
+    void setLayerAlternativeSTT(const std::string& layerID, const bool alternative)
+    {
+        if (layerID == "all")
+        {
+            for (auto& l : this->layers)
+            {
+                l.setAlternativeSTT(alternative);
+            }
+        }
+        else
+            getLayer(layerID).setAlternativeSTT(alternative);
     }
 
     void setLayerOneFNoise(const std::string& layerID, unsigned int sources, T bias, T scale) {
