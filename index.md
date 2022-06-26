@@ -1,9 +1,12 @@
-<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
+<img style="float: right; max-width: 50px;" src="assets/icon.svg">
 
 # CMTJ
 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
+[![Version](https://img.shields.io/pypi/v/cmtj)]()
+[![License](https://img.shields.io/pypi/l/cmtj.svg)]()
+[![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)]()
 
 ## Short description
 
@@ -15,7 +18,7 @@ A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only
 #### Installation :rocket:
 
 Installation is as easy as doing:
-
+`
 ```bash
 python3 -m pip install cmtj
 ```
