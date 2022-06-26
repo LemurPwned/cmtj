@@ -1,4 +1,6 @@
-<img style="float: right; max-width: 50px;" src="./assets/icon.svg">
+<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
+
+# CMTJ
 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
@@ -10,7 +12,7 @@ A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only
 
 ## Quickstart
 
-#### Installation
+#### Installation :rocket:
 
 Installation is as easy as doing:
 
@@ -25,9 +27,13 @@ git clone https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
 ```
 
-### Examples
+#### Read the docs
 
-Please view the [Examples](#examples) section to get a better grip of the library. Most of the code in there is for the Python bindings but if you prefer, you can always import headers from C++. The function names, library operation will be the same, only the `utils` submodule will be unavailable for the C++ code.
+Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
+
+## WIKI :mortar_board:
+
+Read more in do [the docs here](https://lemurpwned.github.io/cmtj/).
 
 ## Extensions
 
@@ -47,6 +53,48 @@ Please cite if you decide to use the project
 }
 ```
 
+## Development
+
 ## Contributions
 
 All contributions are welcome, please leave an issue if you've encountered any trouble with setup or running the library.
+
+## Precommit
+
+There's a `.pre-commit-config.yaml` that does some basic python and cpp lints and checks. More static analysis to come in the future.
+This may be run with:
+
+```
+pre-commit run -v
+```
+
+or
+
+```
+pre-commit run -a (or --files core/* cmtj/*)
+```
+
+## Documentation builds
+
+There are couple of stages to building the documentation
+
+1. Build Doxygen documentation
+   ```
+   doxygen Doxyfile
+   ```
+   This is mostly for the C++ documentation. Furture changes may couple C++ and Python docs.
+2. Build stubs
+   The stubgen is `pybind11-stubgen` or `mypy stubgen` with the latter being preferred now.
+   E.g. to generate `Stack` module stubs we can go:
+   ```
+   stubgen -m cmtj.stack -o target-stub-dir/
+   ```
+   More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.
+3. Parse stubs to Markdown.
+   This stage is done by running:
+   `python3 docs/docgen.py `
+   The deployment of the documentation is done via:
+
+```bash
+mkdocs gh-deploy
+```
