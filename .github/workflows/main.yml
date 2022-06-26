@@ -6,6 +6,10 @@ name: CI
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      release-version:
+        required: true
+        
 
 jobs:
   linux-build:
@@ -44,3 +48,20 @@ jobs:
           pip install twine
           twine upload dist/*
         continue-on-error: false
+        
+  release-buid:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Archive Release
+      uses: thedoctor0/zip-release@main
+      with:
+        type: 'zip'
+        filename: "package-release.zip"
+        exclusions: '*.git* __pycache__/* .editorconfig build/* .eggs/*'
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "package-release.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.event.inputs.release-version }}
