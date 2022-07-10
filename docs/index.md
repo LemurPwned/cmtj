@@ -1,4 +1,4 @@
-<img style="float: right; max-width: 50px;" src="assets/icon.svg">
+<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
 
 # CMTJ
 
@@ -18,16 +18,43 @@ A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only
 #### Installation :rocket:
 
 Installation is as easy as doing:
+A recommended way is to use the `pip` package manager and virtualenv (or conda).
+
+1. With `virtualenv`
+
+```bash
+$(bash) python3 -m venv .my-venv
+$(bash) source .my-venv/bin/activate
+$(.my-venv) python -m install cmtj
+```
+
+2. Straight from `pip`:
 
 ```bash
 python3 -m pip install cmtj
 ```
 
-If you prefer to clone the repo first and then install directly from the source:
+3. Straight from source:
+
+```bash
+python3 -m pip install https://github.com/LemurPwned/cmtj.git
+```
+
+4. Clone the repository:
 
 ```bash
 git clone https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
+```
+
+#### Extra dependencies
+
+The package requires (if `utils` subpackage is used):
+
+```
+- numpy
+- scipy
+- matplotlib
 ```
 
 #### Read the docs
@@ -47,12 +74,19 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 Please cite if you decide to use the project
 
 ```bibtex
-@article{zietek_numerical_2022,
-	title = {Numerical Model Of Harmonic Hall Voltage Detection For Spintronic Devices},
-	url = {https://arxiv.org/abs/2202.00364v1},
-	author = {Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz},
-	urldate = {2022-02-03},
-	date = {2022-02-01}
+@article{PhysRevB.106.024403,
+  title = {Numerical model of harmonic Hall voltage detection for spintronic devices},
+  author = {Zi\ifmmode \mbox{\k{e}}\else \k{e}\fi{}tek, S\l{}awomir and Mojsiejuk, Jakub and Grochot, Krzysztof and \L{}azarski, Stanis\l{}aw and Skowro\ifmmode \acute{n}\else \'{n}\fi{}ski, Witold and Stobiecki, Tomasz},
+  journal = {Phys. Rev. B},
+  volume = {106},
+  issue = {2},
+  pages = {024403},
+  numpages = {9},
+  year = {2022},
+  month = {Jul},
+  publisher = {American Physical Society},
+  doi = {10.1103/PhysRevB.106.024403},
+  url = {https://link.aps.org/doi/10.1103/PhysRevB.106.024403}
 }
 ```
 
