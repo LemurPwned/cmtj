@@ -71,8 +71,8 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 
 ## Citing
 
-Please cite if you decide to use the project
-
+Please cite either work if you decide to use the project:
+1) **Numerical model of Harmonic Hall voltage detection for spintronic devices**
 ```bibtex
 @article{PhysRevB.106.024403,
   title = {Numerical model of harmonic Hall voltage detection for spintronic devices},
@@ -87,6 +87,22 @@ Please cite if you decide to use the project
   publisher = {American Physical Society},
   doi = {10.1103/PhysRevB.106.024403},
   url = {https://link.aps.org/doi/10.1103/PhysRevB.106.024403}
+}
+```
+2) **A comprehensive simulation package for analysis of multilayer spintronic devices**
+```bibtex
+@article{mojsiejuk_comprehensive_2022,
+	title = {A comprehensive simulation package for analysis of multilayer spintronic devices},
+	url = {http://arxiv.org/abs/2207.11606},
+	number = {{arXiv}:2207.11606},
+	publisher = {{arXiv}},
+	author = {Mojsiejuk, Jakub and Ziętek, Sławomir and Grochot, Krzysztof and Skowroński, Witold and Stobiecki, Tomasz},
+	urldate = {2022-07-26},
+	date = {2022-07-23},
+	langid = {english},
+	eprinttype = {arxiv},
+	eprint = {2207.11606 [cond-mat]},
+	keywords = {Condensed Matter - Materials Science},
 }
 ```
 
