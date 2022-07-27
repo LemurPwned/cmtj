@@ -9,9 +9,9 @@
 [![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)]()
 
 ## Short description
-
-The library allows for macromagnetic simulation of multilayer spintronic structures.
 A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
+The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.   
+It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
 
 ## Quickstart
 
@@ -23,9 +23,9 @@ A recommended way is to use the `pip` package manager and virtualenv (or conda).
 1. With `virtualenv`
 
 ```bash
-$(bash) python3 -m venv .my-venv
+$(bash) python -m venv .my-venv
 $(bash) source .my-venv/bin/activate
-$(.my-venv) python -m install cmtj
+$(.my-venv) python -m pip install cmtj
 ```
 
 2. Straight from `pip`:
@@ -71,8 +71,8 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 
 ## Citing
 
-Please cite either work if you decide to use the project:
-1) **Numerical model of Harmonic Hall voltage detection for spintronic devices**
+We would appreciate citing either of the listed work if you decide to use the project:
+1) [**Numerical model of Harmonic Hall voltage detection for spintronic devices**](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403)
 ```bibtex
 @article{PhysRevB.106.024403,
   title = {Numerical model of harmonic Hall voltage detection for spintronic devices},
@@ -89,7 +89,7 @@ Please cite either work if you decide to use the project:
   url = {https://link.aps.org/doi/10.1103/PhysRevB.106.024403}
 }
 ```
-2) **A comprehensive simulation package for analysis of multilayer spintronic devices**
+2) [**A comprehensive simulation package for analysis of multilayer spintronic devices**](https://arxiv.org/abs/2207.11606)
 ```bibtex
 @article{mojsiejuk_comprehensive_2022,
 	title = {A comprehensive simulation package for analysis of multilayer spintronic devices},
