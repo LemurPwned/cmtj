@@ -801,18 +801,19 @@ public:
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep, const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
     {
         // compute the Langevin fluctuations -- this is the sigma
-        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time);
-        const CVector<T> thcross1 = c_cross(cm, dW);
-        const CVector<T> thcross12 = c_cross(thcross1, dW);
-        const T scaling = -Hthermal_temp * GYRO / (1 + pow(this->damping, 2));
+        const T convTerm = -GYRO / (1 + pow(this->damping, 2));
+        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
+        const CVector<T> thcross = c_cross(cm, dW);
+        const CVector<T> thcross2 = c_cross(thcross, dW);
+        const T scalingTh = Hthermal_temp * convTerm;
 
 
         // compute 1/f noise term
-        const CVector<T> thcross2 = c_cross(cm, dW2);
-        const CVector<T> thcross22 = c_cross(thcross2, dW2);
-        const T scaling2 = -HoneF * GYRO / (1 + pow(this->damping, 2));
+        const CVector<T> onefcross = c_cross(cm, dW2);
+        const CVector<T> onefcross2 = c_cross(onefcross, dW2);
+        const T scalingOneF = HoneF * convTerm;
 
-        return (thcross1 + thcross12 * this->damping) * scaling + (thcross2 + thcross22) * scaling2;
+        return (thcross + thcross2 * this->damping) * scalingTh + (onefcross + onefcross2 * this->damping) * scalingOneF;
     }
 
     const T getStochasticOneFNoise(T time) {
@@ -821,23 +822,20 @@ public:
         return this->ofn->tick();
     }
 
-    T getLangevinStochasticStandardDeviation(T time)
+    T getLangevinStochasticStandardDeviation(T time, T timeStep)
     {
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (GYRO * this->Ms * this->cellVolume);
+        const T mainFactor = (4 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (GYRO * this->Ms * this->cellVolume * timeStep);
         return sqrt(mainFactor);
     }
 
     CVector<T> nonStochasticLangevin(T time, T timeStep)
     {
-        if (this->cellVolume == 0.0)
-            throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
+        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
         const CVector<T> dW = CVector<T>(this->distribution);
-        const T temp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T prefactor = 2 * this->damping * BOLTZMANN_CONST * temp / (this->Ms * GYRO * this->cellVolume * timeStep);
-        return dW * sqrt(prefactor);
+        return dW * Hthermal_temp;
     }
 
     CVector<T> nonStochasticOneFNoise(T time, T timestep) {
@@ -859,8 +857,8 @@ public:
         // Brownian motion sample
         // Generate the noise from the Brownian motion
         // dW2 is used for 1/f noise generation
-        CVector<T> dW = CVector<T>(this->distribution) * sqrt(timeStep);
-        CVector<T> dW2 = CVector<T>(this->distribution) * sqrt(timeStep);
+        CVector<T> dW = CVector<T>(this->distribution); // * sqrt(timeStep);
+        CVector<T> dW2 = CVector<T>(this->distribution); //* sqrt(timeStep);
         // squared dW -- just utility
         dW.normalize();
         dW2.normalize();
@@ -876,10 +874,12 @@ public:
         const CVector<T> mapprox = this->mag + g_n;
         // calculate the approx g_n
         const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * sqrt(timeStep);
-        CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
+        // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
+        CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
         m_t.normalize();
         this->mag = m_t;
     }
+
 };
 
 template <typename T>
