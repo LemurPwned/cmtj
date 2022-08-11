@@ -137,7 +137,8 @@ enum SolverMode
 {
     EULER_HEUN = 0,
     RK4 = 1,
-    DORMAND_PRICE = 2
+    DORMAND_PRICE = 2,
+    HEUN = 3
 };
 
 static std::mt19937 generator;
@@ -801,7 +802,7 @@ public:
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep, const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
     {
         // compute the Langevin fluctuations -- this is the sigma
-        const T convTerm = -GYRO / (1 + pow(this->damping, 2));
+        const T convTerm = - GYRO / (1 + pow(this->damping, 2));
         const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
         const CVector<T> thcross = c_cross(cm, dW);
         const CVector<T> thcross2 = c_cross(thcross, dW);
@@ -827,7 +828,7 @@ public:
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T mainFactor = (4 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (GYRO * this->Ms * this->cellVolume * timeStep);
+        const T mainFactor = (2 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume);
         return sqrt(mainFactor);
     }
 
@@ -844,7 +845,7 @@ public:
         return dW2 * pinkNoise;
     }
 
-    void euler_heun(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
+    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         // we compute the two below in stochastic part, not non stochastic.
         this->nonStochasticTempSet = false;
@@ -880,6 +881,43 @@ public:
         this->mag = m_t;
     }
 
+    void heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
+        // we compute the two below in stochastic part, not non stochastic.
+        this->nonStochasticTempSet = false;
+        this->nonStochasticOneFSet = false;
+        // this is Stratonovich integral
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
+        // Brownian motion sample
+        // Generate the noise from the Brownian motion
+        // dW2 is used for 1/f noise generation
+        CVector<T> dW = CVector<T>(this->distribution);
+        CVector<T> dW2 = CVector<T>(this->distribution);
+        const T Honef = this->getStochasticOneFNoise(time);
+        // squared dW -- just utility
+        dW.normalize();
+        dW2.normalize();
+        const T stochScale = sqrt(timeStep);
+        // f_n is the vector of non-stochastic part at step n
+        // g_n is the vector of stochastic part at step n
+        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top);
+        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef);
+
+        // immediate m approximation
+        CVector<T> m_appox = this->mag + f_n * timeStep + g_n * stochScale;
+        m_appox.normalize();
+        // next step approximation
+        const CVector<T> f_n1 = non_stochastic_llg(m_appox, time + timeStep, timeStep, bottom, top);
+        const CVector<T> g_n1 = stochastic_llg(m_appox, time + timeStep, timeStep, bottom, top, dW, dW2, Honef);
+
+        const CVector<T> f_approx = (f_n + f_n1) * 0.5 * timeStep;
+        const CVector<T> g_approx = (g_n + g_n1) * 0.5 * stochScale;
+        CVector<T> m_t = this->mag + f_approx + g_approx;
+        m_t.normalize();
+        this->mag = m_t;
+    }
 };
 
 template <typename T>
@@ -1002,13 +1040,16 @@ public:
         switch (solverMode)
         {
         case EULER_HEUN:
-            return &Layer<T>::euler_heun;
+            return &Layer<T>::euler_heun_step;
 
         case DORMAND_PRICE:
             return &Layer<T>::dormandPriceStep;
 
         case RK4:
             return &Layer<T>::rk4_step;
+
+        case HEUN:
+            return &Layer<T>::heun_step;
 
         default:
             return &Layer<T>::rk4_step;
@@ -1506,8 +1547,8 @@ public:
             if (l.hasTemperature())
             {
                 // if at least one temp. driver is set
-                // then use euler_heun for consistency
-                solver = this->selectSolver(EULER_HEUN);
+                // then use heun for consistency
+                solver = this->selectSolver(HEUN);
                 break;
             }
         }
