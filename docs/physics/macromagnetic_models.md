@@ -105,20 +105,16 @@ we transform the standard LLGS equation into the form that fits
 Stratonovich SDE. The
 thermal fluctuations have zero mean and a preset standard deviation:
 
-$$\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)\Delta t }{M_sV\gamma_0}}$$
+$$\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)}{M_sV\gamma_0}}$$
 
-where $V$ is the volume of the cell (layer), $\Delta t$ is the
-integration time and $k_bT(t)$ is the thermal energy of the system. As a
+where $V$ is the volume of the cell (layer), and $k_bT(t)$ is the thermal energy of the system. As a
 result, $\sigma(t)$ should be dimensionless. Finally, we set
-$f \rightarrow \mathbf{f}(\mathbf{m}_t, t)$ to
-LL form where $\mathbf{H}_{\mathrm{eff}}$ contains no
+$\mathbf{f}(\mathbf{m}_t, t)$ to LL form where $\mathbf{H}_{\mathrm{eff}}$ contains no
 stochastic (thermal) parts and the $g$, the stochastic part, to the
 following:
 
-$$
-\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
-    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
-$$
+$$ \mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)] $$
 
 with $\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)$, a
 multinomial Gaussian distributed random vector (here we make a
@@ -135,36 +131,11 @@ experiments.
 
 In the following, we will have $\Delta W$ instead of $\mathrm{d}W$.
 $\Delta W(t) = W(t + \Delta t) - W(t)$, since we discretised the motion.
-Because of that (and later evident in e.g. Milstein scheme) we need to normalise by the integration
-step. Thus:
+Because of that we need to normalise by the integration step. Thus:
 
 $$\mathbf{H}_T(t)h = \sigma\Delta W(t) = \sigma \sqrt{h} \xi_t$$
 
 where $\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)$.
-
-### Milstein derivative-free expansion
-
-The Milstein scheme is suitable both for Ito and Stratonovich calculus
-and it converges both strongly and weakly to the order 1 (1 strong
-Taylor scheme). Normally, a derivative approach to Milstein scheme is:
-
-$$Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + \frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h]$$
-
-where $h$ is the integration step.
-$\Lambda = 0$ for Stratonovich formulation and $\Lambda = 1$ for Ito's.
-$g_n' = \frac{dg(Y_n)}{dY_n}$ is the first derivative of the stochastic
-part of the Stratonovich SDE. In the derivative free approach, we transform
-Milstein derivative-free expression with RK approximation of the derivative by
-setting:
-
-$$\frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h] \approx \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)][(\Delta W)^2 - \Lambda h]$$
-
-where $\hat{Y}_n = Y_n + f_nh g_n\sqrt{h}$. Hence, to solve the Stratonovich sLLGS SDE, we combine and:
-
-$$Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + + \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)](\Delta W)^2 $$
-
-Additionally, we set $\Delta W_n = [W_{t+h} - W_t] \sim \sqrt{h}\mathcal{N}(0, 1)$ to set it properly in the context of
-sLLGS).
 
 ### Euler-Heun method
 
@@ -181,6 +152,8 @@ solution, we substitute $Y_n = \mathbf{m_t}$,
 $f_n = \mathbf{f}_n(\mathbf{m_t}, t)$,
 $g_n= \mathbf{g}_n(\mathbf{m_t}, t)$.
 
+Additionally, we set $\Delta W_n = [W_{t+h} - W_t] \sim \sqrt{h}\mathcal{N}(0, 1)$ to set it properly in the context of
+sLLGS).
 ### References
 
 [Numerical Integration of SDEs: A Short Tutorial,
