@@ -1,10 +1,25 @@
 from itertools import permutations
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 
-def plot_trajectory_sphere(ax, x, y, z, color='blue', alpha=1):
+def get_sphere():
+    r = 1
+    pi = np.pi
+    cos = np.cos
+    sin = np.sin
+    phi, theta = np.mgrid[0.0:pi:100j, 0.0:2.0 * pi:100j]
+    xs = r * sin(phi) * cos(theta)
+    ys = r * sin(phi) * sin(theta)
+    zs = r * cos(phi)
+    return xs, ys, zs
+
+
+def plot_trajectory_sphere(x, y, z, color='blue', alpha=1, ax=None):
     """Plot a trajectory in 3D. Normalises to unit sphere
     :param ax: matplotlib axis
     :param x: x-coordinates
@@ -14,21 +29,26 @@ def plot_trajectory_sphere(ax, x, y, z, color='blue', alpha=1):
     :param alpha: alpha value of the trajectory
     """
     # Compute a unit sphere first
-    r = 1
-    pi = np.pi
-    cos = np.cos
-    sin = np.sin
-    phi, theta = np.mgrid[0.0:pi:100j, 0.0:2.0 * pi:100j]
-    xs = r * sin(phi) * cos(theta)
-    ys = r * sin(phi) * sin(theta)
-    zs = r * cos(phi)
-
-    with plt.style.context(['science', 'no-latex']):
-        fig = plt.figure(dpi=300)
-        ax = fig.add_subplot(1, 2, 1, projection='3d')
-        m = np.asarray([x, y, z])
-        # make sure we are unit norm for m
-        m = m / np.linalg.norm(m)
+    xs, ys, zs = get_sphere()
+    m = np.asarray([x, y, z])
+    # make sure we are unit norm for m
+    m = m / np.linalg.norm(m)
+    if ax is None:
+        with plt.style.context(['science', 'nature']):
+            fig = plt.figure(dpi=300)
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            ax.plot3D(m[0], m[1], m[2], color=color, alpha=alpha)
+            ax.set_axis_off()
+            ax.plot_surface(xs,
+                            ys,
+                            zs,
+                            rstride=2,
+                            cstride=2,
+                            color='azure',
+                            alpha=0.1,
+                            linewidth=0.1)
+            ax.scatter([0], [0], [1], color='crimson', alpha=1.0)
+    else:
         ax.plot3D(m[0], m[1], m[2], color=color, alpha=alpha)
         ax.set_axis_off()
         ax.plot_surface(xs,
@@ -36,10 +56,53 @@ def plot_trajectory_sphere(ax, x, y, z, color='blue', alpha=1):
                         zs,
                         rstride=2,
                         cstride=2,
-                        color='c',
-                        alpha=0.3,
+                        color='azure',
+                        alpha=0.1,
                         linewidth=0.1)
         ax.scatter([0], [0], [1], color='crimson', alpha=1.0)
+
+
+def plot_coloured_trajectory(x, y, z, colormap='plasma', ax=None):
+    """Plot a coloured trajectory in 3D. Normalises to unit sphere.
+    Colour of the trajectory now designates the flow of time.
+    :param ax: matplotlib axis
+    :param x: x-coordinates
+    :param y: y-coordinates
+    :param z: z-coordinates
+    :param colormap: colormap to use
+    :param alpha: alpha value of the trajectory
+    """
+    xs, ys, zs = get_sphere()
+    m = np.asarray([x, y, z])
+    points = m.T.reshape(-1, 1, 3)
+    segs = np.concatenate([points[:-1], points[1:]], axis=1)
+    colors = sns.color_palette(colormap, len(segs))
+    if ax is None:
+        with plt.style.context(['science', 'nature']):
+            fig = plt.figure(dpi=300)
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            # plot the sphere firext
+            ax.set_axis_off()
+            ax.plot_surface(xs,
+                            ys,
+                            zs,
+                            rstride=2,
+                            cstride=2,
+                            color='azure',
+                            alpha=0.1,
+                            linewidth=0.1)
+            ax.add_collection(Line3DCollection(segs, colors=colors, alpha=1))
+    else:
+        ax.set_axis_off()
+        ax.plot_surface(xs,
+                        ys,
+                        zs,
+                        rstride=2,
+                        cstride=2,
+                        color='azure',
+                        alpha=0.1,
+                        linewidth=0.1)
+        ax.add_collection(Line3DCollection(segs, colors=colors, alpha=1))
 
 
 def unpack_ndim_map(map, axes):

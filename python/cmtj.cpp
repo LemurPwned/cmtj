@@ -53,6 +53,7 @@ PYBIND11_MODULE(cmtj, m)
 
     py::enum_<SolverMode>(m, "SolverMode")
         .value("RK4", RK4)
+        .value("Heun", HEUN)
         .value("EulerHeun", EULER_HEUN)
         .value("DormandPrice", DORMAND_PRICE)
         .export_values();
