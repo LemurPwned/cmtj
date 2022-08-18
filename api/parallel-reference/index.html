@@ -283,8 +283,22 @@
   
   
     <li class="md-nav__item">
+      <a href="../../physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../physics/macromagnetic_models/" class="md-nav__link">
-        LLG Equation
+        LLG Equation & solvers
       </a>
     </li>
   
@@ -680,24 +694,67 @@
 
 
 <h2 id="cmtj.utils.parallel.distribute" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">distribute</span><span class="p">(</span><span class="n">simulation_fn</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">distribute</span><span class="p">(</span><span class="n">simulation_fn</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 
 </h2>
 
     <div class="doc doc-contents ">
 
-      <p>Distribute a function over a list of parameters in parallel.
-:param simulation_fn: function to be distributed
-:param spaces: list of lists of parameters
-:param n_cores: number of cores to use.
-:returns: index, simulation_fn output</p>
+      <p>Distribute a function over a list of parameters in parallel.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>simulation_fn</code></td>
+        <td><code>Callable</code></td>
+        <td><p>function to be distributed</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>spaces</code></td>
+        <td><code>List[List[float]]</code></td>
+        <td><p>list of lists of parameters</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>n_cores</code></td>
+        <td><code>int</code></td>
+        <td><p>number of cores to use.</p></td>
+        <td><code>None</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td><p>index, simulation_fn output</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/parallel.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">distribute</span><span class="p">(</span><span class="n">simulation_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
                <span class="n">spaces</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
-               <span class="n">n_cores</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+               <span class="n">n_cores</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Distribute a function over a list of parameters in parallel.</span>
 <span class="sd">    :param simulation_fn: function to be distributed</span>
@@ -715,6 +772,13 @@
 
     <span class="n">iterables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">spaces</span><span class="p">))</span>
     <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_index</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">iterables</span><span class="p">]</span>
+    <span class="c1"># shuffle the indexes</span>
+    <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+        <span class="n">index_reshuffle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">))</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">index_reshuffle</span><span class="p">)</span>
+        <span class="c1"># reorder the indexes</span>
+        <span class="n">iterables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">iterables</span><span class="p">)[</span><span class="n">index_reshuffle</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">indexes</span><span class="p">)[</span><span class="n">index_reshuffle</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">func_wrapper</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">simulation_fn</span><span class="p">(</span><span class="o">*</span><span class="n">iterable</span><span class="p">)</span>
@@ -741,9 +805,6 @@
     </div>
 
   </div>
-
-<p>selection:
-docstring_style: "restructured-text"</p>
 
               
             </article>

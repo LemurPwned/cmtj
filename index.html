@@ -283,6 +283,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#extra-dependencies" class="md-nav__link">
+    Extra dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#read-the-docs" class="md-nav__link">
     Read the docs
   </a>
@@ -400,8 +407,22 @@
   
   
     <li class="md-nav__item">
+      <a href="physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="physics/macromagnetic_models/" class="md-nav__link">
-        LLG Equation
+        LLG Equation & solvers
       </a>
     </li>
   
@@ -718,6 +739,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#extra-dependencies" class="md-nav__link">
+    Extra dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#read-the-docs" class="md-nav__link">
     Read the docs
   </a>
@@ -808,13 +836,36 @@ A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only
 <h2 id="quickstart">Quickstart</h2>
 <h4 id="installation-rocket">Installation :rocket:</h4>
 <p>Installation is as easy as doing:
-`</p>
-<pre><code class="language-bash">python3 -m pip install cmtj
-</code></pre>
-<p>If you prefer to clone the repo first and then install directly from the source:</p>
-<pre><code class="language-bash">git clone https://github.com/LemurPwned/cmtj.git
+A recommended way is to use the <code>pip</code> package manager and virtualenv (or conda).</p>
+<ol>
+<li>With <code>virtualenv</code></li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">$(</span>bash<span class="k">)</span> python3 -m venv .my-venv
+<span class="k">$(</span>bash<span class="k">)</span> <span class="nb">source</span> .my-venv/bin/activate
+<span class="k">$(</span>.my-venv<span class="k">)</span> python -m install cmtj
+</code></pre></div>
+<ol>
+<li>Straight from <code>pip</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>python3 -m pip install cmtj
+</code></pre></div>
+<ol>
+<li>Straight from source:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>python3 -m pip install https://github.com/LemurPwned/cmtj.git
+</code></pre></div>
+<ol>
+<li>Clone the repository:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>git clone https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
-</code></pre>
+</code></pre></div>
+<h4 id="extra-dependencies">Extra dependencies</h4>
+<p>The package requires (if <code>utils</code> subpackage is used):</p>
+<div class="highlight"><pre><span></span><code>- numpy
+- scipy
+- matplotlib
+</code></pre></div>
 <h4 id="read-the-docs">Read the docs</h4>
 <p>Documentation: <a href="https://lemurpwned.github.io/cmtj">https://lemurpwned.github.io/cmtj</a></p>
 <h2 id="wiki-mortar_board">WIKI :mortar_board:</h2>
@@ -823,43 +874,52 @@ python3 -m pip install .
 <p>There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the <em>PyMag</em> project. It uses CMTJ as a backend for fast computation.</p>
 <h2 id="citing">Citing</h2>
 <p>Please cite if you decide to use the project</p>
-<pre><code class="language-bibtex">@article{zietek_numerical_2022,
-    title = {Numerical Model Of Harmonic Hall Voltage Detection For Spintronic Devices},
-    url = {https://arxiv.org/abs/2202.00364v1},
-    author = {Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz},
-    urldate = {2022-02-03},
-    date = {2022-02-01}
-}
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nc">@article</span><span class="p">{</span><span class="nl">PhysRevB.106.024403</span><span class="p">,</span>
+  <span class="na">title</span> <span class="p">=</span> <span class="s">{Numerical model of harmonic Hall voltage detection for spintronic devices}</span><span class="p">,</span>
+  <span class="na">author</span> <span class="p">=</span> <span class="s">{Zi\ifmmode \mbox{\k{e}}\else \k{e}\fi{}tek, S\l{}awomir and Mojsiejuk, Jakub and Grochot, Krzysztof and \L{}azarski, Stanis\l{}aw and Skowro\ifmmode \acute{n}\else \&#39;{n}\fi{}ski, Witold and Stobiecki, Tomasz}</span><span class="p">,</span>
+  <span class="na">journal</span> <span class="p">=</span> <span class="s">{Phys. Rev. B}</span><span class="p">,</span>
+  <span class="na">volume</span> <span class="p">=</span> <span class="s">{106}</span><span class="p">,</span>
+  <span class="na">issue</span> <span class="p">=</span> <span class="s">{2}</span><span class="p">,</span>
+  <span class="na">pages</span> <span class="p">=</span> <span class="s">{024403}</span><span class="p">,</span>
+  <span class="na">numpages</span> <span class="p">=</span> <span class="s">{9}</span><span class="p">,</span>
+  <span class="na">year</span> <span class="p">=</span> <span class="s">{2022}</span><span class="p">,</span>
+  <span class="na">month</span> <span class="p">=</span> <span class="s">{Jul}</span><span class="p">,</span>
+  <span class="na">publisher</span> <span class="p">=</span> <span class="s">{American Physical Society}</span><span class="p">,</span>
+  <span class="na">doi</span> <span class="p">=</span> <span class="s">{10.1103/PhysRevB.106.024403}</span><span class="p">,</span>
+  <span class="na">url</span> <span class="p">=</span> <span class="s">{https://link.aps.org/doi/10.1103/PhysRevB.106.024403}</span>
+<span class="p">}</span>
+</code></pre></div>
 <h2 id="development">Development</h2>
 <h2 id="contributions">Contributions</h2>
 <p>All contributions are welcome, please leave an issue if you've encountered any trouble with setup or running the library.</p>
 <h2 id="precommit">Precommit</h2>
 <p>There's a <code>.pre-commit-config.yaml</code> that does some basic python and cpp lints and checks. More static analysis to come in the future.
 This may be run with:</p>
-<pre><code>pre-commit run -v
-</code></pre>
+<div class="highlight"><pre><span></span><code>pre-commit run -v
+</code></pre></div>
 <p>or</p>
-<pre><code>pre-commit run -a (or --files core/* cmtj/*)
-</code></pre>
+<div class="highlight"><pre><span></span><code>pre-commit run -a (or --files core/* cmtj/*)
+</code></pre></div>
 <h2 id="documentation-builds">Documentation builds</h2>
 <p>There are couple of stages to building the documentation</p>
 <ol>
 <li>Build Doxygen documentation
-   <code>doxygen Doxyfile</code>
+   <div class="highlight"><pre><span></span><code>doxygen Doxyfile
+</code></pre></div>
    This is mostly for the C++ documentation. Furture changes may couple C++ and Python docs.</li>
 <li>Build stubs
    The stubgen is <code>pybind11-stubgen</code> or <code>mypy stubgen</code> with the latter being preferred now.
    E.g. to generate <code>Stack</code> module stubs we can go:
-   <code>stubgen -m cmtj.stack -o target-stub-dir/</code>
+   <div class="highlight"><pre><span></span><code>stubgen -m cmtj.stack -o target-stub-dir/
+</code></pre></div>
    More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.</li>
 <li>Parse stubs to Markdown.
    This stage is done by running:
    <code>python3 docs/docgen.py</code>
    The deployment of the documentation is done via:</li>
 </ol>
-<pre><code class="language-bash">mkdocs gh-deploy
-</code></pre>
+<div class="highlight"><pre><span></span><code>mkdocs gh-deploy
+</code></pre></div>
 
               
             </article>

@@ -283,8 +283,22 @@
   
   
     <li class="md-nav__item">
+      <a href="../../physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../physics/macromagnetic_models/" class="md-nav__link">
-        LLG Equation
+        LLG Equation & solvers
       </a>
     </li>
   
@@ -784,25 +798,96 @@ ResistanceParameters        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Procedure for computing Pulse Induced Microwave Magnetometry
-:param junction: junction to be simulated.
-:param Hvecs: list of cartesian vectors. (use FieldScan.amplitude_scan or alike)
-:param int_step: integration step [s].
-:param resistance_params: list of resistance parameters.
-:param Hoe_direction: direction of oersted field (x, y or z).
-:param simulation_duration: duration of simulation [s].
-:param Hoe_excitation: excitation amplitude of Hoe [A/m].
-:param Hoe_duration: duration of Hoe excitation in multiples of in step
-:param max_frequency: maximum frequency -- larger will be dropped [Hz].
-:param output_full_trajectories: if True, return the full trajectories of the magnets.
-:return: (spectrum, frequencies, other_data)
-other_data is a dictionary with the following keys:
-- 'H': Hext field [A/m]
-- 'Rx': resistance in x direction [Ohm]
-- 'Ry': resistance in y direction [Ohm]
-- 'm_avg': average magnetization [unit]
-- 'm_traj': magnetization trajectories [unit]</p>
+      <p>Procedure for computing Pulse Induced Microwave Magnetometry</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>junction</code></td>
+        <td><code>Junction</code></td>
+        <td><p>junction to be simulated.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>Hvecs</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>list of cartesian vectors. (use FieldScan.amplitude_scan or alike)</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>int_step</code></td>
+        <td><code>float</code></td>
+        <td><p>integration step [s].</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>resistance_params</code></td>
+        <td><code>List[cmtj.utils.procedures.ResistanceParameters]</code></td>
+        <td><p>list of resistance parameters.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>Hoe_direction</code></td>
+        <td><code>Axis</code></td>
+        <td><p>direction of oersted field (x, y or z).</p></td>
+        <td><code>&lt;Axis.zaxis: 2&gt;</code></td>
+      </tr>
+      <tr>
+        <td><code>simulation_duration</code></td>
+        <td><code>float</code></td>
+        <td><p>duration of simulation [s].</p></td>
+        <td><code>5e-09</code></td>
+      </tr>
+      <tr>
+        <td><code>Hoe_excitation</code></td>
+        <td><code>float</code></td>
+        <td><p>excitation amplitude of Hoe [A/m].</p></td>
+        <td><code>50</code></td>
+      </tr>
+      <tr>
+        <td><code>Hoe_duration</code></td>
+        <td><code>int</code></td>
+        <td><p>duration of Hoe excitation in multiples of in step</p></td>
+        <td><code>3</code></td>
+      </tr>
+      <tr>
+        <td><code>max_frequency</code></td>
+        <td><code>float</code></td>
+        <td><p>maximum frequency -- larger will be dropped [Hz].</p></td>
+        <td><code>80000000000.0</code></td>
+      </tr>
+      <tr>
+        <td><code>output_full_trajectories</code></td>
+        <td><code>bool</code></td>
+        <td><p>if True, return the full trajectories of the magnets.</p></td>
+        <td><code>False</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[numpy.ndarray, numpy.ndarray, Dict[str, Any]]</code></td>
+      <td><p>(spectrum, frequencies, other_data) other_data is a dictionary with the following keys: - 'H': Hext field [A/m] - 'Rx': resistance in x direction [Ohm] - 'Ry': resistance in y direction [Ohm] - 'm_avg': average magnetization [unit] - 'm_traj': magnetization trajectories [unit]</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/procedures.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">PIMM_procedure</span><span class="p">(</span>
@@ -931,17 +1016,75 @@ other_data is a dictionary with the following keys:
 
     <div class="doc doc-contents ">
 
-      <p>Procedure for computing Voltage-Spin Diode
-:param junction: junction to be simulated.
-:param Hvecs: list of cartesian vectors. (use FieldScan.amplitude_scan or alike)
-:param frequencies: list of frequencies [Hz].
-:param int_step: integration step [s].
-:param resistance_params: list of resistance parameters.
-:param Hoe_direction: direction of oersted field (x, y or z).
-:param Hoe_excitation: excitation amplitude of Hoe [A/m].
-:param simulation_duration: duration of simulation [s].
-:param Rtype: type of resistance to be used. (Rx Ry or Rz)</p>
+      <p>Procedure for computing Voltage-Spin Diode</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>junction</code></td>
+        <td><code>Junction</code></td>
+        <td><p>junction to be simulated.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>Hvecs</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>list of cartesian vectors. (use FieldScan.amplitude_scan or alike)</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>frequencies</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>list of frequencies [Hz].</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>int_step</code></td>
+        <td><code>float</code></td>
+        <td><p>integration step [s].</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>resistance_params</code></td>
+        <td></td>
+        <td><p>list of resistance parameters.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>Hoe_direction</code></td>
+        <td><code>Axis</code></td>
+        <td><p>direction of oersted field (x, y or z).</p></td>
+        <td><code>&lt;Axis.yaxis: 1&gt;</code></td>
+      </tr>
+      <tr>
+        <td><code>Hoe_excitation</code></td>
+        <td><code>float</code></td>
+        <td><p>excitation amplitude of Hoe [A/m].</p></td>
+        <td><code>50</code></td>
+      </tr>
+      <tr>
+        <td><code>simulation_duration</code></td>
+        <td><code>float</code></td>
+        <td><p>duration of simulation [s].</p></td>
+        <td><code>3e-08</code></td>
+      </tr>
+      <tr>
+        <td><code>Rtype</code></td>
+        <td><code>str</code></td>
+        <td><p>type of resistance to be used. (Rx Ry or Rz)</p></td>
+        <td><code>&#39;Rz&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/procedures.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span>
@@ -1041,9 +1184,6 @@ other_data is a dictionary with the following keys:
     </div>
 
   </div>
-
-<p>selection:
-docstring_style: "restructured-text"</p>
 
               
             </article>

@@ -79,7 +79,10 @@ the axis is to be id.
 
 ## `ScalarDriver`
 
-### `__init__(self, *args, **kwargs) -> None: ...@staticmethoddef getConstantDriver(constantValue: float) -> "ScalarDriver":"""Constant driver produces a constant signal of a fixed amplitude.:param constantValue: constant value of the driver (constant offset/amplitude)"""...@staticmethoddef getPulseDriver(constantValue: float, amplitude: "ScalarDriver", period: float, cycle: float)`
+### `getConstantDriver(constantValue: float)`
+Constant driver produces a constant signal of a fixed amplitude.:param constantValue: constant value of the driver (constant offset/amplitude)
+
+### `getPulseDriver(constantValue: float, amplitude: float, period: float, cycle: float)`
 
 Produces a square pulse of certain period and cycle
 
@@ -91,7 +94,7 @@ Produces a square pulse of certain period and cycle
 | **`amplitude`**     | `-`  | amplitude of the pulse signal                                              | `-`     |
 | **`period`**        | `-`  | period of the signal in seconds                                            | `-`     |
 
-### `getSineDriver(constantValue: float, amplitude: "ScalarDriver", frequency: float, phase: float)`
+### `getSineDriver(constantValue: float, amplitude: float, frequency: float, phase: float)`
 
 Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
 
@@ -100,5 +103,5 @@ Produces a sinusoidal signal with some offset (constantValue), amplitude frequen
 | Name                | Type             | Description                                                 | Default |
 | ------------------- | ---------------- | ----------------------------------------------------------- | ------- |
 | **`constantValue`** | `float`          | vertical offset. The sine will oscillate around this value. | `-`     |
-| **`amplitude`**     | `"ScalarDriver"` | amplitude of the sine wave                                  | `-`     |
+| **`amplitude`**     | `float` | amplitude of the sine wave                                  | `-`     |
 | **`frequency`**     | `float`          | frequency of the sine                                       | `-`     |

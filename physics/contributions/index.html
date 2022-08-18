@@ -1,0 +1,1075 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="['LemurPwned']">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.2">
+    
+    
+      
+        <title>Macromagnetic contributions - CMTJ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.f7951f6f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#introduction" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CMTJ" class="md-header__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CMTJ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Macromagnetic contributions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/LemurPwned/cmtj/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CMTJ" class="md-nav__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../assets/icon.svg" alt="logo">
+
+    </a>
+    CMTJ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/LemurPwned/cmtj/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Theory
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Theory" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Theory
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Macromagnetic contributions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Macromagnetic contributions
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#in-api-classification" class="md-nav__link">
+    In-API classification
+  </a>
+  
+    <nav class="md-nav" aria-label="In-API classification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-field" class="md-nav__link">
+    External field
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oersted-field" class="md-nav__link">
+    Oersted field
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exchange-field-iec" class="md-nav__link">
+    Exchange field -- IEC
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dipole-and-demag" class="md-nav__link">
+    Dipole and demag
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anisotropy" class="md-nav__link">
+    Anisotropy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../macromagnetic_models/" class="md-nav__link">
+        LLG Equation & solvers
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gen-docs/cmtj/" class="md-nav__link">
+        Core
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2">
+          Utils
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Utils" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/general-reference/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/linear-reference/" class="md-nav__link">
+        Linear
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/filters-reference/" class="md-nav__link">
+        Filters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/energy-reference/" class="md-nav__link">
+        Energy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plotting-reference/" class="md-nav__link">
+        Plotting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/procedures-reference/" class="md-nav__link">
+        Procedures
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/parallel-reference/" class="md-nav__link">
+        Parallel
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gen-docs/stack/" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CMTJBindingsTutorial/" class="md-nav__link">
+        Library introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../trajectory/" class="md-nav__link">
+        Generating trajectories
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#in-api-classification" class="md-nav__link">
+    In-API classification
+  </a>
+  
+    <nav class="md-nav" aria-label="In-API classification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#external-field" class="md-nav__link">
+    External field
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oersted-field" class="md-nav__link">
+    Oersted field
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exchange-field-iec" class="md-nav__link">
+    Exchange field -- IEC
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dipole-and-demag" class="md-nav__link">
+    Dipole and demag
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anisotropy" class="md-nav__link">
+    Anisotropy
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/LemurPwned/cmtj/edit/master/docs/physics/contributions.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<h1 id="introduction">Introduction</h1>
+<p>In the macromagnetic simulations we distinguish between the following contributions that constitute the <span class="arithmatex">\(\mathbf{H}_\textrm{eff}\)</span>:</p>
+<div class="arithmatex">\[
+    \mathbf{H}_\textrm{eff} = \mathbf{H}_\textrm{ext} + \mathbf{H}_\textrm{IEC} +
+    \mathbf{H}_\textrm{Oe} +
+    \mathbf{H}_\textrm{K} +
+    \mathbf{H}_\textrm{demag} +
+    \mathbf{H}_\textrm{dipole} +
+    \mathbf{H}_\textrm{th}^* +
+    \mathbf{H}_\textrm{1/f}^*
+\]</div>
+<p>where each component corresponds, respectively, to the applied external field, interlayer exchange coupling (IEC), Oersted field, anisotropy field, demagnetising, dipole, thermal, and <span class="arithmatex">\(1/f\)</span> noise field. The <span class="arithmatex">\(^*\)</span> superscripts denote the stochastic contributions (those require a stochastic solver, more on that in the <a href="../macromagnetic_models/">Macromagnetic models</a> section).</p>
+<h2 id="in-api-classification">In-API classification</h2>
+<p>We will go through the contributions step by step. However, before we do that, it is useful to mention that the contributions can be divided into 3 categories with respect to their relationship with a <code>Driver</code> system:</p>
+<ol>
+<li><code>ScalarDriver</code> driven contributions: <span class="arithmatex">\(\mathbf{H}_\textrm{K}\)</span>, <span class="arithmatex">\(\mathbf{H}_\textrm{th}\)</span>, and <span class="arithmatex">\(\mathbf{H}_\textrm{IEC}\)</span>
+   Those contributions have their magnitude changed only. The exception is <span class="arithmatex">\(\mathbf{H}_\textrm{K}\)</span> which has a constant axis passed in the constructor of a <code>Layer</code> object. Other than that, only the magnitude of those effect may be controlled, their direction is computed internally, as it depends on the <span class="arithmatex">\(\mathbf{m}\)</span> vectors.</li>
+<li><code>AxialDriver</code> driven contributions: <span class="arithmatex">\(\mathbf{H}_\textrm{ext}\)</span>, <span class="arithmatex">\(\mathbf{H}_\textrm{Oe}\)</span>.
+   Axial contributions can have magntidue controllers in any of the 3 directions, along x, y and z axis. Since <code>AxialDriver</code> consists of 3 <code>ScalarDrivers</code> (one for each axis), it is easy to manipulate each axis independently, magnitudewise.</li>
+<li>static contributions <span class="arithmatex">\({H}_\textrm{dipole}\)</span>, and <span class="arithmatex">\(\mathbf{H}_\textrm{demag}\)</span>.
+   Static contributions are not driven by any <code>Driver</code> system, they are simply added to the <span class="arithmatex">\(\mathbf{H}_\textrm{eff}\)</span> field. This may be subject to change in future API versions.</li>
+</ol>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+</div>
+<p>Almost every contribution may be set either using <code>Layer</code> api or <code>Junction</code> api. They both have the same set of arguments, and the naming convention is such that if e.g. <code>Layer</code> has a method <code>setContribution</code>, then <code>Junction</code> has a method <code>setLayerContribution</code> and requires one additional argument specyfing the layer id (or <code>all</code> if it is to be set for all layers in the <code>Junction</code>). There are some exceptions to this, e.g. <code>setLayerIEC</code>, which is only defined for two or more layers, therefore it cannot be set from a <code>Layer</code> object.</p>
+<h3 id="external-field">External field</h3>
+<p>The external field is the simplest contribution to the effective field. It is the sum of the applied fields.</p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>Name</strong></th>
+<th align="right"><strong>Unit</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span class="arithmatex">\(H_\textrm{x}\)</span></td>
+<td align="right">A/m</td>
+<td>Value of field in x direction</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(H_\textrm{y}\)</span></td>
+<td align="right">A/m</td>
+<td>Value of field in y direction</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(H_\textrm{z}\)</span></td>
+<td align="right">A/m</td>
+<td>Value of field in y direction</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="n">layer</span><span class="o">.</span><span class="n">setExternalFieldDriver</span><span class="p">(</span>
+    <span class="n">AxialDriver</span><span class="p">(</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getSineDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mf">20e39</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>or for the <code>Junctions</code> api:</p>
+<div class="highlight"><pre><span></span><code><span class="n">device</span><span class="o">.</span><span class="n">setLayerExternalFieldDriver</span><span class="p">(</span>
+    <span class="s2">&quot;free&quot;</span><span class="p">,</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="n">AxialDriver</span><span class="p">(</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getSineDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mf">20e39</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="oersted-field">Oersted field</h3>
+<p>The Oersted field is the field generated by the flow of current. Currently it is separated from the external field, but it is set the same way, irrespective of the actual current setting in the API. This may be subject to change.</p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>Name</strong></th>
+<th align="right"><strong>Unit</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span class="arithmatex">\(H_\textrm{x}\)</span></td>
+<td align="right">A/m</td>
+<td>Value of field in x direction</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(H_\textrm{y}\)</span></td>
+<td align="right">A/m</td>
+<td>Value of field in y direction</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(H_\textrm{z}\)</span></td>
+<td align="right">A/m</td>
+<td>Value of field in y direction</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="n">layer</span><span class="o">.</span><span class="n">setOerstedFieldDriver</span><span class="p">(</span>
+    <span class="n">AxialDriver</span><span class="p">(</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getSineDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mf">20e39</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>or for the <code>Junctions</code> api:</p>
+<div class="highlight"><pre><span></span><code><span class="n">device</span><span class="o">.</span><span class="n">setLayerOerstedFieldDriver</span><span class="p">(</span>
+    <span class="s2">&quot;free&quot;</span><span class="p">,</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="n">AxialDriver</span><span class="p">(</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getSineDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mf">20e39</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="exchange-field-iec">Exchange field -- IEC</h3>
+<p>Interlayer exchange coupling is a scalar driven field contribution. It governs the RKKY-like interaction between magnetic layers.</p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>Name</strong></th>
+<th align="right"><strong>Unit</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span class="arithmatex">\(J_\textrm{linear}\)</span></td>
+<td align="right"><span class="arithmatex">\(J/m^2\)</span></td>
+<td>Linear value of the IEC contribution</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(J_\textrm{quad}\)</span></td>
+<td align="right"><span class="arithmatex">\(J/m^2\)</span></td>
+<td>Linear value of the IEC contribution</td>
+</tr>
+<tr>
+<td align="center">layerA</td>
+<td align="right"><code>str</code></td>
+<td>Layer id of a participating layer</td>
+</tr>
+<tr>
+<td align="center">layerB</td>
+<td align="right"><code>str</code></td>
+<td>Layer id of other participating layer</td>
+</tr>
+</tbody>
+</table>
+<p>Linear layer is being set with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">device</span><span class="o">.</span><span class="n">setIECDriver</span><span class="p">(</span>
+    <span class="s2">&quot;free&quot;</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>and quadratic:</p>
+<div class="highlight"><pre><span></span><code><span class="n">device</span><span class="o">.</span><span class="n">setQuadIECDriver</span><span class="p">(</span>
+    <span class="s2">&quot;free&quot;</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The resulting interaction field for layer 1 <span class="arithmatex">\(\mathbf{m}_1\)</span> is computed as:</p>
+<div class="arithmatex">\[
+ \mathbf{H}_{IEC,1} = -\frac{1}{t_{FM} M_s}\frac{\partial E_{d, int}}{\partial \mathbf{m}_1} =
+    \frac{1}{t_{FM} M_s}[J_\textrm{linear}\mathbf{m}_2 + 2J_\textrm{quad} (\mathbf{m}_1 \cdot \mathbf{m}_1)\mathbf{m}_2]
+\]</div>
+<h3 id="dipole-and-demag">Dipole and demag</h3>
+<p>Those two contributions have different origins, but in <code>CMTJ</code> they share a similar api and way of computation.
+Both are given by tensors, and may be computed externally.</p>
+<div class="arithmatex">\[
+    \mathbf{H}_\textrm{dipole} = -\frac{M_\textrm{s}}{\mu_0}\mathbf{N}_\textrm{dipole}\mathbf{m}
+\]</div>
+<p>where <span class="arithmatex">\(\mathbf{N}_\textrm{dipole}\)</span> is the dipole tensor of the layer. The demag field is the same way, but with the tensor <span class="arithmatex">\(\mathbf{N}_\textrm{demag}\)</span> of the layer.
+Since <code>demag</code> tensor is inherent to the geometry (shape) of the system, it is passed in the <code>Layer</code> object.</p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>Name</strong></th>
+<th align="right"><strong>Unit</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span class="arithmatex">\(\mathbf{N}_{inter}\)</span></td>
+<td align="right">-</td>
+<td>Tensor of the interaction for dipole or demag</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>dipole</code> depends on the external interaction and may be due any magnetic interaction a device or layer has with any other magnetic object. Therefore, it is passed in the <code>Layer</code> API as:</p>
+<div class="highlight"><pre><span></span><code><span class="n">layer</span><span class="o">.</span><span class="n">setTopDipoleTensor</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">CVector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5e-8</span><span class="p">,</span> <span class="mf">1e-24</span><span class="p">),</span>
+        <span class="n">CVector</span><span class="p">(</span><span class="mf">5e-8</span><span class="p">,</span> <span class="o">-</span><span class="mf">2e-6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">CVector</span><span class="p">(</span><span class="mf">1e-23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e-23</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">layer</span><span class="o">.</span><span class="n">setBottomDipoleTensor</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">CVector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">5e-8</span><span class="p">,</span> <span class="mf">1e-24</span><span class="p">),</span>
+        <span class="n">CVector</span><span class="p">(</span><span class="mf">5e-8</span><span class="p">,</span> <span class="o">-</span><span class="mf">2e-6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">CVector</span><span class="p">(</span><span class="mf">1e-23</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e-23</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Under the hood we simply sum the contributions from both:</p>
+<div class="arithmatex">\[
+    \mathbf{H}_\textrm{dipole} = \mathbf{H}_\textrm{dipole, top} + \mathbf{H}_\textrm{dipole, bottom}
+\]</div>
+<p>We set for <code>top</code> and <code>bottom</code> separately since it may come for instance from top and bottom layer and thus top or bottom may be different. Effectively, you can just pass either, where you sum the dipole tensors and it'll have the same effect. However, API makes this convenient separation to logically separate those contributions.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+</div>
+<p>Dipole tensor for now is only set from the Layer API. We may add a function for adding it in the Junction API as well in near future.</p>
+<h3 id="anisotropy">Anisotropy</h3>
+<p>Anisotropy computation has two components -- axis <span class="arithmatex">\(\mathbf{a}\)</span> which is in CMTJ a vector, and value <span class="arithmatex">\(K_\textrm{u}\)</span> which is a scalar. The axis is passed in the <code>Layer</code> constructor under <code>anis</code> parameter. The scalar value, however, is driven with a <code>ScalarDriver</code> object and can be dynamically operated from either <code>Layer</code> or <code>Junction</code> API.</p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>Name</strong></th>
+<th align="right"><strong>Unit</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span class="arithmatex">\(\mathbf{K}_\textrm{u}\)</span></td>
+<td align="right"><span class="arithmatex">\(J/m^3\)</span></td>
+<td>Value of the anisotropy constant</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="n">layer</span><span class="o">.</span><span class="n">setAnisotropyDriver</span><span class="p">(</span>
+    <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>or <code>Junction</code> API:</p>
+<div class="highlight"><pre><span></span><code><span class="n">device</span><span class="o">.</span><span class="n">setLayerAnisotropyDriver</span><span class="p">(</span>
+    <span class="s2">&quot;free&quot;</span><span class="p">,</span> <span class="c1"># this value of course depends on the layer id</span>
+    <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getConstantDriver</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The resulting anisotropy field is computed as:</p>
+<div class="arithmatex">\[
+    \mathbf{H}_{\textrm{anis}} = \frac{2K_\textrm{u}}{t_{FM} \mu_0M_s}(\mathbf{m}\cdot\mathbf{a})\mathbf{a}
+\]</div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../../overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Overview
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../macromagnetic_models/" class="md-footer__link md-footer__link--next" aria-label="Next: LLG Equation &amp; solvers" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              LLG Equation & solvers
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.0bbba5b5.min.js"}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.649a939e.min.js"></script>
+      
+        <script src="../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

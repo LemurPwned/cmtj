@@ -285,6 +285,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -297,7 +311,7 @@
       
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        LLG Equation
+        LLG Equation & solvers
       </a>
       
     </li>
@@ -664,7 +678,7 @@ damping-like and field-like torques.</p>
 <h2 id="stratonovich-formulation-of-the-s-llgs-sde">Stratonovich formulation of the s-LLGS SDE</h2>
 <p>A stochastic formulation of LLGS will take the form of a Stratonovich
 SDE:</p>
-<div class="arithmatex">\[\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t\]</div>
+<div class="arithmatex">\[\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t\sqrt{\Delta t}\]</div>
 <p>where <span class="arithmatex">\(f(X_t, t)\)</span> is the deterministic part of the
 equation and <span class="arithmatex">\(g(X_t, t)\)</span> is the stochastic part of the equation.
 <span class="arithmatex">\(\mathrm{d}W\)</span> is \"derivative-like\" of the Brownian motion. The symbol
@@ -675,7 +689,7 @@ fluctuations
 we transform the standard LLGS equation into the form that fits
 Stratonovich SDE. The
 thermal fluctuations have zero mean and a preset standard deviation:</p>
-<div class="arithmatex">\[\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)\Delta t }{M_sV\gamma_0}}\]</div>
+<div class="arithmatex">\[\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)}{M_sV\gamma_0}}\]</div>
 <p>where <span class="arithmatex">\(V\)</span> is the volume of the cell (layer), <span class="arithmatex">\(\Delta t\)</span> is the
 integration time and <span class="arithmatex">\(k_bT(t)\)</span> is the thermal energy of the system. As a
 result, <span class="arithmatex">\(\sigma(t)\)</span> should be dimensionless. Finally, we set
@@ -690,39 +704,20 @@ following:</p>
 <p>with <span class="arithmatex">\(\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)\)</span>, a
 multinomial Gaussian distributed random vector (here we make a
 transition from <span class="arithmatex">\(W\)</span> being a generalised Brownian process to a Wiener
-process). The form of the above follows from the distributive
+process). For numerical solutions, we have have <span class="arithmatex">\(\Delta W\)</span> instead of <span class="arithmatex">\(\mathrm{d}W\)</span>.
+<span class="arithmatex">\(\Delta W(t) = W(t + \Delta t) - W(t)\)</span>, where the stochastic vector is being drrawn from a normal distriubtion, with zero mean and unit variance: <span class="arithmatex">\(\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)\)</span>.
+The form above follows from the distributive
 properties of cross-product over addition. Furthermore, there is some
 evidence that the second term in that equation should be skipped if the noise is
 sufficiently small which seems to be the case for up to room temperature
 experiments.</p>
 <h2 id="numerical-solutions">Numerical solutions</h2>
-<h3 id="modelling-the-thermal-field">Modelling the thermal field</h3>
-<p>In the following, we will have <span class="arithmatex">\(\Delta W\)</span> instead of <span class="arithmatex">\(\mathrm{d}W\)</span>.
-<span class="arithmatex">\(\Delta W(t) = W(t + \Delta t) - W(t)\)</span>, since we discretised the motion.
-Because of that (and later evident in e.g. Milstein scheme) we need to normalise by the integration
-step. Thus:</p>
-<div class="arithmatex">\[\mathbf{H}_T(t)h = \sigma\Delta W(t) = \sigma \sqrt{h} \xi_t\]</div>
-<p>where <span class="arithmatex">\(\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)\)</span>.</p>
-<h3 id="milstein-derivative-free-expansion">Milstein derivative-free expansion</h3>
-<p>The Milstein scheme is suitable both for Ito and Stratonovich calculus
-and it converges both strongly and weakly to the order 1 (1 strong
-Taylor scheme). Normally, a derivative approach to Milstein scheme is:</p>
-<div class="arithmatex">\[Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + \frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h]\]</div>
-<p>where <span class="arithmatex">\(h\)</span> is the integration step.
-<span class="arithmatex">\(\Lambda = 0\)</span> for Stratonovich formulation and <span class="arithmatex">\(\Lambda = 1\)</span> for Ito's.
-<span class="arithmatex">\(g_n' = \frac{dg(Y_n)}{dY_n}\)</span> is the first derivative of the stochastic
-part of the Stratonovich SDE. In the derivative free approach, we transform
-Milstein derivative-free expression with RK approximation of the derivative by
-setting:</p>
-<div class="arithmatex">\[\frac{1}{2}g_n'g_n[(\Delta W)^2 - \Lambda h] \approx \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)][(\Delta W)^2 - \Lambda h]\]</div>
-<p>where <span class="arithmatex">\(\hat{Y}_n = Y_n + f_nh g_n\sqrt{h}\)</span>. Hence, to solve the Stratonovich sLLGS SDE, we combine and:</p>
-<div class="arithmatex">\[Y_{n+1} = Y_n + f_nh + g_n\Delta W_n + + \frac{1}{2\sqrt{h}}[g(\hat{Y}_n) - g(Y_n)](\Delta W)^2 \]</div>
-<p>Additionally, we set <span class="arithmatex">\(\Delta W_n = [W_{t+h} - W_t] \sim \sqrt{h}\mathcal{N}(0, 1)\)</span> to set it properly in the context of
-sLLGS).</p>
+<p>We generally solve the stochastic model by either with Euler-Heun or Heun method.</p>
 <h3 id="euler-heun-method">Euler-Heun method</h3>
-<p>Euler-Heun method is suitable for Stratonovich SDEs as Euler-Maruyama
+<p>This is in fact first order-method in the limit of 0 K.
+Euler-Heun method is suitable for Stratonovich SDEs as Euler-Maruyama
 can only be applied to Ito's SDEs. The update of the step is:</p>
-<div class="arithmatex">\[Y_{n+1} = Y_n + f_n h + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n\]</div>
+<div class="arithmatex">\[Y_{n+1} = Y_n + f_n \Delta t + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n\sqrt{\Delta t}\]</div>
 <p>where <span class="arithmatex">\(\hat{Y}_n = Y_n + g_n\Delta W_n\)</span>. Contrary to the Milstein
 method, it is easier to the user the Euler-Heun due to the lack of
 quadratic terms of <span class="arithmatex">\(\Delta W_n\)</span>. The cost is in the convergence order
@@ -730,6 +725,11 @@ which is 0.5 for strong convergence and 1 for weak convergence. For the
 solution, we substitute <span class="arithmatex">\(Y_n = \mathbf{m_t}\)</span>,
 <span class="arithmatex">\(f_n = \mathbf{f}_n(\mathbf{m_t}, t)\)</span>,
 <span class="arithmatex">\(g_n= \mathbf{g}_n(\mathbf{m_t}, t)\)</span>.</p>
+<h3 id="heun-method">Heun method</h3>
+<p>Now preferred method to solve stochastic form of the LLG equation is the Heun method. It introduces second order correction to the non-stochastic part as well and
+therefore is deemed a better method.</p>
+<div class="arithmatex">\[Y_{n+1} = Y_n + \frac{1}{2}\left[f_n(\hat{Y}_{n+1}, t_{n+1}) + f_n(Y_n, t_n)\right] + \frac{1}{2}\left[g_n(\hat{Y}_{n+1}, g_{n+1}) + g_n(Y_n, t_n)\right]\Delta W_n\]</div>
+<p>where <span class="arithmatex">\(\hat{Y}_{n+1} = Y_n + f_n(Y_n, t_n)\Delta t + g_n(Y_n, t_n)\Delta W_n\sqrt{\Delta t}\)</span>.</p>
 <h3 id="references">References</h3>
 <p><a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;ved=2ahUKEwilpP-T5p_yAhXjAxAIHZosBBgQFnoECAgQAw&amp;url=https%3A%2F%2Finfoscience.epfl.ch%2Frecord%2F143450%2Ffiles%2Fsde_tutorial.pdf&amp;usg=AOvVaw1VNG29Y2knOPBB3Hic2QvU">Numerical Integration of SDEs: A Short Tutorial,
 Thomas Schaffter, January 19, 2010</a></p>
@@ -746,7 +746,7 @@ Thomas Schaffter, January 19, 2010</a></p>
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../../overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
+        <a href="../contributions/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Macromagnetic contributions" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -755,7 +755,7 @@ Thomas Schaffter, January 19, 2010</a></p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Overview
+              Macromagnetic contributions
             </div>
           </div>
         </a>

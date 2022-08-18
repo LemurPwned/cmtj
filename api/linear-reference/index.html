@@ -283,8 +283,22 @@
   
   
     <li class="md-nav__item">
+      <a href="../../physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../physics/macromagnetic_models/" class="md-nav__link">
-        LLG Equation
+        LLG Equation & solvers
       </a>
     </li>
   
@@ -933,14 +947,66 @@ FieldScan        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Compute a linear magnitude sweep. Angles given in deg.
-:param start: start of the sweep
-:param stop: end of the sweep
-:param steps: number of steps
-:param theta: polar angle in deg.
-:param phi: azimuthal angle in deg.
-:returns: linear amplitude, field vectors</p>
+      <p>Compute a linear magnitude sweep. Angles given in deg.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>start</code></td>
+        <td><code>float</code></td>
+        <td><p>start of the sweep</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>stop</code></td>
+        <td><code>float</code></td>
+        <td><p>end of the sweep</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>steps</code></td>
+        <td><code>int</code></td>
+        <td><p>number of steps</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>theta</code></td>
+        <td><code>float</code></td>
+        <td><p>polar angle in deg.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>phi</code></td>
+        <td><code>float</code></td>
+        <td><p>azimuthal angle in deg.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple[numpy.ndarray, numpy.ndarray]</code></td>
+      <td><p>linear amplitude, field vectors</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/linear.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -996,12 +1062,54 @@ FieldScan        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Convert spherical coordinates to cartesian coordinates.
-:param theta: polar angle in degrees.
-:param phi: azimuthal angle in degrees.
-:param amplitude: amplitude of target vector.
-:returns: cartesian vector.</p>
+      <p>Convert spherical coordinates to cartesian coordinates.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>theta</code></td>
+        <td></td>
+        <td><p>polar angle in degrees.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>phi</code></td>
+        <td></td>
+        <td><p>azimuthal angle in degrees.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>amplitude</code></td>
+        <td></td>
+        <td><p>amplitude of target vector.</p></td>
+        <td><code>1</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>CVector</code></td>
+      <td><p>cartesian vector.</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/linear.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -1040,10 +1148,42 @@ FieldScan        </code>
 
     <div class="doc doc-contents ">
 
-      <p>:param vector: cartesian vector.
-:returns (theta, phi, r)
-https://github.com/numpy/numpy/issues/5228</p>
+      
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>vector</code></td>
+        <td><code>CVector</code></td>
+        <td><p>cartesian vector.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple</code></td>
+      <td><p>//github.com/numpy/numpy/issues/5228</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/linear.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -1077,13 +1217,51 @@ https://github.com/numpy/numpy/issues/5228</p>
 
     <div class="doc doc-contents ">
 
-      <p>Compute a linear phi angle sweep. Angles given in deg.
-:param start: azimuthal angle start of the sweep
-:param stop: azimuthal angle end of the sweep
-:param steps: number of steps
-:param magnitude: magnitude of the scanned field
-:param theta: polar angle in deg.</p>
+      <p>Compute a linear phi angle sweep. Angles given in deg.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>start</code></td>
+        <td><code>float</code></td>
+        <td><p>azimuthal angle start of the sweep</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>stop</code></td>
+        <td><code>float</code></td>
+        <td><p>azimuthal angle end of the sweep</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>steps</code></td>
+        <td><code>int</code></td>
+        <td><p>number of steps</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>magnitude</code></td>
+        <td></td>
+        <td><p>magnitude of the scanned field</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>theta</code></td>
+        <td><code>float</code></td>
+        <td><p>polar angle in deg.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/linear.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -1126,13 +1304,51 @@ https://github.com/numpy/numpy/issues/5228</p>
 
     <div class="doc doc-contents ">
 
-      <p>Compute a linear theta angle sweep. Angles given in deg.
-:param start: polar angle start of the sweep
-:param stop: polar angle end of the sweep
-:param steps: number of steps
-:param magnitude: magnitude of the scanned field.
-:param phi: azimuthal angle in deg.</p>
+      <p>Compute a linear theta angle sweep. Angles given in deg.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>start</code></td>
+        <td><code>float</code></td>
+        <td><p>polar angle start of the sweep</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>stop</code></td>
+        <td><code>float</code></td>
+        <td><p>polar angle end of the sweep</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>steps</code></td>
+        <td><code>int</code></td>
+        <td><p>number of steps</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>magnitude</code></td>
+        <td></td>
+        <td><p>magnitude of the scanned field.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>phi</code></td>
+        <td><code>float</code></td>
+        <td><p>azimuthal angle in deg.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/linear.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -1175,13 +1391,54 @@ https://github.com/numpy/numpy/issues/5228</p>
 
     <div class="doc doc-contents ">
 
-      <p>Convert cartesian coordinates to spherical coordinates.
-:param x: x coordinate of the vector.
-:param y: y coordinate of the vector.
-:param z: z coordinate of the vector.
-:returns (theta, phi, r)
-https://github.com/numpy/numpy/issues/5228</p>
+      <p>Convert cartesian coordinates to spherical coordinates.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>x</code></td>
+        <td></td>
+        <td><p>x coordinate of the vector.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>y</code></td>
+        <td></td>
+        <td><p>y coordinate of the vector.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>z</code></td>
+        <td></td>
+        <td><p>z coordinate of the vector.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Tuple</code></td>
+      <td><p>//github.com/numpy/numpy/issues/5228</p></td>
+    </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/linear.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -1224,9 +1481,6 @@ https://github.com/numpy/numpy/issues/5228</p>
     </div>
 
   </div>
-
-<p>selection:
-docstring_style: "restructured-text"</p>
 
               
             </article>

@@ -283,8 +283,22 @@
   
   
     <li class="md-nav__item">
+      <a href="../../physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../physics/macromagnetic_models/" class="md-nav__link">
-        LLG Equation
+        LLG Equation & solvers
       </a>
     </li>
   
@@ -838,11 +852,39 @@ Filters        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Basic bandpass (notch) butterworth filter.
-:param data: input data.
-:param pass_freq: the tuple of (low, high) band frequencies.
-:param fs: sampling frequency.</p>
+      <p>Basic bandpass (notch) butterworth filter.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>data</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>input data.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>pass_freq</code></td>
+        <td><code>Tuple[float, float]</code></td>
+        <td><p>the tuple of (low, high) band frequencies.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>fs</code></td>
+        <td><code>float</code></td>
+        <td><p>sampling frequency.</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -900,12 +942,45 @@ Filters        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Low pass digital filter.
-:param data: data to be filtered.
-:param cutoff: cutoff frequency of the filter.
-:param fs: sampling frequency.
-:param order: order of the filter.</p>
+      <p>Low pass digital filter.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>data</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>data to be filtered.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>cutoff</code></td>
+        <td><code>float</code></td>
+        <td><p>cutoff frequency of the filter.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>fs</code></td>
+        <td><code>float</code></td>
+        <td><p>sampling frequency.</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>order</code></td>
+        <td><code>int</code></td>
+        <td><p>order of the filter.</p></td>
+        <td><code>5</code></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -947,10 +1022,33 @@ Filters        </code>
 
     <div class="doc doc-contents ">
 
-      <p>Detrend axis for better spectrum visibility.
-:param arr: input array (spectrum)
-:param axis: axis along which to detrend</p>
+      <p>Detrend axis for better spectrum visibility.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>arr</code></td>
+        <td></td>
+        <td><p>input array (spectrum)</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>axis</code></td>
+        <td></td>
+        <td><p>axis along which to detrend</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/filters.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="nd">@staticmethod</span>
@@ -992,9 +1090,6 @@ Filters        </code>
     </div>
 
   </div>
-
-<p>selection:
-docstring_style: "restructured-text"</p>
 
               
             </article>

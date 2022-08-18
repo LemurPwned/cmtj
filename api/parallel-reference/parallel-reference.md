@@ -1,3 +1,3 @@
 ::: cmtj.utils.parallel
-selection:
-docstring_style: "restructured-text"
+    selection:
+      docstring_style: restructured-text

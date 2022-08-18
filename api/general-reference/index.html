@@ -283,8 +283,22 @@
   
   
     <li class="md-nav__item">
+      <a href="../../physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../physics/macromagnetic_models/" class="md-nav__link">
-        LLG Equation
+        LLG Equation & solvers
       </a>
     </li>
   
@@ -751,11 +765,39 @@
 
     <div class="doc doc-contents ">
 
-      <p>Computes the magnetoresistance using parallel and antiparallel resistance.
-:param Rp: parallel resistance
-:param Rap: antiparallel resistance
-:param m: magnetisation, 2 layers of shape [2, 3, T] where T is the time component</p>
+      <p>Computes the magnetoresistance using parallel and antiparallel resistance.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>Rp</code></td>
+        <td><code>float</code></td>
+        <td><p>parallel resistance</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>Rap</code></td>
+        <td><code>float</code></td>
+        <td><p>antiparallel resistance</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>m</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>magnetisation, 2 layers of shape [2, 3, T] where T is the time component</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/__init__.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_magnetoresistance</span><span class="p">(</span><span class="n">Rp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Rap</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -911,11 +953,39 @@ https://link.aps.org/doi/10.1103/PhysRevLett.116.097201</p>
 
     <div class="doc doc-contents ">
 
-      <p>Computes the SD voltage.
-:param dynamic_r: magnetoresistance from log
-:param dynamic_i: excitation current
-:param integration_step: integration paramemter from run_simulation</p>
+      <p>Computes the SD voltage.</p>
 
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>dynamic_r</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>magnetoresistance from log</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>dynamic_i</code></td>
+        <td><code>ndarray</code></td>
+        <td><p>excitation current</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>integration_step</code></td>
+        <td><code>float</code></td>
+        <td><p>integration paramemter from run_simulation</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
         <details class="quote">
           <summary>Source code in <code>cmtj/cmtj/utils/__init__.py</code></summary>
           <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">compute_sd</span><span class="p">(</span><span class="n">dynamic_r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dynamic_i</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -945,9 +1015,6 @@ https://link.aps.org/doi/10.1103/PhysRevLett.116.097201</p>
     </div>
 
   </div>
-
-<p>selection:
-docstring_style: "restructured-text"</p>
 
               
             </article>
