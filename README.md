@@ -131,7 +131,10 @@ There are couple of stages to building the documentation
    This stage is done by running:
    `python3 docs/docgen.py `
    The deployment of the documentation is done via:
-
-```bash
-mkdocs gh-deploy
-```
+   ```bash
+   mkdocs gh-deploy
+   ```
+   But first, worth a check:
+   ```bash
+   mkdocs serve
+   ```

@@ -1,3 +1,3 @@
 ::: cmtj.utils.__init__
-selection:
-docstring_style: "restructured-text"
+    selection:
+      docstring_style: restructured-text

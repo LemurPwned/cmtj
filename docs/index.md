@@ -1,4 +1,4 @@
-<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
+<img style="float: right; max-width: 50px;" src="assets/icon.svg">
 
 # CMTJ
 
