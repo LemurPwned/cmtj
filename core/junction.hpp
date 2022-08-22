@@ -171,7 +171,7 @@ private:
 
     std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), generator);
 
-
+    CVector<T> dWn, dWn2; // one for thermal, one for OneF
     Layer(
         const std::string& id,
         CVector<T> mag,
@@ -209,6 +209,8 @@ private:
         }
         // normalise magnetisation
         mag.normalize();
+        dWn = CVector<T>(this->distribution);
+        dWn.normalize();
         this->cellVolume = this->cellSurface * this->thickness;
         this->ofn = new OneFNoise<T>(0, 0., 0.);
     }
@@ -535,14 +537,14 @@ public:
         return this->referenceType;
     }
 
-    const CVector<T> calculateHeff(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top)
+    const CVector<T> calculateHeff(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& Hfluctuation = CVector<T>())
     {
         this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
             calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
-        return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole);
+        return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole, Hfluctuation);
     }
 
-    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole)
+    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole, const CVector<T>& Hfluctuation)
     {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
@@ -550,18 +552,11 @@ public:
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
-        this->Hfluctuation = CVector<T>();  // null vector
-        if (this->nonStochasticTempSet) {
-            this->Hfluctuation = this->Hfluctuation + this->nonStochasticLangevin(time, timeStep);
-        }
-        if (this->nonStochasticOneFSet) {
-            this->Hfluctuation = this->Hfluctuation + this->nonStochasticOneFNoise(time, timeStep);
-        }
         const CVector<T> Heff = this->Hext    // external
             + this->HAnis // anistotropy
             + this->HIEC  // IEC
             + this->Hoe   // Oersted field
-            + this->Hfluctuation
+            + Hfluctuation
             // demag -- negative contribution
             - this->Hdemag
             // dipole -- negative contribution
@@ -689,10 +684,10 @@ public:
     }
     const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, const CVector<T>& m,
         const CVector<T>& bottom, const CVector<T>& top,
-        const CVector<T>& dipole, T timeStep)
+        const CVector<T>& dipole, T timeStep, const CVector<T>& Hfluctuation)
     {
         // classic LLG first
-        const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole);
+        const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole, Hfluctuation);
         return solveLLG(time, m, timeStep, bottom, top, heff);
     }
     /**
@@ -704,10 +699,10 @@ public:
      * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
      * @param timeStep: RK45 integration step.
      */
-    const CVector<T> calculateLLGWithFieldTorque(T time, const CVector<T>& m, const CVector<T>& bottom, const CVector<T>& top, T timeStep)
+    const CVector<T> calculateLLGWithFieldTorque(T time, const CVector<T>& m, const CVector<T>& bottom, const CVector<T>& top, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
     {
         // classic LLG first
-        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
+        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top, Hfluctuation);
         return solveLLG(time, m, timeStep, bottom, top, heff);
     }
 
@@ -802,7 +797,7 @@ public:
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep, const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
     {
         // compute the Langevin fluctuations -- this is the sigma
-        const T convTerm = - GYRO / (1 + pow(this->damping, 2));
+        const T convTerm = -GYRO / (1 + pow(this->damping, 2));
         const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
         const CVector<T> thcross = c_cross(cm, dW);
         const CVector<T> thcross2 = c_cross(thcross, dW);
@@ -828,7 +823,7 @@ public:
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T mainFactor = (2 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume);
+        const T mainFactor = (2 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume * timeStep);
         return sqrt(mainFactor);
     }
 
@@ -868,13 +863,13 @@ public:
         const T Honef = this->getStochasticOneFNoise(time);
         const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
         // g_n is the stochastic part of the LLG at step n
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef) * sqrt(timeStep);
+        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
 
         // actual solution
         // approximate next step ytilde
         const CVector<T> mapprox = this->mag + g_n;
         // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * sqrt(timeStep);
+        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
         // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
         CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
         m_t.normalize();
@@ -892,31 +887,27 @@ public:
         }
         // Brownian motion sample
         // Generate the noise from the Brownian motion
-        // dW2 is used for 1/f noise generation
+        const T Honef_scale = this->getStochasticOneFNoise(time);
+        const T Hthermal_scale = this->getLangevinStochasticStandardDeviation(time, timeStep);
+        const CVector<T> Hlangevin = dWn * Hthermal_scale;
+        const CVector<T> Honef = dWn2 * Honef_scale;
+        const CVector<T> m_t = this->mag;
+        const CVector<T> f_n = this->calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep, Hlangevin + Honef);
+        // immediate m approximation
+        CVector<T> m_approx = m_t + f_n * timeStep;
         CVector<T> dW = CVector<T>(this->distribution);
         CVector<T> dW2 = CVector<T>(this->distribution);
-        const T Honef = this->getStochasticOneFNoise(time);
-        // squared dW -- just utility
         dW.normalize();
         dW2.normalize();
-        const T stochScale = sqrt(timeStep);
-        // f_n is the vector of non-stochastic part at step n
-        // g_n is the vector of stochastic part at step n
-        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top);
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef);
-
-        // immediate m approximation
-        CVector<T> m_appox = this->mag + f_n * timeStep + g_n * stochScale;
-        m_appox.normalize();
-        // next step approximation
-        const CVector<T> f_n1 = non_stochastic_llg(m_appox, time + timeStep, timeStep, bottom, top);
-        const CVector<T> g_n1 = stochastic_llg(m_appox, time + timeStep, timeStep, bottom, top, dW, dW2, Honef);
-
-        const CVector<T> f_approx = (f_n + f_n1) * 0.5 * timeStep;
-        const CVector<T> g_approx = (g_n + g_n1) * 0.5 * stochScale;
-        CVector<T> m_t = this->mag + f_approx + g_approx;
-        m_t.normalize();
-        this->mag = m_t;
+        m_approx.normalize();
+        const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
+        const CVector<T> Honef_approx = dW2 * Honef_scale;
+        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep, m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
+        dWn = dW; // replace
+        dWn2 = dW2;
+        CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
+        nm_t.normalize();
+        this->mag = nm_t;
     }
 };
 
