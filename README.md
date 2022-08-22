@@ -90,7 +90,11 @@ Please cite if you decide to use the project
 }
 ```
 
-## Development
+# Development
+
+## Acknowledgements
+
+Many thanks to professor Jack Sankey for his help with the development of thermal contributions, with inspiration from the [macrospinmob project](https://github.com/Spinmob/macrospinmob).
 
 ## Contributions
 

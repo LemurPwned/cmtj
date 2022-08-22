@@ -90,7 +90,11 @@ Please cite if you decide to use the project
 }
 ```
 
-## Development
+# Development
+
+## Acknowledgements
+
+Many thanks to professor Jack Sankey for his help with the development of thermal contributions, with inspiration from the [macrospinmob project](https://github.com/Spinmob/macrospinmob).
 
 ## Contributions
 
@@ -131,7 +135,10 @@ There are couple of stages to building the documentation
    This stage is done by running:
    `python3 docs/docgen.py `
    The deployment of the documentation is done via:
-
-```bash
-mkdocs gh-deploy
-```
+   ```bash
+   mkdocs gh-deploy
+   ```
+   But first, worth a check:
+   ```bash
+   mkdocs serve
+   ```
