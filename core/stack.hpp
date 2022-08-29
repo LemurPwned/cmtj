@@ -36,6 +36,11 @@ public:
         this->junctionList[junctionId].setLayerMagnetisation(layerId, mag);
     }
 
+    const CVector<T> getMagnetisation(unsigned int junctionId, const std::string& layerId)
+    {
+        return this->junctionList[junctionId].getLayerMagnetisation(layerId);
+    }
+
     void setOerstedFieldDriver(const AxialDriver<T>& oDriver)
     {
         for (auto& j : this->junctionList)
@@ -163,6 +168,21 @@ public:
         return probe;
     }
 
+    const bool isTwoLayerMemberStack() {
+        for (const auto& j : this->junctionList)
+        {
+            if (j.layerNo >= 3)
+            {
+                throw std::runtime_error("At least one junction has more than 2 layers! It's not supported now");
+            }
+            else if (j.layerNo != 2)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11)
     {
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
@@ -182,9 +202,9 @@ public:
                 if (l.hasTemperature())
                 {
                     // if at least one temp. driver is set
-                    // then use euler_heun for consistency
-                    std::cout << "Warning: using Euler-Heun in stack computation" << std::endl;
-                    solv = &Layer<T>::euler_heun;
+                    // then use euler_heun_step for consistency
+                    std::cout << "Warning: using Heun in stack computation" << std::endl;
+                    solv = &Layer<T>::heun_step;
                     goto labelEndLoop;
                 }
             }
@@ -194,18 +214,24 @@ public:
         std::vector<T> timeResistances(junctionList.size());
         std::vector<T> timeCurrents(junctionList.size());
         std::vector<CVector<T>> frozenMags(junctionList.size());
+        std::vector<CVector<T>> frozenPols(junctionList.size());
 
-        const CVector<T> pol = this->getPolarisationVector();
-
+        const bool isTwoLayerStack = this->isTwoLayerMemberStack();
         for (unsigned int i = 0; i < totalIterations; i++)
         {
-
             T t = i * timeStep;
             T coupledCurrent = this->currentDriver.getCurrentScalarValue(t);
 
             // stash the magnetisations first
-            for (std::size_t j = 0; j < junctionList.size(); ++j)
+            for (std::size_t j = 0; j < junctionList.size(); ++j) {
                 frozenMags[j] = junctionList[j].getLayerMagnetisation("free");
+                if (isTwoLayerStack) {
+                    frozenPols[j] = junctionList[j].getLayerMagnetisation("bottom");
+                }
+                else {
+                    frozenPols[j] = this->getPolarisationVector();
+                }
+            }
 
             for (std::size_t j = 0; j < junctionList.size(); ++j)
             {
@@ -214,7 +240,7 @@ public:
                 if (j > 0)
                     tCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
                         // j -> k, j-1 -> k'
-                        coupledCurrent, frozenMags[j], frozenMags[j - 1], pol);
+                        coupledCurrent, frozenMags[j], frozenMags[j - 1], frozenPols[j]);
                 else
                     tCurrent = coupledCurrent;
 
