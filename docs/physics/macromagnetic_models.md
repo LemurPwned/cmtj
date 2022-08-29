@@ -27,7 +27,7 @@ $$
 $$
 
 Substitute RHS of the derived equation above into $\textbf{m}\times \frac{d\textbf{m}}{dt}$:
-
+ 
 $$
 \begin{gathered}
   \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -
@@ -107,18 +107,14 @@ thermal fluctuations have zero mean and a preset standard deviation:
 
 $$\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)}{M_sV\gamma_0}}$$
 
-where $V$ is the volume of the cell (layer), $\Delta t$ is the
-integration time and $k_bT(t)$ is the thermal energy of the system. As a
+where $V$ is the volume of the cell (layer), and $k_bT(t)$ is the thermal energy of the system. As a
 result, $\sigma(t)$ should be dimensionless. Finally, we set
-$f \rightarrow \mathbf{f}(\mathbf{m}_t, t)$ to
-LL form where $\mathbf{H}_{\mathrm{eff}}$ contains no
+$\mathbf{f}(\mathbf{m}_t, t)$ to LL form where $\mathbf{H}_{\mathrm{eff}}$ contains no
 stochastic (thermal) parts and the $g$, the stochastic part, to the
 following:
 
-$$
-\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
-    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
-$$
+$$ \mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)] $$
 
 with $\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)$, a
 multinomial Gaussian distributed random vector (here we make a
