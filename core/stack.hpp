@@ -24,9 +24,11 @@ private:
     bool currentDriverSet = false;
 
 protected:
+    std::string topId, bottomId; // Ids of the top and bottom junctions
     T couplingStrength = 0;
     virtual T calculateStackResistance(std::vector<T> resistances) = 0;
-    virtual T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
+    virtual T computeCouplingCurrentDensity(T currentDensity,
+        CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
 
 public:
     std::vector<Junction<T>> junctionList;
@@ -77,15 +79,16 @@ public:
         this->currentDriverSet = true;
     }
 
-    Stack(std::vector<Junction<T>> inputStack)
+    Stack(std::vector<Junction<T>> inputStack,
+        const std::string& topId,
+        const std::string& bottomId) : topId(topId), bottomId(bottomId)
     {
         this->junctionList = std::move(inputStack);
-        for (auto& j : this->junctionList)
+        if (std::any_of(this->junctionList.begin(),
+            this->junctionList.end(),
+            [this](const Junction<T>& j) { return j.MR_mode != Junction<T>::MRmode::CLASSIC; }))
         {
-            if (j.MR_mode != Junction<T>::MRmode::CLASSIC)
-            {
-                throw std::runtime_error("Junction has a non-classic magnetoresitance mode!");
-            }
+            throw std::runtime_error("Junction has a non-classic magnetoresitance mode!");
         }
     }
     void
@@ -125,7 +128,7 @@ public:
         this->stackLog["Resistance"].push_back(resistance);
         for (std::size_t j = 0; j < timeCurrents.size(); ++j)
         {
-            this->stackLog["Current_" + std::to_string(j)].push_back(timeCurrents[j]);
+            this->stackLog["I_" + std::to_string(j)].push_back(timeCurrents[j]);
         }
         this->stackLog["time"].push_back(t);
     }
@@ -173,7 +176,8 @@ public:
         {
             if (j.layerNo >= 3)
             {
-                throw std::runtime_error("At least one junction has more than 2 layers! It's not supported now");
+                throw std::runtime_error("At least one junction has more than 2 layers!"
+                    " It's not supported now.");
             }
             else if (j.layerNo != 2)
             {
@@ -210,7 +214,7 @@ public:
             }
         }
     labelEndLoop:
-        T tCurrent;
+        T tCurrent, coupledCurrent;
         std::vector<T> timeResistances(junctionList.size());
         std::vector<T> timeCurrents(junctionList.size());
         std::vector<CVector<T>> frozenMags(junctionList.size());
@@ -220,29 +224,33 @@ public:
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             T t = i * timeStep;
-            T coupledCurrent = this->currentDriver.getCurrentScalarValue(t);
 
             // stash the magnetisations first
             for (std::size_t j = 0; j < junctionList.size(); ++j) {
-                frozenMags[j] = junctionList[j].getLayerMagnetisation("free");
+                frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
                 if (isTwoLayerStack) {
-                    frozenPols[j] = junctionList[j].getLayerMagnetisation("bottom");
+                    frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
                 }
                 else {
                     frozenPols[j] = this->getPolarisationVector();
                 }
             }
-
+            const T plainCurrent = this->currentDriver.getCurrentScalarValue(t);
+            coupledCurrent = plainCurrent;
             for (std::size_t j = 0; j < junctionList.size(); ++j)
             {
                 // skip first junction
                 // modify the standing layer constant current
-                if (j > 0)
-                    tCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
+                if (j > 0) {
+                    // accumulate coupling
+                    coupledCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
                         // j -> k, j-1 -> k'
                         coupledCurrent, frozenMags[j], frozenMags[j - 1], frozenPols[j]);
-                else
                     tCurrent = coupledCurrent;
+                }
+                else {
+                    tCurrent = plainCurrent;
+                }
 
                 junctionList[j].setLayerCurrentDriver("all", ScalarDriver<T>::getConstantDriver(
                     tCurrent));
@@ -294,7 +302,9 @@ class SeriesStack : public Stack<T>
     }
 
 public:
-    explicit SeriesStack(const std::vector<Junction<T>>& jL) : Stack<T>(jL) {}
+    explicit SeriesStack(const std::vector<Junction<T>>& jL,
+        const std::string& topId = "free",
+        const std::string& bottomId = "bottom") : Stack<T>(jL, topId, bottomId) {}
 };
 template <typename T>
 class ParallelStack : public Stack<T>
@@ -316,6 +326,8 @@ class ParallelStack : public Stack<T>
     }
 
 public:
-    explicit ParallelStack(const std::vector<Junction<T>>& jL) : Stack<T>(jL) {}
+    explicit ParallelStack(const std::vector<Junction<T>>& jL,
+        const std::string& topId = "free",
+        const std::string& bottomId = "bottom") : Stack<T>(jL, topId, bottomId) {}
 };
 #endif // CORE_STACK_HPP_

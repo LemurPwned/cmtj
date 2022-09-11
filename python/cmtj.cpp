@@ -10,6 +10,8 @@
 #include <vector>
 
 using namespace pybind11::literals;
+namespace py = pybind11;
+
 using DJunction = Junction<double>;
 using DLayer = Layer<double>;
 using DVector = CVector<double>;
@@ -17,7 +19,8 @@ using DScalarDriver = ScalarDriver<double>;
 using DAxialDriver = AxialDriver<double>;
 using DNullDriver = NullDriver<double>;
 using DStack = Stack<double>;
-namespace py = pybind11;
+
+
 
 #define USING_PY true
 PYBIND11_MODULE(cmtj, m)
@@ -160,6 +163,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setTemperatureDriver", &DLayer::setTemperatureDriver)
         .def("setTopDipoleTensor", &DLayer::setTopDipoleTensor)
         .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor)
+        .def("setKappa", &DLayer::setKappa)
         .def("setAlternativeSTT", &DLayer::setAlternativeSTT)
         // getters
         .def("getId", &DLayer::getId);
@@ -232,23 +236,33 @@ PYBIND11_MODULE(cmtj, m)
     // stack module
     py::module stack_module = m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
     py::class_<SeriesStack<double>>(stack_module, "SeriesStack")
-        .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
+        .def(py::init<std::vector<DJunction>,
+            std::string,
+            std::string>(),
+            "junctionList"_a,
+            "topId_a"_a = "top",
+            "bottomId"_a = "bottom")
         .def("runSimulation", &SeriesStack<double>::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)
         .def("setMagnetistation", &SeriesStack<double>::setMagnetisation, "juncionId"_a, "layerId"_a, "mag"_a)
-        .def("getMagnetistation", &ParallelStack<double>::getMagnetisation, "juncionId"_a, "layerId"_a)
+        .def("getMagnetistation", &SeriesStack<double>::getMagnetisation, "juncionId"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &SeriesStack<double>::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &SeriesStack<double>::setExternalFieldDriver, "driver"_a)
         .def("setCouplingStrength", &SeriesStack<double>::setCouplingStrength, "coupling"_a)
         // logging
-        .def("clearLogs", &ParallelStack<double>::clearLogs)
+        .def("clearLogs", &SeriesStack<double>::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&SeriesStack<double>::getLog))
         .def("getLog", py::overload_cast<>(&SeriesStack<double>::getLog));
 
     py::class_<ParallelStack<double>>(stack_module, "ParallelStack")
-        .def(py::init<std::vector<DJunction>>(), "junctionList"_a)
+        .def(py::init<std::vector<DJunction>,
+            std::string,
+            std::string>(),
+            "junctionList"_a,
+            "topId_a"_a = "top",
+            "bottomId"_a = "bottom")
         .def("runSimulation", &ParallelStack<double>::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
