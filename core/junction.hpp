@@ -141,6 +141,7 @@ enum SolverMode
     HEUN = 3
 };
 
+// seems to be the faster so far.
 static std::mt19937 generator;
 template <typename T = double>
 class Layer
@@ -251,6 +252,7 @@ public:
     // STT params
     T SlonczewskiSpacerLayerParameter;
     T beta; // usually either set to 0 or to damping
+    T kappa = 1; // for damping-like off -turning torque
     T spinPolarisation;
 
     T hopt = -1.0;
@@ -401,7 +403,7 @@ public:
      * @param alternativeSTT: True if you want to use the alternative STT formulation.
      */
     void setAlternativeSTT(bool alternativeSTT) { this->alternativeSTTSet = alternativeSTT; }
-
+    void setKappa(T kappa) { this->kappa = kappa; }
     void setTopDipoleTensor(const std::vector<CVector<T>>& dipoleTensor)
     {
         this->dipoleTop = dipoleTensor;
@@ -521,7 +523,8 @@ public:
     {
         if ((reference == FIXED) && (!this->referenceLayer.length()))
         {
-            throw std::runtime_error("Cannot set fixed polarisation layer to 0! Set reference to NONE to disable reference.");
+            throw std::runtime_error("Cannot set fixed polarisation layer to 0!"
+                " Set reference to NONE to disable reference.");
         }
         this->referenceType = reference;
     }
@@ -537,14 +540,18 @@ public:
         return this->referenceType;
     }
 
-    const CVector<T> calculateHeff(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& Hfluctuation = CVector<T>())
+    const CVector<T> calculateHeff(T time, T timeStep,
+        const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top,
+        const CVector<T>& Hfluctuation = CVector<T>())
     {
         this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
             calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
         return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole, Hfluctuation);
     }
 
-    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole, const CVector<T>& Hfluctuation)
+    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep,
+        const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top,
+        const CVector<T>& dipole, const CVector<T>& Hfluctuation)
     {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
@@ -605,7 +612,8 @@ public:
             calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
     }
 
-    const CVector<T> solveLLG(T time, const CVector<T>& m, T timeStep, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& heff)
+    const CVector<T> solveLLG(T time, const CVector<T>& m, T timeStep,
+        const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& heff)
     {
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
@@ -653,7 +661,7 @@ public:
             const CVector<T> fieldLike = c_cross<T>(m, reference);
             // damping like
             const CVector<T> dampingLike = c_cross<T>(m, fieldLike);
-            return (dmdt * -GYRO + dampingLike * -sttTerm + fieldLike * sttTerm * this->beta) * convTerm;
+            return (dmdt * -GYRO + dampingLike * -sttTerm * this->kappa + fieldLike * sttTerm * this->beta) * convTerm;
         }
         else if (this->includeSOT)
         {
@@ -794,7 +802,8 @@ public:
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
     }
 
-    CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep, const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
+    CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep,
+        const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
     {
         // compute the Langevin fluctuations -- this is the sigma
         const T convTerm = -GYRO / (1 + pow(this->damping, 2));
@@ -902,7 +911,8 @@ public:
         m_approx.normalize();
         const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
         const CVector<T> Honef_approx = dW2 * Honef_scale;
-        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep, m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
+        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep,
+            m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
         dWn = dW; // replace
         dWn2 = dW2;
         CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
@@ -959,12 +969,14 @@ public:
             // we need to check if this layer has a reference layer.
             if (!this->layers[0].referenceLayer.length())
             {
-                throw std::invalid_argument("MTJ with a single layer must have a pinning (referenceLayer) set!");
+                throw std::invalid_argument("MTJ with a single layer must have"
+                    " a pinning (referenceLayer) set!");
             }
         }
         if (this->layerNo > 2)
         {
-            throw std::invalid_argument("This constructor supports only bilayers! Choose the other one with the strip resistance!");
+            throw std::invalid_argument("This constructor supports only bilayers!"
+                " Choose the other one with the strip resistance!");
         }
         this->Rp = Rp;
         this->Rap = Rap;
@@ -1054,10 +1066,8 @@ public:
     const std::vector<std::string> getLayerIds() const
     {
         std::vector<std::string> ids;
-        for (const auto& layer : this->layers)
-        {
-            ids.push_back(layer.id);
-        }
+        std::transform(this->layers.begin(), this->layers.end(), std::back_inserter(ids),
+            [](const Layer<T>& layer) { return layer.id; });
         return ids;
     }
 
@@ -1537,6 +1547,9 @@ public:
         {
             if (l.hasTemperature())
             {
+                if (mode != HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
+                }
                 // if at least one temp. driver is set
                 // then use heun for consistency
                 solver = this->selectSolver(HEUN);
