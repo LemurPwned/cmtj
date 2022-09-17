@@ -1,6 +1,6 @@
 from itertools import permutations
 
-import matplotlib as mpl
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -217,3 +217,82 @@ def create_coordinates_plot(axes,
                                           ys[j, -1], alpha))
             host.add_patch(patch)
         fig.tight_layout()
+
+
+def rotation_matrix(theta):
+    return np.array([[np.cos(theta), -np.sin(theta)],
+                     [np.sin(theta), np.cos(theta)]])
+
+
+def create_stack(ax,
+                 colors,
+                 heights,
+                 angles,
+                 labels,
+                 width=2,
+                 labelpad_left=.2,
+                 offset_x=0,
+                 offset_y=0,
+                 lw_arrow=1.5,
+                 ms=10,
+                 r=0.6,
+                 reversed=True):
+    """
+    Create a material stack plot.
+    If a given layer is to have no arrow, pass None.
+    :param ax: matplotlib axis
+    :param colors: list of colors
+    :param heights: list of heights
+    :param angles: list of angles
+    :param labels: list of labels
+    :param width: width of the bars
+    :param labelpad_left: padding of the labels
+    :param offset_x: offset of the patches in x direction
+    :param offset_y: offset of the patches in y direction
+    :param lw_arrow: linewidth of the arrows
+    :param ms: mutation size of the arrows
+    :param r: length of the arrows
+    :param reversed: if True, the stack is reversed
+    """
+    [x, y] = [r, 0]
+    first_offset = offset_y
+    if reversed:
+        heights = heights[::-1]
+        colors = colors[::-1]
+        angles = angles[::-1]
+        labels = labels[::-1]
+    for i, (height, angle, color,
+            label) in enumerate(zip(heights, angles, colors, labels)):
+        ax.add_patch(
+            patches.Rectangle((offset_x, offset_y),
+                              width,
+                              height,
+                              fill=True,
+                              color=color,
+                              zorder=10))
+        ax.text(offset_x - labelpad_left,
+                offset_y + height / 2,
+                label,
+                horizontalalignment='center',
+                verticalalignment='center',
+                fontsize=6,
+                zorder=11)
+        if not (angle is None):
+            print(angle)
+            [dx, dy] = np.dot(rotation_matrix(np.deg2rad(angle)), [x, y])
+            x_mid = dx / 2
+            y_mid = dy / 2
+            centre_x = (offset_x + width) / 2 - x_mid
+            centre_y = offset_y + height / 2 - y_mid
+            ax.add_patch(
+                patches.FancyArrowPatch((centre_x, centre_y),
+                                        (centre_x + dx, centre_y + dy),
+                                        mutation_scale=ms,
+                                        lw=lw_arrow,
+                                        color='black',
+                                        zorder=10))
+        offset_y += height
+    ax.set_ylim([first_offset - max(heights) / 2, offset_y + max(heights) / 2])
+    ax.set_xlim([offset_x - width / 2, offset_x + width + width / 2])
+    ax.axis("off")
+    return ax
