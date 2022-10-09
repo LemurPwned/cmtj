@@ -98,6 +98,8 @@ def simulate_vsd(J, H, frequency):
 
 Writing such functions is a good idea in general, since they can be also used in the normal serial processing as well. So a good practice is to write such a function first, test it in serial/iterative sweep and then use `distribute` to parallelise it easily. Here's how we would use the `distribute` function to parallelise the VSD experiment:
 ```python
+from cmtj.utils.parallel import distribute
+
 Js = np.linspace(1e-4, 1e-3, 10)
 Hrange = np.linspace(-15e3, 15e3, 100, endpoint=True)
 fscan = np.arange(1e9, 6.2e9, 0.2e9)
