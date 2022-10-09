@@ -317,6 +317,21 @@
 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../../physics/paralellism/" class="md-nav__link">
+        Parallelism
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -324,18 +339,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_4">
+        <label class="md-nav__link" for="__nav_5">
           API
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="API" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
+        <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
           API
         </label>
@@ -366,18 +381,18 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" checked>
       
       
       
       
-        <label class="md-nav__link" for="__nav_4_2">
+        <label class="md-nav__link" for="__nav_5_2">
           Utils
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Utils" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_2">
+        <label class="md-nav__title" for="__nav_5_2">
           <span class="md-nav__icon md-icon"></span>
           Utils
         </label>
@@ -489,6 +504,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cmtj.utils.plotting.create_stack" class="md-nav__link">
+    create_stack()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cmtj.utils.plotting.plot_coloured_trajectory" class="md-nav__link">
     plot_coloured_trajectory()
   </a>
@@ -584,18 +606,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5">
+        <label class="md-nav__link" for="__nav_6">
           Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Examples" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+        <label class="md-nav__title" for="__nav_6">
           <span class="md-nav__icon md-icon"></span>
           Examples
         </label>
@@ -669,6 +691,13 @@
         <li class="md-nav__item">
   <a href="#cmtj.utils.plotting.create_coordinates_plot" class="md-nav__link">
     create_coordinates_plot()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.utils.plotting.create_stack" class="md-nav__link">
+    create_stack()
   </a>
   
 </li>
@@ -883,6 +912,194 @@ https://stackoverflow.com/questions/8230638/parallel-coordinates-plot-in-matplot
                                           <span class="n">ys</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">alpha</span><span class="p">))</span>
             <span class="n">host</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.utils.plotting.create_stack" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">heights</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">labelpad_left</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">offset_x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lw_arrow</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">text_fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">reversed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Create a material stack plot.
+If a given layer is to have no arrow, pass None.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>ax</code></td>
+        <td></td>
+        <td><p>matplotlib axis</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>colors</code></td>
+        <td></td>
+        <td><p>list of colors</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>heights</code></td>
+        <td></td>
+        <td><p>list of heights</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>angles</code></td>
+        <td></td>
+        <td><p>list of angles</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>labels</code></td>
+        <td></td>
+        <td><p>list of labels</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>width</code></td>
+        <td></td>
+        <td><p>width of the bars</p></td>
+        <td><code>2</code></td>
+      </tr>
+      <tr>
+        <td><code>labelpad_left</code></td>
+        <td></td>
+        <td><p>padding of the labels</p></td>
+        <td><code>0.2</code></td>
+      </tr>
+      <tr>
+        <td><code>offset_x</code></td>
+        <td></td>
+        <td><p>offset of the patches in x direction</p></td>
+        <td><code>0</code></td>
+      </tr>
+      <tr>
+        <td><code>offset_y</code></td>
+        <td></td>
+        <td><p>offset of the patches in y direction</p></td>
+        <td><code>0</code></td>
+      </tr>
+      <tr>
+        <td><code>lw_arrow</code></td>
+        <td></td>
+        <td><p>linewidth of the arrows</p></td>
+        <td><code>1.5</code></td>
+      </tr>
+      <tr>
+        <td><code>ms</code></td>
+        <td></td>
+        <td><p>mutation size of the arrows</p></td>
+        <td><code>10</code></td>
+      </tr>
+      <tr>
+        <td><code>r</code></td>
+        <td></td>
+        <td><p>length of the arrows</p></td>
+        <td><code>0.6</code></td>
+      </tr>
+      <tr>
+        <td><code>reversed</code></td>
+        <td></td>
+        <td><p>if True, the stack is reversed</p></td>
+        <td><code>True</code></td>
+      </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>cmtj/cmtj/utils/plotting.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
+                 <span class="n">colors</span><span class="p">,</span>
+                 <span class="n">heights</span><span class="p">,</span>
+                 <span class="n">angles</span><span class="p">,</span>
+                 <span class="n">labels</span><span class="p">,</span>
+                 <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">labelpad_left</span><span class="o">=</span><span class="mf">.2</span><span class="p">,</span>
+                 <span class="n">offset_x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">offset_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">lw_arrow</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                 <span class="n">ms</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">r</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                 <span class="n">text_fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="nb">reversed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a material stack plot.</span>
+<span class="sd">    If a given layer is to have no arrow, pass None.</span>
+<span class="sd">    :param ax: matplotlib axis</span>
+<span class="sd">    :param colors: list of colors</span>
+<span class="sd">    :param heights: list of heights</span>
+<span class="sd">    :param angles: list of angles</span>
+<span class="sd">    :param labels: list of labels</span>
+<span class="sd">    :param width: width of the bars</span>
+<span class="sd">    :param labelpad_left: padding of the labels</span>
+<span class="sd">    :param offset_x: offset of the patches in x direction</span>
+<span class="sd">    :param offset_y: offset of the patches in y direction</span>
+<span class="sd">    :param lw_arrow: linewidth of the arrows</span>
+<span class="sd">    :param ms: mutation size of the arrows</span>
+<span class="sd">    :param r: length of the arrows</span>
+<span class="sd">    :param reversed: if True, the stack is reversed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">first_offset</span> <span class="o">=</span> <span class="n">offset_y</span>
+    <span class="k">if</span> <span class="nb">reversed</span><span class="p">:</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">heights</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">angles</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">heights</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">labels</span><span class="p">)):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+            <span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="n">offset_x</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">),</span>
+                              <span class="n">width</span><span class="p">,</span>
+                              <span class="n">height</span><span class="p">,</span>
+                              <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                              <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                              <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">offset_x</span> <span class="o">-</span> <span class="n">labelpad_left</span><span class="p">,</span>
+                <span class="n">offset_y</span> <span class="o">+</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+                <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">text_fontsize</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)),</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+            <span class="n">x_mid</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">y_mid</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">centre_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">offset_x</span> <span class="o">+</span> <span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x_mid</span>
+            <span class="n">centre_y</span> <span class="o">=</span> <span class="n">offset_y</span> <span class="o">+</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">y_mid</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+                <span class="n">patches</span><span class="o">.</span><span class="n">FancyArrowPatch</span><span class="p">((</span><span class="n">centre_x</span><span class="p">,</span> <span class="n">centre_y</span><span class="p">),</span>
+                                        <span class="p">(</span><span class="n">centre_x</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">centre_y</span> <span class="o">+</span> <span class="n">dy</span><span class="p">),</span>
+                                        <span class="n">mutation_scale</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span>
+                                        <span class="n">lw</span><span class="o">=</span><span class="n">lw_arrow</span><span class="p">,</span>
+                                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+                                        <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+        <span class="n">offset_y</span> <span class="o">+=</span> <span class="n">height</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">first_offset</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span><span class="n">heights</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">offset_y</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">heights</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">offset_x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">offset_x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
 </code></pre></div>
         </details>
     </div>
@@ -1118,6 +1335,7 @@ Colour of the trajectory now designates the flow of time.</p>
     </div>
 
   </div>
+
 
 
 

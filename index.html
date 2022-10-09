@@ -322,34 +322,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
-    Development
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributions" class="md-nav__link">
-    Contributions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#precommit" class="md-nav__link">
-    Precommit
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation-builds" class="md-nav__link">
-    Documentation builds
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -442,22 +414,37 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="physics/paralellism/" class="md-nav__link">
+        Parallelism
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
     
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_4">
+        <label class="md-nav__link" for="__nav_5">
           API
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="API" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
+        <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
           API
         </label>
@@ -486,18 +473,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_4_2">
+        <label class="md-nav__link" for="__nav_5_2">
           Utils
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Utils" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_2">
+        <label class="md-nav__title" for="__nav_5_2">
           <span class="md-nav__icon md-icon"></span>
           Utils
         </label>
@@ -639,18 +626,18 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
       
       
       
       
-        <label class="md-nav__link" for="__nav_5">
+        <label class="md-nav__link" for="__nav_6">
           Examples
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" aria-label="Examples" data-md-level="1">
-        <label class="md-nav__title" for="__nav_5">
+        <label class="md-nav__title" for="__nav_6">
           <span class="md-nav__icon md-icon"></span>
           Examples
         </label>
@@ -778,34 +765,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
-    Development
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributions" class="md-nav__link">
-    Contributions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#precommit" class="md-nav__link">
-    Precommit
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation-builds" class="md-nav__link">
-    Documentation builds
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -831,8 +790,9 @@
 <a href=""><img alt="License" src="https://img.shields.io/pypi/l/cmtj.svg" /></a>
 <a href=""><img alt="Downloads" src="https://img.shields.io/pypi/dm/cmtj.svg" /></a></p>
 <h2 id="short-description">Short description</h2>
-<p>The library allows for macromagnetic simulation of multilayer spintronic structures.
-A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.</p>
+<p>A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
+The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc. <br />
+It is also possible to connect devices in parallel or in series to have electrically coupled arrays.</p>
 <h2 id="quickstart">Quickstart</h2>
 <h4 id="installation-rocket">Installation :rocket:</h4>
 <p>Installation is as easy as doing:
@@ -840,9 +800,9 @@ A recommended way is to use the <code>pip</code> package manager and virtualenv 
 <ol>
 <li>With <code>virtualenv</code></li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="k">$(</span>bash<span class="k">)</span> python3 -m venv .my-venv
+<div class="highlight"><pre><span></span><code><span class="k">$(</span>bash<span class="k">)</span> python -m venv .my-venv
 <span class="k">$(</span>bash<span class="k">)</span> <span class="nb">source</span> .my-venv/bin/activate
-<span class="k">$(</span>.my-venv<span class="k">)</span> python -m install cmtj
+<span class="k">$(</span>.my-venv<span class="k">)</span> python -m pip install cmtj
 </code></pre></div>
 <ol>
 <li>Straight from <code>pip</code>:</li>
@@ -873,10 +833,11 @@ python3 -m pip install .
 <h2 id="extensions">Extensions</h2>
 <p>There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the <em>PyMag</em> project. It uses CMTJ as a backend for fast computation.</p>
 <h2 id="citing">Citing</h2>
-<p>Please cite if you decide to use the project</p>
+<p>We would appreciate citing either of the listed work if you decide to use the project:
+1) <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403"><strong>Numerical model of Harmonic Hall voltage detection for spintronic devices</strong></a>
 <div class="highlight"><pre><span></span><code><span class="nc">@article</span><span class="p">{</span><span class="nl">PhysRevB.106.024403</span><span class="p">,</span>
   <span class="na">title</span> <span class="p">=</span> <span class="s">{Numerical model of harmonic Hall voltage detection for spintronic devices}</span><span class="p">,</span>
-  <span class="na">author</span> <span class="p">=</span> <span class="s">{Zi\ifmmode \mbox{\k{e}}\else \k{e}\fi{}tek, S\l{}awomir and Mojsiejuk, Jakub and Grochot, Krzysztof and \L{}azarski, Stanis\l{}aw and Skowro\ifmmode \acute{n}\else \&#39;{n}\fi{}ski, Witold and Stobiecki, Tomasz}</span><span class="p">,</span>
+  <span class="na">author</span> <span class="p">=</span> <span class="s">{Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz}</span><span class="p">,</span>
   <span class="na">journal</span> <span class="p">=</span> <span class="s">{Phys. Rev. B}</span><span class="p">,</span>
   <span class="na">volume</span> <span class="p">=</span> <span class="s">{106}</span><span class="p">,</span>
   <span class="na">issue</span> <span class="p">=</span> <span class="s">{2}</span><span class="p">,</span>
@@ -889,7 +850,24 @@ python3 -m pip install .
   <span class="na">url</span> <span class="p">=</span> <span class="s">{https://link.aps.org/doi/10.1103/PhysRevB.106.024403}</span>
 <span class="p">}</span>
 </code></pre></div>
-<h2 id="development">Development</h2>
+2) <a href="https://arxiv.org/abs/2207.11606"><strong>A comprehensive simulation package for analysis of multilayer spintronic devices</strong></a>
+<div class="highlight"><pre><span></span><code><span class="nc">@article</span><span class="p">{</span><span class="nl">mojsiejuk_comprehensive_2022</span><span class="p">,</span>
+    <span class="na">title</span> <span class="p">=</span> <span class="s">{A comprehensive simulation package for analysis of multilayer spintronic devices}</span><span class="p">,</span>
+    <span class="na">url</span> <span class="p">=</span> <span class="s">{http://arxiv.org/abs/2207.11606}</span><span class="p">,</span>
+    <span class="na">number</span> <span class="p">=</span> <span class="s">{{arXiv}:2207.11606}</span><span class="p">,</span>
+    <span class="na">publisher</span> <span class="p">=</span> <span class="s">{{arXiv}}</span><span class="p">,</span>
+    <span class="na">author</span> <span class="p">=</span> <span class="s">{Mojsiejuk, Jakub and Ziętek, Sławomir and Grochot, Krzysztof and Skowroński, Witold and Stobiecki, Tomasz}</span><span class="p">,</span>
+    <span class="na">urldate</span> <span class="p">=</span> <span class="s">{2022-07-26}</span><span class="p">,</span>
+    <span class="na">date</span> <span class="p">=</span> <span class="s">{2022-07-23}</span><span class="p">,</span>
+    <span class="na">langid</span> <span class="p">=</span> <span class="s">{english}</span><span class="p">,</span>
+    <span class="na">eprinttype</span> <span class="p">=</span> <span class="s">{arxiv}</span><span class="p">,</span>
+    <span class="na">eprint</span> <span class="p">=</span> <span class="s">{2207.11606 [cond-mat]}</span><span class="p">,</span>
+    <span class="na">keywords</span> <span class="p">=</span> <span class="s">{Condensed Matter - Materials Science}</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h1 id="development">Development</h1>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>Many thanks to professor Jack Sankey for his help with the development of thermal contributions, with inspiration from the <a href="https://github.com/Spinmob/macrospinmob">macrospinmob project</a>.</p>
 <h2 id="contributions">Contributions</h2>
 <p>All contributions are welcome, please leave an issue if you've encountered any trouble with setup or running the library.</p>
 <h2 id="precommit">Precommit</h2>
@@ -916,10 +894,13 @@ This may be run with:</p>
 <li>Parse stubs to Markdown.
    This stage is done by running:
    <code>python3 docs/docgen.py</code>
-   The deployment of the documentation is done via:</li>
-</ol>
-<div class="highlight"><pre><span></span><code>mkdocs gh-deploy
+   The deployment of the documentation is done via:
+   <div class="highlight"><pre><span></span><code>mkdocs gh-deploy
 </code></pre></div>
+   But first, worth a check:
+   <div class="highlight"><pre><span></span><code>mkdocs serve
+</code></pre></div></li>
+</ol>
 
               
             </article>
