@@ -240,9 +240,13 @@ PYBIND11_MODULE(cmtj, m)
             std::string,
             std::string>(),
             "junctionList"_a,
-            "topId_a"_a = "top",
+            "topId_a"_a = "free",
             "bottomId"_a = "bottom")
         .def("runSimulation", &SeriesStack<double>::runSimulation,
+            "totalTime"_a,
+            "timeStep"_a = 1e-13,
+            "writeFrequency"_a = 1e-11)
+        .def("runSimulationNonDelayed", &SeriesStack<double>::runSimulationNonDelayed,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)
@@ -261,9 +265,13 @@ PYBIND11_MODULE(cmtj, m)
             std::string,
             std::string>(),
             "junctionList"_a,
-            "topId_a"_a = "top",
+            "topId_a"_a = "free",
             "bottomId"_a = "bottom")
         .def("runSimulation", &ParallelStack<double>::runSimulation,
+            "totalTime"_a,
+            "timeStep"_a = 1e-13,
+            "writeFrequency"_a = 1e-11)
+        .def("runSimulationNonDelayed", &ParallelStack<double>::runSimulationNonDelayed,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)

@@ -7,6 +7,7 @@ nav:
   - Theory:
       - Macromagnetic contributions: physics/contributions.md
       - LLG Equation & solvers: physics/macromagnetic_models.md
+  - Parallelism: physics/paralellism.md
   - API:
       - Core: gen-docs/cmtj.md
       - Utils:

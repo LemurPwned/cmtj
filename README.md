@@ -9,8 +9,9 @@
 [![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)]()
 
 ## Short description
+
 A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
-The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.   
+The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
 
 ## Quickstart
@@ -72,11 +73,13 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 ## Citing
 
 We would appreciate citing either of the listed work if you decide to use the project:
-1) [**Numerical model of Harmonic Hall voltage detection for spintronic devices**](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403)
+
+1. [**Numerical model of Harmonic Hall voltage detection for spintronic devices**](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403)
+
 ```bibtex
 @article{PhysRevB.106.024403,
   title = {Numerical model of harmonic Hall voltage detection for spintronic devices},
-  author = {Zi\ifmmode \mbox{\k{e}}\else \k{e}\fi{}tek, S\l{}awomir and Mojsiejuk, Jakub and Grochot, Krzysztof and \L{}azarski, Stanis\l{}aw and Skowro\ifmmode \acute{n}\else \'{n}\fi{}ski, Witold and Stobiecki, Tomasz},
+  author = {Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz},
   journal = {Phys. Rev. B},
   volume = {106},
   issue = {2},
@@ -89,7 +92,9 @@ We would appreciate citing either of the listed work if you decide to use the pr
   url = {https://link.aps.org/doi/10.1103/PhysRevB.106.024403}
 }
 ```
-2) [**A comprehensive simulation package for analysis of multilayer spintronic devices**](https://arxiv.org/abs/2207.11606)
+
+2. [**A comprehensive simulation package for analysis of multilayer spintronic devices**](https://arxiv.org/abs/2207.11606)
+
 ```bibtex
 @article{mojsiejuk_comprehensive_2022,
 	title = {A comprehensive simulation package for analysis of multilayer spintronic devices},
