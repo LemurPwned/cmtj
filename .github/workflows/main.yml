@@ -23,8 +23,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install required deps
         run: apt-get install libffi-dev
-      - name: Linuxuild
-        uses: Niraj-Kamdar/manylinux-wheel-builder@v1
+      - name: Python wheels manylinux stable build
+        uses: zhreshold/python-wheels-manylinux-build@v0.0.1
+        with:
+          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38m cp39-cp39m cp10-cp10m'
 
   other-os-build:
     runs-on: ${{ matrix.os }}
