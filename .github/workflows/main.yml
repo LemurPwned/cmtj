@@ -27,7 +27,7 @@ jobs:
       - name: Python wheels manylinux stable build
         uses: zhreshold/python-wheels-manylinux-build@v0.0.1
         with:
-          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38m cp39-cp39m cp10-cp10m'
+          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
       
 
   other-os-build:
