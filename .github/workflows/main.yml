@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -50,6 +50,7 @@ jobs:
         continue-on-error: false
         
   release-buid:
+    needs: [ linux-build, other-os-build ]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
