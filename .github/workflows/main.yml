@@ -9,7 +9,10 @@ on:
     inputs:
       release-version:
         required: true
-        
+      dry-run: 
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   linux-build:
@@ -21,12 +24,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - name: Install required deps
-        run: apt-get install libffi-dev
       - name: Python wheels manylinux stable build
         uses: zhreshold/python-wheels-manylinux-build@v0.0.1
         with:
           python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38m cp39-cp39m cp10-cp10m'
+      
 
   other-os-build:
     runs-on: ${{ matrix.os }}
@@ -48,6 +50,7 @@ jobs:
           pip install wheel
           python setup.py bdist_wheel
       - name: upload wheel
+        if:  ${{ !inputs.dry-run }} 
         run: |
           pip install twine
           twine upload dist/*
