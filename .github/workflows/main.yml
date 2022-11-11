@@ -49,7 +49,7 @@ jobs:
           twine upload dist/*
         continue-on-error: false
         
-  release-buid:
+  release-build:
     needs: [ linux-build, other-os-build ]
     runs-on: ubuntu-latest
     steps:
