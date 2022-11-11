@@ -4,7 +4,7 @@
 
 - Adding SB model as an alternative mode of calculation.
 
-## 1.1.5
+## 1.2.0
 
 - Oersted field computation helper class in [cmtj/models/oersted.py](cmtj/models/oersted.py). Basic functionality is there, but needs to be futher tested and documented. Next release potentially will move the computation to C++ for speed.
 - Added Heun (2nd order) solver and made it default for thermal computation. This is a more stable solver than the Euler solver, but is slower. The Euler solver is still available as an option.
