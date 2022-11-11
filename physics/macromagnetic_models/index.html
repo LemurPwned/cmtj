@@ -689,6 +689,15 @@ quantities:</p>
 <div class="arithmatex">\[... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m}\times \sigma\]</div>
 <p>Then, equation only changes the coefficients scaling the
 damping-like and field-like torques.</p>
+<p>The LL form of the STT equation is:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &amp;\\
++ (-a_j (\mathbf{m}\times\mathbf{p})  + a_j\beta (\mathbf{m}\times\mathbf{m}\times\mathbf{p})]
+\end{aligned}
+\]</div>
+<p>where
+<span class="arithmatex">\(<span class="arithmatex">\(a_j =  \gamma_0 \eta \frac{\hbar j}{e M_\mathrm{s} t_\mathrm{FM}}\)</span>\)</span></p>
 <h1 id="stochastic-llgs">Stochastic LLGS</h1>
 <h2 id="stratonovich-formulation-of-the-s-llgs-sde">Stratonovich formulation of the s-LLGS SDE</h2>
 <p>A stochastic formulation of LLGS will take the form of a Stratonovich
@@ -710,8 +719,10 @@ result, <span class="arithmatex">\(\sigma(t)\)</span> should be dimensionless. F
 <span class="arithmatex">\(\mathbf{f}(\mathbf{m}_t, t)\)</span> to LL form where <span class="arithmatex">\(\mathbf{H}_{\mathrm{eff}}\)</span> contains no
 stochastic (thermal) parts and the <span class="arithmatex">\(g\)</span>, the stochastic part, to the
 following:</p>
-<div class="arithmatex">\[ \mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
-    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)] \]</div>
+<div class="arithmatex">\[
+\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
+\]</div>
 <p>with <span class="arithmatex">\(\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)\)</span>, a
 multinomial Gaussian distributed random vector (here we make a
 transition from <span class="arithmatex">\(W\)</span> being a generalised Brownian process to a Wiener

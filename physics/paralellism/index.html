@@ -7,6 +7,8 @@
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
       
+        <meta name="author" content="['LemurPwned']">
+      
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.2">
@@ -717,34 +719,38 @@
 <h1 id="parallelism-in-cmtj">Parallelism in CMTJ</h1>
 <h2 id="overview">Overview</h2>
 <p><code>cmtj</code> provides a simple way to parallelise simulation sweeps. For instance, while performing the Voltage Spin Diode (VSD) experiments, we need to sweep the frequency and for each frequency value we further need to sweep with the field. For each field and frequency pair we need to compute the VSD DC resistance. Normally, this scales as <span class="arithmatex">\(O(NK)\)</span> where <span class="arithmatex">\(N\)</span> is the number of field values and <span class="arithmatex">\(K\)</span> is the number of frequency values. However, with parallelism, we can reduce this to <span class="arithmatex">\(O(K)\)</span> if we would be able to process each frequency value in parallel.</p>
-<p>In practice, we use worker pools which are approximately equal to number of threads in the CPU. Each worker is assigned a frequency value and it computes the VSD DC resistance for all the field values. Whenever the worker is finished, it is assigned another frequency value. </p>
+<p>In practice, we use worker pools which are approximately equal to number of threads in the CPU. Each worker is assigned a frequency value and it computes the VSD DC resistance for all the field values. Whenever the worker is finished, it is assigned another frequency value.</p>
 <h2 id="general-caveats">General caveats</h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Keep in mind that these issues are not specific to CMTJ, but are a general problem of any parallelisation. </p>
 </div>
+<p>Keep in mind that these issues are not specific to CMTJ, but are a general problem of any parallelisation.</p>
 <p>Before we move on to a specific example, let's discuss when we should be careful with simulating in parallel.
-When we sweep with an external field, which in the experiment is usually continously swept, we need to realise that if we were to compute the experiment for each separate field in a separate process, we would not carry the relaxed state of magnetisation computed in the previous field step to the next. This is of course a natural consequence of putting things in parallel and can be easily remedided by the following precautions:
-- relax the magnetisation the magentisation in each parallel process by callling <code>runSimulation</code> for a short time, say between 1-5ns (depending on the complexity of the system),
-- increase the simulation time, since reaching the stable state may take a little longer,
-- decrease the time step (integration step) -- this is more costly computationally, but it is also ensuring absolute convergence.</p>
+When we sweep with an external field, which in the experiment is usually continously swept, we need to realise that if we were to compute the experiment for each separate field in a separate process, we would not carry the relaxed state of magnetisation computed in the previous field step to the next. This is of course a natural consequence of putting things in parallel and can be easily remedided by the following precautions:</p>
+<ul>
+<li>relax the magnetisation the magentisation in each parallel process by callling <code>runSimulation</code> for a short time, say between 1-5ns (depending on the complexity of the system),</li>
+<li>increase the simulation time, since reaching the stable state may take a little longer,</li>
+<li>decrease the time step (integration step) -- this is more costly computationally, but it is also ensuring absolute convergence.</li>
+</ul>
 <p>We generally recommend to use the <code>runSimulation</code> function to relax the magnetisation in each parallel process, and then to use the <code>runSimulation</code> function to compute the experiment in parallel. This is the most efficient way to do it, since short relaxation period does not incur a large computational cost, and because we paralellise the experiment anyway, that cost is offset by running on multiple threads.</p>
 <p>With this in mind, let's move on to a specific example.</p>
 <h2 id="problem-description">Problem description</h2>
-<p>Suppose we want to compute the VSD DC resistance for a given frequency and field value, but also check how the VSD spectra differ for different values of the interlayer exchange coupling (IEC) constant <code>J</code>. 
+<p>Suppose we want to compute the VSD DC resistance for a given frequency and field value, but also check how the VSD spectra differ for different values of the interlayer exchange coupling (IEC) constant <code>J</code>.
 What we want to effectively do is we want to fun a VSD experiment for each of the <code>J</code> values, wherein each experiment is a function of the frequency and field.
 Below, we outline the steps to parallelise such a problem.</p>
 <h2 id="parallelising-the-vsd-experiment">Parallelising the VSD experiment</h2>
-<p>Here's what we need:
-- A function that computes the VSD DC resistance for a given frequency and field value.
-- A range of frequencies and fields.
-- A distributing function that assigns the frequency and field values to the workers.</p>
-<p>The last point is taken care of by importing the <code>distribute</code> function from <code>cmtj.utils.parallel</code>. The <code>distribute</code> function takes a function and a list of arguments and distributes the arguments to the workers. </p>
-<p>An example function that computes the VSD DC resistance for a given system with a IEC constant <code>J</code> and for a specific frequency and field value:
+<p>Here's what we need:</p>
+<ul>
+<li>A function that computes the VSD DC resistance for a given frequency and field value.</li>
+<li>A range of frequencies and fields.</li>
+<li>A distributing function that assigns the frequency and field values to the workers.</li>
+</ul>
+<p>The last point is taken care of by importing the <code>distribute</code> function from <code>cmtj.utils.parallel</code>. The <code>distribute</code> function takes a function and a list of arguments and distributes the arguments to the workers.</p>
+<p>An example function that computes the VSD DC resistance for a given system with a IEC constant <code>J</code> and for a specific frequency and field value:</p>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">simulate_vsd</span><span class="p">(</span><span class="n">J</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function computes the VSD DC resistance for a </span>
-<span class="sd">    given frequency f and field value H. </span>
+<span class="sd">    This function computes the VSD DC resistance for a</span>
+<span class="sd">    given frequency f and field value H.</span>
 <span class="sd">    It also takes the current coupling value J as an argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">int_step</span> <span class="o">=</span> <span class="mf">5e-13</span>
@@ -796,8 +802,8 @@ Below, we outline the steps to parallelise such a problem.</p>
     <span class="n">dynamicI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">frequency</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]))</span>
     <span class="n">vmix</span> <span class="o">=</span> <span class="n">compute_sd</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">,</span> <span class="n">int_step</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">vmix</span>
-</code></pre></div></p>
-<p>Writing such functions is a good idea in general, since they can be also used in the normal serial processing as well. So a good practice is to write such a function first, test it in serial/iterative sweep and then use <code>distribute</code> to parallelise it easily. Here's how we would use the <code>distribute</code> function to parallelise the VSD experiment:
+</code></pre></div>
+<p>Writing such functions is a good idea in general, since they can be also used in the normal serial processing as well. So a good practice is to write such a function first, test it in serial/iterative sweep and then use <code>distribute</code> to parallelise it easily. Here's how we would use the <code>distribute</code> function to parallelise the VSD experiment:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">cmtj.utils.parallel</span> <span class="kn">import</span> <span class="n">distribute</span>
 
 <span class="n">Js</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
@@ -808,17 +814,17 @@ Below, we outline the steps to parallelise such a problem.</p>
 <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">distribute</span><span class="p">(</span><span class="n">simulate_vsd</span><span class="p">,</span> <span class="p">[</span><span class="n">Js</span><span class="p">,</span> <span class="n">Hrange</span><span class="p">,</span> <span class="n">fscan</span><span class="p">]):</span>
     <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">out</span> <span class="o">=</span> <span class="n">res</span>
     <span class="n">VSD</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span>
-</code></pre></div></p>
+</code></pre></div>
 <p>The <code>distribute</code> function returns a generator, which we can iterate over to get the results. The results are returned as a tuple of two elements: the first element is a tuple of the indices of the result, and the second element is the result itself. In our case, the result is the VSD DC resistance, and the indices are the indices of the <code>J</code>, <code>H</code> and <code>f</code> values (in that order specifically, we need to match the function signature of <code>simulate_vsd</code> with the second argument to <code>distribute</code> function). We can use these indices to assign the result to the correct place in the <code>VSD</code> array.</p>
-<p>Very simple! 
-Now we can plot the VSD spectra for different values of the IEC constant <code>J</code>:
+<p>Very simple!
+Now we can plot the VSD spectra for different values of the IEC constant <code>J</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Js</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Js</span><span class="p">)):</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">pcolor</span><span class="p">(</span> <span class="n">Hrange</span><span class="o">/</span><span class="mf">1e3</span><span class="p">,</span> <span class="n">fscan</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span> <span class="n">VSD</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">shading</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;H (kA/m)&quot;</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency (GHz)&quot;</span><span class="p">)</span>
     <span class="n">axs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;J = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">Js</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
-</code></pre></div></p>
+</code></pre></div>
 
               
             </article>

@@ -791,7 +791,7 @@
 <a href=""><img alt="Downloads" src="https://img.shields.io/pypi/dm/cmtj.svg" /></a></p>
 <h2 id="short-description">Short description</h2>
 <p>A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
-The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc. <br />
+The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.</p>
 <h2 id="quickstart">Quickstart</h2>
 <h4 id="installation-rocket">Installation :rocket:</h4>
@@ -833,8 +833,10 @@ python3 -m pip install .
 <h2 id="extensions">Extensions</h2>
 <p>There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the <em>PyMag</em> project. It uses CMTJ as a backend for fast computation.</p>
 <h2 id="citing">Citing</h2>
-<p>We would appreciate citing either of the listed work if you decide to use the project:
-1) <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403"><strong>Numerical model of Harmonic Hall voltage detection for spintronic devices</strong></a>
+<p>We would appreciate citing either of the listed work if you decide to use the project:</p>
+<ol>
+<li><a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403"><strong>Numerical model of Harmonic Hall voltage detection for spintronic devices</strong></a></li>
+</ol>
 <div class="highlight"><pre><span></span><code><span class="nc">@article</span><span class="p">{</span><span class="nl">PhysRevB.106.024403</span><span class="p">,</span>
   <span class="na">title</span> <span class="p">=</span> <span class="s">{Numerical model of harmonic Hall voltage detection for spintronic devices}</span><span class="p">,</span>
   <span class="na">author</span> <span class="p">=</span> <span class="s">{Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz}</span><span class="p">,</span>
@@ -850,7 +852,9 @@ python3 -m pip install .
   <span class="na">url</span> <span class="p">=</span> <span class="s">{https://link.aps.org/doi/10.1103/PhysRevB.106.024403}</span>
 <span class="p">}</span>
 </code></pre></div>
-2) <a href="https://arxiv.org/abs/2207.11606"><strong>A comprehensive simulation package for analysis of multilayer spintronic devices</strong></a>
+<ol>
+<li><a href="https://arxiv.org/abs/2207.11606"><strong>A comprehensive simulation package for analysis of multilayer spintronic devices</strong></a></li>
+</ol>
 <div class="highlight"><pre><span></span><code><span class="nc">@article</span><span class="p">{</span><span class="nl">mojsiejuk_comprehensive_2022</span><span class="p">,</span>
     <span class="na">title</span> <span class="p">=</span> <span class="s">{A comprehensive simulation package for analysis of multilayer spintronic devices}</span><span class="p">,</span>
     <span class="na">url</span> <span class="p">=</span> <span class="s">{http://arxiv.org/abs/2207.11606}</span><span class="p">,</span>
@@ -864,7 +868,7 @@ python3 -m pip install .
     <span class="na">eprint</span> <span class="p">=</span> <span class="s">{2207.11606 [cond-mat]}</span><span class="p">,</span>
     <span class="na">keywords</span> <span class="p">=</span> <span class="s">{Condensed Matter - Materials Science}</span><span class="p">,</span>
 <span class="p">}</span>
-</code></pre></div></p>
+</code></pre></div>
 <h1 id="development">Development</h1>
 <h2 id="acknowledgements">Acknowledgements</h2>
 <p>Many thanks to professor Jack Sankey for his help with the development of thermal contributions, with inspiration from the <a href="https://github.com/Spinmob/macrospinmob">macrospinmob project</a>.</p>

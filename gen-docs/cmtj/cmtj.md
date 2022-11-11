@@ -80,6 +80,7 @@ the axis is to be id.
 ## `ScalarDriver`
 
 ### `getConstantDriver(constantValue: float)`
+
 Constant driver produces a constant signal of a fixed amplitude.:param constantValue: constant value of the driver (constant offset/amplitude)
 
 ### `getPulseDriver(constantValue: float, amplitude: float, period: float, cycle: float)`
@@ -100,8 +101,8 @@ Produces a sinusoidal signal with some offset (constantValue), amplitude frequen
 
 #### **Parameters**
 
-| Name                | Type             | Description                                                 | Default |
-| ------------------- | ---------------- | ----------------------------------------------------------- | ------- |
-| **`constantValue`** | `float`          | vertical offset. The sine will oscillate around this value. | `-`     |
+| Name                | Type    | Description                                                 | Default |
+| ------------------- | ------- | ----------------------------------------------------------- | ------- |
+| **`constantValue`** | `float` | vertical offset. The sine will oscillate around this value. | `-`     |
 | **`amplitude`**     | `float` | amplitude of the sine wave                                  | `-`     |
-| **`frequency`**     | `float`          | frequency of the sine                                       | `-`     |
+| **`frequency`**     | `float` | frequency of the sine                                       | `-`     |
