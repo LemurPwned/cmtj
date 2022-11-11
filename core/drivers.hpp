@@ -126,7 +126,7 @@ protected:
 
 
 public:
-    ScalarDriver(
+    explicit ScalarDriver(
         UpdateType update = constant,
         T constantValue = 0,
         T amplitude = 0,

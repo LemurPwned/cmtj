@@ -502,6 +502,7 @@ class Reference:
 
 DormandPrice: SolverMode
 EulerHeun: SolverMode
+Heun: SolverMode
 RK4: SolverMode
 bottom: Reference
 fixed: Reference

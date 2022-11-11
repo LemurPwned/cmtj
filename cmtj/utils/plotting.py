@@ -1,10 +1,25 @@
 from itertools import permutations
 
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 
-def plot_trajectory_sphere(ax, x, y, z, color='blue', alpha=1):
+def get_sphere():
+    r = 1
+    pi = np.pi
+    cos = np.cos
+    sin = np.sin
+    phi, theta = np.mgrid[0.0:pi:100j, 0.0:2.0 * pi:100j]
+    xs = r * sin(phi) * cos(theta)
+    ys = r * sin(phi) * sin(theta)
+    zs = r * cos(phi)
+    return xs, ys, zs
+
+
+def plot_trajectory_sphere(x, y, z, color='blue', alpha=1, ax=None):
     """Plot a trajectory in 3D. Normalises to unit sphere
     :param ax: matplotlib axis
     :param x: x-coordinates
@@ -14,21 +29,26 @@ def plot_trajectory_sphere(ax, x, y, z, color='blue', alpha=1):
     :param alpha: alpha value of the trajectory
     """
     # Compute a unit sphere first
-    r = 1
-    pi = np.pi
-    cos = np.cos
-    sin = np.sin
-    phi, theta = np.mgrid[0.0:pi:100j, 0.0:2.0 * pi:100j]
-    xs = r * sin(phi) * cos(theta)
-    ys = r * sin(phi) * sin(theta)
-    zs = r * cos(phi)
-
-    with plt.style.context(['science', 'no-latex']):
-        fig = plt.figure(dpi=300)
-        ax = fig.add_subplot(1, 2, 1, projection='3d')
-        m = np.asarray([x, y, z])
-        # make sure we are unit norm for m
-        m = m / np.linalg.norm(m)
+    xs, ys, zs = get_sphere()
+    m = np.asarray([x, y, z])
+    # make sure we are unit norm for m
+    m = m / np.linalg.norm(m)
+    if ax is None:
+        with plt.style.context(['science', 'nature']):
+            fig = plt.figure(dpi=300)
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            ax.plot3D(m[0], m[1], m[2], color=color, alpha=alpha)
+            ax.set_axis_off()
+            ax.plot_surface(xs,
+                            ys,
+                            zs,
+                            rstride=2,
+                            cstride=2,
+                            color='azure',
+                            alpha=0.1,
+                            linewidth=0.1)
+            ax.scatter([0], [0], [1], color='crimson', alpha=1.0)
+    else:
         ax.plot3D(m[0], m[1], m[2], color=color, alpha=alpha)
         ax.set_axis_off()
         ax.plot_surface(xs,
@@ -36,10 +56,53 @@ def plot_trajectory_sphere(ax, x, y, z, color='blue', alpha=1):
                         zs,
                         rstride=2,
                         cstride=2,
-                        color='c',
-                        alpha=0.3,
+                        color='azure',
+                        alpha=0.1,
                         linewidth=0.1)
         ax.scatter([0], [0], [1], color='crimson', alpha=1.0)
+
+
+def plot_coloured_trajectory(x, y, z, colormap='plasma', ax=None):
+    """Plot a coloured trajectory in 3D. Normalises to unit sphere.
+    Colour of the trajectory now designates the flow of time.
+    :param ax: matplotlib axis
+    :param x: x-coordinates
+    :param y: y-coordinates
+    :param z: z-coordinates
+    :param colormap: colormap to use
+    :param alpha: alpha value of the trajectory
+    """
+    xs, ys, zs = get_sphere()
+    m = np.asarray([x, y, z])
+    points = m.T.reshape(-1, 1, 3)
+    segs = np.concatenate([points[:-1], points[1:]], axis=1)
+    colors = sns.color_palette(colormap, len(segs))
+    if ax is None:
+        with plt.style.context(['science', 'nature']):
+            fig = plt.figure(dpi=300)
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            # plot the sphere firext
+            ax.set_axis_off()
+            ax.plot_surface(xs,
+                            ys,
+                            zs,
+                            rstride=2,
+                            cstride=2,
+                            color='azure',
+                            alpha=0.1,
+                            linewidth=0.1)
+            ax.add_collection(Line3DCollection(segs, colors=colors, alpha=1))
+    else:
+        ax.set_axis_off()
+        ax.plot_surface(xs,
+                        ys,
+                        zs,
+                        rstride=2,
+                        cstride=2,
+                        color='azure',
+                        alpha=0.1,
+                        linewidth=0.1)
+        ax.add_collection(Line3DCollection(segs, colors=colors, alpha=1))
 
 
 def unpack_ndim_map(map, axes):
@@ -154,3 +217,82 @@ def create_coordinates_plot(axes,
                                           ys[j, -1], alpha))
             host.add_patch(patch)
         fig.tight_layout()
+
+
+def rotation_matrix(theta):
+    return np.array([[np.cos(theta), -np.sin(theta)],
+                     [np.sin(theta), np.cos(theta)]])
+
+
+def create_stack(ax,
+                 colors,
+                 heights,
+                 angles,
+                 labels,
+                 width=2,
+                 labelpad_left=.2,
+                 offset_x=0,
+                 offset_y=0,
+                 lw_arrow=1.5,
+                 ms=10,
+                 r=0.6,
+                 text_fontsize=4,
+                 reversed=True):
+    """
+    Create a material stack plot.
+    If a given layer is to have no arrow, pass None.
+    :param ax: matplotlib axis
+    :param colors: list of colors
+    :param heights: list of heights
+    :param angles: list of angles
+    :param labels: list of labels
+    :param width: width of the bars
+    :param labelpad_left: padding of the labels
+    :param offset_x: offset of the patches in x direction
+    :param offset_y: offset of the patches in y direction
+    :param lw_arrow: linewidth of the arrows
+    :param ms: mutation size of the arrows
+    :param r: length of the arrows
+    :param reversed: if True, the stack is reversed
+    """
+    [x, y] = [r, 0]
+    first_offset = offset_y
+    if reversed:
+        heights = heights[::-1]
+        colors = colors[::-1]
+        angles = angles[::-1]
+        labels = labels[::-1]
+    for i, (height, angle, color,
+            label) in enumerate(zip(heights, angles, colors, labels)):
+        ax.add_patch(
+            patches.Rectangle((offset_x, offset_y),
+                              width,
+                              height,
+                              fill=True,
+                              color=color,
+                              zorder=10))
+        ax.text(offset_x - labelpad_left,
+                offset_y + height / 2,
+                label,
+                horizontalalignment='center',
+                verticalalignment='center',
+                fontsize=text_fontsize,
+                zorder=11)
+        if not (angle is None):
+            [dx, dy] = np.dot(rotation_matrix(np.deg2rad(angle)), [x, y])
+            x_mid = dx / 2
+            y_mid = dy / 2
+            centre_x = (offset_x + width) / 2 - x_mid
+            centre_y = offset_y + height / 2 - y_mid
+            ax.add_patch(
+                patches.FancyArrowPatch((centre_x, centre_y),
+                                        (centre_x + dx, centre_y + dy),
+                                        mutation_scale=ms,
+                                        lw=lw_arrow,
+                                        color='black',
+                                        zorder=10))
+        offset_y += height
+    ax.set_ylim([first_offset - max(heights) / 2, offset_y + max(heights) / 2])
+    ax.set_xlim([offset_x - width / 2, offset_x + width + width / 2])
+    ax.axis("off")
+    return ax

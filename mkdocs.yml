@@ -5,7 +5,9 @@ nav:
   - Home: index.md
   - Overview: overview.md
   - Theory:
-      - LLG Equation: physics/macromagnetic_models.md
+      - Macromagnetic contributions: physics/contributions.md
+      - LLG Equation & solvers: physics/macromagnetic_models.md
+  - Parallelism: physics/paralellism.md
   - API:
       - Core: gen-docs/cmtj.md
       - Utils:
@@ -52,6 +54,9 @@ plugins:
 markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 
 extra_javascript:
   - javascripts/config.js

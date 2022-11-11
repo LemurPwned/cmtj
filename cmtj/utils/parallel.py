@@ -10,7 +10,8 @@ __all__ = ["distribute", "create_coordinates_plot"]
 
 def distribute(simulation_fn: Callable,
                spaces: List[List[float]],
-               n_cores: int = None):
+               n_cores: int = None,
+               shuffle: bool = False):
     """
     Distribute a function over a list of parameters in parallel.
     :param simulation_fn: function to be distributed
@@ -28,6 +29,13 @@ def distribute(simulation_fn: Callable,
 
     iterables = list(product(*spaces))
     indexes = [_get_index(val) for val in iterables]
+    # shuffle the indexes
+    if shuffle:
+        index_reshuffle = np.arange(len(indexes))
+        np.random.shuffle(index_reshuffle)
+        # reorder the indexes
+        iterables = np.asarray(iterables)[index_reshuffle].tolist()
+        indexes = np.asarray(indexes)[index_reshuffle].tolist()
 
     def func_wrapper(iterable):
         return iterable, simulation_fn(*iterable)

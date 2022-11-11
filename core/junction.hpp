@@ -137,9 +137,11 @@ enum SolverMode
 {
     EULER_HEUN = 0,
     RK4 = 1,
-    DORMAND_PRICE = 2
+    DORMAND_PRICE = 2,
+    HEUN = 3
 };
 
+// seems to be the faster so far.
 static std::mt19937 generator;
 template <typename T = double>
 class Layer
@@ -168,9 +170,11 @@ private:
     bool alternativeSTTSet = false;
     Reference referenceType = NONE;
 
+    // the distribution is binded for faster generation
+    // is also shared between 1f and Gaussian noise.
     std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), generator);
 
-
+    CVector<T> dWn, dWn2; // one for thermal, one for OneF
     Layer(
         const std::string& id,
         CVector<T> mag,
@@ -184,7 +188,7 @@ private:
         T dampingLikeTorque,
         T SlonczewskiSpacerLayerParameter,
         T beta,
-        T spinPolarisation) : id(id),
+        T spinPolarisation): id(id),
         mag(mag),
         anis(anis),
         Ms(Ms),
@@ -208,6 +212,8 @@ private:
         }
         // normalise magnetisation
         mag.normalize();
+        dWn = CVector<T>(this->distribution);
+        dWn.normalize();
         this->cellVolume = this->cellSurface * this->thickness;
         this->ofn = new OneFNoise<T>(0, 0., 0.);
     }
@@ -219,6 +225,7 @@ public:
     std::string id;
     T Ms = 0.0;
 
+    // geometric parameters
     T thickness = 0.0;
     T cellVolume = 0.0, cellSurface = 0.0;
 
@@ -233,6 +240,7 @@ public:
     T K_log = 0.0;
     T I_log = 0.0;
 
+    // dipole and demag tensors
     std::vector<CVector<T>> demagTensor;
     std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{ CVector<T>(), CVector<T>(), CVector<T>() };
     std::vector<CVector<T>> dipoleTop = std::vector<CVector<T>>{ CVector<T>(), CVector<T>(), CVector<T>() };
@@ -248,6 +256,7 @@ public:
     // STT params
     T SlonczewskiSpacerLayerParameter;
     T beta; // usually either set to 0 or to damping
+    T kappa = 1; // for damping-like off -turning torque
     T spinPolarisation;
 
     T hopt = -1.0;
@@ -260,7 +269,7 @@ public:
         T thickness,
         T cellSurface,
         const std::vector<CVector<T>>& demagTensor,
-        T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T damping): Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping, 0, 0, 0, 0, 0) {}
 
@@ -290,7 +299,7 @@ public:
         const std::vector<CVector<T>>& demagTensor,
         T damping,
         T fieldLikeTorque,
-        T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T dampingLikeTorque): Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping,
             fieldLikeTorque,
@@ -329,7 +338,7 @@ public:
         T damping,
         T SlonczewskiSpacerLayerParameter,
         T beta,
-        T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T spinPolarisation): Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
@@ -392,13 +401,14 @@ public:
      * @return const std::string
      */
     const std::string getId() const { return id; }
+
     /**
      * @brief Set the Alternative STT formulation
      *
      * @param alternativeSTT: True if you want to use the alternative STT formulation.
      */
     void setAlternativeSTT(bool alternativeSTT) { this->alternativeSTTSet = alternativeSTT; }
-
+    void setKappa(T kappa) { this->kappa = kappa; }
     void setTopDipoleTensor(const std::vector<CVector<T>>& dipoleTensor)
     {
         this->dipoleTop = dipoleTensor;
@@ -504,6 +514,7 @@ public:
     }
 
     /**
+     * @brief Sets reference layer with a custom vector
      * Set reference layer parameter. This is for calculating the spin current
      * polarisation if `includeSTT` is true.
      * @param reference: CVector describing the reference layer.
@@ -514,34 +525,52 @@ public:
         this->referenceType = FIXED;
     }
 
+    /**
+     * @brief Set reference layer with enum
+     * Can be used to refer to other layers in stack as reference
+     * for this layer.
+     * @param reference: an enum: FIXED, TOP, BOTTOM, or CUSTOM
+     */
     void setReferenceLayer(Reference reference)
     {
         if ((reference == FIXED) && (!this->referenceLayer.length()))
         {
-            throw std::runtime_error("Cannot set fixed polarisation layer to 0! Set reference to NONE to disable reference.");
+            throw std::runtime_error("Cannot set fixed polarisation layer to 0!"
+                " Set reference to NONE to disable reference.");
         }
         this->referenceType = reference;
     }
 
+
+    /**
+     * @brief Get the Reference Layer object
+     */
     CVector<T> getReferenceLayer()
     {
         // TODO: return other mags when the reference layer is not fixed.
         return this->referenceLayer;
     }
 
+    /**
+     * @brief Get the Reference Layer Type object (enum type is returned)
+     */
     Reference getReferenceType()
     {
         return this->referenceType;
     }
 
-    const CVector<T> calculateHeff(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top)
+    const CVector<T> calculateHeff(T time, T timeStep,
+        const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top,
+        const CVector<T>& Hfluctuation = CVector<T>())
     {
         this->Hdipole = calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
             calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
-        return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole);
+        return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top, this->Hdipole, Hfluctuation);
     }
 
-    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole)
+    const CVector<T> calculateHeffDipoleInjection(T time, T timeStep,
+        const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top,
+        const CVector<T>& dipole, const CVector<T>& Hfluctuation)
     {
         this->Hext = calculateExternalField(time);
         this->Hoe = calculateHOeField(time);
@@ -549,18 +578,11 @@ public:
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
-        this->Hfluctuation = CVector<T>();  // null vector
-        if (this->nonStochasticTempSet) {
-            this->Hfluctuation = this->Hfluctuation + this->nonStochasticLangevin(time, timeStep);
-        }
-        if (this->nonStochasticOneFSet) {
-            this->Hfluctuation = this->Hfluctuation + this->nonStochasticOneFNoise(time, timeStep);
-        }
         const CVector<T> Heff = this->Hext    // external
             + this->HAnis // anistotropy
             + this->HIEC  // IEC
             + this->Hoe   // Oersted field
-            + this->Hfluctuation
+            + Hfluctuation
             // demag -- negative contribution
             - this->Hdemag
             // dipole -- negative contribution
@@ -590,6 +612,7 @@ public:
 
     CVector<T> calculateIEC_(const T J, const T J2, const CVector<T>& stepMag, const CVector<T>& coupledMag)
     {
+        // below an alternative method for computing J -- it's here for reference only.
         // const T nom = J / (this->Ms * this->thickness);
         // return (coupledMag - stepMag) * nom; // alternative form
         // return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
@@ -609,7 +632,21 @@ public:
             calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
     }
 
-    const CVector<T> solveLLG(T time, const CVector<T>& m, T timeStep, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& heff)
+
+    /**
+     * @brief Main solver function. It is solver-independent (all solvers use this function).
+     * This function is called by the solver to calculate the next step of the magnetisation.
+     * It computes implicitly, all torques, given the current magnetisation and effective field.
+     * @param time the time at which the solver is currently at.
+     * @param m the current magnetisation (from the solver, may be a semi-step)
+     * @param timeStep integration time
+     * @param bottom magnetisation of the layer below
+     * @param top magnetisation of the layer above
+     * @param heff the effective field
+     * @return const CVector<T> magnetisation after the step
+     */
+    const CVector<T> solveLLG(T time, const CVector<T>& m, T timeStep,
+        const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& heff)
     {
         const CVector<T> prod = c_cross<T>(m, heff);
         const CVector<T> prod2 = c_cross<T>(m, prod);
@@ -657,7 +694,7 @@ public:
             const CVector<T> fieldLike = c_cross<T>(m, reference);
             // damping like
             const CVector<T> dampingLike = c_cross<T>(m, fieldLike);
-            return (dmdt * -GYRO + dampingLike * -sttTerm + fieldLike * sttTerm * this->beta) * convTerm;
+            return (dmdt * -GYRO + dampingLike * -sttTerm * this->kappa + fieldLike * sttTerm * this->beta) * convTerm;
         }
         else if (this->includeSOT)
         {
@@ -688,12 +725,13 @@ public:
     }
     const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, const CVector<T>& m,
         const CVector<T>& bottom, const CVector<T>& top,
-        const CVector<T>& dipole, T timeStep)
+        const CVector<T>& dipole, T timeStep, const CVector<T>& Hfluctuation)
     {
         // classic LLG first
-        const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole);
+        const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole, Hfluctuation);
         return solveLLG(time, m, timeStep, bottom, top, heff);
     }
+
     /**
      * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
      * Use the effective spin hall angles formulation for SOT interaction.
@@ -703,13 +741,24 @@ public:
      * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
      * @param timeStep: RK45 integration step.
      */
-    const CVector<T> calculateLLGWithFieldTorque(T time, const CVector<T>& m, const CVector<T>& bottom, const CVector<T>& top, T timeStep)
+    const CVector<T> calculateLLGWithFieldTorque(T time, const CVector<T>& m, const CVector<T>& bottom, const CVector<T>& top, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
     {
         // classic LLG first
-        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top);
+        const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top, Hfluctuation);
         return solveLLG(time, m, timeStep, bottom, top, heff);
     }
 
+
+    /**
+     * @brief RK4 step of the LLG equation.
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * Use the effective spin hall angles formulation for SOT interaction.
+     * @param time: current simulation time.
+     * @param m: current RK45 magnetisation.
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step.
+     */
     void rk4_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         CVector<T> m_t = this->mag;
@@ -726,6 +775,16 @@ public:
         }
     }
 
+    /**
+     * @brief RK4 step of the LLG equation if dipole injection is present.
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * Use the effective spin hall angles formulation for SOT interaction.
+     * @param time: current simulation time.
+     * @param m: current RK45 magnetisation.
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step.
+     */
     void rk4_stepDipoleInjection(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole)
     {
         CVector<T> m_t = this->mag;
@@ -798,21 +857,22 @@ public:
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
     }
 
-    CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep, const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
+    CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep,
+        const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
     {
         // compute the Langevin fluctuations -- this is the sigma
-        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time);
-        const CVector<T> thcross1 = c_cross(cm, dW);
-        const CVector<T> thcross12 = c_cross(thcross1, dW);
-        const T scaling = -Hthermal_temp * GYRO / (1 + pow(this->damping, 2));
-
+        const T convTerm = -GYRO / (1 + pow(this->damping, 2));
+        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
+        const CVector<T> thcross = c_cross(cm, dW);
+        const CVector<T> thcross2 = c_cross(thcross, dW);
+        const T scalingTh = Hthermal_temp * convTerm;
 
         // compute 1/f noise term
-        const CVector<T> thcross2 = c_cross(cm, dW2);
-        const CVector<T> thcross22 = c_cross(thcross2, dW2);
-        const T scaling2 = -HoneF * GYRO / (1 + pow(this->damping, 2));
+        const CVector<T> onefcross = c_cross(cm, dW2);
+        const CVector<T> onefcross2 = c_cross(onefcross, dW2);
+        const T scalingOneF = HoneF * convTerm;
 
-        return (thcross1 + thcross12 * this->damping) * scaling + (thcross2 + thcross22) * scaling2;
+        return (thcross + thcross2 * this->damping) * scalingTh + (onefcross + onefcross2 * this->damping) * scalingOneF;
     }
 
     const T getStochasticOneFNoise(T time) {
@@ -821,23 +881,20 @@ public:
         return this->ofn->tick();
     }
 
-    T getLangevinStochasticStandardDeviation(T time)
+    T getLangevinStochasticStandardDeviation(T time, T timeStep)
     {
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (GYRO * this->Ms * this->cellVolume);
+        const T mainFactor = (2 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume * timeStep);
         return sqrt(mainFactor);
     }
 
     CVector<T> nonStochasticLangevin(T time, T timeStep)
     {
-        if (this->cellVolume == 0.0)
-            throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
+        const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
         const CVector<T> dW = CVector<T>(this->distribution);
-        const T temp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T prefactor = 2 * this->damping * BOLTZMANN_CONST * temp / (this->Ms * GYRO * this->cellVolume * timeStep);
-        return dW * sqrt(prefactor);
+        return dW * Hthermal_temp;
     }
 
     CVector<T> nonStochasticOneFNoise(T time, T timestep) {
@@ -846,7 +903,17 @@ public:
         return dW2 * pinkNoise;
     }
 
-    void euler_heun(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
+    /**
+     * @brief Computes a single Euler-Heun step [DEPRECATED].
+     * [DEPRECATED] This is the old Euler-Heun method, Heun is preferred.
+     * Bottom and top are relative to the current layer.
+     * They are used to compute interactions.
+     * @param time: current time of the simulation
+     * @param timeStep: integration time of the solver
+     * @param bottom: bottom layer to the current layer
+     * @param top: top layer to the current layer
+     */
+    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         // we compute the two below in stochastic part, not non stochastic.
         this->nonStochasticTempSet = false;
@@ -859,8 +926,8 @@ public:
         // Brownian motion sample
         // Generate the noise from the Brownian motion
         // dW2 is used for 1/f noise generation
-        CVector<T> dW = CVector<T>(this->distribution) * sqrt(timeStep);
-        CVector<T> dW2 = CVector<T>(this->distribution) * sqrt(timeStep);
+        CVector<T> dW = CVector<T>(this->distribution); // * sqrt(timeStep);
+        CVector<T> dW2 = CVector<T>(this->distribution); //* sqrt(timeStep);
         // squared dW -- just utility
         dW.normalize();
         dW2.normalize();
@@ -869,16 +936,62 @@ public:
         const T Honef = this->getStochasticOneFNoise(time);
         const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
         // g_n is the stochastic part of the LLG at step n
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef) * sqrt(timeStep);
+        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
 
         // actual solution
         // approximate next step ytilde
         const CVector<T> mapprox = this->mag + g_n;
         // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * sqrt(timeStep);
-        CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
+        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
+        // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
+        CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
         m_t.normalize();
         this->mag = m_t;
+    }
+
+    /**
+     * @brief Computes a single Heun step.
+     * This method is preferred over Euler-Heun method.
+     * Bottom and top are relative to the current layer.
+     * They are used to compute interactions.
+     * @param time: current time of the simulation
+     * @param timeStep: integration time of the solver
+     * @param bottom: bottom layer to the current layer
+     * @param top: top layer to the current layer
+     */
+    void heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
+        // we compute the two below in stochastic part, not non stochastic.
+        this->nonStochasticTempSet = false;
+        this->nonStochasticOneFSet = false;
+        // this is Stratonovich integral
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
+        // Brownian motion sample
+        // Generate the noise from the Brownian motion
+        const T Honef_scale = this->getStochasticOneFNoise(time);
+        const T Hthermal_scale = this->getLangevinStochasticStandardDeviation(time, timeStep);
+        const CVector<T> Hlangevin = dWn * Hthermal_scale;
+        const CVector<T> Honef = dWn2 * Honef_scale;
+        const CVector<T> m_t = this->mag;
+        const CVector<T> f_n = this->calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep, Hlangevin + Honef);
+        // immediate m approximation
+        CVector<T> m_approx = m_t + f_n * timeStep;
+        CVector<T> dW = CVector<T>(this->distribution);
+        CVector<T> dW2 = CVector<T>(this->distribution);
+        dW.normalize();
+        dW2.normalize();
+        m_approx.normalize();
+        const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
+        const CVector<T> Honef_approx = dW2 * Honef_scale;
+        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep,
+            m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
+        dWn = dW; // replace
+        dWn2 = dW2;
+        CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
+        nm_t.normalize();
+        this->mag = nm_t;
     }
 };
 
@@ -908,8 +1021,9 @@ public:
     Junction() {}
 
     /**
-     * Create a plain junction.
+     * @brief Create a plain junction.
      * No magnetoresistance is calculated.
+     * @param layersToSet: layers that compose the junction
      */
     explicit Junction(const std::vector<Layer<T>>& layersToSet)
     {
@@ -922,7 +1036,7 @@ public:
         }
         // this->fileSave = std::move(filename);
     }
-    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap) : Junction(
+    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap): Junction(
         layersToSet)
     {
         if (this->layerNo == 1)
@@ -930,12 +1044,14 @@ public:
             // we need to check if this layer has a reference layer.
             if (!this->layers[0].referenceLayer.length())
             {
-                throw std::invalid_argument("MTJ with a single layer must have a pinning (referenceLayer) set!");
+                throw std::invalid_argument("MTJ with a single layer must have"
+                    " a pinning (referenceLayer) set!");
             }
         }
         if (this->layerNo > 2)
         {
-            throw std::invalid_argument("This constructor supports only bilayers! Choose the other one with the strip resistance!");
+            throw std::invalid_argument("This constructor supports only bilayers!"
+                " Choose the other one with the strip resistance!");
         }
         this->Rp = Rp;
         this->Rap = Rap;
@@ -963,7 +1079,7 @@ public:
         std::vector<T> AMR_Y,
         std::vector<T> SMR_X,
         std::vector<T> SMR_Y,
-        std::vector<T> AHE) : Rx0(std::move(Rx0)),
+        std::vector<T> AHE): Rx0(std::move(Rx0)),
         Ry0(std::move(Ry0)),
         AMR_X(std::move(AMR_X)),
         AMR_Y(std::move(AMR_Y)),
@@ -1002,13 +1118,16 @@ public:
         switch (solverMode)
         {
         case EULER_HEUN:
-            return &Layer<T>::euler_heun;
+            return &Layer<T>::euler_heun_step;
 
         case DORMAND_PRICE:
             return &Layer<T>::dormandPriceStep;
 
         case RK4:
             return &Layer<T>::rk4_step;
+
+        case HEUN:
+            return &Layer<T>::heun_step;
 
         default:
             return &Layer<T>::rk4_step;
@@ -1022,10 +1141,8 @@ public:
     const std::vector<std::string> getLayerIds() const
     {
         std::vector<std::string> ids;
-        for (const auto& layer : this->layers)
-        {
-            ids.push_back(layer.id);
-        }
+        std::transform(this->layers.begin(), this->layers.end(), std::back_inserter(ids),
+            [](const Layer<T>& layer) { return layer.id; });
         return ids;
     }
 
@@ -1262,6 +1379,13 @@ public:
         throw std::runtime_error("Failed to find a layer with a given id!");
     }
 
+    /**
+     * @brief Log computed layer parameters.
+     * This function logs all the necessayr parameters of the layers.
+     * @param t: current time
+     * @param timeStep: timeStep of the simulation (unsued for now)
+     * @param calculateEnergies: if true, also include fields for energy computation.
+     */
     void logLayerParams(T& t, T timeStep, bool calculateEnergies = false)
     {
         for (const auto& layer : this->layers)
@@ -1505,9 +1629,12 @@ public:
         {
             if (l.hasTemperature())
             {
+                if (mode != HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
+                }
                 // if at least one temp. driver is set
-                // then use euler_heun for consistency
-                solver = this->selectSolver(EULER_HEUN);
+                // then use heun for consistency
+                solver = this->selectSolver(HEUN);
                 break;
             }
         }

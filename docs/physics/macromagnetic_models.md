@@ -85,6 +85,18 @@ $$... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m
 Then, equation only changes the coefficients scaling the
 damping-like and field-like torques.
 
+The LL form of the STT equation is:
+
+$$
+\begin{aligned}
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &\\
++ (-a_j (\mathbf{m}\times\mathbf{p})  + a_j\beta (\mathbf{m}\times\mathbf{m}\times\mathbf{p})]
+\end{aligned}
+$$
+
+where
+$$a_j =  \gamma_0 \eta \frac{\hbar j}{e M_\mathrm{s} t_\mathrm{FM}}$$
+
 # Stochastic LLGS
 
 ## Stratonovich formulation of the s-LLGS SDE
@@ -92,7 +104,7 @@ damping-like and field-like torques.
 A stochastic formulation of LLGS will take the form of a Stratonovich
 SDE:
 
-$$\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t$$
+$$\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t\sqrt{\Delta t}$$
 
 where $f(X_t, t)$ is the deterministic part of the
 equation and $g(X_t, t)$ is the stochastic part of the equation.
@@ -113,13 +125,17 @@ $\mathbf{f}(\mathbf{m}_t, t)$ to LL form where $\mathbf{H}_{\mathrm{eff}}$ conta
 stochastic (thermal) parts and the $g$, the stochastic part, to the
 following:
 
-$$ \mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
-    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)] $$
+$$
+\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
+$$
 
 with $\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)$, a
 multinomial Gaussian distributed random vector (here we make a
 transition from $W$ being a generalised Brownian process to a Wiener
-process). The form of the above follows from the distributive
+process). For numerical solutions, we have have $\Delta W$ instead of $\mathrm{d}W$.
+$\Delta W(t) = W(t + \Delta t) - W(t)$, where the stochastic vector is being drrawn from a normal distriubtion, with zero mean and unit variance: $\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)$.
+The form above follows from the distributive
 properties of cross-product over addition. Furthermore, there is some
 evidence that the second term in that equation should be skipped if the noise is
 sufficiently small which seems to be the case for up to room temperature
@@ -127,22 +143,15 @@ experiments.
 
 ## Numerical solutions
 
-### Modelling the thermal field
-
-In the following, we will have $\Delta W$ instead of $\mathrm{d}W$.
-$\Delta W(t) = W(t + \Delta t) - W(t)$, since we discretised the motion.
-Because of that we need to normalise by the integration step. Thus:
-
-$$\mathbf{H}_T(t)h = \sigma\Delta W(t) = \sigma \sqrt{h} \xi_t$$
-
-where $\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)$.
+We generally solve the stochastic model by either with Euler-Heun or Heun method.
 
 ### Euler-Heun method
 
+This is in fact first order-method in the limit of 0 K.
 Euler-Heun method is suitable for Stratonovich SDEs as Euler-Maruyama
 can only be applied to Ito's SDEs. The update of the step is:
 
-$$Y_{n+1} = Y_n + f_n h + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n$$
+$$Y_{n+1} = Y_n + f_n \Delta t + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n\sqrt{\Delta t}$$
 
 where $\hat{Y}_n = Y_n + g_n\Delta W_n$. Contrary to the Milstein
 method, it is easier to the user the Euler-Heun due to the lack of
@@ -152,8 +161,15 @@ solution, we substitute $Y_n = \mathbf{m_t}$,
 $f_n = \mathbf{f}_n(\mathbf{m_t}, t)$,
 $g_n= \mathbf{g}_n(\mathbf{m_t}, t)$.
 
-Additionally, we set $\Delta W_n = [W_{t+h} - W_t] \sim \sqrt{h}\mathcal{N}(0, 1)$ to set it properly in the context of
-sLLGS).
+### Heun method
+
+Now preferred method to solve stochastic form of the LLG equation is the Heun method. It introduces second order correction to the non-stochastic part as well and
+therefore is deemed a better method.
+
+$$Y_{n+1} = Y_n + \frac{1}{2}\left[f_n(\hat{Y}_{n+1}, t_{n+1}) + f_n(Y_n, t_n)\right] + \frac{1}{2}\left[g_n(\hat{Y}_{n+1}, g_{n+1}) + g_n(Y_n, t_n)\right]\Delta W_n$$
+
+where $\hat{Y}_{n+1} = Y_n + f_n(Y_n, t_n)\Delta t + g_n(Y_n, t_n)\Delta W_n\sqrt{\Delta t}$.
+
 ### References
 
 [Numerical Integration of SDEs: A Short Tutorial,
