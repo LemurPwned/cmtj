@@ -13,9 +13,19 @@ on:
         required: true
         default: true
         type: boolean
+      linux:
+        type: boolean
+        required: true
+        default: true
+      other-os:
+        type: boolean
+        required: true
+        default: true
+      
 
 jobs:
   linux-build:
+    if: ${{ inputs.linux }} 
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
@@ -31,6 +41,7 @@ jobs:
       
 
   other-os-build:
+    if: ${{ inputs.other-os }} 
     runs-on: ${{ matrix.os }}
     env:
       TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
