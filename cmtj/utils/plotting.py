@@ -236,6 +236,7 @@ def create_stack(ax,
                  lw_arrow=1.5,
                  ms=10,
                  r=0.6,
+                 text_fontsize=4,
                  reversed=True):
     """
     Create a material stack plot.
@@ -275,10 +276,9 @@ def create_stack(ax,
                 label,
                 horizontalalignment='center',
                 verticalalignment='center',
-                fontsize=6,
+                fontsize=text_fontsize,
                 zorder=11)
         if not (angle is None):
-            print(angle)
             [dx, dy] = np.dot(rotation_matrix(np.deg2rad(angle)), [x, y])
             x_mid = dx / 2
             y_mid = dy / 2

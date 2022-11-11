@@ -157,10 +157,10 @@ public:
 
     const CVector<T> getPolarisationVector()
     {
-        CVector<T> probe = junctionList[0].getLayer("free").referenceLayer;
+        CVector<T> probe = junctionList[0].getLayer(this->topId).referenceLayer;
         for (std::size_t i = 1; i < junctionList.size(); ++i)
         {
-            if (probe != junctionList[i].getLayer("free").referenceLayer)
+            if (probe != junctionList[i].getLayer(this->topId).referenceLayer)
                 throw std::runtime_error("Polarisation vectors are not equal in stack");
         }
 
@@ -281,6 +281,91 @@ public:
             }
         }
     }
+
+    void runSimulationNonDelayed(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11)
+    {
+        const unsigned int writeEvery = (int)(writeFrequency / timeStep);
+        const unsigned int totalIterations = (int)(totalTime / timeStep);
+
+        if (timeStep > writeFrequency)
+        {
+            std::runtime_error("The time step cannot be larger than write frequency!");
+        }
+
+        // pick a solver based on drivers
+        auto solv = &Layer<T>::rk4_step;
+        for (auto& j : this->junctionList)
+        {
+            for (auto& l : j.layers)
+            {
+                if (l.hasTemperature())
+                {
+                    // if at least one temp. driver is set
+                    // then use euler_heun_step for consistency
+                    std::cout << "Warning: using Heun in stack computation" << std::endl;
+                    solv = &Layer<T>::heun_step;
+                    goto labelEndLoop;
+                }
+            }
+        }
+    labelEndLoop:
+        T tCurrent, coupledCurrent;
+        std::vector<T> timeResistances(junctionList.size());
+        std::vector<T> timeCurrents(junctionList.size());
+        for (unsigned int i = 0; i < totalIterations; i++)
+        {
+            T t = i * timeStep;
+
+            const T plainCurrent = this->currentDriver.getCurrentScalarValue(t);
+            coupledCurrent = plainCurrent;
+            for (std::size_t j = 0; j < junctionList.size(); ++j)
+            {
+                // skip first junction
+                // modify the standing layer constant current
+                if (j > 0) {
+                    // accumulate coupling
+                    coupledCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
+                        // j -> k, j-1 -> k'
+                        coupledCurrent, junctionList[j].getLayerMagnetisation(this->topId),
+                        junctionList[j - 1].getLayerMagnetisation(this->topId),
+                        junctionList[j].getLayerMagnetisation(this->bottomId));
+                    tCurrent = coupledCurrent;
+                }
+                else {
+                    tCurrent = plainCurrent;
+                }
+
+                junctionList[j].setLayerCurrentDriver("all", ScalarDriver<T>::getConstantDriver(
+                    tCurrent));
+
+                // solve the equation
+                if (this->junctionList[j].layerNo == 1)
+                {
+                    junctionList[j].runSingleLayerSolver(solv, t, timeStep);
+                }
+                else
+                {
+                    junctionList[j].runMultiLayerSolver(solv, t, timeStep);
+                }
+
+                // change the instant value of the current before the
+                // the resistance is calculated
+                // compute the next j+1 input to the current.
+                const auto resistance = junctionList[j].getMagnetoresistance();
+                timeResistances[j] = resistance[0];
+                timeCurrents[j] = tCurrent;
+            }
+            if (!(i % writeEvery))
+            {
+                const T magRes = this->calculateStackResistance(timeResistances);
+                this->logStackData(t, magRes, timeCurrents);
+                for (auto& jun : this->junctionList)
+                    jun.logLayerParams(t, timeStep, false);
+            }
+        }
+    }
+
+
 };
 template <typename T>
 class SeriesStack : public Stack<T>

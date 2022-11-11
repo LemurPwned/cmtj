@@ -11,9 +11,10 @@ AmtoOe = 1.0 / OetoAm
 TtoAm = 795774.715459
 AmtoT = 1.0 / TtoAm
 echarge = 1.602e-19
-mi0 = 12.566e-7
+mu0 = 12.566e-7
 hplanck = 6.6260e-34
 hbar = hplanck / (2 * np.pi)
+gyromagnetic_ratio = 2.211e5
 
 
 def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray,

@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2019-11-01
+## [Unreleased yet]
 
 - Adding SB model as an alternative mode of calculation.
 
@@ -13,4 +13,5 @@
 - Added alternative STT formulation which in some cases may be useful.
 - Fixed some minor bugs in the thermal solver.
 - Fixed some minor bugs in the Stack class.
+- Updating tutorials on the docs page.
 - Bunch of extra documentation and examples.

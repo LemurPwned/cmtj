@@ -170,6 +170,8 @@ private:
     bool alternativeSTTSet = false;
     Reference referenceType = NONE;
 
+    // the distribution is binded for faster generation
+    // is also shared between 1f and Gaussian noise.
     std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), generator);
 
     CVector<T> dWn, dWn2; // one for thermal, one for OneF
@@ -186,7 +188,7 @@ private:
         T dampingLikeTorque,
         T SlonczewskiSpacerLayerParameter,
         T beta,
-        T spinPolarisation) : id(id),
+        T spinPolarisation): id(id),
         mag(mag),
         anis(anis),
         Ms(Ms),
@@ -223,6 +225,7 @@ public:
     std::string id;
     T Ms = 0.0;
 
+    // geometric parameters
     T thickness = 0.0;
     T cellVolume = 0.0, cellSurface = 0.0;
 
@@ -237,6 +240,7 @@ public:
     T K_log = 0.0;
     T I_log = 0.0;
 
+    // dipole and demag tensors
     std::vector<CVector<T>> demagTensor;
     std::vector<CVector<T>> dipoleBottom = std::vector<CVector<T>>{ CVector<T>(), CVector<T>(), CVector<T>() };
     std::vector<CVector<T>> dipoleTop = std::vector<CVector<T>>{ CVector<T>(), CVector<T>(), CVector<T>() };
@@ -265,7 +269,7 @@ public:
         T thickness,
         T cellSurface,
         const std::vector<CVector<T>>& demagTensor,
-        T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T damping): Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping, 0, 0, 0, 0, 0) {}
 
@@ -295,7 +299,7 @@ public:
         const std::vector<CVector<T>>& demagTensor,
         T damping,
         T fieldLikeTorque,
-        T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T dampingLikeTorque): Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping,
             fieldLikeTorque,
@@ -334,7 +338,7 @@ public:
         T damping,
         T SlonczewskiSpacerLayerParameter,
         T beta,
-        T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T spinPolarisation): Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
@@ -397,6 +401,7 @@ public:
      * @return const std::string
      */
     const std::string getId() const { return id; }
+
     /**
      * @brief Set the Alternative STT formulation
      *
@@ -509,6 +514,7 @@ public:
     }
 
     /**
+     * @brief Sets reference layer with a custom vector
      * Set reference layer parameter. This is for calculating the spin current
      * polarisation if `includeSTT` is true.
      * @param reference: CVector describing the reference layer.
@@ -519,6 +525,12 @@ public:
         this->referenceType = FIXED;
     }
 
+    /**
+     * @brief Set reference layer with enum
+     * Can be used to refer to other layers in stack as reference
+     * for this layer.
+     * @param reference: an enum: FIXED, TOP, BOTTOM, or CUSTOM
+     */
     void setReferenceLayer(Reference reference)
     {
         if ((reference == FIXED) && (!this->referenceLayer.length()))
@@ -529,12 +541,19 @@ public:
         this->referenceType = reference;
     }
 
+
+    /**
+     * @brief Get the Reference Layer object
+     */
     CVector<T> getReferenceLayer()
     {
         // TODO: return other mags when the reference layer is not fixed.
         return this->referenceLayer;
     }
 
+    /**
+     * @brief Get the Reference Layer Type object (enum type is returned)
+     */
     Reference getReferenceType()
     {
         return this->referenceType;
@@ -593,6 +612,7 @@ public:
 
     CVector<T> calculateIEC_(const T J, const T J2, const CVector<T>& stepMag, const CVector<T>& coupledMag)
     {
+        // below an alternative method for computing J -- it's here for reference only.
         // const T nom = J / (this->Ms * this->thickness);
         // return (coupledMag - stepMag) * nom; // alternative form
         // return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
@@ -612,6 +632,19 @@ public:
             calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
     }
 
+
+    /**
+     * @brief Main solver function. It is solver-independent (all solvers use this function).
+     * This function is called by the solver to calculate the next step of the magnetisation.
+     * It computes implicitly, all torques, given the current magnetisation and effective field.
+     * @param time the time at which the solver is currently at.
+     * @param m the current magnetisation (from the solver, may be a semi-step)
+     * @param timeStep integration time
+     * @param bottom magnetisation of the layer below
+     * @param top magnetisation of the layer above
+     * @param heff the effective field
+     * @return const CVector<T> magnetisation after the step
+     */
     const CVector<T> solveLLG(T time, const CVector<T>& m, T timeStep,
         const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& heff)
     {
@@ -698,6 +731,7 @@ public:
         const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole, Hfluctuation);
         return solveLLG(time, m, timeStep, bottom, top, heff);
     }
+
     /**
      * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
      * Use the effective spin hall angles formulation for SOT interaction.
@@ -714,6 +748,17 @@ public:
         return solveLLG(time, m, timeStep, bottom, top, heff);
     }
 
+
+    /**
+     * @brief RK4 step of the LLG equation.
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * Use the effective spin hall angles formulation for SOT interaction.
+     * @param time: current simulation time.
+     * @param m: current RK45 magnetisation.
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step.
+     */
     void rk4_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         CVector<T> m_t = this->mag;
@@ -730,6 +775,16 @@ public:
         }
     }
 
+    /**
+     * @brief RK4 step of the LLG equation if dipole injection is present.
+     * Compute the LLG time step. The efficient field vectors is calculated implicitly here.
+     * Use the effective spin hall angles formulation for SOT interaction.
+     * @param time: current simulation time.
+     * @param m: current RK45 magnetisation.
+     * @param bottom: layer below the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
+     * @param timeStep: RK45 integration step.
+     */
     void rk4_stepDipoleInjection(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dipole)
     {
         CVector<T> m_t = this->mag;
@@ -812,7 +867,6 @@ public:
         const CVector<T> thcross2 = c_cross(thcross, dW);
         const T scalingTh = Hthermal_temp * convTerm;
 
-
         // compute 1/f noise term
         const CVector<T> onefcross = c_cross(cm, dW2);
         const CVector<T> onefcross2 = c_cross(onefcross, dW2);
@@ -849,6 +903,16 @@ public:
         return dW2 * pinkNoise;
     }
 
+    /**
+     * @brief Computes a single Euler-Heun step [DEPRECATED].
+     * [DEPRECATED] This is the old Euler-Heun method, Heun is preferred.
+     * Bottom and top are relative to the current layer.
+     * They are used to compute interactions.
+     * @param time: current time of the simulation
+     * @param timeStep: integration time of the solver
+     * @param bottom: bottom layer to the current layer
+     * @param top: top layer to the current layer
+     */
     void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         // we compute the two below in stochastic part, not non stochastic.
@@ -885,6 +949,16 @@ public:
         this->mag = m_t;
     }
 
+    /**
+     * @brief Computes a single Heun step.
+     * This method is preferred over Euler-Heun method.
+     * Bottom and top are relative to the current layer.
+     * They are used to compute interactions.
+     * @param time: current time of the simulation
+     * @param timeStep: integration time of the solver
+     * @param bottom: bottom layer to the current layer
+     * @param top: top layer to the current layer
+     */
     void heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
         // we compute the two below in stochastic part, not non stochastic.
         this->nonStochasticTempSet = false;
@@ -947,8 +1021,9 @@ public:
     Junction() {}
 
     /**
-     * Create a plain junction.
+     * @brief Create a plain junction.
      * No magnetoresistance is calculated.
+     * @param layersToSet: layers that compose the junction
      */
     explicit Junction(const std::vector<Layer<T>>& layersToSet)
     {
@@ -961,7 +1036,7 @@ public:
         }
         // this->fileSave = std::move(filename);
     }
-    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap) : Junction(
+    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap): Junction(
         layersToSet)
     {
         if (this->layerNo == 1)
@@ -1004,7 +1079,7 @@ public:
         std::vector<T> AMR_Y,
         std::vector<T> SMR_X,
         std::vector<T> SMR_Y,
-        std::vector<T> AHE) : Rx0(std::move(Rx0)),
+        std::vector<T> AHE): Rx0(std::move(Rx0)),
         Ry0(std::move(Ry0)),
         AMR_X(std::move(AMR_X)),
         AMR_Y(std::move(AMR_Y)),
@@ -1304,6 +1379,13 @@ public:
         throw std::runtime_error("Failed to find a layer with a given id!");
     }
 
+    /**
+     * @brief Log computed layer parameters.
+     * This function logs all the necessayr parameters of the layers.
+     * @param t: current time
+     * @param timeStep: timeStep of the simulation (unsued for now)
+     * @param calculateEnergies: if true, also include fields for energy computation.
+     */
     void logLayerParams(T& t, T timeStep, bool calculateEnergies = false)
     {
         for (const auto& layer : this->layers)
