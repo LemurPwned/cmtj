@@ -21,7 +21,10 @@ on:
         type: boolean
         required: true
         default: true
-      
+      audit:
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   linux-build:
@@ -39,6 +42,7 @@ jobs:
         with:
           python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
       - name: audit wheel
+        if:  ${{ !inputs.audit }} 
         run: |
           pip install auditwheel
           auditwheel repair dist/*
