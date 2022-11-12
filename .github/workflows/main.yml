@@ -21,7 +21,6 @@ on:
         type: boolean
         required: true
         default: true
-      
 
 jobs:
   linux-build:
@@ -42,7 +41,7 @@ jobs:
         if:  ${{ !inputs.dry-run }} 
         run: |
           pip install twine
-          twine upload dist/*
+          twine upload dist/*-manylinux*.whl
         continue-on-error: false
     
   other-os-build:
