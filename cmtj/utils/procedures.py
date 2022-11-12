@@ -1,7 +1,6 @@
 import math
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import partial
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -10,9 +9,7 @@ from tqdm import tqdm
 
 from cmtj import AxialDriver, Axis, Junction, NullDriver, ScalarDriver
 
-from . import (calculate_magnetoresistance, calculate_resistance_series,
-               compute_sd)
-from .parallel import distribute
+from .resistance import calculate_resistance_series, compute_sd
 
 
 @dataclass
