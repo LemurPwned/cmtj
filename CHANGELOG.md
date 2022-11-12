@@ -3,6 +3,8 @@
 ## [Unreleased yet]
 
 - Adding SB model as an alternative mode of calculation.
+- Moving resistance functions from `utils` to `resistance`
+- Introducting docs updates for tutorial notebook (dark/light toggle works now).
 
 ## 1.2.0
 

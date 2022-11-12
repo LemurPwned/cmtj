@@ -101,24 +101,24 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
 
     const std::vector<std::vector<DVector>>
         coordinateMatrix = {
-                            // {
-                            //     DVector(0, 5 * gap, 0),
-                            //     DVector(gap, 5 * gap, 0.),
-                            // },
+                            {
+                                DVector(0, 5 * gap, 0),
+                                DVector(gap, 5 * gap, 0.),
+                            },
 
-                            // {
-                            //     DVector(0, 4 * gap, 0),
-                            //     DVector(gap, 4 * gap, 0.),
-                            // },
-                            // {
-                            //     DVector(0, 3 * gap, 0),
-                            //     DVector(gap, 3 * gap, 0.),
-                            // },
+                            {
+                                DVector(0, 4 * gap, 0),
+                                DVector(gap, 4 * gap, 0.),
+                            },
+                            {
+                                DVector(0, 3 * gap, 0),
+                                DVector(gap, 3 * gap, 0.),
+                            },
 
-                            // {
-                            //     DVector(0, 2 * gap, 0),
-                            //     DVector(gap, 2 * gap, 0.),
-                            // },
+                            {
+                                DVector(0, 2 * gap, 0),
+                                DVector(gap, 2 * gap, 0.),
+                            },
 
                              {
                                 DVector(0, gap, 0),
@@ -130,7 +130,7 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
                             } };
     // print coordinate matrix
     std::cout << "Coordinate matrix" << std::endl;
-    for (auto& row : coordinateMatrix)
+    for (const auto& row : coordinateMatrix)
     {
         for (auto& col : row)
         {
@@ -151,8 +151,8 @@ TEST(RESERVOIR_TEST, BasicReservoirSim)
         Ku0);
     l1.setAnisotropyDriver(anisDriver);
     const std::vector<std::vector<Layer<double>>> layerMatrix = {
-        {l1, l1}, {l1, l1}};
-        //  {l1, l1} , {l1, l1} , {l1, l1}, {l1, l1} };
+        // {l1, l1}, {l1, l1} };
+     {l1, l1} , {l1, l1} , {l1, l1}, {l1, l1} };
 
     auto reservoir = Reservoir(coordinateMatrix, layerMatrix);
     const int k = trainingSignal.size();
