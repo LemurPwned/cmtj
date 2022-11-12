@@ -41,16 +41,11 @@ jobs:
         uses: RalfG/python-wheels-manylinux-build@v0.5.0
         with:
           python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
-      - name: audit wheel
-        if:  ${{ !inputs.audit }} 
-        run: |
-          pip install auditwheel
-          auditwheel repair dist/*
       - name: upload wheel
         if:  ${{ !inputs.dry-run }} 
         run: |
           pip install twine
-          twine upload wheelhouse/*
+          twine upload dist/*-manylinux*.whl
         continue-on-error: false
     
   other-os-build:
