@@ -43,8 +43,11 @@ theme:
 plugins:
   - search
   - mkdocstrings:
-      selection:
-        docstring_style: "restructured-text"
+      handlers:
+        python:
+          selection:
+            docstring_style: sphinx
+
   - mkdocs-jupyter:
       include_source: True
   - git-revision-date:
