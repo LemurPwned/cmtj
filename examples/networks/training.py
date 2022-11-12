@@ -6,61 +6,68 @@ import torch
 import torch.multiprocessing
 import torch.nn as nn
 import ujson as json
+import wandb
 from torch.utils.data import DataLoader, Dataset, random_split
-from torchvision import transforms
 
-torch.multiprocessing.set_sharing_strategy('file_system')
-
+BATCH_SIZE = 128
+dr = Path('data')
 KEYS = {
     'Ms1': {
         "min": 0.9,
-        "max": 1.1
+        "max": 1.1,
+        "scale": 1.0,
     },
     'Ms2': {
         "min": 1.55,
-        "max": 1.77
+        "max": 1.77,
+        "scale": 1
     },
     'Ku': {
         "min": 0.6e3,
-        "max": 1e3
+        "max": 1e3,
+        "scale": 1e-3
     },
     'J': {
         'min': -1e-3,
-        'max': 1e3
+        'max': 1e-3,
+        'scale': 1e3
     }
 }
-BATCH_SIZE = 128
-dr = Path('data')
 
 
 class PhysicsDataset(Dataset):
-    def __init__(self, data_dir, transform=None):
+    def __init__(self, data_dir, keys, transform=None):
         super().__init__()
         self.data_dir = data_dir
         self.transform = transform
         self.gt_spectra = list(self.data_dir.glob("*.npz"))
         self.gt_parameters = json.load(
             open(self.data_dir / "all_params.json", 'r'))
+        self.KEYS = keys
 
     def __len__(self):
         return len(self.gt_spectra)
 
     def __getitem__(self, index):
-        data = np.load(self.gt_spectra[index])['spectrum']
+        with np.load(self.gt_spectra[index]) as data:
+            pdata = data['spectrum']
         # normalize data
-        data = (data - data.min()) / (data.max() - data.min())
-        data = torch.from_numpy(data).float()
+        pdata = (pdata - pdata.min()) / (pdata.max() - pdata.min())
+        # pdata = torch.from_numpy(pdata).float()
         parameters = self.gt_parameters[self.gt_spectra[index].name.replace(
             ".npz", "")]
         if self.transform:
-            data = self.transform(data)
+            pdata = self.transform(pdata)
 
         # create output tensor with normalised weights
-        gt_tensor = torch.from_numpy(
-            np.asarray([(parameters[k] - KEYS[k]['min']) /
-                        (KEYS[k]['max'] - KEYS[k]['min'])
-                        for k in KEYS])).float()
-        return {"spectrum": data, "gt_tensor": gt_tensor}
+        gt_tensor = np.asarray([(parameters[k] - self.KEYS[k]['min']) /
+                                (self.KEYS[k]['max'] - self.KEYS[k]['min'])
+                                for k in self.KEYS])
+        return {
+            "spectrum": pdata,
+            "gt_tensor": gt_tensor,
+            "filename": self.gt_spectra[index].name
+        }
 
 
 class PhysicsModel(pl.LightningModule):
@@ -135,15 +142,15 @@ class PhysicsModel(pl.LightningModule):
         # return out
 
     def training_step(self, batch, batch_idx):
-        x = batch['spectrum']
-        y = batch['gt_tensor']
+        x = batch['spectrum'].float()
+        y = batch['gt_tensor'].float()
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y)
         return {'loss': loss}
 
     def validation_step(self, batch, batch_idx):
-        x = batch['spectrum']
-        y = batch['gt_tensor']
+        x = batch['spectrum'].float()
+        y = batch['gt_tensor'].float()
         y_hat = self.forward(x)
         loss = self.loss(y_hat, y)
         self.log("val_loss", loss, prog_bar=True)
@@ -160,18 +167,22 @@ class PhysicsModel(pl.LightningModule):
 
 
 if __name__ == "__main__":
+    # setup wandb logger
+    sharing_strategy = "file_system"
+    torch.multiprocessing.set_sharing_strategy(sharing_strategy)
+    wandb.init(project="PIMM-NetDetection")
 
     pl.seed_everything(42)
-    # transform = transforms.Compose([transforms.Resize(128)])
     transform = None
-    dataset = PhysicsDataset(dr, transform=transform)
+    dataset = PhysicsDataset(dr, transform=transform, keys=KEYS)
     train_set, val_set = random_split(
         dataset=dataset,
         lengths=[0.8, 0.2],
         generator=torch.Generator().manual_seed(42))
+
     train_dataloader = DataLoader(train_set,
                                   batch_size=BATCH_SIZE,
-                                  num_workers=8,
+                                  num_workers=0,
                                   shuffle=True)
     val_dataloader = DataLoader(val_set,
                                 batch_size=BATCH_SIZE,
@@ -189,6 +200,11 @@ if __name__ == "__main__":
             verbose=True,
             monitor='val_loss',
             mode='min',
+        ),
+        logger=pl.loggers.WandbLogger(
+            name='physics_model',
+            project='physics_model',
+            log_model=True,
         ),
         callbacks=[
             pl.callbacks.EarlyStopping(
