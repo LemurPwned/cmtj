@@ -72,6 +72,7 @@ jobs:
         continue-on-error: false
         
   release-build:
+    if:  ${{ !inputs.dry-run }} 
     needs: [ linux-build, other-os-build ]
     runs-on: ubuntu-latest
     steps:
