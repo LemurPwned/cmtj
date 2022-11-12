@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.2">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.1.2">
     
     
       
@@ -162,7 +162,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/LemurPwned/cmtj/" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
@@ -206,7 +206,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/LemurPwned/cmtj/" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
@@ -716,11 +716,11 @@
 
 <div class="doc doc-object doc-module">
 
+
 <a id="cmtj.utils.procedures"></a>
-    <div class="doc doc-contents first">
+  <div class="doc doc-contents first">
 
-
-
+  
 
   <div class="doc doc-children">
 
@@ -730,28 +730,42 @@
 
 
 
-  <div class="doc doc-object doc-class">
+
+<div class="doc doc-object doc-class">
 
 
 
 <h2 id="cmtj.utils.procedures.ResistanceParameters" class="doc doc-heading">
-        <code>
-ResistanceParameters        </code>
+        <code>ResistanceParameters</code>
 
-
-  <span class="doc doc-properties">
-      <small class="doc doc-property doc-property-dataclass"><code>dataclass</code></small>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
   </span>
 
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+
+  
       <p>A data holder for resistance parameters. Not all have to be filled</p>
 
+
         <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/procedures.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+          <summary>Source code in <code>cmtj/utils/procedures.py</code></summary>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">ResistanceParameters</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;A data holder for resistance parameters. Not all have to be filled&quot;&quot;&quot;</span>
     <span class="n">Rxx0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
@@ -764,9 +778,10 @@ ResistanceParameters        </code>
     <span class="n">w</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># width</span>
     <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># length</span>
 </code></pre></div>
+</td></tr></table>
         </details>
 
-
+  
 
   <div class="doc doc-children">
 
@@ -780,132 +795,267 @@ ResistanceParameters        </code>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+  </div>
 
   </div>
 
-    </div>
-
-  </div>
+</div>
 
 
-
-
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.procedures.PIMM_procedure" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">PIMM_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">,</span> <span class="n">Hoe_direction</span><span class="o">=&lt;</span><span class="n">Axis</span><span class="o">.</span><span class="n">zaxis</span><span class="p">:</span> <span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">Hoe_duration</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">=</span><span class="mf">5e-09</span><span class="p">,</span> <span class="n">max_frequency</span><span class="o">=</span><span class="mf">80000000000.0</span><span class="p">,</span> <span class="n">output_full_trajectories</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
-
+<code class="highlight language-python"><span class="n">PIMM_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">,</span> <span class="n">Hoe_direction</span><span class="o">=</span><span class="n">Axis</span><span class="o">.</span><span class="n">zaxis</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">Hoe_duration</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">=</span><span class="mf">5e-09</span><span class="p">,</span> <span class="n">max_frequency</span><span class="o">=</span><span class="mf">80000000000.0</span><span class="p">,</span> <span class="n">output_full_trajectories</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Procedure for computing Pulse Induced Microwave Magnetometry</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>junction</code></td>
-        <td><code>Junction</code></td>
-        <td><p>junction to be simulated.</p></td>
-        <td><em>required</em></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>junction</code></td>
+          <td>
+                <code><span title="cmtj.Junction">Junction</span></code>
+          </td>
+          <td><p>junction to be simulated.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hvecs</code></td>
+          <td>
+                <code><span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span></code>
+          </td>
+          <td><p>list of cartesian vectors. (use FieldScan.amplitude_scan or alike)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>int_step</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>integration step [s].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>resistance_params</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[<a title="cmtj.utils.procedures.ResistanceParameters" href="#cmtj.utils.procedures.ResistanceParameters">ResistanceParameters</a>]</code>
+          </td>
+          <td><p>list of resistance parameters.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hoe_direction</code></td>
+          <td>
+                <code><span title="cmtj.Axis">Axis</span></code>
+          </td>
+          <td><p>direction of oersted field (x, y or z).</p></td>
+          <td>
+                <code>Axis.zaxis</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>simulation_duration</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>duration of simulation [s].</p></td>
+          <td>
+                <code>5e-09</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hoe_excitation</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>excitation amplitude of Hoe [A/m].</p></td>
+          <td>
+                <code>50</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hoe_duration</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>duration of Hoe excitation in multiples of in step</p></td>
+          <td>
+                <code>3</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_frequency</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>maximum frequency -- larger will be dropped [Hz].</p></td>
+          <td>
+                <code>80000000000.0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>output_full_trajectories</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>if True, return the full trajectories of the magnets.</p></td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>Hvecs</code></td>
-        <td><code>ndarray</code></td>
-        <td><p>list of cartesian vectors. (use FieldScan.amplitude_scan or alike)</p></td>
-        <td><em>required</em></td>
+        <th>Type</th>
+        <th>Description</th>
       </tr>
-      <tr>
-        <td><code>int_step</code></td>
-        <td><code>float</code></td>
-        <td><p>integration step [s].</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>resistance_params</code></td>
-        <td><code>List[cmtj.utils.procedures.ResistanceParameters]</code></td>
-        <td><p>list of resistance parameters.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>Hoe_direction</code></td>
-        <td><code>Axis</code></td>
-        <td><p>direction of oersted field (x, y or z).</p></td>
-        <td><code>&lt;Axis.zaxis: 2&gt;</code></td>
-      </tr>
-      <tr>
-        <td><code>simulation_duration</code></td>
-        <td><code>float</code></td>
-        <td><p>duration of simulation [s].</p></td>
-        <td><code>5e-09</code></td>
-      </tr>
-      <tr>
-        <td><code>Hoe_excitation</code></td>
-        <td><code>float</code></td>
-        <td><p>excitation amplitude of Hoe [A/m].</p></td>
-        <td><code>50</code></td>
-      </tr>
-      <tr>
-        <td><code>Hoe_duration</code></td>
-        <td><code>int</code></td>
-        <td><p>duration of Hoe excitation in multiples of in step</p></td>
-        <td><code>3</code></td>
-      </tr>
-      <tr>
-        <td><code>max_frequency</code></td>
-        <td><code>float</code></td>
-        <td><p>maximum frequency -- larger will be dropped [Hz].</p></td>
-        <td><code>80000000000.0</code></td>
-      </tr>
-      <tr>
-        <td><code>output_full_trajectories</code></td>
-        <td><code>bool</code></td>
-        <td><p>if True, return the full trajectories of the magnets.</p></td>
-        <td><code>False</code></td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>Tuple[numpy.ndarray, numpy.ndarray, Dict[str, Any]]</code></td>
-      <td><p>(spectrum, frequencies, other_data) other_data is a dictionary with the following keys: - 'H': Hext field [A/m] - 'Rx': resistance in x direction [Ohm] - 'Ry': resistance in y direction [Ohm] - 'm_avg': average magnetization [unit] - 'm_traj': magnetization trajectories [unit]</p></td>
-    </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/procedures.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">PIMM_procedure</span><span class="p">(</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.Tuple">Tuple</span>[<span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span>, <span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span>, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+          </td>
+          <td><p>(spectrum, frequencies, other_data) other_data is a dictionary with the following keys: - 'H': Hext field [A/m] - 'Rx': resistance in x direction [Ohm] - 'Ry': resistance in y direction [Ohm] - 'm_avg': average magnetization [unit] - 'm_traj': magnetization trajectories [unit]</p></td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/procedures.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">PIMM_procedure</span><span class="p">(</span>
     <span class="n">junction</span><span class="p">:</span> <span class="s1">&#39;Junction&#39;</span><span class="p">,</span>
     <span class="n">Hvecs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1012,97 +1162,212 @@ ResistanceParameters        </code>
     <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">spectrum</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">freqs</span><span class="p">,</span> <span class="n">output</span>
 </code></pre></div>
-        </details>
-    </div>
-
+</td></tr></table>
+      </details>
   </div>
 
+</div>
 
-
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.procedures.VSD_procedure" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">,</span> <span class="n">Hoe_direction</span><span class="o">=&lt;</span><span class="n">Axis</span><span class="o">.</span><span class="n">yaxis</span><span class="p">:</span> <span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">=</span><span class="mf">3e-08</span><span class="p">,</span> <span class="n">Rtype</span><span class="o">=</span><span class="s1">&#39;Rz&#39;</span><span class="p">)</span></code>
-
+<code class="highlight language-python"><span class="n">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">,</span> <span class="n">Hoe_direction</span><span class="o">=</span><span class="n">Axis</span><span class="o">.</span><span class="n">yaxis</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">=</span><span class="mf">3e-08</span><span class="p">,</span> <span class="n">Rtype</span><span class="o">=</span><span class="s1">&#39;Rz&#39;</span><span class="p">)</span></code>
 
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Procedure for computing Voltage-Spin Diode</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>junction</code></td>
-        <td><code>Junction</code></td>
-        <td><p>junction to be simulated.</p></td>
-        <td><em>required</em></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
-      <tr>
-        <td><code>Hvecs</code></td>
-        <td><code>ndarray</code></td>
-        <td><p>list of cartesian vectors. (use FieldScan.amplitude_scan or alike)</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>frequencies</code></td>
-        <td><code>ndarray</code></td>
-        <td><p>list of frequencies [Hz].</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>int_step</code></td>
-        <td><code>float</code></td>
-        <td><p>integration step [s].</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>resistance_params</code></td>
-        <td></td>
-        <td><p>list of resistance parameters.</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>Hoe_direction</code></td>
-        <td><code>Axis</code></td>
-        <td><p>direction of oersted field (x, y or z).</p></td>
-        <td><code>&lt;Axis.yaxis: 1&gt;</code></td>
-      </tr>
-      <tr>
-        <td><code>Hoe_excitation</code></td>
-        <td><code>float</code></td>
-        <td><p>excitation amplitude of Hoe [A/m].</p></td>
-        <td><code>50</code></td>
-      </tr>
-      <tr>
-        <td><code>simulation_duration</code></td>
-        <td><code>float</code></td>
-        <td><p>duration of simulation [s].</p></td>
-        <td><code>3e-08</code></td>
-      </tr>
-      <tr>
-        <td><code>Rtype</code></td>
-        <td><code>str</code></td>
-        <td><p>type of resistance to be used. (Rx Ry or Rz)</p></td>
-        <td><code>&#39;Rz&#39;</code></td>
-      </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/procedures.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>junction</code></td>
+          <td>
+                <code><span title="cmtj.Junction">Junction</span></code>
+          </td>
+          <td><p>junction to be simulated.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hvecs</code></td>
+          <td>
+                <code><span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span></code>
+          </td>
+          <td><p>list of cartesian vectors. (use FieldScan.amplitude_scan or alike)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>frequencies</code></td>
+          <td>
+                <code><span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span></code>
+          </td>
+          <td><p>list of frequencies [Hz].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>int_step</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>integration step [s].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>resistance_params</code></td>
+          <td>
+          </td>
+          <td><p>list of resistance parameters.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hoe_direction</code></td>
+          <td>
+                <code><span title="cmtj.Axis">Axis</span></code>
+          </td>
+          <td><p>direction of oersted field (x, y or z).</p></td>
+          <td>
+                <code>Axis.yaxis</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hoe_excitation</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>excitation amplitude of Hoe [A/m].</p></td>
+          <td>
+                <code>50</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>simulation_duration</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>duration of simulation [s].</p></td>
+          <td>
+                <code>3e-08</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Rtype</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>type of resistance to be used. (Rx Ry or Rz)</p></td>
+          <td>
+                <code>&#39;Rz&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/procedures.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span>
                   <span class="n">Hvecs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                   <span class="n">frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                   <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1184,21 +1449,19 @@ ResistanceParameters        </code>
             <span class="n">spectrum</span><span class="p">[</span><span class="n">hindx</span><span class="p">,</span> <span class="n">findx</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulate_VSD</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">spectrum</span>
 </code></pre></div>
-        </details>
-    </div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+
 
   </div>
 
-
-
-
-
-
   </div>
 
-    </div>
-
-  </div>
+</div>
 
               
             </article>
@@ -1264,7 +1527,7 @@ ResistanceParameters        </code>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.0bbba5b5.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.0bbba5b5.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.649a939e.min.js"></script>

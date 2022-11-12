@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.2">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.1.2">
     
     
       
@@ -162,7 +162,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/LemurPwned/cmtj/" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
@@ -206,7 +206,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/LemurPwned/cmtj/" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
@@ -744,11 +744,11 @@
 
 <div class="doc doc-object doc-module">
 
+
 <a id="cmtj.utils.plotting"></a>
-    <div class="doc doc-contents first">
+  <div class="doc doc-contents first">
 
-
-
+  
 
   <div class="doc doc-children">
 
@@ -759,68 +759,176 @@
 
 
 
-  <div class="doc doc-object doc-function">
+
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.plotting.create_coordinates_plot" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">create_coordinates_plot</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">ax_names</span><span class="p">,</span> <span class="n">result_map</span><span class="p">,</span> <span class="n">sample</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha_black</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span></code>
 
-
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Create parallel coordinates plot for multidimensional parameter space.
 Modified from:
 https://stackoverflow.com/questions/8230638/parallel-coordinates-plot-in-matplotlib</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>axes</code></td>
-        <td></td>
-        <td><p>N list of parameters</p></td>
-        <td><em>required</em></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
-      <tr>
-        <td><code>ax_names</code></td>
-        <td></td>
-        <td><p>N list of parameter names</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>result_map</code></td>
-        <td></td>
-        <td><p>map of values (N-dim)</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>sample</code></td>
-        <td></td>
-        <td><p>if != 0, subsample the parameter space</p></td>
-        <td><code>0</code></td>
-      </tr>
-      <tr>
-        <td><code>alpha_black</code></td>
-        <td></td>
-        <td><p>alpha value zero value</p></td>
-        <td><code>0.01</code></td>
-      </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/plotting.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_coordinates_plot</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>axes</code></td>
+          <td>
+          </td>
+          <td><p>N list of parameters</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>ax_names</code></td>
+          <td>
+          </td>
+          <td><p>N list of parameter names</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>result_map</code></td>
+          <td>
+          </td>
+          <td><p>map of values (N-dim)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sample</code></td>
+          <td>
+          </td>
+          <td><p>if != 0, subsample the parameter space</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>alpha_black</code></td>
+          <td>
+          </td>
+          <td><p>alpha value zero value</p></td>
+          <td>
+                <code>0.01</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_coordinates_plot</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span>
                             <span class="n">ax_names</span><span class="p">,</span>
                             <span class="n">result_map</span><span class="p">,</span>
                             <span class="n">sample</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -913,122 +1021,232 @@ https://stackoverflow.com/questions/8230638/parallel-coordinates-plot-in-matplot
             <span class="n">host</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </code></pre></div>
-        </details>
-    </div>
-
+</td></tr></table>
+      </details>
   </div>
 
+</div>
 
-
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.plotting.create_stack" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">heights</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">labelpad_left</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">offset_x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset_y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lw_arrow</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">text_fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">reversed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
-
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Create a material stack plot.
 If a given layer is to have no arrow, pass None.</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>ax</code></td>
-        <td></td>
-        <td><p>matplotlib axis</p></td>
-        <td><em>required</em></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
-      <tr>
-        <td><code>colors</code></td>
-        <td></td>
-        <td><p>list of colors</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>heights</code></td>
-        <td></td>
-        <td><p>list of heights</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>angles</code></td>
-        <td></td>
-        <td><p>list of angles</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>labels</code></td>
-        <td></td>
-        <td><p>list of labels</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>width</code></td>
-        <td></td>
-        <td><p>width of the bars</p></td>
-        <td><code>2</code></td>
-      </tr>
-      <tr>
-        <td><code>labelpad_left</code></td>
-        <td></td>
-        <td><p>padding of the labels</p></td>
-        <td><code>0.2</code></td>
-      </tr>
-      <tr>
-        <td><code>offset_x</code></td>
-        <td></td>
-        <td><p>offset of the patches in x direction</p></td>
-        <td><code>0</code></td>
-      </tr>
-      <tr>
-        <td><code>offset_y</code></td>
-        <td></td>
-        <td><p>offset of the patches in y direction</p></td>
-        <td><code>0</code></td>
-      </tr>
-      <tr>
-        <td><code>lw_arrow</code></td>
-        <td></td>
-        <td><p>linewidth of the arrows</p></td>
-        <td><code>1.5</code></td>
-      </tr>
-      <tr>
-        <td><code>ms</code></td>
-        <td></td>
-        <td><p>mutation size of the arrows</p></td>
-        <td><code>10</code></td>
-      </tr>
-      <tr>
-        <td><code>r</code></td>
-        <td></td>
-        <td><p>length of the arrows</p></td>
-        <td><code>0.6</code></td>
-      </tr>
-      <tr>
-        <td><code>reversed</code></td>
-        <td></td>
-        <td><p>if True, the stack is reversed</p></td>
-        <td><code>True</code></td>
-      </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/plotting.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ax</code></td>
+          <td>
+          </td>
+          <td><p>matplotlib axis</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>colors</code></td>
+          <td>
+          </td>
+          <td><p>list of colors</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>heights</code></td>
+          <td>
+          </td>
+          <td><p>list of heights</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>angles</code></td>
+          <td>
+          </td>
+          <td><p>list of angles</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>labels</code></td>
+          <td>
+          </td>
+          <td><p>list of labels</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>width</code></td>
+          <td>
+          </td>
+          <td><p>width of the bars</p></td>
+          <td>
+                <code>2</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>labelpad_left</code></td>
+          <td>
+          </td>
+          <td><p>padding of the labels</p></td>
+          <td>
+                <code>0.2</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>offset_x</code></td>
+          <td>
+          </td>
+          <td><p>offset of the patches in x direction</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>offset_y</code></td>
+          <td>
+          </td>
+          <td><p>offset of the patches in y direction</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>lw_arrow</code></td>
+          <td>
+          </td>
+          <td><p>linewidth of the arrows</p></td>
+          <td>
+                <code>1.5</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>ms</code></td>
+          <td>
+          </td>
+          <td><p>mutation size of the arrows</p></td>
+          <td>
+                <code>10</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>r</code></td>
+          <td>
+          </td>
+          <td><p>length of the arrows</p></td>
+          <td>
+                <code>0.6</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>reversed</code></td>
+          <td>
+          </td>
+          <td><p>if True, the stack is reversed</p></td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
                  <span class="n">colors</span><span class="p">,</span>
                  <span class="n">heights</span><span class="p">,</span>
                  <span class="n">angles</span><span class="p">,</span>
@@ -1101,81 +1319,138 @@ If a given layer is to have no arrow, pass None.</p>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ax</span>
 </code></pre></div>
-        </details>
-    </div>
-
+</td></tr></table>
+      </details>
   </div>
 
+</div>
 
-
-
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.plotting.plot_coloured_trajectory" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">plot_coloured_trajectory</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Plot a coloured trajectory in 3D. Normalises to unit sphere.
 Colour of the trajectory now designates the flow of time.</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>ax</code></td>
-        <td></td>
-        <td><p>matplotlib axis</p></td>
-        <td><code>None</code></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
-      <tr>
-        <td><code>x</code></td>
-        <td></td>
-        <td><p>x-coordinates</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>y</code></td>
-        <td></td>
-        <td><p>y-coordinates</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>z</code></td>
-        <td></td>
-        <td><p>z-coordinates</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>colormap</code></td>
-        <td></td>
-        <td><p>colormap to use</p></td>
-        <td><code>&#39;plasma&#39;</code></td>
-      </tr>
-      <tr>
-        <td><code>alpha</code></td>
-        <td></td>
-        <td><p>alpha value of the trajectory</p></td>
-        <td><em>required</em></td>
-      </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/plotting.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">plot_coloured_trajectory</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ax</code></td>
+          <td>
+          </td>
+          <td><p>matplotlib axis</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>x</code></td>
+          <td>
+          </td>
+          <td><p>x-coordinates</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>
+          </td>
+          <td><p>y-coordinates</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>z</code></td>
+          <td>
+          </td>
+          <td><p>z-coordinates</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>colormap</code></td>
+          <td>
+          </td>
+          <td><p>colormap to use</p></td>
+          <td>
+                <code>&#39;plasma&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>alpha</code></td>
+          <td>
+          </td>
+          <td><p>alpha value of the trajectory</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">plot_coloured_trajectory</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Plot a coloured trajectory in 3D. Normalises to unit sphere.</span>
 <span class="sd">    Colour of the trajectory now designates the flow of time.</span>
 <span class="sd">    :param ax: matplotlib axis</span>
@@ -1217,79 +1492,137 @@ Colour of the trajectory now designates the flow of time.</p>
                         <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="n">Line3DCollection</span><span class="p">(</span><span class="n">segs</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 </code></pre></div>
-        </details>
-    </div>
-
+</td></tr></table>
+      </details>
   </div>
 
+</div>
 
-
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.plotting.plot_trajectory_sphere" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">plot_trajectory_sphere</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Plot a trajectory in 3D. Normalises to unit sphere</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>ax</code></td>
-        <td></td>
-        <td><p>matplotlib axis</p></td>
-        <td><code>None</code></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
-      <tr>
-        <td><code>x</code></td>
-        <td></td>
-        <td><p>x-coordinates</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>y</code></td>
-        <td></td>
-        <td><p>y-coordinates</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>z</code></td>
-        <td></td>
-        <td><p>z-coordinates</p></td>
-        <td><em>required</em></td>
-      </tr>
-      <tr>
-        <td><code>color</code></td>
-        <td></td>
-        <td><p>color of the trajectory</p></td>
-        <td><code>&#39;blue&#39;</code></td>
-      </tr>
-      <tr>
-        <td><code>alpha</code></td>
-        <td></td>
-        <td><p>alpha value of the trajectory</p></td>
-        <td><code>1</code></td>
-      </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/plotting.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">plot_trajectory_sphere</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ax</code></td>
+          <td>
+          </td>
+          <td><p>matplotlib axis</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>x</code></td>
+          <td>
+          </td>
+          <td><p>x-coordinates</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>
+          </td>
+          <td><p>y-coordinates</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>z</code></td>
+          <td>
+          </td>
+          <td><p>z-coordinates</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>color</code></td>
+          <td>
+          </td>
+          <td><p>color of the trajectory</p></td>
+          <td>
+                <code>&#39;blue&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>alpha</code></td>
+          <td>
+          </td>
+          <td><p>alpha value of the trajectory</p></td>
+          <td>
+                <code>1</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">plot_trajectory_sphere</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Plot a trajectory in 3D. Normalises to unit sphere</span>
 <span class="sd">    :param ax: matplotlib axis</span>
 <span class="sd">    :param x: x-coordinates</span>
@@ -1331,56 +1664,78 @@ Colour of the trajectory now designates the flow of time.</p>
                         <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;crimson&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </code></pre></div>
-        </details>
-    </div>
-
+</td></tr></table>
+      </details>
   </div>
 
+</div>
 
-
-
-  <div class="doc doc-object doc-function">
+<div class="doc doc-object doc-function">
 
 
 
 <h2 id="cmtj.utils.plotting.unpack_ndim_map" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">unpack_ndim_map</span><span class="p">(</span><span class="nb">map</span><span class="p">,</span> <span class="n">axes</span><span class="p">)</span></code>
 
-
 </h2>
 
-    <div class="doc doc-contents ">
 
+  <div class="doc doc-contents ">
+  
       <p>Unpack N-dimensional map into a list of 1-dimensional arrays</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
       <tr>
-        <td><code>map</code></td>
-        <td></td>
-        <td><p>N-dimensional map, each axis is separate parameter space.</p></td>
-        <td><em>required</em></td>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
       </tr>
-      <tr>
-        <td><code>axes</code></td>
-        <td></td>
-        <td><p>list of axes to unpack.</p></td>
-        <td><em>required</em></td>
-      </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>cmtj/cmtj/utils/plotting.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">unpack_ndim_map</span><span class="p">(</span><span class="nb">map</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>map</code></td>
+          <td>
+          </td>
+          <td><p>N-dimensional map, each axis is separate parameter space.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>axes</code></td>
+          <td>
+          </td>
+          <td><p>list of axes to unpack.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">unpack_ndim_map</span><span class="p">(</span><span class="nb">map</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unpack N-dimensional map into a list of 1-dimensional arrays</span>
 <span class="sd">    :param map: N-dimensional map, each axis is separate parameter space.</span>
@@ -1399,21 +1754,19 @@ Colour of the trajectory now designates the flow of time.</p>
 
     <span class="k">return</span> <span class="n">ax_lists</span><span class="p">,</span> <span class="n">value_list</span>
 </code></pre></div>
-        </details>
-    </div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+
 
   </div>
 
-
-
-
-
-
   </div>
 
-    </div>
-
-  </div>
+</div>
 
               
             </article>
@@ -1479,7 +1832,7 @@ Colour of the trajectory now designates the flow of time.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.0bbba5b5.min.js"}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.0bbba5b5.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.649a939e.min.js"></script>
