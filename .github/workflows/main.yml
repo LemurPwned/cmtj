@@ -9,10 +9,23 @@ on:
     inputs:
       release-version:
         required: true
-        
+      dry-run: 
+        required: true
+        default: true
+        type: boolean
+      linux:
+        type: boolean
+        required: true
+        default: true
+      other-os:
+        type: boolean
+        required: true
+        default: true
+      
 
 jobs:
   linux-build:
+    if: ${{ inputs.linux }} 
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
@@ -21,12 +34,19 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - name: Install required deps
-        run: apt-get install libffi-dev
-      - name: Linuxuild
-        uses: Niraj-Kamdar/manylinux-wheel-builder@v1
-
+      - name: Python wheels manylinux stable build
+        uses: RalfG/python-wheels-manylinux-build@v0.5.0
+        with:
+          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
+      - name: upload wheel
+        if:  ${{ !inputs.dry-run }} 
+        run: |
+          pip install twine
+          twine upload dist/*
+        continue-on-error: false
+    
   other-os-build:
+    if: ${{ inputs.other-os }} 
     runs-on: ${{ matrix.os }}
     env:
       TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
@@ -46,6 +66,7 @@ jobs:
           pip install wheel
           python setup.py bdist_wheel
       - name: upload wheel
+        if:  ${{ !inputs.dry-run }} 
         run: |
           pip install twine
           twine upload dist/*
