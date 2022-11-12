@@ -5,7 +5,7 @@ import numpy as np
 from multiprocess import Pool
 from tqdm import tqdm
 
-__all__ = ["distribute", "create_coordinates_plot"]
+__all__ = ["distribute"]
 
 
 def distribute(simulation_fn: Callable,
