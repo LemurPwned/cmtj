@@ -1,19 +1,12 @@
 import math
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import List
 
 import numpy as np
 from tqdm import tqdm
 
-from ..utils import TtoAm
-"""
-3 gradients:
-dE/dtheta
-dE/dphi
-dE/dt => dE^2/dt^2
-dE^2/dtdf
-dE^2/df^2
-"""
+from ..utils import TtoAm, gyromagnetic_ratio, mu0
 
 
 @dataclass
@@ -22,12 +15,21 @@ class VectorObj:
     phi: float  # rad
     mag: float = 1
 
+    @lru_cache
+    def get_spherical(self):
+        return [
+            self.mag * math.sin(self.theta) * math.cos(self.phi),
+            self.mag * math.sin(self.theta) * math.sin(self.phi),
+            self.mag * math.cos(self.theta),
+        ]
+
 
 @dataclass
 class LayerSB:
     thickness: float
     m: VectorObj
-    K: VectorObj
+    Kv: VectorObj
+    Ks: float
     Ms: float
     energy: float = 0
 
@@ -47,129 +49,134 @@ class LayerSB:
     def cphi(self):
         return math.cos(self.m.phi)
 
-    def inplane_anisotropy(self):
-        return -self.K.mag * self.thickness * math.pow(
-            math.cos(self.m.theta - self.K.phi), 2) * math.pow(
-                math.sin(self.m.theta - self.K.phi), 2)
-
-    def grad_inplane_anisotropy(self):
-        dEdtheta = self.thickness * 2 * self.stheta * self.ctheta * (
-            -self.K.mag * math.pow(math.cos(self.m.phi - self.K.phi), 2) -
-            TtoAm * math.pow(self.Ms, 2) / 2)
-        dEdphi = self.thickness * math.pow(
-            self.stheta, 2) * self.K.mag * math.sin(2 *
-                                                    (self.m.phi - self.K.phi))
-
-        d2Edtheta2 = (-math.pow(math.cos(self.m.phi - self.K.phi), 2)) - (
-            (self.Ms**2) * TtoAm / 2)(
-                self.thickness * 2 * math.cos(2 * self.m.theta))
-        d2Edphi2 = (2 * self.K.mag * math.pow(self.stheta)) * math.cos(
-            2 * (self.m.phi - self.K.phi)) * self.thickness
-        d2Edphittheta = (self.K.mag * math.sin(2 * self.m.theta) *
-                         math.sin(2 *
-                                  (self.m.phi - self.K.phi))) * self.thickness
-        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphittheta]
-
-    def perpendicular_anisotropy(self):
-        return -self.K.mag * self.thickness * math.pow(self.ctheta, 2)
-
-    def grad_perpendicular_anisotropy(self):
-        dEdtheta = self.thickness * 2 * self.stheta * self.ctheta * (
-            self.K.mag - TtoAm * math.pow(self.Ms, 2) / 2)
-        d2Edtheta2 = (self.K.mag - (self.Ms**2) * TtoAm /
-                      2) * self.thickness * 2 * math.cos(2 * self.m.theta)
-        return [dEdtheta, 0, d2Edtheta2, 0, 0]
-
     def ext_field(self, Hinplane: VectorObj):
-        return -self.Ms * self.thickness * Hinplane.mag * (
-            self.stheta * math.sin(Hinplane.phi) * self.cphi +
-            self.ctheta * math.cos(Hinplane.phi))
+        hx, hy, hz = Hinplane.get_spherical()
+        return -self.Ms * (hx * self.stheta * self.cphi +
+                           hy * self.sphi * self.ctheta + hz * self.ctheta)
 
     def grad_ext_field(self, Hinplane: VectorObj):
-        pre = -Hinplane.mag * self.Ms * self.thickness
-        sH = math.sin(Hinplane.phi)
-        cH = math.cos(Hinplane.phi)
-        dEdtheta = pre * (self.ctheta * sH * self.cphi - self.stheta * cH)
-        dEdphi = pre * (self.stheta * sH * self.sphi)
+        hx, hy, hz = Hinplane.get_spherical()
+        dEdtheta = -self.Ms * (hx * self.cphi * self.ctheta +
+                               hy * self.sphi * self.ctheta - hz * self.stheta)
 
-        # second energy derivative wrt theta
-        d2Edtheta2 = pre * (self.stheta * math.phi(Hinplane.phi) * self.cphi +
-                            self.ctheta * math.cos(Hinplane.phi))
-        # derivative wrt phi
-        d2Edphi2 = pre * (self.stheta(math.sin(Hinplane.phi) * self.cphi))
-        # mixed derivative
-        d2Edphittheta = pre * (self.ctheta * math.sin(Hinplane.phi) *
-                               self.cphi)
+        dEdphi = -self.Ms * (-hx * self.sphi * self.stheta +
+                             hy * self.stheta * self.cphi)
 
-        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphittheta]
-
-    def demagnetisation(self):
-        return -TtoAm / 2 * self.Ms * self.Ms * self.thickness * (self.ctheta**
-                                                                  2)
-
-    def grad_demagnetisation(self):
-        pre = TtoAm * self.Ms * self.Ms * self.thickness
-        dEdtheta = pre * (2 * self.stheta * self.ctheta)
-        d2Edtheta2 = pre * (-2 * math.cos(2 * self.m.theta) * self.stheta +
-                            2 * math.sin(2 * self.m.theta) * self.ctheta)
-        return [dEdtheta, 0, d2Edtheta2, 0, 0]
-
-    def compute_energy(self, Hinplane: VectorObj):
-        energy = self.ext_field(
-            Hinplane=Hinplane) + self.perpendicular_anisotropy(
-            ) + self.inplane_anisotropy()
-        return energy
+        d2Edtheta2 = -self.Ms * (hx * self.stheta * self.cphi - hy *
+                                 self.sphi * self.stheta - hz * self.ctheta)
+        d2Edphi2 = -self.Ms * (-hx * self.stheta * self.cphi -
+                               hy * self.sphi * self.stheta)
+        d2Edphidtheta = self.Ms * (-hx * self.sphi * self.ctheta +
+                                   hy * self.cphi * self.ctheta)
+        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def iec_interaction(self, J, layer: "LayerSB"):
         """
         Energy is symmetric and computed only once
         """
-        return -J * (
-            self.stheta * layer.stheta * math.cos(self.m.phi - layer.m.phi) +
-            self.ctheta * layer.ctheta)
+        if layer is None:
+            return 0
+        [m1x, m1y, m1z] = self.m.get_spherical()
+        [m2x, m2y, m2z] = layer.m.get_spherical()
+        constJ = J / self.thickness
+        return -constJ * (m1x * m2x + m1y * m2y + m1z * m2z)
 
-    def grad_iec_interaction(self, J, top_layer: "LayerSB",
+    def grad_iec_interaction(self, J_top, J_bottom, top_layer: "LayerSB",
                              bottom_layer: "LayerSB"):
         """
         IEC gradient is not symmetric and is computed per layer
         Compute joint interaction on the layers from the top and bottom
         """
-        grad1 = self.__any_grad_iec_interaction(J, top_layer)
-        grad2 = self.__any_grad_iec_interaction(J, bottom_layer)
+        grad1 = self.__any_grad_iec_interaction(J_top, top_layer)
+        grad2 = self.__any_grad_iec_interaction(J_bottom, bottom_layer)
         return [
             grad1[0] + grad2[0], grad1[1] + grad2[1], grad1[2] + grad2[2],
             grad1[3] + grad2[3], grad1[4] + grad2[4]
         ]
 
-    def __any_grad_iec_interaction(self, J, any_layer: "LayerSB"):
+    def __any_grad_iec_interaction(self, J, layer: "LayerSB"):
         # from any of the layers
-        if any_layer is None:
+        if (layer is None) or J == 0:
             return [0, 0, 0, 0, 0]
-        dEdtheta = -J * (
-            self.ctheta * self.stheta * math.cos(self.m.phi - any_layer.m.phi)
-            - self.stheta * math.cos(self.m.theta - any_layer.m.theta))
-        dEdphi = -J * math.sin(
-            any_layer.m.theta) * self.stheta * math.sin(self.m.phi -
-                                                        any_layer.m.phi)
+        constJ = J / self.thickness
 
-        d2Edtheta2 = -J * (-self.stheta * any_layer.stheta *
-                           math.cos(self.m.phi - any_layer.m.phi) -
-                           self.ctheta * any_layer.ctheta)
-        d2Edphi2 = -J * (-self.stheta * any_layer.stheta *
-                         math.cos(self.m.phi - any_layer.m.phi))
-        d2Edfdt = -J * (-self.ctheta * any_layer.stheta *
-                        math.sin(self.m.phi - any_layer.m.phi))
-        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edfdt]
+        dEdtheta = -constJ * (self.sphi * math.sin(layer.m.phi) *
+                              math.sin(layer.m.theta) * self.stheta -
+                              self.stheta * math.cos(layer.m.theta) +
+                              math.sin(layer.m.theta) * self.cphi *
+                              math.cos(layer.m.phi) * self.ctheta)
 
-    def compute_grad_energy(self, Hinplance: VectorObj, Jbottom: float,
-                            Jtop: float, top_layer: "LayerSB",
+        dEdphi = -constJ * (-self.sphi * self.stheta * math.sin(
+            layer.m.theta) * math.cos(layer.m.phi) + math.sin(layer.m.phi) *
+                            self.stheta * math.sin(layer.m.theta) * self.cphi)
+
+        d2Edtheta2 = -constJ * (
+            -self.sphi * layer.sphi * self.stheta * layer.stheta -
+            self.stheta * layer.stheta * self.cphi * layer.cphi -
+            self.ctheta * layer.ctheta)
+
+        d2Edphi2 = -constJ * (
+            -self.sphi * layer.sphi * self.stheta * layer.stheta -
+            self.stheta * layer.stheta**self.cphi * layer.cphi)
+
+        d2Edphidtheta = -constJ * (
+            -self.sphi(layer.stheta * layer.cphi * self.ctheta +
+                       layer.sphi * layer.stheta * self.cphi * self.ctheta))
+
+        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
+
+    def surface_anisotropy(self):
+        return (-self.Ks + 0.5 * (self.Ms**2) / mu0) * self.ctheta
+
+    def grad_surface_anisotropy(self):
+        pref = (-self.Ks + 0.5 * (self.Ms**2) / mu0)
+        dEdtheta = -pref * self.stheta
+        dEdphi = 0
+        d2Edtheta2 = -pref * self.ctheta
+        d2Edphi2 = 0
+        d2Edphidtheta = 0
+        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
+
+    def volume_anisotropy(self):
+        ax = math.cos(self.Kv.phi)
+        ay = math.sin(self.Kv.phi)
+        mx, my, _ = self.m.get_cartesian()
+        return -self.Kv.mag * (mx * ax + my * ay)
+
+    def grad_volume_anisotropy(self):
+        ax = math.cos(self.Kv.phi)
+        ay = math.sin(self.Kv.phi)
+        Kv = self.Kv.mag
+        dEdtheta = -Kv * (self.cphi * self.ctheta * ax +
+                          self.sphi * self.ctheta * ay)
+        dEdphi = -Kv * (-self.sphi * self.stheta * ax +
+                        self.cphi * self.stheta * ay)
+        d2Edtheta2 = -Kv * (-self.cphi * self.stheta * ax -
+                            self.sphi * self.stheta * ay)
+
+        d2Edphi2 = -Kv * (-self.cphi * self.stheta * ax -
+                          self.sphi * self.stheta * ay)
+        d2Edphidtheta = -Kv * (-self.sphi * self.ctheta * ax +
+                               self.cphi * self.ctheta * ay)
+        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
+
+    def compute_grad_energy(self, Hinplane: VectorObj, Jtop: float,
+                            Jbottom: float, top_layer: "LayerSB",
                             bottom_layer: "LayerSB"):
-        g1 = self.grad_ext_field(Hinplance)
-        g2 = self.grad_perpendicular_anisotropy()
-        g3 = self.grad_inplane_anisotropy()
-        g4 = self.grad_demagnetisation()
-        g5 = self.grad_iec_interaction(Jbottom, Jtop, top_layer, bottom_layer)
-        return [g1[i] + g2[i] + g3[i] + g4[i] + g5[i] for i in range(5)]
+        g1 = self.grad_ext_field(Hinplane)
+        g2 = self.grad_surface_anisotropy()
+        g3 = self.grad_volume_anisotropy()
+        g4 = self.grad_iec_interaction(Jtop, Jbottom, top_layer, bottom_layer)
+        return [g1[i] + g2[i] + g3[i] + g4[i] for i in range(5)]
+
+    def compute_energy(self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
+                       top_layer: "LayerSB", bottom_layer: "LayerSB"):
+        e1 = self.ext_field(Hinplane)
+        e2 = self.surface_anisotropy()
+        e3 = self.volume_anisotropy()
+        e4 = self.iec_interaction(
+            Jbottom, bottom_layer) + self.iec_interaction(Jtop, top_layer)
+        return e1 + e2 + e3 + e4
 
     def get_current_position(self):
         return [self.m.theta, self.m.phi]
@@ -177,6 +184,21 @@ class LayerSB:
     def set_current_position(self, pos):
         self.m.theta = pos[0]
         self.m.phi = pos[1]
+
+    def compute_frequency_at_equilibrum(self, Hinplane: VectorObj, Jtop: float,
+                                        Jbottom: float, top_layer: "LayerSB",
+                                        bottom_layer: "LayerSB"):
+        (_, _, d2Edtheta2, d2Edphi2,
+         d2Edphidtheta) = self.compute_grad_energy(Hinplane, Jbottom, Jtop,
+                                                   top_layer, bottom_layer)
+        t = self.m.theta
+        if t != 0.:
+            fmr = d2Edtheta2 * d2Edphi2 - math.sqrt(d2Edphidtheta) / t
+        else:
+            fmr = -4
+        frequency = gyromagnetic_ratio * math.sqrt(fmr) / (
+            TtoAm * self.Ms * 2 * math.pi * self.thickness)
+        return frequency
 
 
 class SmitBeljersModel:
@@ -187,8 +209,8 @@ class SmitBeljersModel:
 
     def __init__(self,
                  layers: List[LayerSB],
-                 J: List[float],
                  Hext: VectorObj,
+                 J: List[float] = [],
                  eta: float = 1e-2) -> None:
 
         if len(layers) != (len(J) + 1):
@@ -198,7 +220,7 @@ class SmitBeljersModel:
         self.layers: List[LayerSB] = layers
         self.energy = np.zeros((len(self.layers), 1))
         self.current_position = np.zeros((len(self.layers), 2))
-        self.grad_energy = np.zeros((len(self.layers), 2))
+        self.grad_energy = np.zeros((len(self.layers), 5))
         self.eta = eta
         self.Hext = Hext
 
@@ -234,11 +256,13 @@ class SmitBeljersModel:
                 top_layer_handle = None
                 Jtop = 0
 
-            self.energy[i] = layer.compute_energy(self.Hext, Jbottom, Jtop,
+            self.energy[i] = layer.compute_energy(self.Hext, Jtop, Jbottom,
                                                   top_layer_handle,
                                                   bottom_layer_handle)
             self.current_position[i, :] = layer.get_current_position()
-            self.grad_energy[i, :] = layer.compute_grad_energy(self.Hext)
+            self.grad_energy[i, :] = layer.compute_grad_energy(
+                self.Hext, Jtop, Jbottom, top_layer_handle,
+                bottom_layer_handle)
 
     def update_layers(self, position_vector):
         # update layers
@@ -258,20 +282,21 @@ class SmitBeljersModel:
         for i in tqdm(range(int(max_steps)), mininterval=0.5):
             self.compute_energy_step()
             # compute gradient update
-            new_position = self.current_position - self.eta * self.grad_energy
-            self.update_layers(new_position)
-            pos_difference = np.abs(self.current_position - new_position).sum()
-            if ((pos_difference < tol)
-                    or (np.linalg.norm(self.grad_energy) < tol)):
+            new_position = self.current_position - self.eta * self.grad_energy[:, :
+                                                                               2]
+            if self.position_difference(new_position) < tol:
                 break
-            self.current_position = new_position
-
+            self.update_layers(new_position)
         self.print_summary(i)
 
     def print_summary(self, steps):
         print(f"Gradient descent finished in {steps} steps")
         print(f"Final energy: {self.energy.sum()*1e6:.4f} uJ")
         print(f"Final position: {np.rad2deg(self.current_position)}")
+        # for layer in self.layers:
+        #     print(
+        #         f"FMR: {layer.compute_frequency_at_equilibrum(self.Hext, 0, 0, None, None):.2f} GHz"
+        #     )
 
     def adam_gradient_descent(self,
                               max_steps: int,
@@ -290,11 +315,11 @@ class SmitBeljersModel:
             step += 1
             self.compute_energy_step()
             m = first_momentum_decay * m + (
-                1 - first_momentum_decay) * self.grad_energy
+                1. - first_momentum_decay) * self.grad_energy[:, :2]
             v = second_momentum_decay * v + (
-                1 - second_momentum_decay) * self.grad_energy**2
-            m_hat = m / (1 - first_momentum_decay**step)
-            v_hat = v / (1 - second_momentum_decay**step)
+                1. - second_momentum_decay) * self.grad_energy[:, :2]**2
+            m_hat = m / (1. - first_momentum_decay**step)
+            v_hat = v / (1. - second_momentum_decay**step)
             new_position = self.current_position - learning_rate * m_hat / (
                 np.sqrt(v_hat) + eps)
             if step > max_steps:

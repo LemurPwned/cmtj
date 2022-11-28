@@ -1034,7 +1034,6 @@ public:
         {
             throw std::invalid_argument("Passed a zero length Layer vector!");
         }
-        // this->fileSave = std::move(filename);
     }
     explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap): Junction(
         layersToSet)
