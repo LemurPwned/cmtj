@@ -16,13 +16,8 @@ class VectorObj:
     phi: float  # rad
     mag: float = 1
 
-    # @lru_cache
-    def get_spherical(self):
-        return [
-            self.mag * math.sin(self.theta) * math.cos(self.phi),
-            self.mag * math.sin(self.theta) * math.sin(self.phi),
-            self.mag * math.cos(self.theta),
-        ]
+    def get_cartesian(self):
+        return VectorObj.from_spherical(self.theta, self.phi, self.mag)
 
     @staticmethod
     def from_spherical(theta, phi, mag=1):
@@ -39,7 +34,6 @@ class LayerSB:
     Kv: VectorObj
     Ks: float
     Ms: float
-    energy: float = 0
 
     @property
     def stheta(self):
@@ -58,12 +52,12 @@ class LayerSB:
         return math.cos(self.m.phi)
 
     def ext_field(self, Hinplane: VectorObj):
-        hx, hy, hz = Hinplane.get_spherical()
+        hx, hy, hz = Hinplane.get_cartesian()
         return -self.Ms * (hx * self.stheta * self.cphi +
                            hy * self.sphi * self.ctheta + hz * self.ctheta)
 
     def grad_ext_field(self, Hinplane: VectorObj):
-        hx, hy, hz = Hinplane.get_spherical()
+        hx, hy, hz = Hinplane.get_cartesian()
         dEdtheta = -self.Ms * (hx * self.cphi * self.ctheta +
                                hy * self.sphi * self.ctheta - hz * self.stheta)
 
@@ -84,8 +78,8 @@ class LayerSB:
         """
         if layer is None:
             return 0
-        [m1x, m1y, m1z] = self.m.get_spherical()
-        [m2x, m2y, m2z] = layer.m.get_spherical()
+        [m1x, m1y, m1z] = self.m.get_cartesian()
+        [m2x, m2y, m2z] = layer.m.get_cartesian()
         constJ = J / self.thickness
         return -constJ * (m1x * m2x + m1y * m2y + m1z * m2z)
 
@@ -148,7 +142,7 @@ class LayerSB:
     def volume_anisotropy(self):
         ax = math.cos(self.Kv.phi)
         ay = math.sin(self.Kv.phi)
-        mx, my, _ = self.m.get_spherical()
+        mx, my, _ = self.m.get_cartesian()
         return -self.Kv.mag * (mx * ax + my * ay)
 
     def grad_volume_anisotropy(self):
