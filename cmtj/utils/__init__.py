@@ -14,6 +14,8 @@ mu0 = 12.566e-7
 hplanck = 6.6260e-34
 hbar = hplanck / (2 * math.pi)
 gyromagnetic_ratio = 2.211e5
+gamma = 28024e6
+gamma_rad = 1.76e11
 
 __all__ = [
     "Filters",
