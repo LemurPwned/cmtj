@@ -15,7 +15,7 @@ class VectorObj:
     phi: float  # rad
     mag: float = 1
 
-    @lru_cache
+    # @lru_cache
     def get_spherical(self):
         return [
             self.mag * math.sin(self.theta) * math.cos(self.phi),
@@ -140,7 +140,7 @@ class LayerSB:
     def volume_anisotropy(self):
         ax = math.cos(self.Kv.phi)
         ay = math.sin(self.Kv.phi)
-        mx, my, _ = self.m.get_cartesian()
+        mx, my, _ = self.m.get_spherical()
         return -self.Kv.mag * (mx * ax + my * ay)
 
     def grad_volume_anisotropy(self):
@@ -191,14 +191,14 @@ class LayerSB:
         (_, _, d2Edtheta2, d2Edphi2,
          d2Edphidtheta) = self.compute_grad_energy(Hinplane, Jbottom, Jtop,
                                                    top_layer, bottom_layer)
-        t = self.m.theta
-        if t != 0.:
-            fmr = d2Edtheta2 * d2Edphi2 - math.sqrt(d2Edphidtheta) / t
+
+        if self.stheta != 0.:
+            fmr = math.pow(self.stheta * self.Ms * TtoAm,
+                           -2) * (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2)
+            fmr = math.sqrt(fmr) * gyromagnetic_ratio / (2 * math.pi)
         else:
-            fmr = -4
-        frequency = gyromagnetic_ratio * math.sqrt(fmr) / (
-            TtoAm * self.Ms * 2 * math.pi * self.thickness)
-        return frequency
+            fmr = 0
+        return fmr
 
 
 class SmitBeljersModel:
@@ -206,7 +206,6 @@ class SmitBeljersModel:
     Smits-Beljers model for the energy of a multilayered system
     It allows to compute the FMR of the system.
     """
-
     def __init__(self,
                  layers: List[LayerSB],
                  Hext: VectorObj,
