@@ -1,4 +1,5 @@
 import math
+from collections import defaultdict
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import List
@@ -6,7 +7,7 @@ from typing import List
 import numpy as np
 from tqdm import tqdm
 
-from ..utils import TtoAm, gyromagnetic_ratio, mu0
+from ..utils import TtoAm, gamma_rad, gyromagnetic_ratio, mu0
 
 
 @dataclass
@@ -21,6 +22,13 @@ class VectorObj:
             self.mag * math.sin(self.theta) * math.cos(self.phi),
             self.mag * math.sin(self.theta) * math.sin(self.phi),
             self.mag * math.cos(self.theta),
+        ]
+
+    @staticmethod
+    def from_spherical(theta, phi, mag=1):
+        return [
+            mag * math.sin(theta) * math.cos(phi),
+            mag * math.sin(theta) * math.sin(phi), mag * math.cos(theta)
         ]
 
 
@@ -66,8 +74,8 @@ class LayerSB:
                                  self.sphi * self.stheta - hz * self.ctheta)
         d2Edphi2 = -self.Ms * (-hx * self.stheta * self.cphi -
                                hy * self.sphi * self.stheta)
-        d2Edphidtheta = self.Ms * (-hx * self.sphi * self.ctheta +
-                                   hy * self.cphi * self.ctheta)
+        d2Edphidtheta = -self.Ms * (-hx * self.sphi * self.ctheta +
+                                    hy * self.cphi * self.ctheta)
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def iec_interaction(self, J, layer: "LayerSB"):
@@ -120,8 +128,8 @@ class LayerSB:
             self.stheta * layer.stheta**self.cphi * layer.cphi)
 
         d2Edphidtheta = -constJ * (
-            -self.sphi(layer.stheta * layer.cphi * self.ctheta +
-                       layer.sphi * layer.stheta * self.cphi * self.ctheta))
+            -self.sphi * layer.stheta * layer.cphi * self.ctheta +
+            layer.sphi * layer.stheta * self.cphi * self.ctheta)
 
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
@@ -176,7 +184,8 @@ class LayerSB:
         e3 = self.volume_anisotropy()
         e4 = self.iec_interaction(
             Jbottom, bottom_layer) + self.iec_interaction(Jtop, top_layer)
-        return e1 + e2 + e3 + e4
+        evec = [e1, e2, e3, e4]
+        return evec
 
     def get_current_position(self):
         return [self.m.theta, self.m.phi]
@@ -195,7 +204,7 @@ class LayerSB:
         if self.stheta != 0.:
             fmr = math.pow(self.stheta * self.Ms * TtoAm,
                            -2) * (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2)
-            fmr = math.sqrt(fmr) * gyromagnetic_ratio / (2 * math.pi)
+            fmr = math.sqrt(fmr) * gamma_rad / (2 * math.pi)
         else:
             fmr = 0
         return fmr
@@ -206,34 +215,27 @@ class SmitBeljersModel:
     Smits-Beljers model for the energy of a multilayered system
     It allows to compute the FMR of the system.
     """
+
     def __init__(self,
                  layers: List[LayerSB],
                  Hext: VectorObj,
                  J: List[float] = [],
-                 eta: float = 1e-2) -> None:
+                 eta: float = 1e-2,
+                 silent: bool = False) -> None:
 
         if len(layers) != (len(J) + 1):
             raise ValueError(
                 "Number of layers must be equal to number of J + 1")
         self.J = J
         self.layers: List[LayerSB] = layers
-        self.energy = np.zeros((len(self.layers), 1))
+        self.energy = np.zeros((len(self.layers), ))
         self.current_position = np.zeros((len(self.layers), 2))
         self.grad_energy = np.zeros((len(self.layers), 5))
         self.eta = eta
         self.Hext = Hext
-
-    def compute_coupling_energy(self, J, layerA: "LayerSB", layerB: "LayerSB"):
-        """
-        Compute the coupling energy between two layers.
-        This should be symmetric and computed only once.
-        Gradients are computed per layer, they are not symmetric.
-        For now IEC is the only symmetric contribution.
-        """
-        iec_interaction = -J * (layerA.stheta * layerB.stheta *
-                                math.cos(layerA.m.phi - layerB.m.phi) +
-                                layerA.ctheta * layerB.ctheta)
-        return iec_interaction
+        self.silent = silent
+        self.ener_labels = ['external', 'surface', 'volume', 'iec']
+        self.history = defaultdict(list)
 
     def compute_energy_step(self):
         """
@@ -241,8 +243,6 @@ class SmitBeljersModel:
         """
         for i, layer in enumerate(self.layers):
             if i > 0:
-                self.compute_coupling_energy(self.layers[i - 1],
-                                             self.layers[i])
                 bottom_layer_handle = self.layers[i - 1]
                 Jbottom = self.J[i - 1]
             else:
@@ -255,13 +255,18 @@ class SmitBeljersModel:
                 top_layer_handle = None
                 Jtop = 0
 
-            self.energy[i] = layer.compute_energy(self.Hext, Jtop, Jbottom,
-                                                  top_layer_handle,
-                                                  bottom_layer_handle)
+            evec = layer.compute_energy(self.Hext, Jtop, Jbottom,
+                                        top_layer_handle, bottom_layer_handle)
+            self.energy[i] = sum(evec)
             self.current_position[i, :] = layer.get_current_position()
             self.grad_energy[i, :] = layer.compute_grad_energy(
                 self.Hext, Jtop, Jbottom, top_layer_handle,
                 bottom_layer_handle)
+            for ener_val, ener_label in zip(evec, self.ener_labels):
+                self.history[f"energy_{ener_label}_{i}"].append(ener_val)
+            self.history[f"energy_{i}"].append(self.energy[i])
+            self.history[f"theta_{i}"].append(layer.m.theta)
+            self.history[f"phi_{i}"].append(layer.m.phi)
 
     def update_layers(self, position_vector):
         # update layers
@@ -288,14 +293,31 @@ class SmitBeljersModel:
             self.update_layers(new_position)
         self.print_summary(i)
 
+    def get_fmr(self, layer_index: int) -> float:
+        if layer_index > 0:
+            self.compute_coupling_energy(self.layers[layer_index - 1],
+                                         self.layers[layer_index])
+            bottom_layer_handle = self.layers[layer_index - 1]
+            Jbottom = self.J[layer_index - 1]
+        else:
+            bottom_layer_handle = None
+            Jbottom = 0
+        if layer_index < len(self.layers) - 1:
+            top_layer_handle = self.layers[layer_index + 1]
+            Jtop = self.J[layer_index]
+        else:
+            top_layer_handle = None
+            Jtop = 0
+        return self.layers[layer_index].compute_frequency_at_equilibrum(
+            self.Hext, Jtop, Jbottom, top_layer_handle, bottom_layer_handle)
+
     def print_summary(self, steps):
         print(f"Gradient descent finished in {steps} steps")
-        print(f"Final energy: {self.energy.sum()*1e6:.4f} uJ")
+        print(f"Final energy: {self.energy.sum()*1e3:.4f} mJ/m^2")
         print(f"Final position: {np.rad2deg(self.current_position)}")
-        # for layer in self.layers:
-        #     print(
-        #         f"FMR: {layer.compute_frequency_at_equilibrum(self.Hext, 0, 0, None, None):.2f} GHz"
-        #     )
+        for i, _ in enumerate(self.layers):
+            fmr = self.get_fmr(i)
+            print(f"FMR: {fmr/1e9:.4f} GHz")
 
     def adam_gradient_descent(self,
                               max_steps: int,
@@ -326,4 +348,5 @@ class SmitBeljersModel:
             if self.position_difference(new_position) < tol:
                 break
             self.update_layers(new_position)
-        self.print_summary(step)
+        if not self.silent:
+            self.print_summary(step)
