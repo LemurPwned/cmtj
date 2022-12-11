@@ -53,23 +53,24 @@ class LayerSB:
 
     def ext_field(self, Hinplane: VectorObj):
         hx, hy, hz = Hinplane.get_cartesian()
-        return -self.Ms * (hx * self.stheta * self.cphi +
-                           hy * self.sphi * self.ctheta + hz * self.ctheta)
+        return -self.Ms * mu0 * (hx * self.stheta * self.cphi + hy *
+                                 self.sphi * self.ctheta + hz * self.ctheta)
 
     def grad_ext_field(self, Hinplane: VectorObj):
         hx, hy, hz = Hinplane.get_cartesian()
-        dEdtheta = -self.Ms * (hx * self.cphi * self.ctheta +
-                               hy * self.sphi * self.ctheta - hz * self.stheta)
+        pref = -self.Ms * mu0
+        dEdtheta = pref * (hx * self.cphi * self.ctheta +
+                           hy * self.sphi * self.ctheta - hz * self.stheta)
 
-        dEdphi = -self.Ms * (-hx * self.sphi * self.stheta +
-                             hy * self.stheta * self.cphi)
+        dEdphi = pref * (-hx * self.sphi * self.stheta +
+                         hy * self.stheta * self.cphi)
 
-        d2Edtheta2 = -self.Ms * (hx * self.stheta * self.cphi - hy *
-                                 self.sphi * self.stheta - hz * self.ctheta)
-        d2Edphi2 = -self.Ms * (-hx * self.stheta * self.cphi -
-                               hy * self.sphi * self.stheta)
-        d2Edphidtheta = -self.Ms * (-hx * self.sphi * self.ctheta +
-                                    hy * self.cphi * self.ctheta)
+        d2Edtheta2 = pref * (-hx * self.stheta * self.cphi -
+                             hy * self.sphi * self.stheta - hz * self.ctheta)
+        d2Edphi2 = pref * (-hx * self.stheta * self.cphi -
+                           hy * self.sphi * self.stheta)
+        d2Edphidtheta = pref * (-hx * self.sphi * self.ctheta +
+                                hy * self.cphi * self.ctheta)
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def iec_interaction(self, J, layer: "LayerSB"):
@@ -128,15 +129,18 @@ class LayerSB:
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def surface_anisotropy(self):
-        return (-self.Ks + 0.5 * (self.Ms**2) / mu0) * self.ctheta
+        return (-self.Ks *
+                self.ctheta) + 0.5 * (self.Ms * self.ctheta)**2 * mu0
 
     def grad_surface_anisotropy(self):
-        pref = (-self.Ks + 0.5 * (self.Ms**2) / mu0)
-        dEdtheta = -pref * self.stheta
+        msq = math.pow(self.Ms, 2) * mu0
         dEdphi = 0
-        d2Edtheta2 = -pref * self.ctheta
         d2Edphi2 = 0
         d2Edphidtheta = 0
+        dEdtheta = (self.Ks * self.stheta) - msq * self.stheta * self.ctheta
+        d2Edtheta2 = (self.Ks *
+                      self.ctheta) + msq * (self.stheta**2 - self.ctheta**2)
+
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def volume_anisotropy(self):
@@ -196,8 +200,8 @@ class LayerSB:
                                                    top_layer, bottom_layer)
 
         if self.stheta != 0.:
-            fmr = math.pow(self.stheta * self.Ms * TtoAm,
-                           -2) * (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2)
+            fmr = (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2) / math.pow(
+                self.stheta * self.Ms, 2)
             fmr = math.sqrt(fmr) * gamma_rad / (2 * math.pi)
         else:
             fmr = 0
@@ -214,18 +218,16 @@ class SmitBeljersModel:
                  layers: List[LayerSB],
                  Hext: VectorObj,
                  J: List[float] = [],
-                 eta: float = 1e-2,
                  silent: bool = False) -> None:
 
         if len(layers) != (len(J) + 1):
-            raise ValueError(
-                "Number of layers must be equal to number of J + 1")
+            raise ValueError("Number of layers must be equal to len(J) + 1")
         self.J = J
         self.layers: List[LayerSB] = layers
-        self.energy = np.zeros((len(self.layers), ))
-        self.current_position = np.zeros((len(self.layers), 2))
-        self.grad_energy = np.zeros((len(self.layers), 5))
-        self.eta = eta
+        self.energy = np.zeros((len(self.layers), ), dtype=np.float32)
+        self.current_position = np.zeros((len(self.layers), 2),
+                                         dtype=np.float32)
+        self.grad_energy = np.zeros((len(self.layers), 5), dtype=np.float32)
         self.Hext = Hext
         self.silent = silent
         self.ener_labels = ['external', 'surface', 'volume', 'iec']
@@ -271,7 +273,10 @@ class SmitBeljersModel:
         # compute difference between current position and new position
         return np.linalg.norm(self.current_position - position_vector)
 
-    def gradient_descent(self, max_steps: int, tol: float = 1e-8):
+    def gradient_descent(self,
+                         max_steps: int,
+                         tol: float = 1e-8,
+                         learning_rate=1e-3):
         """
         Main gradient descent algorithm. Currently implements a basic version.
         TODO: implement a more advanced version -- conjugate gradient descent
@@ -280,8 +285,8 @@ class SmitBeljersModel:
         for i in tqdm(range(int(max_steps)), mininterval=0.5):
             self.compute_energy_step()
             # compute gradient update
-            new_position = self.current_position - self.eta * self.grad_energy[:, :
-                                                                               2]
+            new_position = self.current_position - learning_rate * self.grad_energy[:, :
+                                                                                    2]
             if self.position_difference(new_position) < tol:
                 break
             self.update_layers(new_position)
@@ -289,8 +294,6 @@ class SmitBeljersModel:
 
     def get_fmr(self, layer_index: int) -> float:
         if layer_index > 0:
-            self.compute_coupling_energy(self.layers[layer_index - 1],
-                                         self.layers[layer_index])
             bottom_layer_handle = self.layers[layer_index - 1]
             Jbottom = self.J[layer_index - 1]
         else:
@@ -323,9 +326,9 @@ class SmitBeljersModel:
         A naive implementation of Adam gradient descent.
         """
         step = 0
-        m = 0  # first momentum
-        v = 0  # second momentum
-        eps = 1e-8
+        m = np.zeros_like(self.grad_energy[:, :2])  # first momentum
+        v = np.zeros_like(self.grad_energy[:, :2])  # second momentum
+        eps = 1e-12
         while True:
             step += 1
             self.compute_energy_step()
