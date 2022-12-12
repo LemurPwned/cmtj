@@ -129,18 +129,15 @@ class LayerSB:
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def surface_anisotropy(self):
-        return (-self.Ks *
-                self.ctheta) + 0.5 * (self.Ms * self.ctheta)**2 * mu0
+        return (-self.Ks + 0.5 * self.Ms * mu0) * self.ctheta**2
 
     def grad_surface_anisotropy(self):
         msq = math.pow(self.Ms, 2) * mu0
         dEdphi = 0
         d2Edphi2 = 0
         d2Edphidtheta = 0
-        dEdtheta = (self.Ks * self.stheta) - msq * self.stheta * self.ctheta
-        d2Edtheta2 = (self.Ks *
-                      self.ctheta) + msq * (self.stheta**2 - self.ctheta**2)
-
+        dEdtheta = (2 * self.Ks - msq) * self.stheta * self.ctheta
+        d2Edtheta2 = (2 * self.Ks - msq) * (self.ctheta**2 - self.stheta**2)
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def volume_anisotropy(self):
