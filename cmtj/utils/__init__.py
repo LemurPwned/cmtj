@@ -16,7 +16,8 @@ hbar = hplanck / (2 * math.pi)
 gyromagnetic_ratio = 2.211e5
 gamma = 28024e6
 gamma_rad = 1.76e11
-
+me = 9.109e-31
+bohr_magneton = echarge * hbar / (2 * me)
 __all__ = [
     "Filters",
     "FieldScan",

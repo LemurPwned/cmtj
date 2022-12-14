@@ -1,13 +1,12 @@
 import math
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import List
 
 import numpy as np
 from tqdm import tqdm
 
-from ..utils import TtoAm, gamma_rad, gyromagnetic_ratio, mu0
+from ..utils import gamma_rad, mu0
 
 
 @dataclass
