@@ -2,7 +2,8 @@
 
 ## [Unreleased yet] 1.3.0
 
-- Adding SB model as an alternative mode of calculation.
+- Adding DW dynamics 1D model.
+- Adding SB model for energy-based FMR computation.
 - Moving resistance functions from `utils` to `resistance`
 - Introducting docs updates for tutorial notebook (dark/light toggle works now).
 - Reservoir computing is now exposed in Python in the `reservoir` computing module.
