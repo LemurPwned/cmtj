@@ -18,6 +18,7 @@ gamma = 28024e6
 gamma_rad = 1.76e11
 me = 9.109e-31
 bohr_magneton = echarge * hbar / (2 * me)
+
 __all__ = [
     "Filters",
     "FieldScan",

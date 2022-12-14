@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from scipy.integrate import RK45
 
 from cmtj.models.sb import VectorObj
-from cmtj.utils import bohr_magneton, echarge, gamma, hbar, mu0
+from cmtj.utils import bohr_magneton, echarge, gyromagnetic_ratio, hbar, mu0
 
 
 @dataclass
@@ -29,47 +29,57 @@ class DomainWallDynamics:
         self.Hk = 2 * self.Ku / (mu0 * self.Ms)
         self.Hdmi = self.D / (mu0 * self.Ms * self.dw)
 
-        self.bj = bohr_magneton * self.p * self.je / (echarge * self.thickness)
+        self.bj = bohr_magneton * self.p * self.je / (echarge * self.Ms)
 
     def llg(self, t, vec):
         _, phi = vec
-        reduced_alpha = (1 + self.alpha**2)
+        reduced_alpha = (1. + self.alpha**2)
         hx, hy, hz = self.H.get_cartesian()
-        ag = self.alpha * gamma
-        dg = self.dw * gamma * math.pi / 2
-        pi2 = math.pi / 2
-        dXdt = ag * self.dw * hz - dg * (self.Hk / 2) * math.sin(2 * phi) + (
-            1 + self.alpha * self.beta) * self.bj + ag * dg * math.cos(
+        ag = self.alpha * gyromagnetic_ratio
+        dg = self.dw * gyromagnetic_ratio * math.pi / 2.
+        pi2 = math.pi / 2.
+        dXdt = ag * self.dw * hz - gyromagnetic_ratio * self.dw * (
+            self.Hk / 2.) * math.sin(2 * phi) + (
+                1. + self.alpha * self.beta
+            ) * self.bj + self.alpha * dg * math.cos(
                 phi) * self.Hshe + dg * self.Hdmi * math.sin(
                     phi) - dg * hy * math.cos(phi) + dg * hx * math.sin(phi)
 
-        dPhidt = gamma * hz + ag * (self.Hk / 2) * math.sin(
+        dPhidt = gyromagnetic_ratio * hz + ag * (self.Hk / 2.) * math.sin(
             2 * phi) + (self.beta - self.alpha) * (
-                self.bj / self.dw) + gamma * pi2 * self.Hshe * math.cos(
+                self.bj /
+                self.dw) + gyromagnetic_ratio * pi2 * self.Hshe * math.cos(
                     phi) - ag * pi2 * self.Hdmi * math.sin(
                         phi) + ag * pi2 * hy * math.cos(
                             phi) - ag * pi2 * hx * math.sin(phi)
+        dPhidt = (dPhidt / reduced_alpha)
+        dXdt = dXdt / reduced_alpha
         return [dXdt / reduced_alpha, dPhidt / reduced_alpha]
 
     def run(self,
             sim_time: float,
             x0: float = 0,
             phi0: float = 0,
-            max_steps: int = 1000):
-        max_steps = int(max_steps)
+            max_step=1e-11):
         integrator = RK45(fun=self.llg,
-                          t0=0,
+                          t0=0.,
                           first_step=1e-16,
+                          max_step=max_step,
                           y0=[x0, phi0],
-                          rtol=1e-8,
+                          rtol=1e-12,
                           t_bound=sim_time)
         result = defaultdict(list)
-        for step in range(max_steps):
+        while True:
             integrator.step()
+            x, phi = integrator.y
+            vel = (x - integrator.y_old[0]) / integrator.step_size
             result['t'].append(integrator.t)
-            result['x'].append(integrator.y[0])
-            result['phi'].append(integrator.y[1])
-
+            result['v'].append(vel)
+            result['x'].append(x)
+            result['phi'].append(phi)
+            if integrator.status == 'failed':
+                print("Failed to converge")
+                break
             if integrator.status == 'finished':
                 break
 
