@@ -36,7 +36,7 @@ jobs:
       - name: Python wheels manylinux stable build
         uses: RalfG/python-wheels-manylinux-build@v0.5.0
         with:
-          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
+          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
       - name: upload wheel
         if:  ${{ !inputs.dry-run }} 
         run: |
@@ -53,7 +53,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
