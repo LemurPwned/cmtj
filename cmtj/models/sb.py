@@ -26,6 +26,20 @@ class VectorObj:
         ]
 
 
+def box_muller_random(mean, std):
+    """
+    Generates Gaussian noise with mean and standard deviation
+    using the Box-Muller transform.
+    https://en.wikipedia.org/wiki/Box–Muller_transform
+    """
+    u1 = np.random.uniform(0, 1)
+    u2 = np.random.uniform(0, 1)
+    mag = std * math.sqrt(-2.0 * math.log(u1))
+    z0 = mag * math.cos(2 * math.pi * u2) + mean
+    z1 = mag * math.sin(2 * math.pi * u2) + mean
+    return z0, z1
+
+
 @dataclass
 class LayerSB:
     thickness: float
@@ -33,6 +47,21 @@ class LayerSB:
     Kv: VectorObj
     Ks: float
     Ms: float
+    thermal_noise: float = 0
+
+    def __post_init__(self):
+        if self.thermal_noise:
+            self.m = self.add_thermal_noise(self.m, self.thermal_noise)
+
+    def add_thermal_noise(self, m, thermal) -> VectorObj:
+        """
+        Adds small themal noise to the magnetization vector
+        """
+        theta, phi = m.theta, m.phi
+        z0, z1 = box_muller_random(0, thermal)
+        theta += z0
+        phi += z1
+        return VectorObj(theta, phi)
 
     @property
     def stheta(self):
@@ -140,26 +169,29 @@ class LayerSB:
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def volume_anisotropy(self):
+        """
+        E_k = K (m o a)^2
+        """
         ax = math.cos(self.Kv.phi)
         ay = math.sin(self.Kv.phi)
         mx, my, _ = self.m.get_cartesian()
-        return -self.Kv.mag * (mx * ax + my * ay)
+        return -self.Kv.mag * (mx * ax + my * ay)**2
 
     def grad_volume_anisotropy(self):
-        ax = math.cos(self.Kv.phi)
-        ay = math.sin(self.Kv.phi)
+        """
+        E_k/dtheta = ~ (a_x * m_x) * m_x *dm_x/dtheta
+        """
         Kv = self.Kv.mag
-        dEdtheta = -Kv * (self.cphi * self.ctheta * ax +
-                          self.sphi * self.ctheta * ay)
-        dEdphi = -Kv * (-self.sphi * self.stheta * ax +
-                        self.cphi * self.stheta * ay)
-        d2Edtheta2 = -Kv * (-self.cphi * self.stheta * ax -
-                            self.sphi * self.stheta * ay)
-
-        d2Edphi2 = -Kv * (-self.cphi * self.stheta * ax -
-                          self.sphi * self.stheta * ay)
-        d2Edphidtheta = -Kv * (-self.sphi * self.ctheta * ax +
-                               self.cphi * self.ctheta * ay)
+        angdiff = self.Kv.phi - self.m.phi
+        dEdtheta = -2 * Kv * self.stheta * self.ctheta * (math.cos(angdiff)**2)
+        dEdphi = -2 * Kv * (self.stheta**
+                            2) * math.sin(angdiff) * math.cos(angdiff)
+        d2Edtheta2 = -2 * Kv * math.cos(2 * self.m.theta) * (math.cos(angdiff)
+                                                             **2)
+        d2Edphi2 = 2 * Kv * (self.stheta**2) * math.cos(2 * angdiff)
+        d2Edphidtheta = -0.5 * Kv * (
+            math.cos(-2 * self.Kv.phi + 2 * self.m.phi + 2 * self.m.theta) -
+            math.cos(2 * self.Kv.phi - 2 * self.m.phi + 2 * self.m.theta))
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def compute_grad_energy(self, Hinplane: VectorObj, Jtop: float,
@@ -198,9 +230,10 @@ class LayerSB:
         if self.stheta != 0.:
             fmr = (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2) / math.pow(
                 self.stheta * self.Ms, 2)
-            fmr = math.sqrt(fmr) * gamma_rad / (2 * math.pi)
+            if fmr > 0:
+                fmr = math.sqrt(fmr) * gamma_rad / (2 * math.pi)
         else:
-            fmr = 0
+            return -4
         return fmr
 
 
