@@ -1,12 +1,13 @@
 import math
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Callable
 
 from numba import njit
 from scipy.integrate import RK45
 
-from cmtj.models.sb import VectorObj
-from cmtj.utils import bohr_magneton, echarge, gyromagnetic_ratio, hbar, mu0
+from ..utils import bohr_magneton, echarge, gyromagnetic_ratio, hbar, mu0
+from .sb import VectorObj
 
 gyro = gyromagnetic_ratio
 pi2 = math.pi / 2.
@@ -100,7 +101,6 @@ class DomainWallDynamics:
     H: VectorObj
     Hk: float
     Ms: float
-    je: float
     thickness: float
     SHE_angle: float
     D: float
@@ -119,9 +119,17 @@ class DomainWallDynamics:
 
         self.bj = bohr_magneton * self.p / (echarge * self.Ms)
         self.hx, self.hy, self.hz = self.H.get_cartesian()
+        self.je_driver = lambda t: 0
+
+    def set_current_function(self, driver: Callable):
+        """
+        :param driver: A function of time that returns the current density
+        """
+        self.je_driver = driver
 
     def llg(self, t, vec):
         X, phi = vec
+        je_at_t = self.je_driver(t=t)
         return compute_dynamics(X,
                                 phi,
                                 hx=self.hx,
@@ -132,7 +140,7 @@ class DomainWallDynamics:
                                 bj=self.bj,
                                 beta=self.beta,
                                 Hshe=self.Hshe,
-                                je=self.je,
+                                je=je_at_t,
                                 Hdmi=self.Hdmi,
                                 Hk=self.Hk,
                                 Ms=self.Ms,
