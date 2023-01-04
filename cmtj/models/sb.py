@@ -1,4 +1,5 @@
 import math
+import warnings
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import List
@@ -11,15 +12,22 @@ from ..utils import gamma_rad, mu0
 
 @dataclass
 class VectorObj:
+    """Vector object for standard manipulation.
+    :param theta: positive z-axis angle (in xz plane) in radians.
+    :param phi: positive x-axis (in xy plane) angle in radians
+    :param mag: magnitude of the vector, if not set defaults to 1 *unit vector*
+    """
     theta: float  # in radians
     phi: float  # rad
     mag: float = 1
 
     def get_cartesian(self):
+        """Returns the vector in Cartesian coordinates with (x, y, z) compnents"""
         return VectorObj.from_spherical(self.theta, self.phi, self.mag)
 
     @staticmethod
     def from_spherical(theta, phi, mag=1):
+        """Creates a Cartesian vector from spherical components"""
         return [
             mag * math.sin(theta) * math.cos(phi),
             mag * math.sin(theta) * math.sin(phi), mag * math.cos(theta)
@@ -31,6 +39,8 @@ def box_muller_random(mean, std):
     Generates Gaussian noise with mean and standard deviation
     using the Box-Muller transform.
     https://en.wikipedia.org/wiki/Box–Muller_transform
+    :param mean: mean of the Gaussian.
+    :param std: standard deviation of the Gaussian.
     """
     u1 = np.random.uniform(0, 1)
     u2 = np.random.uniform(0, 1)
@@ -42,6 +52,14 @@ def box_muller_random(mean, std):
 
 @dataclass
 class LayerSB:
+    """Basic Layer for Smit-Beljers model.
+    :param thickness: thickness of the FM layer (effective).
+    :param m: initial magnetisation vector (Cauchy condition).
+    :param Kv: volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].
+    :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].
+    :param Ms: magnetisation saturation value in [A/m].
+    :param thermal_noise: if !=0 then introduces a small random disturbance to init m.
+    """
     thickness: float
     m: VectorObj
     Kv: VectorObj
@@ -223,6 +241,12 @@ class LayerSB:
     def compute_frequency_at_equilibrum(self, Hinplane: VectorObj, Jtop: float,
                                         Jbottom: float, top_layer: "LayerSB",
                                         bottom_layer: "LayerSB"):
+        """Computes the resonance frequency (FMR) of the layers
+        :param Hinplance: vector that describes the applied H.
+        :param Jtop: IEC constant from the layer above the current one.
+        :param Jbottom: IEC constant from the layer below the current one.
+        :param top_layer: LayerSB definition of the layer above the current one.
+        :param bottom layer: LayerSB definition of the layer below the current one."""
         (_, _, d2Edtheta2, d2Edphi2,
          d2Edphidtheta) = self.compute_grad_energy(Hinplane, Jbottom, Jtop,
                                                    top_layer, bottom_layer)
@@ -248,7 +272,12 @@ class SmitBeljersModel:
                  Hext: VectorObj,
                  J: List[float] = [],
                  silent: bool = False) -> None:
-
+        """
+        :param layers: list of LayerSB, layer definitions.
+        :param Hext: applied external magnetic field vector. Defined for all the layers.
+        :param J: the list of IEC constants. 0 element defines coupling between 0 and 1 layer, etc.
+        :param silent: debug mode? defaults to False.
+        """
         if len(layers) != (len(J) + 1):
             raise ValueError("Number of layers must be equal to len(J) + 1")
         self.J = J
@@ -311,6 +340,7 @@ class SmitBeljersModel:
         TODO: implement a more advanced version -- conjugate gradient descent
         or Nesterov's accelerated gradient descent
         """
+        warnings.warn("Use ADAM gradient descent for better results!")
         for i in tqdm(range(int(max_steps)), mininterval=0.5):
             self.compute_energy_step()
             # compute gradient update
@@ -322,6 +352,7 @@ class SmitBeljersModel:
         self.print_summary(i)
 
     def get_fmr(self, layer_index: int) -> float:
+        """Computes FMR values for each of the layers in the model."""
         if layer_index > 0:
             bottom_layer_handle = self.layers[layer_index - 1]
             Jbottom = self.J[layer_index - 1]
@@ -338,6 +369,7 @@ class SmitBeljersModel:
             self.Hext, Jtop, Jbottom, top_layer_handle, bottom_layer_handle)
 
     def print_summary(self, steps):
+        """Prints summary of the solution if silent param is true."""
         print(f"Gradient descent finished in {steps} steps")
         print(f"Final energy: {self.energy.sum()*1e3:.4f} mJ/m^2")
         print(f"Final position: {np.rad2deg(self.current_position)}")
@@ -353,6 +385,12 @@ class SmitBeljersModel:
                               second_momentum_decay: float = 0.999):
         """
         A naive implementation of Adam gradient descent.
+        See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015
+        :param max_steps: maximum number of gradient steps.
+        :param tol: tolerance of the solution.
+        :param learning_rate: the learning rate (descent speed).
+        :param first_momentum_decay: constant for the first momentum.
+        :param second_momentum_decay: constant for the second momentum.
         """
         step = 0
         m = np.zeros_like(self.grad_energy[:, :2])  # first momentum
