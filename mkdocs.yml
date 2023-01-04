@@ -10,6 +10,9 @@ nav:
   - Parallelism: physics/paralellism.md
   - API:
       - Core: gen-docs/cmtj.md
+      - Models:
+          - Smit-Beljers: api/models/sb-reference.md
+          - Domain wall: api/models/dw-reference.md
       - Utils:
           - General: api/general-reference.md
           - Linear: api/linear-reference.md
