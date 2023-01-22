@@ -2,7 +2,7 @@ import math
 import warnings
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import List
+from typing import Callable, List, Literal
 
 import numpy as np
 from tqdm import tqdm
@@ -306,10 +306,11 @@ class LayerSB:
         self.m.theta = pos[0]
         self.m.phi = pos[1]
 
-    def compute_frequency_at_equilibrum(self, Hinplane: VectorObj, Jtop: float,
-                                        Jbottom: float, Dtop: float,
-                                        Dbottom: float, top_layer: "LayerSB",
-                                        bottom_layer: "LayerSB"):
+    def compute_frequency_at_equilibrium(self, Hinplane: VectorObj,
+                                         Jtop: float, Jbottom: float,
+                                         Dtop: float, Dbottom: float,
+                                         top_layer: "LayerSB",
+                                         bottom_layer: "LayerSB"):
         """Computes the resonance frequency (FMR) of the layers
         :param Hinplance: vector that describes the applied H.
         :param Jtop: IEC constant from the layer above the current one.
@@ -334,6 +335,46 @@ class LayerSB:
         else:
             return -4
         return fmr
+
+    def compute_frequency_at_equilibrium_baselgia(self, Hinplane: VectorObj,
+                                                  Jtop: float, Jbottom: float,
+                                                  Dtop: float, Dbottom: float,
+                                                  top_layer: "LayerSB",
+                                                  bottom_layer: "LayerSB"):
+        """Computes the resonance frequency (FMR) of the layers.
+        Uses Baselgia 1988 correction.
+        https://link.aps.org/doi/10.1103/PhysRevB.38.2237
+        :param Hinplance: vector that describes the applied H.
+        :param Jtop: IEC constant from the layer above the current one.
+        :param Jbottom: IEC constant from the layer below the current one.
+        :param top_layer: LayerSB definition of the layer above the current one.
+        :param bottom layer: LayerSB definition of the layer below the current one."""
+        (dEdtheta, dEdphi, d2Edtheta2, d2Edphi2,
+         d2Edphidtheta) = self.compute_grad_energy(Hinplane,
+                                                   Jtop,
+                                                   Jbottom,
+                                                   Dtop,
+                                                   Dbottom,
+                                                   top_layer,
+                                                   bottom_layer,
+                                                   full_grad=True)
+
+        # balsiega correction 1988
+        pref = (gamma_rad / (2 * math.pi))
+        pref2 = self.Ms**2
+        const_pref = (pref**2) / pref2
+
+        if self.stheta != 0.:
+            csc = self.ctheta / self.stheta
+            fmr1 = (d2Edtheta2 * ((d2Edphi2 /
+                                   (self.stheta**2)) + csc * dEdtheta))
+            fmr2 = math.pow(
+                (d2Edphidtheta / self.stheta) - csc * (dEdphi / self.stheta),
+                2)
+            joint = const_pref * (fmr1 + fmr2)
+            if joint > 0:
+                return math.sqrt(joint)
+        return 0
 
 
 class SmitBeljersModel:
@@ -462,15 +503,25 @@ class SmitBeljersModel:
             self.update_layers(new_position)
         self.print_summary(i)
 
-    def get_fmr(self, layer_index: int) -> float:
+    def get_fmr(self,
+                layer_index: int,
+                method: Literal['standard', 'baselgia'] = 'standard') -> float:
         """Computes FMR values for each of the layers in the model."""
         Jtop, Jbottom, top_layer_handle, bottom_layer_handle = self.__get_interaction_constant(
             self.layers, layer_index, self.J)
         Dtop, Dbottom, _, _ = self.__get_interaction_constant(
             self.layers, layer_index, self.D)
-        return self.layers[layer_index].compute_frequency_at_equilibrum(
-            self.Hext, Jtop, Jbottom, Dtop, Dbottom, top_layer_handle,
-            bottom_layer_handle)
+        if method == 'standard':
+            return self.layers[layer_index].compute_frequency_at_equilibrium(
+                self.Hext, Jtop, Jbottom, Dtop, Dbottom, top_layer_handle,
+                bottom_layer_handle)
+        elif method == 'baselgia':
+            return self.layers[
+                layer_index].compute_frequency_at_equilibrium_baselgia(
+                    self.Hext, Jtop, Jbottom, Dtop, Dbottom, top_layer_handle,
+                    bottom_layer_handle)
+        else:
+            raise ValueError(f"Method {method} not implemented")
 
     def print_summary(self, steps):
         """Prints summary of the solution if silent param is true."""
