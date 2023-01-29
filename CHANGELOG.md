@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased yet] 1.3.0
+## 1.3.0
 
 - Adding DW dynamics 1D model with dynamic drivers. (Numba optimised)
 - Adding SB model for energy-based FMR computation. Gradient computed using Adam optimiser.
