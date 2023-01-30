@@ -5,6 +5,7 @@
 #include <iostream>                 // for operator<<, ostream
 #include <stdexcept>                // for runtime_error
 #include <vector>                   // for vector
+#include <sstream>
 template <typename T>
 class CVector
 {
@@ -41,14 +42,6 @@ public:
         this->y = v.y;
         this->z = v.z;
     }
-
-    // CVector(std::normal_distribution<T> dist, std::mt19937& generator)
-    // {
-    //     // the noise should be independent in each direction
-    //     this->x = dist(generator);
-    //     this->y = dist(generator);
-    //     this->z = dist(generator);
-    // }
 
     explicit CVector(const std::function<T()>& generator)
     {
@@ -177,6 +170,12 @@ public:
         return res;
     }
 
+    friend CVector operator*(const T& val, const CVector& v) {
+        return CVector(val * v.x, val * v.y, val * v.z);
+    }
+
+    CVector& operator*=(T v) { x *= v; y *= v; z *= v; return *this; }
+
     CVector operator/(T val)
     {
         CVector res(
@@ -185,6 +184,7 @@ public:
             z / val);
         return res;
     };
+
     T operator[](const int& i)
     {
         if (i == 0)
@@ -204,6 +204,7 @@ public:
         else
             return z;
     }
+
     T length()
     {
         return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
@@ -216,7 +217,7 @@ public:
 
     void normalize()
     {
-        T mag = this->length();
+        const T mag = this->length();
         if (mag != 0)
         {
             x = x / mag;
@@ -245,8 +246,15 @@ public:
 
     friend std::ostream& operator<<(std::ostream& o, const CVector<T>& obj)
     {
-        o << "[x:" << obj.x << ", y:" << obj.y << ", z:" << obj.z << "]";
+        o << obj.toString();
         return o;
+    }
+
+    std::string toString()
+    {
+        std::stringstream ss;
+        ss << "[x:" << this->x << ", y:" << this->y << ", z:" << this->z << "]";
+        return ss.str();
     }
 };
 

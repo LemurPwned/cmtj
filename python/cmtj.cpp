@@ -1,3 +1,4 @@
+#include <pybind11/operators.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -36,8 +37,18 @@ PYBIND11_MODULE(cmtj, m)
             double, double, double>())
         .def_readwrite("x", &DVector::x)
         .def_readwrite("y", &DVector::y)
-        .def_readwrite("z", &DVector::z);
-    // .def("length", &DVector::length);
+        .def_readwrite("z", &DVector::z)
+        .def("length", [](const DVector& vec) { return vec.length(); })
+        .def("normalize", &DVector::normalize)
+        .def("tolist", &DVector::tolist)
+        // operators 
+        .def(py::self + py::self)
+        .def(py::self += py::self)
+        .def(py::self *= double())
+        .def(double() * py::self)
+        .def(py::self * double())
+        .def("__str__", &DVector::toString)
+        .def("__repr__", &DVector::toString);
 
     py::implicitly_convertible<std::list<double>, DVector>();
     py::implicitly_convertible<std::vector<double>, DVector>();
@@ -103,7 +114,7 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<DAxialDriver>(m, "AxialDriver")
         .def(py::init<DScalarDriver, DScalarDriver, DScalarDriver>())
         .def(py::init<std::vector<ScalarDriver<double>>>())
-        .def("getVectorAxialDriver", DAxialDriver::getVectorAxialDriver)
+        .def("getVectorAxialDriver", &DAxialDriver::getVectorAxialDriver)
         .def("getCurrentAxialDrivers",
             &DAxialDriver::getCurrentAxialDrivers)
         .def("applyMask", py::overload_cast<DVector>(&DAxialDriver::applyMask))
