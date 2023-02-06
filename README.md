@@ -72,7 +72,7 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 
 ## Citing
 
-We would appreciate citing either of the listed work if you decide to use the project:
+We would appreciate citing either of the listed work if you decide to use the project or using the cite button on the right hand side panel of the repository:
 
 1. [**Numerical model of Harmonic Hall voltage detection for spintronic devices**](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403)
 
