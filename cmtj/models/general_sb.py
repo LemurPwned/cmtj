@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import sympy as sym
 
-from cmtj.utils import VectorObj, gamma, mu0
+from ..utils import VectorObj, gamma, mu0
 
 
 @dataclass
@@ -75,6 +75,12 @@ class Solver:
     J1: List[float]
     J2: List[float]
 
+    def __post_init__(self):
+        if len(self.layers) != len(self.J1) + 1:
+            raise ValueError("Number of layers and J1 values must match.")
+        if len(self.layers) != len(self.J2) + 1:
+            raise ValueError("Number of layers and J2 values must match.")
+
     def create_energy(self):
         """Creates the symbolic energy expression."""
         h = self.H.get_cartesian()
@@ -104,10 +110,8 @@ class Solver:
 
         N = len(self.layers)
         hessian = [[0 for _ in range(2 * N)] for _ in range(2 * N)]
-        # energy = sym.Function('E')(*symbols)
         for i in range(N):
             z = self.layers[i].sb_correction()
-            # z = sym.Symbol("Z")
             for j in range(i, N):
                 # dtheta dtheta
                 theta_i, phi_i = self.layers[i].get_coord_sym()
@@ -128,14 +132,10 @@ class Solver:
                     hessian[2 * i + 1][2 * j] = expr + sym.I * z
                     hessian[2 * i][2 * j + 1] = expr - sym.I * z
                 else:
-                    s1 = r"\theta_" + str(i + 1)
-                    s2 = r"\phi_" + str(j + 1)
                     expr = sym.diff(sym.diff(energy, theta_i), phi_j)
                     hessian[2 * i][2 * j + 1] = expr
                     hessian[2 * j + 1][2 * i] = expr
 
-                    s1 = r"\phi_" + str(i + 1)
-                    s2 = r"\theta_" + str(j + 1)
                     expr = sym.diff(sym.diff(energy, phi_i), theta_j)
                     hessian[2 * i + 1][2 * j] = expr
                     hessian[2 * j][2 * i + 1] = expr
