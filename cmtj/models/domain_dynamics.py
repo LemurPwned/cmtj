@@ -30,6 +30,14 @@ def get_pinning_field(X, Ms, pinning, Ly, Lz, V0_pin):
 
 
 @njit
+def get_edge_field(X, Lx, V0_edge):
+    c = Lx / 2
+    arg = (X - (Lx / 2)) / c
+    p = 6
+    return -p * V0_edge * (math.sinh(arg) * math.cosh(arg)**(p - 1) / c)
+
+
+@njit
 def get_field_contribution(X, phi, hx, hy, hz, alpha, dw, Ms, V0_pin, pinning,
                            Ly, Lz):
 
@@ -98,8 +106,8 @@ def compute_gamma_a(X, phi, Q, dw, hk, hx, hy, hdmi, bj, IECterm):
 
 
 @njit
-def compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Ly, Lz, V0_pin,
-                    pinning):
+def compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Lx, Ly, Lz,
+                    V0_pin, V0_edge, pinning):
     pi2 = math.pi / 2
     hp = get_pinning_field(X,
                            Ms=Ms,
@@ -107,17 +115,20 @@ def compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Ly, Lz, V0_pin,
                            Ly=Ly,
                            Lz=Lz,
                            V0_pin=V0_pin)
-    fact_gamma = Q * (
-        hz + hp + pi2 * hshe * math.cos(phi)) - beta * pi2 * hr * math.cos(phi)
+    he = get_edge_field(X, Lx, V0_edge)
+    fact_gamma = Q * (he + hz + hp + pi2 * hshe *
+                      math.cos(phi)) - beta * pi2 * hr * math.cos(phi)
     fact_stt = beta * bj / dw
     return gyro * fact_gamma + fact_stt
 
 
+@njit
 def compute_dynamics(X, phi, alpha, Q, dw, hx, hy, hz, hk, hdmi, hr, hshe,
-                     beta, bj, Ms, Ly, Lz, V0_pin, pinning, IECterm):
+                     beta, bj, Ms, Lx, Ly, Lz, V0_pin, V0_edge, pinning,
+                     IECterm):
     gamma_a = compute_gamma_a(X, phi, Q, dw, hk, hx, hy, hdmi, bj, IECterm)
-    gamma_b = compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Ly,
-                              Lz, V0_pin, pinning)
+    gamma_b = compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Lx,
+                              Ly, Lz, V0_pin, V0_edge, pinning)
     dXdt = dw * (gamma_a + alpha * gamma_b)
     dPhidt = -alpha * gamma_a + gamma_b
     return dXdt, dPhidt
@@ -138,10 +149,12 @@ class DomainWallDynamics:
     :param p: STT polarisation efficiency.
     :param V0_pin: pinning voltage constant.
     :param pinning: the pinning period.
-    :param Lz: z-dimension of the FM block.
+    :param Lx: z-dimension of the FM block.
     :param Ly: y-dimension of the FM block.
+    :param Lz: z-dimension of the FM block.
     :param Q: up-down or down-up wall parameter (either 1 or -1).
     :param Hr: Rashba field [A/m].
+    :param kappa: ratio of anisotropies, K = K/K0, (try 0-1)
     :param relativistic: whether to include relativistic effects?
     :param vmax_magnon: m/s, max magnon velocity => 2A/Sd
                         A -- exchange constant.
@@ -165,11 +178,14 @@ class DomainWallDynamics:
     beta: float = 1
     p: float = 1
     V0_pin: float = 1.65e-20
+    V0_edge: float = 0
     pinning: float = 30e-9
-    Lz: float = 3e-9
+    Lx: float = 120e-9
     Ly: float = 120e-9
+    Lz: float = 3e-9
     Q: int = 1
     Hr: float = 0
+    kappa: float = 1
     relativistic: bool = False
     vmax_magnon: float = 5000  # m/s, max magnon velocity => 2A/Sd
 
@@ -183,7 +199,6 @@ class DomainWallDynamics:
         self.bj = bohr_magneton * self.p / (echarge * self.Ms)
         self.hx, self.hy, self.hz = self.H.get_cartesian()
         self.je_driver = lambda t: 0
-        self.kappa = 1  # ratio of anisotropies, K = K/K0
 
     def set_current_function(self, driver: Callable):
         """
@@ -195,7 +210,7 @@ class DomainWallDynamics:
 @dataclass
 class MultilayerWallDynamics:
     layers: List[DomainWallDynamics]
-    J: float
+    J: float = 0
 
     def __post_init__(self):
         if len(self.layers) > 2:
@@ -239,14 +254,16 @@ class MultilayerWallDynamics:
                                             Ms=layer.Ms,
                                             IECterm=Jterm,
                                             V0_pin=layer.V0_pin,
+                                            V0_edge=layer.V0_edge,
                                             pinning=layer.pinning,
-                                            Lz=layer.Lz,
-                                            Ly=layer.Ly)
+                                            Lx=layer.Lx,
+                                            Ly=layer.Ly,
+                                            Lz=layer.Lz)
             dXdt = dXdt / reduced_alpha
             dPhidt = dPhidt / reduced_alpha
             # relaxation term for the domain wall width
             layer.dw_hat = layer.dw / math.sqrt(1 + layer.kappa *
-                                                (math.sin(vec[2 * i + 1])**2))
+                                                (math.sin(cphi)**2))
             if layer.relativistic:
                 # contract the domain wall width
                 lorentz_factor = 1 / math.sqrt(1 -
@@ -277,6 +294,9 @@ class MultilayerWallDynamics:
         result = defaultdict(list)
         while True:
             integrator.step()
+            if integrator.status == 'failed':
+                print("Failed to converge")
+                break
             layer_vecs = integrator.y
             result['t'].append(integrator.t)
             for i, layer in enumerate(self.layers):
@@ -286,9 +306,6 @@ class MultilayerWallDynamics:
                 result[f'v_{i}'].append(vel)
                 result[f'x_{i}'].append(x)
                 result[f'phi_{i}'].append(phi)
-            if integrator.status == 'failed':
-                print("Failed to converge")
-                break
             if integrator.status == 'finished':
                 break
 

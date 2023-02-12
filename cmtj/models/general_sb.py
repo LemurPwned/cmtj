@@ -4,7 +4,9 @@ from typing import List
 import numpy as np
 import sympy as sym
 
-from ..utils import VectorObj, gamma, mu0
+from cmtj.utils import VectorObj, gamma, mu0
+
+from ..utils.solvers import RootFinder
 
 
 @dataclass
@@ -51,7 +53,7 @@ class LayerSB:
         field_energy = -mu0 * self.Ms * m.dot(H)
         surface_anistropy = (-self.Ks +
                              (1. / 2.) * mu0 * self.Ms**2) * (m[-1]**2)
-        volume_anisotropy = -self.Kv.mag * m.dot(alpha)**2
+        volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
 
         if down_layer is None:
             iec_energy = 0
@@ -75,12 +77,6 @@ class Solver:
     J1: List[float]
     J2: List[float]
 
-    def __post_init__(self):
-        if len(self.layers) != len(self.J1) + 1:
-            raise ValueError("Number of layers and J1 values must match.")
-        if len(self.layers) != len(self.J2) + 1:
-            raise ValueError("Number of layers and J2 values must match.")
-
     def create_energy(self):
         """Creates the symbolic energy expression."""
         h = self.H.get_cartesian()
@@ -98,10 +94,6 @@ class Solver:
     def create_energy_hessian(self, equilibrium_position: List[float]):
         """Creates the symbolic hessian of the energy expression."""
         energy = sym.simplify(self.create_energy())
-        symbols = [
-            symbol for layer in self.layers
-            for symbol in layer.get_coord_sym()
-        ]
         subs = {}
         for i in range(len(self.layers)):
             theta, phi = self.layers[i].get_coord_sym()
@@ -193,5 +185,31 @@ class Solver:
             if np.linalg.norm(current_position - new_position) < tol:
                 break
             current_position = new_position
-        print(f"Converged in {step} steps")
         return np.asarray(current_position)
+
+    def solve(self,
+              init_position: np.ndarray,
+              ftol: float = 0.01e9,
+              max_freq: float = 80e9):
+        """Solves the system.
+        Returns the equilibrium position and frequencies in GHz."""
+        eq = self.adam_gradient_descent(
+            init_position=init_position,
+            max_steps=1e9,
+            tol=1e-9,
+            learning_rate=1e-4,
+            first_momentum_decay=0.9,
+            second_momentum_decay=0.999,
+        )
+        hes = self.create_energy_hessian(eq)
+        omega = sym.Symbol(r"\omega")
+        smpl = sym.simplify(hes.det())
+        # take the real part only for numerical stability
+        smpl = sym.re(smpl)
+        y = sym.lambdify(omega, smpl)
+        r = RootFinder(0, max_freq, step=ftol, xtol=1e-9, root_dtype="float16")
+        roots = r.find(y)
+        # convert to GHz
+        f = (roots / 2 * np.pi) / 1e9
+        f = np.unique(np.around(f, 2))
+        return eq, f

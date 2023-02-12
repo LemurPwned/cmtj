@@ -2,52 +2,14 @@ import math
 import warnings
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Callable, List, Literal
+from typing import List, Literal
 
 import numpy as np
 from tqdm import tqdm
 
-from ..utils import gamma_rad, mu0
+from ..utils import VectorObj, box_muller_random, gamma_rad, mu0
 
-
-@dataclass
-class VectorObj:
-    """Vector object for standard manipulation.
-    :param theta: positive z-axis angle (in xz plane) in radians.
-    :param phi: positive x-axis (in xy plane) angle in radians
-    :param mag: magnitude of the vector, if not set defaults to 1 *unit vector*
-    """
-    theta: float  # in radians
-    phi: float  # rad
-    mag: float = 1
-
-    def get_cartesian(self):
-        """Returns the vector in Cartesian coordinates with (x, y, z) compnents"""
-        return VectorObj.from_spherical(self.theta, self.phi, self.mag)
-
-    @staticmethod
-    def from_spherical(theta, phi, mag=1):
-        """Creates a Cartesian vector from spherical components"""
-        return [
-            mag * math.sin(theta) * math.cos(phi),
-            mag * math.sin(theta) * math.sin(phi), mag * math.cos(theta)
-        ]
-
-
-def box_muller_random(mean, std):
-    """
-    Generates Gaussian noise with mean and standard deviation
-    using the Box-Muller transform.
-    https://en.wikipedia.org/wiki/Box–Muller_transform
-    :param mean: mean of the Gaussian.
-    :param std: standard deviation of the Gaussian.
-    """
-    u1 = np.random.uniform(0, 1)
-    u2 = np.random.uniform(0, 1)
-    mag = std * math.sqrt(-2.0 * math.log(u1))
-    z0 = mag * math.cos(2 * math.pi * u2) + mean
-    z1 = mag * math.sin(2 * math.pi * u2) + mean
-    return z0, z1
+TINY_EPS = 1e-14
 
 
 @dataclass
@@ -97,7 +59,7 @@ class LayerSB:
     def cphi(self):
         return math.cos(self.m.phi)
 
-    def ext_field(self, Hinplane: VectorObj):
+    def energy_ext_field(self, Hinplane: VectorObj):
         hx, hy, hz = Hinplane.get_cartesian()
         return -self.Ms * mu0 * (hx * self.stheta * self.cphi + hy *
                                  self.sphi * self.ctheta + hz * self.ctheta)
@@ -120,7 +82,7 @@ class LayerSB:
                                 hy * self.cphi * self.ctheta)
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def iec_interaction(self, J, layer: "LayerSB"):
+    def energy_iec_interaction(self, J, layer: "LayerSB"):
         """
         Energy is symmetric and computed only once
         """
@@ -180,7 +142,71 @@ class LayerSB:
 
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def dmi_interaction(self, D, layer: "LayerSB"):
+    def energy_j2_interaction(self, J2, layer: "LayerSB"):
+        if layer is None:
+            return 0
+        return -J2 * (sum(
+            (self.m * layer.m).get_cartesian())**2) / self.thickness
+
+    def grad_j2_interaction(self, J2_top, J2_bottom, top_layer: "LayerSB",
+                            bottom_layer: "LayerSB", full_grad: bool):
+        grad1 = self.__any_grad_j2_interaction(J2_top,
+                                               top_layer,
+                                               full_grad=full_grad)
+        grad2 = self.__any_grad_j2_interaction(J2_bottom,
+                                               bottom_layer,
+                                               full_grad=full_grad)
+        return [
+            grad1[0] + grad2[0], grad1[1] + grad2[1], grad1[2] + grad2[2],
+            grad1[3] + grad2[3], grad1[4] + grad2[4]
+        ]
+
+    def __any_grad_j2_interaction(self, J2, layer: "LayerSB", full_grad: bool):
+        if (layer is None) or J2 == 0:
+            return [0, 0, 0, 0, 0]
+        constJ2 = J2 / self.thickness
+        diffcos = math.cos(self.m.phi - layer.m.phi)
+        dEdtheta = -2 * constJ2 * (
+            self.stheta * layer.ctheta - layer.stheta * self.ctheta * diffcos
+        ) * (self.stheta * layer.stheta * diffcos + self.ctheta * layer.ctheta)
+
+        dEdphi = 2 * constJ2 * (
+            self.stheta * layer.stheta * diffcos + self.ctheta * layer.ctheta
+        ) * self.stheta * layer.stheta * math.sin(self.m.phi - layer.m.phi)
+
+        if not full_grad:
+            return [dEdtheta, dEdphi, 0, 0, 0]
+        d2Edtheta2 = 2 * constJ2 * (-1 *
+                                    (-self.stheta * layer.ctheta +
+                                     layer.stheta * self.ctheta * diffcos)**2 +
+                                    (self.stheta * layer.stheta * diffcos +
+                                     self.ctheta * layer.ctheta)**2)
+        d2Edphi2 = 0.5 * constJ2 * (
+            -math.cos(-2 * self.m.phi + 2 * layer.m.phi + self.m.theta -
+                      layer.m.theta) + math.cos(-self.m.phi + layer.m.phi +
+                                                self.m.theta + layer.m.theta) +
+            math.cos(self.m.phi - layer.m.phi - self.m.theta + layer.m.theta) +
+            math.cos(self.m.phi - layer.m.phi + self.m.theta - layer.m.theta) +
+            math.cos(self.m.phi - layer.m.phi + self.m.theta + layer.m.theta) +
+            math.cos(2 * self.m.phi - 2 * layer.m.phi - self.m.theta +
+                     layer.m.theta) +
+            math.cos(2 * self.m.phi - 2 * layer.m.phi + self.m.theta -
+                     layer.m.theta) -
+            math.cos(-self.m.phi + layer.m.phi + 2 * self.m.theta *
+                     layer.m.theta) * self.stheta * layer.stheta)
+        d2Edphidtheta = 0.5 * constJ2 * (
+            2 * math.cos(2 * self.m.theta - layer.m.theta) +
+            2 * math.cos(2 * self.m.theta + layer.m.theta) -
+            math.cos(-self.m.phi + layer.m.phi + 2 * self.m.theta +
+                     layer.m.theta) + math.cos(self.m.phi - layer.m.phi - 2 *
+                                               self.m.theta + layer.m.theta) +
+            math.cos(self.m.phi - layer.m.phi + 2 * self.m.theta -
+                     layer.m.theta) - math.cos(self.m.phi - layer.m.phi + 2 *
+                                               self.m.theta + layer.m.theta) *
+            layer.stheta * math.sin(self.m.phi - layer.m.phi))
+        return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
+
+    def energy_dmi_interaction(self, D, layer: "LayerSB"):
         """
         DMi energy is Edmi = D z(m1 x m2)
         """
@@ -228,7 +254,7 @@ class LayerSB:
 
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def surface_anisotropy(self):
+    def energy_surface_anisotropy(self):
         return (-self.Ks + 0.5 * self.Ms * mu0) * self.ctheta**2
 
     def grad_surface_anisotropy(self, full_grad: bool):
@@ -240,7 +266,7 @@ class LayerSB:
         d2Edtheta2 = (2 * self.Ks - msq) * (self.ctheta**2 - self.stheta**2)
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def volume_anisotropy(self):
+    def energy_volume_anisotropy(self):
         """
         E_k = K (m o a)^2
         """
@@ -272,6 +298,8 @@ class LayerSB:
                             Hinplane: VectorObj,
                             Jtop: float,
                             Jbottom: float,
+                            J2top: float,
+                            J2bottom: float,
                             Dtop: float,
                             Dbottom: float,
                             top_layer: "LayerSB",
@@ -284,19 +312,30 @@ class LayerSB:
                                        full_grad)
         g5 = self.grad_dmi_interaction(Dtop, Dbottom, top_layer, bottom_layer,
                                        full_grad)
-        return [g1[i] + g2[i] + g3[i] + g4[i] + g5[i] for i in range(5)]
+        g6 = self.grad_j2_interaction(J2top, J2bottom, top_layer, bottom_layer,
+                                      full_grad)
+        return [
+            g1[i] + g2[i] + g3[i] + g4[i] + g5[i] + g6[i] for i in range(5)
+        ]
 
     def compute_energy(self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
-                       Dtop: float, Dbottom: float, top_layer: "LayerSB",
+                       J2top: float, J2bottom: float, Dtop: float,
+                       Dbottom: float, top_layer: "LayerSB",
                        bottom_layer: "LayerSB"):
-        e1 = self.ext_field(Hinplane)
-        e2 = self.surface_anisotropy()
-        e3 = self.volume_anisotropy()
-        e4 = self.iec_interaction(
-            Jbottom, bottom_layer) + self.iec_interaction(Jtop, top_layer)
-        e5 = self.dmi_interaction(Dtop, top_layer) + self.dmi_interaction(
-            Dbottom, bottom_layer)
-        evec = [e1, e2, e3, e4, e5]
+        e1 = self.energy_ext_field(Hinplane)
+        e2 = self.energy_surface_anisotropy()
+        e3 = self.energy_volume_anisotropy()
+        e4 = self.energy_iec_interaction(
+            Jbottom, bottom_layer) + self.energy_iec_interaction(
+                Jtop, top_layer)
+        e5 = self.energy_dmi_interaction(
+            Dtop, top_layer) + self.energy_dmi_interaction(
+                Dbottom, bottom_layer)
+        e6 = self.energy_j2_interaction(
+            J2bottom, bottom_layer) + self.energy_j2_interaction(
+                J2top, top_layer)
+
+        evec = [e1, e2, e3, e4, e5, e6]
         return evec
 
     def get_current_position(self):
@@ -308,10 +347,11 @@ class LayerSB:
 
     def compute_frequency_at_equilibrium(self, Hinplane: VectorObj,
                                          Jtop: float, Jbottom: float,
+                                         J2top: float, J2bottom: float,
                                          Dtop: float, Dbottom: float,
                                          top_layer: "LayerSB",
                                          bottom_layer: "LayerSB"):
-        """Computes the resonance frequency (FMR) of the layers
+        """Computes the resonance frequency (FMR) of the layers.
         :param Hinplance: vector that describes the applied H.
         :param Jtop: IEC constant from the layer above the current one.
         :param Jbottom: IEC constant from the layer below the current one.
@@ -321,26 +361,26 @@ class LayerSB:
          d2Edphidtheta) = self.compute_grad_energy(Hinplane,
                                                    Jtop,
                                                    Jbottom,
+                                                   J2top,
+                                                   J2bottom,
                                                    Dtop,
                                                    Dbottom,
                                                    top_layer,
                                                    bottom_layer,
                                                    full_grad=True)
 
-        if self.stheta != 0.:
-            fmr = (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2) / math.pow(
-                self.stheta * self.Ms, 2)
-            if fmr > 0:
-                fmr = math.sqrt(fmr) * gamma_rad / (2 * math.pi)
-        else:
-            return -4
-        return fmr
+        if self.stheta == 0.:
+            return 0
+        fmr = (d2Edtheta2 * d2Edphi2 - d2Edphidtheta**2) / math.pow(
+            self.stheta * self.Ms, 2)
+        if fmr > 0:
+            fmr = math.sqrt(fmr) * gamma_rad / (2 * math.pi)
+        return 0
 
-    def compute_frequency_at_equilibrium_baselgia(self, Hinplane: VectorObj,
-                                                  Jtop: float, Jbottom: float,
-                                                  Dtop: float, Dbottom: float,
-                                                  top_layer: "LayerSB",
-                                                  bottom_layer: "LayerSB"):
+    def compute_frequency_at_equilibrium_baselgia(
+            self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
+            J2top: float, J2bottom: float, Dtop: float, Dbottom: float,
+            top_layer: "LayerSB", bottom_layer: "LayerSB"):
         """Computes the resonance frequency (FMR) of the layers.
         Uses Baselgia 1988 correction.
         https://link.aps.org/doi/10.1103/PhysRevB.38.2237
@@ -353,27 +393,28 @@ class LayerSB:
          d2Edphidtheta) = self.compute_grad_energy(Hinplane,
                                                    Jtop,
                                                    Jbottom,
+                                                   J2top,
+                                                   J2bottom,
                                                    Dtop,
                                                    Dbottom,
                                                    top_layer,
                                                    bottom_layer,
                                                    full_grad=True)
 
-        # balsiega correction 1988
+        # baselgia correction 1988
         pref = (gamma_rad / (2 * math.pi))
         pref2 = self.Ms**2
         const_pref = (pref**2) / pref2
 
-        if self.stheta != 0.:
-            csc = self.ctheta / self.stheta
-            fmr1 = (d2Edtheta2 * ((d2Edphi2 /
-                                   (self.stheta**2)) + csc * dEdtheta))
-            fmr2 = math.pow(
-                (d2Edphidtheta / self.stheta) - csc * (dEdphi / self.stheta),
-                2)
-            joint = const_pref * (fmr1 + fmr2)
-            if joint > 0:
-                return math.sqrt(joint)
+        if self.stheta == 0.:
+            return 0
+        csc = self.ctheta / self.stheta
+        fmr1 = (d2Edtheta2 * ((d2Edphi2 / (self.stheta**2)) + csc * dEdtheta))
+        fmr2 = math.pow(
+            (d2Edphidtheta / self.stheta) - csc * (dEdphi / self.stheta), 2)
+        joint = const_pref * (fmr1 + fmr2)
+        if joint > 0:
+            return math.sqrt(joint)
         return 0
 
 
@@ -387,6 +428,7 @@ class SmitBeljersModel:
                  layers: List[LayerSB],
                  Hext: VectorObj,
                  J: List[float] = [],
+                 J2: List[float] = [],
                  D: List[float] = [],
                  silent: bool = False) -> None:
         """
@@ -399,7 +441,14 @@ class SmitBeljersModel:
         if len(layers) != (len(J) + 1):
             raise ValueError("Number of layers must be equal to len(J) + 1")
         self.J = J
-        self.D = D
+        if not len(J2):
+            self.J2 = [0] * len(J)
+        else:
+            self.J2 = J2
+        if not len(D):
+            self.D = [0] * len(J)
+        else:
+            self.D = D
         self.layers: List[LayerSB] = layers
         self.energy = np.zeros((len(self.layers), ), dtype=np.float32)
         self.current_position = np.zeros((len(self.layers), 2),
@@ -436,16 +485,19 @@ class SmitBeljersModel:
         for i, layer in enumerate(self.layers):
             Jtop, Jbottom, top_layer_handle, bottom_layer_handle = self.__get_interaction_constant(
                 self.layers, i, self.J)
+            J2top, J2bottom, _, _ = self.__get_interaction_constant(
+                self.layers, i, self.J2)
             Dtop, Dbottom, _, _ = self.__get_interaction_constant(
                 self.layers, i, self.D)
-            evec = layer.compute_energy(self.Hext, Jtop, Jbottom, Dtop,
-                                        Dbottom, top_layer_handle,
-                                        bottom_layer_handle)
+
+            evec = layer.compute_energy(self.Hext, Jtop, Jbottom, J2top,
+                                        J2bottom, Dtop, Dbottom,
+                                        top_layer_handle, bottom_layer_handle)
             self.energy[i] = sum(evec)
             self.current_position[i, :] = layer.get_current_position()
             self.grad_energy[i, :] = layer.compute_grad_energy(
-                self.Hext, Jtop, Jbottom, Dtop, Dbottom, top_layer_handle,
-                bottom_layer_handle)
+                self.Hext, Jtop, Jbottom, J2top, J2bottom, Dtop, Dbottom,
+                top_layer_handle, bottom_layer_handle)
             for ener_val, ener_label in zip(evec, self.ener_labels):
                 self.history[f"energy_{ener_label}_{i}"].append(ener_val)
             self.history[f"energy_{i}"].append(self.energy[i])
@@ -466,11 +518,13 @@ class SmitBeljersModel:
         for i, layer in enumerate(self.layers):
             Jtop, Jbottom, top_layer_handle, bottom_layer_handle = self.__get_interaction_constant(
                 self.layers, i, self.J)
+            J2top, J2bottom, _, _ = self.__get_interaction_constant(
+                self.layers, i, self.J2)
             Dtop, Dbottom, _, _ = self.__get_interaction_constant(
                 self.layers, i, self.D)
-            evec = layer.compute_energy(self.Hext, Jtop, Jbottom, Dtop,
-                                        Dbottom, top_layer_handle,
-                                        bottom_layer_handle)
+            evec = layer.compute_energy(self.Hext, Jtop, Jbottom, J2top,
+                                        J2bottom, Dtop, Dbottom,
+                                        top_layer_handle, bottom_layer_handle)
             total_energy += sum(evec)
         return total_energy
 
@@ -509,17 +563,19 @@ class SmitBeljersModel:
         """Computes FMR values for each of the layers in the model."""
         Jtop, Jbottom, top_layer_handle, bottom_layer_handle = self.__get_interaction_constant(
             self.layers, layer_index, self.J)
+        J2top, J2bottom, _, _ = self.__get_interaction_constant(
+            self.layers, layer_index, self.J2)
         Dtop, Dbottom, _, _ = self.__get_interaction_constant(
             self.layers, layer_index, self.D)
         if method == 'standard':
             return self.layers[layer_index].compute_frequency_at_equilibrium(
-                self.Hext, Jtop, Jbottom, Dtop, Dbottom, top_layer_handle,
-                bottom_layer_handle)
+                self.Hext, Jtop, Jbottom, J2top, J2bottom, Dtop, Dbottom,
+                top_layer_handle, bottom_layer_handle)
         elif method == 'baselgia':
             return self.layers[
                 layer_index].compute_frequency_at_equilibrium_baselgia(
-                    self.Hext, Jtop, Jbottom, Dtop, Dbottom, top_layer_handle,
-                    bottom_layer_handle)
+                    self.Hext, Jtop, Jbottom, J2top, J2bottom, Dtop, Dbottom,
+                    top_layer_handle, bottom_layer_handle)
         else:
             raise ValueError(f"Method {method} not implemented")
 

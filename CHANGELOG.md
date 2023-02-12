@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased yet] 1.3.0
+# 1.3.1
+
+- `CVector` got extra functionality in Python bindings. Operators are now supported.
+- Domain Wall dynamics is now also for 2 layer systems. Added edge potetnial.
+- SB model generalised for N layers.
+
+## 1.3.0
 
 - Adding DW dynamics 1D model with dynamic drivers. (Numba optimised)
 - Adding SB model for energy-based FMR computation. Gradient computed using Adam optimiser.

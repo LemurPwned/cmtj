@@ -85,7 +85,7 @@ class PhysicsModel(pl.LightningModule):
         else:
             raise ValueError(f"Unknown loss type: {loss_type}")
 
-        infeat = 2998 * 80
+            infeat = 2998 * 80
         self.model = nn.Sequential(
             nn.Flatten(), nn.Linear(in_features=infeat, out_features=2048),
             nn.ReLU(), nn.Dropout(p=1 - keep_prob),

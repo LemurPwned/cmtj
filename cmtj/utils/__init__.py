@@ -1,6 +1,7 @@
 import math
 
 from .filters import Filters
+from .general import VectorObj, box_muller_random
 from .linear import FieldScan
 from .resistance import *
 
@@ -20,11 +21,7 @@ me = 9.109e-31
 bohr_magneton = echarge * hbar / (2 * me)
 
 __all__ = [
-    "Filters",
-    "FieldScan",
-    "compute_sd",
-    "compute_resistance",
-    "calculate_magnetoresistance",
-    "calculate_resistance_series",
-    "calculate_resistance_parallel",
+    "Filters", "FieldScan", "compute_sd", "compute_resistance",
+    "calculate_magnetoresistance", "calculate_resistance_series",
+    "calculate_resistance_parallel", "VectorObj", "box_muller_random"
 ]

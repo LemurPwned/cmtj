@@ -81,7 +81,7 @@ public:
 
     Stack(std::vector<Junction<T>> inputStack,
         const std::string& topId,
-        const std::string& bottomId) : topId(topId), bottomId(bottomId)
+        const std::string& bottomId): topId(topId), bottomId(bottomId)
     {
         this->junctionList = std::move(inputStack);
         if (std::any_of(this->junctionList.begin(),
@@ -368,7 +368,7 @@ public:
 
 };
 template <typename T>
-class SeriesStack : public Stack<T>
+class SeriesStack: public Stack<T>
 {
     T calculateStackResistance(std::vector<T> resistances) override
     {
@@ -389,10 +389,10 @@ class SeriesStack : public Stack<T>
 public:
     explicit SeriesStack(const std::vector<Junction<T>>& jL,
         const std::string& topId = "free",
-        const std::string& bottomId = "bottom") : Stack<T>(jL, topId, bottomId) {}
+        const std::string& bottomId = "bottom"): Stack<T>(jL, topId, bottomId) {}
 };
 template <typename T>
-class ParallelStack : public Stack<T>
+class ParallelStack: public Stack<T>
 {
     T calculateStackResistance(std::vector<T> resistances) override
     {
@@ -413,6 +413,6 @@ class ParallelStack : public Stack<T>
 public:
     explicit ParallelStack(const std::vector<Junction<T>>& jL,
         const std::string& topId = "free",
-        const std::string& bottomId = "bottom") : Stack<T>(jL, topId, bottomId) {}
+        const std::string& bottomId = "bottom"): Stack<T>(jL, topId, bottomId) {}
 };
 #endif // CORE_STACK_HPP_
