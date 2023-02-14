@@ -455,13 +455,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cmtj.models.domain_dynamics.pi2" class="md-nav__link">
-    pi2
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#cmtj.models.domain_dynamics.DW" class="md-nav__link">
     DW
   </a>
@@ -477,22 +470,35 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.run" class="md-nav__link">
-    run()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.set_current_function" class="md-nav__link">
     set_current_function()
   </a>
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.MultilayerWallDynamics" class="md-nav__link">
+    MultilayerWallDynamics
+  </a>
+  
+    <nav class="md-nav" aria-label="MultilayerWallDynamics">
+      <ul class="md-nav__list">
+        
           <li class="md-nav__item">
-  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.thiaville_llg" class="md-nav__link">
-    thiaville_llg()
+  <a href="#cmtj.models.domain_dynamics.MultilayerWallDynamics.multilayer_dw_llg" class="md-nav__link">
+    multilayer_dw_llg()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.MultilayerWallDynamics.run" class="md-nav__link">
+    run()
   </a>
   
 </li>
@@ -763,13 +769,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cmtj.models.domain_dynamics.pi2" class="md-nav__link">
-    pi2
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#cmtj.models.domain_dynamics.DW" class="md-nav__link">
     DW
   </a>
@@ -785,22 +784,35 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.run" class="md-nav__link">
-    run()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.set_current_function" class="md-nav__link">
     set_current_function()
   </a>
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.MultilayerWallDynamics" class="md-nav__link">
+    MultilayerWallDynamics
+  </a>
+  
+    <nav class="md-nav" aria-label="MultilayerWallDynamics">
+      <ul class="md-nav__list">
+        
           <li class="md-nav__item">
-  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.thiaville_llg" class="md-nav__link">
-    thiaville_llg()
+  <a href="#cmtj.models.domain_dynamics.MultilayerWallDynamics.multilayer_dw_llg" class="md-nav__link">
+    multilayer_dw_llg()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.MultilayerWallDynamics.run" class="md-nav__link">
+    run()
   </a>
   
 </li>
@@ -845,27 +857,6 @@
 
 
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h2 id="cmtj.models.domain_dynamics.pi2" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">pi2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
-  </span>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Changing the DMI sign makes it an UP or DOWN domain wall (same chirality)</p>
-  </div>
-
-</div>
-
 
 <div class="doc doc-object doc-class">
 
@@ -886,12 +877,12 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
 <span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DW</span><span class="p">:</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DW</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Initial conditions for the phi of DW equation.&quot;&quot;&quot;</span>
     <span class="n">NEEL_RIGHT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">NEEL_LEFT</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
@@ -975,7 +966,7 @@
         <tr>
           <td><code>H</code></td>
           <td>
-                <code><a title="cmtj.models.sb.VectorObj" href="../sb-reference/#cmtj.models.sb.VectorObj">VectorObj</a></code>
+                <code><span title="cmtj.models.sb.VectorObj">VectorObj</span></code>
           </td>
           <td><p>applied magnetic field vector.</p></td>
           <td>
@@ -1073,13 +1064,13 @@
           </td>
         </tr>
         <tr>
-          <td><code>Lz</code></td>
+          <td><code>Lx</code></td>
           <td>
                 <code>float</code>
           </td>
           <td><p>z-dimension of the FM block.</p></td>
           <td>
-                <code>3e-09</code>
+                <code>1.2e-07</code>
           </td>
         </tr>
         <tr>
@@ -1090,6 +1081,46 @@
           <td><p>y-dimension of the FM block.</p></td>
           <td>
                 <code>1.2e-07</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Lz</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>z-dimension of the FM block.</p></td>
+          <td>
+                <code>3e-09</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Q</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>up-down or down-up wall parameter (either 1 or -1).</p></td>
+          <td>
+                <code>1</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Hr</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>Rashba field [A/m].</p></td>
+          <td>
+                <code>0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>kappa</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>ratio of anisotropies, K = K/K0, (try 0-1)</p></td>
+          <td>
+                <code>1</code>
           </td>
         </tr>
         <tr>
@@ -1118,46 +1149,7 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
@@ -1227,29 +1219,7 @@
 <span class="normal">204</span>
 <span class="normal">205</span>
 <span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">DomainWallDynamics</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Domain Wall dynamics class.</span>
 <span class="sd">    :param alpha: Gilbert damping.</span>
@@ -1264,8 +1234,12 @@
 <span class="sd">    :param p: STT polarisation efficiency.</span>
 <span class="sd">    :param V0_pin: pinning voltage constant.</span>
 <span class="sd">    :param pinning: the pinning period.</span>
-<span class="sd">    :param Lz: z-dimension of the FM block.</span>
+<span class="sd">    :param Lx: z-dimension of the FM block.</span>
 <span class="sd">    :param Ly: y-dimension of the FM block.</span>
+<span class="sd">    :param Lz: z-dimension of the FM block.</span>
+<span class="sd">    :param Q: up-down or down-up wall parameter (either 1 or -1).</span>
+<span class="sd">    :param Hr: Rashba field [A/m].</span>
+<span class="sd">    :param kappa: ratio of anisotropies, K = K/K0, (try 0-1)</span>
 <span class="sd">    :param relativistic: whether to include relativistic effects?</span>
 <span class="sd">    :param vmax_magnon: m/s, max magnon velocity =&gt; 2A/Sd</span>
 <span class="sd">                        A -- exchange constant.</span>
@@ -1289,9 +1263,14 @@
     <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">V0_pin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.65e-20</span>
+    <span class="n">V0_edge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">pinning</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30e-9</span>
-    <span class="n">Lz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3e-9</span>
+    <span class="n">Lx</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120e-9</span>
     <span class="n">Ly</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">120e-9</span>
+    <span class="n">Lz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3e-9</span>
+    <span class="n">Q</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Hr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">relativistic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">vmax_magnon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5000</span>  <span class="c1"># m/s, max magnon velocity =&gt; 2A/Sd</span>
 
@@ -1311,76 +1290,6 @@
 <span class="sd">        :param driver: A function of time that returns the current density</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span> <span class="o">=</span> <span class="n">driver</span>
-
-    <span class="k">def</span> <span class="nf">thiaville_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Solve the Thiaville llg equation for LLG.</span>
-<span class="sd">        :param t: current simulation time.</span>
-<span class="sd">        :param vec: contains [X, phi], current DW position and its chirality.</span>
-<span class="sd">        :returns (dXdt, dPhidt): velocity and change of chirality.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">X</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">vec</span>
-        <span class="n">je_at_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
-
-        <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
-                                        <span class="n">phi</span><span class="p">,</span>
-                                        <span class="n">hx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
-                                        <span class="n">hy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
-                                        <span class="n">hz</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
-                                        <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
-                                        <span class="n">dw</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">,</span>
-                                        <span class="n">bj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bj</span><span class="p">,</span>
-                                        <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
-                                        <span class="n">Hshe</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Hshe</span><span class="p">,</span>
-                                        <span class="n">je</span><span class="o">=</span><span class="n">je_at_t</span><span class="p">,</span>
-                                        <span class="n">Hdmi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">,</span>
-                                        <span class="n">Hk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
-                                        <span class="n">Ms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
-                                        <span class="n">V0_pin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
-                                        <span class="n">pinning</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
-                                        <span class="n">Lz</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Lz</span><span class="p">,</span>
-                                        <span class="n">Ly</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ly</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativistic</span><span class="p">:</span>
-            <span class="c1"># contract the domain wall width</span>
-            <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vmax_magnon</span> <span class="o">/</span> <span class="n">dXdt</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">lorentz_factor</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="n">x0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="n">phi0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="n">max_step</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics</span>
-<span class="sd">        :param sim_time: total simulation time (simulation units).</span>
-<span class="sd">        :param x0: starting position of the DW.</span>
-<span class="sd">        :param phi0: starting chiral angle of the DW.</span>
-<span class="sd">        :param max_step: maximum allowed step of the RK45 method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">thiaville_llg</span><span class="p">,</span>
-                          <span class="n">t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                          <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
-                          <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
-                          <span class="n">y0</span><span class="o">=</span><span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">phi0</span><span class="p">],</span>
-                          <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
-                          <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
-            <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
-            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to converge&quot;</span><span class="p">)</span>
-                <span class="k">break</span>
-            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
-                <span class="k">break</span>
-
-        <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
 </td></tr></table>
         </details>
@@ -1396,149 +1305,6 @@
 
 
 
-
-<div class="doc doc-object doc-function">
-
-
-
-<h3 id="cmtj.models.domain_dynamics.DomainWallDynamics.run" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">sim_time</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">phi0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_step</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span></code>
-
-</h3>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Run simulation of DW dynamics</p>
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>sim_time</code></td>
-          <td>
-                <code>float</code>
-          </td>
-          <td><p>total simulation time (simulation units).</p></td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>x0</code></td>
-          <td>
-                <code>float</code>
-          </td>
-          <td><p>starting position of the DW.</p></td>
-          <td>
-                <code>0</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>phi0</code></td>
-          <td>
-                <code>float</code>
-          </td>
-          <td><p>starting chiral angle of the DW.</p></td>
-          <td>
-                <code>0</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>max_step</code></td>
-          <td>
-          </td>
-          <td><p>maximum allowed step of the RK45 method.</p></td>
-          <td>
-                <code>1e-10</code>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-      <details class="quote">
-        <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-        <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">x0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">phi0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">max_step</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics</span>
-<span class="sd">    :param sim_time: total simulation time (simulation units).</span>
-<span class="sd">    :param x0: starting position of the DW.</span>
-<span class="sd">    :param phi0: starting chiral angle of the DW.</span>
-<span class="sd">    :param max_step: maximum allowed step of the RK45 method.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">thiaville_llg</span><span class="p">,</span>
-                      <span class="n">t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                      <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
-                      <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
-                      <span class="n">y0</span><span class="o">=</span><span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">phi0</span><span class="p">],</span>
-                      <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
-                      <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
-        <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
-        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
-        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;phi&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to converge&quot;</span><span class="p">)</span>
-            <span class="k">break</span>
-        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
-            <span class="k">break</span>
-
-    <span class="k">return</span> <span class="n">result</span>
-</code></pre></div>
-</td></tr></table>
-      </details>
-  </div>
-
-</div>
 
 <div class="doc doc-object doc-function">
 
@@ -1580,11 +1346,11 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param driver: A function of time that returns the current density</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1596,12 +1362,262 @@
 
 </div>
 
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.models.domain_dynamics.MultilayerWallDynamics" class="doc doc-heading">
+        <code>MultilayerWallDynamics</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+        <details class="quote">
+          <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">MultilayerWallDynamics</span><span class="p">:</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DomainWallDynamics</span><span class="p">]</span>
+    <span class="n">J</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;BilayerWallDynamics only supports up to 2 layers&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Solve the Thiaville llg equation for LLG.</span>
+<span class="sd">        :param t: current simulation time.</span>
+<span class="sd">        :param vec: contains [X, phi], current DW position and its chirality.</span>
+<span class="sd">        :returns (dXdt, dPhidt): velocity and change of chirality.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># vector is X1, phi1, X2, phi2, ...</span>
+        <span class="n">layer</span><span class="p">:</span> <span class="n">DomainWallDynamics</span>
+        <span class="n">new_vec</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="n">je_at_t</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">cphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">/</span> <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+                <span class="n">otherphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">Jterm</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span> <span class="o">-</span> <span class="n">otherphi</span><span class="p">)</span>
+
+            <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span>
+                                            <span class="n">phi</span><span class="o">=</span><span class="n">cphi</span><span class="p">,</span>
+                                            <span class="n">Q</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span>
+                                            <span class="n">hx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
+                                            <span class="n">hy</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
+                                            <span class="n">hz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
+                                            <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                                            <span class="n">dw</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">,</span>
+                                            <span class="n">bj</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">bj</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+                                            <span class="n">hr</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hr</span><span class="p">,</span>
+                                            <span class="n">beta</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+                                            <span class="n">hshe</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+                                            <span class="n">hdmi</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">,</span>
+                                            <span class="n">hk</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
+                                            <span class="n">Ms</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
+                                            <span class="n">IECterm</span><span class="o">=</span><span class="n">Jterm</span><span class="p">,</span>
+                                            <span class="n">V0_pin</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
+                                            <span class="n">V0_edge</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_edge</span><span class="p">,</span>
+                                            <span class="n">pinning</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
+                                            <span class="n">Lx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span>
+                                            <span class="n">Ly</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span>
+                                            <span class="n">Lz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lz</span><span class="p">)</span>
+            <span class="n">dXdt</span> <span class="o">=</span> <span class="n">dXdt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
+            <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">dPhidt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
+            <span class="c1"># relaxation term for the domain wall width</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span>
+                                                <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relativistic</span><span class="p">:</span>
+                <span class="c1"># contract the domain wall width</span>
+                <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span>
+                                               <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">vmax_magnon</span> <span class="o">/</span> <span class="n">dXdt</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">lorentz_factor</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+            <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dXdt</span><span class="p">)</span>
+            <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dPhidt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_vec</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">starting_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+            <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics</span>
+<span class="sd">        :param sim_time: total simulation time (simulation units).</span>
+<span class="sd">        :param x0: starting position of the DW.</span>
+<span class="sd">        :param phi0: starting chiral angle of the DW.</span>
+<span class="sd">        :param max_step: maximum allowed step of the RK45 method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multilayer_dw_llg</span><span class="p">,</span>
+                          <span class="n">t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                          <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
+                          <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
+                          <span class="n">y0</span><span class="o">=</span><span class="n">starting_conditions</span><span class="p">,</span>
+                          <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+                          <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to converge&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">layer_vecs</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+</td></tr></table>
+        </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
 <div class="doc doc-object doc-function">
 
 
 
-<h3 id="cmtj.models.domain_dynamics.DomainWallDynamics.thiaville_llg" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">thiaville_llg</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span></code>
+<h3 id="cmtj.models.domain_dynamics.MultilayerWallDynamics.multilayer_dw_llg" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">multilayer_dw_llg</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1661,73 +1677,263 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">thiaville_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Solve the Thiaville llg equation for LLG.</span>
 <span class="sd">    :param t: current simulation time.</span>
 <span class="sd">    :param vec: contains [X, phi], current DW position and its chirality.</span>
 <span class="sd">    :returns (dXdt, dPhidt): velocity and change of chirality.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">X</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">vec</span>
-    <span class="n">je_at_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+    <span class="c1"># vector is X1, phi1, X2, phi2, ...</span>
+    <span class="n">layer</span><span class="p">:</span> <span class="n">DomainWallDynamics</span>
+    <span class="n">new_vec</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="n">je_at_t</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">/</span> <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+            <span class="n">otherphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">Jterm</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span> <span class="o">-</span> <span class="n">otherphi</span><span class="p">)</span>
 
-    <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span><span class="n">X</span><span class="p">,</span>
-                                    <span class="n">phi</span><span class="p">,</span>
-                                    <span class="n">hx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
-                                    <span class="n">hy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
-                                    <span class="n">hz</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
-                                    <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
-                                    <span class="n">dw</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">,</span>
-                                    <span class="n">bj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bj</span><span class="p">,</span>
-                                    <span class="n">beta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
-                                    <span class="n">Hshe</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Hshe</span><span class="p">,</span>
-                                    <span class="n">je</span><span class="o">=</span><span class="n">je_at_t</span><span class="p">,</span>
-                                    <span class="n">Hdmi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">,</span>
-                                    <span class="n">Hk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
-                                    <span class="n">Ms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
-                                    <span class="n">V0_pin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
-                                    <span class="n">pinning</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
-                                    <span class="n">Lz</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Lz</span><span class="p">,</span>
-                                    <span class="n">Ly</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ly</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">relativistic</span><span class="p">:</span>
-        <span class="c1"># contract the domain wall width</span>
-        <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vmax_magnon</span> <span class="o">/</span> <span class="n">dXdt</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">lorentz_factor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+        <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span>
+                                        <span class="n">phi</span><span class="o">=</span><span class="n">cphi</span><span class="p">,</span>
+                                        <span class="n">Q</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span>
+                                        <span class="n">hx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
+                                        <span class="n">hy</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
+                                        <span class="n">hz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
+                                        <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                                        <span class="n">dw</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">,</span>
+                                        <span class="n">bj</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">bj</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+                                        <span class="n">hr</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hr</span><span class="p">,</span>
+                                        <span class="n">beta</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+                                        <span class="n">hshe</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+                                        <span class="n">hdmi</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">,</span>
+                                        <span class="n">hk</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
+                                        <span class="n">Ms</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
+                                        <span class="n">IECterm</span><span class="o">=</span><span class="n">Jterm</span><span class="p">,</span>
+                                        <span class="n">V0_pin</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
+                                        <span class="n">V0_edge</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_edge</span><span class="p">,</span>
+                                        <span class="n">pinning</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
+                                        <span class="n">Lx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span>
+                                        <span class="n">Ly</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span>
+                                        <span class="n">Lz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lz</span><span class="p">)</span>
+        <span class="n">dXdt</span> <span class="o">=</span> <span class="n">dXdt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
+        <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">dPhidt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
+        <span class="c1"># relaxation term for the domain wall width</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span>
+                                            <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relativistic</span><span class="p">:</span>
+            <span class="c1"># contract the domain wall width</span>
+            <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span>
+                                           <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">vmax_magnon</span> <span class="o">/</span> <span class="n">dXdt</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">lorentz_factor</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+        <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dXdt</span><span class="p">)</span>
+        <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dPhidt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_vec</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
 
-    <span class="k">return</span> <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span>
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.domain_dynamics.MultilayerWallDynamics.run" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">sim_time</span><span class="p">,</span> <span class="n">starting_conditions</span><span class="p">,</span> <span class="n">max_step</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run simulation of DW dynamics</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>sim_time</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>total simulation time (simulation units).</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>x0</code></td>
+          <td>
+          </td>
+          <td><p>starting position of the DW.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>phi0</code></td>
+          <td>
+          </td>
+          <td><p>starting chiral angle of the DW.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_step</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>maximum allowed step of the RK45 method.</p></td>
+          <td>
+                <code>1e-10</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">starting_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics</span>
+<span class="sd">    :param sim_time: total simulation time (simulation units).</span>
+<span class="sd">    :param x0: starting position of the DW.</span>
+<span class="sd">    :param phi0: starting chiral angle of the DW.</span>
+<span class="sd">    :param max_step: maximum allowed step of the RK45 method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multilayer_dw_llg</span><span class="p">,</span>
+                      <span class="n">t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                      <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
+                      <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
+                      <span class="n">y0</span><span class="o">=</span><span class="n">starting_conditions</span><span class="p">,</span>
+                      <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+                      <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to converge&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="n">layer_vecs</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
 </td></tr></table>
       </details>

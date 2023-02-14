@@ -11,17 +11,18 @@ title: Parallelism
 
 `cmtj` provides a simple way to parallelise simulation sweeps. For instance, while performing the Voltage Spin Diode (VSD) experiments, we need to sweep the frequency and for each frequency value we further need to sweep with the field. For each field and frequency pair we need to compute the VSD DC resistance. Normally, this scales as $O(NK)$ where $N$ is the number of field values and $K$ is the number of frequency values. However, with parallelism, we can reduce this to $O(K)$ if we would be able to process each frequency value in parallel.
 
-In practice, we use worker pools which are approximately equal to number of threads in the CPU. Each worker is assigned a frequency value and it computes the VSD DC resistance for all the field values. Whenever the worker is finished, it is assigned another frequency value.
+In practice, we use worker pools which are approximately equal to the number of threads in the CPU. Each worker is assigned a frequency value and it computes the VSD DC resistance for all the field values. Whenever the worker is finished, it is assigned another frequency value.
 
 ## General caveats
 
-!!!Note
-Keep in mind that these issues are not specific to CMTJ, but are a general problem of any parallelisation.
+!!! note
+
+    Keep in mind that these issues are not specific to CMTJ, but are a general problem of any parallelisation.
 
 Before we move on to a specific example, let's discuss when we should be careful with simulating in parallel.
 When we sweep with an external field, which in the experiment is usually continously swept, we need to realise that if we were to compute the experiment for each separate field in a separate process, we would not carry the relaxed state of magnetisation computed in the previous field step to the next. This is of course a natural consequence of putting things in parallel and can be easily remedided by the following precautions:
 
-- relax the magnetisation the magentisation in each parallel process by callling `runSimulation` for a short time, say between 1-5ns (depending on the complexity of the system),
+- relax the magnetisation the magentisation in each parallel process by calling `runSimulation` for a short time, say between 1-5ns (depending on the complexity of the system),
 - increase the simulation time, since reaching the stable state may take a little longer,
 - decrease the time step (integration step) -- this is more costly computationally, but it is also ensuring absolute convergence.
 

@@ -8,7 +8,7 @@ title: Macromagnetic models
 # Introduction
 
 In this section we will walk through the basics of the LLG equation and the transformation to the LL-form of the LLG equation.
-The LLG equation is a "proper" equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that
+The LLG equation is a *proper* equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that
 allows us to solve it numerically (no implicit term on $\frac{dm}{dt}$).
 
 # Landau Lifshitz form of Landau Lifshitz-Gilbert equation
@@ -117,7 +117,7 @@ we transform the standard LLGS equation into the form that fits
 Stratonovich SDE. The
 thermal fluctuations have zero mean and a preset standard deviation:
 
-$$\sigma(t) = \sqrt{\frac{2\alpha k_bT(t)}{M_sV\gamma_0}}$$
+$$\sigma(t) = \sqrt{\frac{4\alpha k_bT(t)}{M_sV\gamma_0}}$$
 
 where $V$ is the volume of the cell (layer), and $k_bT(t)$ is the thermal energy of the system. As a
 result, $\sigma(t)$ should be dimensionless. Finally, we set

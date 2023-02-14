@@ -7,15 +7,13 @@
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
       
-        <meta name="author" content="['LemurPwned']">
-      
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.1.2">
     
     
       
-        <title>Macromagnetic models - CMTJ</title>
+        <title>Smit-Beljers model - CMTJ</title>
       
     
     
@@ -66,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction" class="md-skip">
+        <a href="#smit-beljers-model" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +96,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Macromagnetic models
+              Smit-Beljers model
             
           </span>
         </div>
@@ -257,14 +255,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
       
       
       
@@ -299,21 +295,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../macromagnetic_models/" class="md-nav__link">
         LLG Equation & solvers
       </a>
-      
     </li>
   
 
@@ -676,6 +662,69 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-model" class="md-nav__link">
+    The model
+  </a>
+  
+    <nav class="md-nav" aria-label="The model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameter-table" class="md-nav__link">
+    Parameter table
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solution" class="md-nav__link">
+    Solution
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#equilibrium-magnetisation" class="md-nav__link">
+    Equilibrium magnetisation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resonance-frequency" class="md-nav__link">
+    Resonance frequency
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-finding" class="md-nav__link">
+    Root finding
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -686,136 +735,120 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/LemurPwned/cmtj/edit/master/docs/physics/macromagnetic_models.md" title="Edit this page" class="md-content__button md-icon">
+<a href="https://github.com/LemurPwned/cmtj/edit/master/docs/physics/sb-model.md" title="Edit this page" class="md-content__button md-icon">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
 </a>
 
 
-<h1 id="introduction">Introduction</h1>
-<p>In this section we will walk through the basics of the LLG equation and the transformation to the LL-form of the LLG equation.
-The LLG equation is a <em>proper</em> equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that
-allows us to solve it numerically (no implicit term on <span class="arithmatex">\(\frac{dm}{dt}\)</span>).</p>
-<h1 id="landau-lifshitz-form-of-landau-lifshitz-gilbert-equation">Landau Lifshitz form of Landau Lifshitz-Gilbert equation</h1>
-<p>Standard form of the LLG-SOT equation:</p>
-<div class="arithmatex">\[\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma|\tau_{fl}|\textbf{m} \times \phi-\gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi\]</div>
-<p>Multiply that
-equation <span class="arithmatex">\(\times m\)</span>:</p>
-<div class="arithmatex">\[
-\begin{gathered}
-       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma|\tau_{fl}| \textbf{m} \times \textbf{m} \times \phi-   \gamma|\tau_{dl}|\textbf{m} \times \textbf{m}\times\textbf{m}\times \phi \\
-   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi\end{gathered}
-\]</div>
-<p>Substitute RHS of the derived equation above into <span class="arithmatex">\(\textbf{m}\times \frac{d\textbf{m}}{dt}\)</span>:</p>
-<div class="arithmatex">\[
-\begin{gathered}
-  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -
-   \gamma|\tau_{fl}|\textbf{m} \times \phi \\ -
-    \gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi \\
-     \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\
-     - \gamma|\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] \\
-     -  \gamma|\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]\end{gathered}
-\]</div>
-<p>Rearranging the terms gives:</p>
-<div class="arithmatex">\[
-\begin{aligned}
-    \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &amp;\\
-     + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] &amp;\\
-     +  |\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]]\end{aligned}
-\]</div>
-<p>In this form, <span class="arithmatex">\(\gamma\)</span> is the gyromagnetic ratio and is equal to <span class="arithmatex">\(\gamma \approx 2.2e5 \frac{m}{As}\)</span>.
-The last part can be re-arranged to:</p>
-<div class="arithmatex">\[
-\begin{aligned}
-(...) + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] + |\tau_{dl}|[\textbf{m}\times\textbf{m}\times\phi - \alpha\textbf{m}\times \phi]]&amp;\\ = \textbf{m} \times \phi(|\tau_{fl}| - \alpha|\tau_{dl}|) + \textbf{m}\times\textbf{m}\times\phi(|\tau_{dl}| + \alpha|\tau_{fl}|)\end{aligned}
-\]</div>
-<p>What is evident in this form of LL form of the LLG equation is the
-mixing of the torques with damping as the scaling factor (the field-like
-term for instance now becomes <span class="arithmatex">\(|\tau_{fl}| - \alpha|\tau_{dl}|\)</span>). Proper
-LL-form of the LLGS equation is:</p>
-<div class="arithmatex">\[
-(...)+ \frac{-\gamma}{1 + \alpha^2}[
-    \tau'_1 \textbf{m}\times(\textbf{m}\times \phi)
-    + \tau'_2 \textbf{m}\times \phi]
-\]</div>
-<h2 id="stt-interaction">STT interaction</h2>
-<p>The origin of STT is different, thus, we use a different set of
-quantities:</p>
-<div class="arithmatex">\[
-\begin{gathered}
-    |H_{dl}| = \beta |H_{fl}|, \quad \beta \in [0, 1] \\
-    a_j = \frac{\hbar j_e}{eM_s t_{FM}} \\
-    \eta = \frac{\sigma \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\sigma}\end{gathered}
-\]</div>
-<p>Given those two terms above, the non-torque part remains the same:</p>
-<div class="arithmatex">\[... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m}\times \sigma\]</div>
-<p>Then, equation only changes the coefficients scaling the
-damping-like and field-like torques.</p>
-<p>The LL form of the STT equation is:</p>
-<div class="arithmatex">\[
-\begin{aligned}
-\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &amp;\\
-+ (-a_j (\mathbf{m}\times\mathbf{p})  + a_j\beta (\mathbf{m}\times\mathbf{m}\times\mathbf{p})]
-\end{aligned}
-\]</div>
-<p>where
-<span class="arithmatex">\(<span class="arithmatex">\(a_j =  \gamma_0 \eta \frac{\hbar j}{e M_\mathrm{s} t_\mathrm{FM}}\)</span>\)</span></p>
-<h1 id="stochastic-llgs">Stochastic LLGS</h1>
-<h2 id="stratonovich-formulation-of-the-s-llgs-sde">Stratonovich formulation of the s-LLGS SDE</h2>
-<p>A stochastic formulation of LLGS will take the form of a Stratonovich
-SDE:</p>
-<div class="arithmatex">\[\mathrm{d}X_t = f(X_t, t)dt + g(X_t, t)\circ \mathrm{d}W_t\sqrt{\Delta t}\]</div>
-<p>where <span class="arithmatex">\(f(X_t, t)\)</span> is the deterministic part of the
-equation and <span class="arithmatex">\(g(X_t, t)\)</span> is the stochastic part of the equation.
-<span class="arithmatex">\(\mathrm{d}W\)</span> is \"derivative-like\" of the Brownian motion. The symbol
-<span class="arithmatex">\(\circ\)</span> denotes the Stratonovich product which distinguishes it from
-Ito's SDE. By assuming that the effective field contains thermal
-fluctuations
-<span class="arithmatex">\(\mathbf{H}_{\mathrm{eff}} \rightarrow \mathbf{H}_{\mathrm{eff}} + \mathbf{H}_{\mathrm{T}}\)</span>
-we transform the standard LLGS equation into the form that fits
-Stratonovich SDE. The
-thermal fluctuations have zero mean and a preset standard deviation:</p>
-<div class="arithmatex">\[\sigma(t) = \sqrt{\frac{4\alpha k_bT(t)}{M_sV\gamma_0}}\]</div>
-<p>where <span class="arithmatex">\(V\)</span> is the volume of the cell (layer), and <span class="arithmatex">\(k_bT(t)\)</span> is the thermal energy of the system. As a
-result, <span class="arithmatex">\(\sigma(t)\)</span> should be dimensionless. Finally, we set
-<span class="arithmatex">\(\mathbf{f}(\mathbf{m}_t, t)\)</span> to LL form where <span class="arithmatex">\(\mathbf{H}_{\mathrm{eff}}\)</span> contains no
-stochastic (thermal) parts and the <span class="arithmatex">\(g\)</span>, the stochastic part, to the
-following:</p>
-<div class="arithmatex">\[
-\mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
-    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
-\]</div>
-<p>with <span class="arithmatex">\(\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)\)</span>, a
-multinomial Gaussian distributed random vector (here we make a
-transition from <span class="arithmatex">\(W\)</span> being a generalised Brownian process to a Wiener
-process). For numerical solutions, we have have <span class="arithmatex">\(\Delta W\)</span> instead of <span class="arithmatex">\(\mathrm{d}W\)</span>.
-<span class="arithmatex">\(\Delta W(t) = W(t + \Delta t) - W(t)\)</span>, where the stochastic vector is being drrawn from a normal distriubtion, with zero mean and unit variance: <span class="arithmatex">\(\xi_t \in \mathbf{R}^3 \sim \mathcal{N}(0, 1)\)</span>.
-The form above follows from the distributive
-properties of cross-product over addition. Furthermore, there is some
-evidence that the second term in that equation should be skipped if the noise is
-sufficiently small which seems to be the case for up to room temperature
-experiments.</p>
-<h2 id="numerical-solutions">Numerical solutions</h2>
-<p>We generally solve the stochastic model by either with Euler-Heun or Heun method.</p>
-<h3 id="euler-heun-method">Euler-Heun method</h3>
-<p>This is in fact first order-method in the limit of 0 K.
-Euler-Heun method is suitable for Stratonovich SDEs as Euler-Maruyama
-can only be applied to Ito's SDEs. The update of the step is:</p>
-<div class="arithmatex">\[Y_{n+1} = Y_n + f_n \Delta t + \frac{1}{2}[g_n + g_n(\hat{Y}_n)]\Delta W_n\sqrt{\Delta t}\]</div>
-<p>where <span class="arithmatex">\(\hat{Y}_n = Y_n + g_n\Delta W_n\)</span>. Contrary to the Milstein
-method, it is easier to the user the Euler-Heun due to the lack of
-quadratic terms of <span class="arithmatex">\(\Delta W_n\)</span>. The cost is in the convergence order
-which is 0.5 for strong convergence and 1 for weak convergence. For the
-solution, we substitute <span class="arithmatex">\(Y_n = \mathbf{m_t}\)</span>,
-<span class="arithmatex">\(f_n = \mathbf{f}_n(\mathbf{m_t}, t)\)</span>,
-<span class="arithmatex">\(g_n= \mathbf{g}_n(\mathbf{m_t}, t)\)</span>.</p>
-<h3 id="heun-method">Heun method</h3>
-<p>Now preferred method to solve stochastic form of the LLG equation is the Heun method. It introduces second order correction to the non-stochastic part as well and
-therefore is deemed a better method.</p>
-<div class="arithmatex">\[Y_{n+1} = Y_n + \frac{1}{2}\left[f_n(\hat{Y}_{n+1}, t_{n+1}) + f_n(Y_n, t_n)\right] + \frac{1}{2}\left[g_n(\hat{Y}_{n+1}, g_{n+1}) + g_n(Y_n, t_n)\right]\Delta W_n\]</div>
-<p>where <span class="arithmatex">\(\hat{Y}_{n+1} = Y_n + f_n(Y_n, t_n)\Delta t + g_n(Y_n, t_n)\Delta W_n\sqrt{\Delta t}\)</span>.</p>
-<h3 id="references">References</h3>
-<p><a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;ved=2ahUKEwilpP-T5p_yAhXjAxAIHZosBBgQFnoECAgQAw&amp;url=https%3A%2F%2Finfoscience.epfl.ch%2Frecord%2F143450%2Ffiles%2Fsde_tutorial.pdf&amp;usg=AOvVaw1VNG29Y2knOPBB3Hic2QvU">Numerical Integration of SDEs: A Short Tutorial,
-Thomas Schaffter, January 19, 2010</a></p>
+<h1 id="smit-beljers-model">Smit-Beljers model</h1>
+<h2 id="introduction">Introduction</h2>
+<p>The basic model was introduced by Smit and Beljers 1955. However, there were nice extensions of the model, notably, by L. Baselgia, M. Warden, and F. Waldner in the <em>Derivation of the resonance frequency from the free energy of ferromagnets</em>, 1988. One of more recent ones by R. L. Rodríguez-Suárez, S. M. Rezende, and A. Azevedo from <em>Ferromagnetic resonance investigation of the residual coupling in spin-valve systems</em>, PRB 2005 is the one I prefer to use for explanation.</p>
+<h2 id="the-model">The model</h2>
+<p>The model is capable of simulating the magnetisation in equilibrium and the resonance frequency mode (fmr = ferromagnetic resonance). The former basically allows us to reproduce the hysteresis M(H) or R(H) loops etc. The latter gives use the frequency of the oscillations of the magnetisation in the presence of an external magnetic field. </p>
+<p>For the full model we need:</p>
+<ol>
+<li>Create energy expression of the system.</li>
+<li>Obtain equilibirum magnetisation position of the system. </li>
+<li>Compute the hessian matrix of the energy expression.</li>
+<li>Find the roots of the det(hessian). </li>
+</ol>
+<p>Each layer is described by the following parameters:</p>
+<h5 id="parameter-table">Parameter table</h5>
+<table>
+<thead>
+<tr>
+<th align="center">Parameter</th>
+<th align="center">Description</th>
+<th align="center">Units</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><span class="arithmatex">\(\theta\)</span></td>
+<td align="center">Polar angle of magnetisation vector</td>
+<td align="center">rad</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(\phi\)</span></td>
+<td align="center">Azimuthal angle of magnetisation vector</td>
+<td align="center">rad</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(t_\textrm{FM}\)</span></td>
+<td align="center">Thickness of the FM layer</td>
+<td align="center">m</td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(M_s\)</span></td>
+<td align="center">Magnetisation saturation</td>
+<td align="center"><span class="arithmatex">\(\frac{A}{m}\)</span></td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(K_s\)</span></td>
+<td align="center">Surface anisotropy (perpendicular, out of plane)</td>
+<td align="center"><span class="arithmatex">\(\frac{J}{m^3}\)</span></td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(K_s\)</span></td>
+<td align="center">Volume anisotropy  (in-plane)</td>
+<td align="center"><span class="arithmatex">\(\frac{J}{m^3}\)</span></td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(\alpha\)</span></td>
+<td align="center">Azimuthal angle of in-plane anisotropy</td>
+<td align="center"><span class="arithmatex">\(\frac{J}{m^3}\)</span></td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(J_1\)</span></td>
+<td align="center">Interlayer exchange coupling value (linear)</td>
+<td align="center"><span class="arithmatex">\(\frac{J}{m^2}\)</span></td>
+</tr>
+<tr>
+<td align="center"><span class="arithmatex">\(J_2\)</span></td>
+<td align="center">Interlayer exchange coupling value (quadratic)</td>
+<td align="center"><span class="arithmatex">\(\frac{J}{m^2}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>And the external field is also given by it's own (<span class="arithmatex">\(\theta\)</span>, <span class="arithmatex">\(\phi\)</span>, <span class="arithmatex">\(H\)</span>) where <span class="arithmatex">\(H\)</span> is the magnitude of the field.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This assumes physical, not mathematical spherical coordinates! Here, polar angle <span class="arithmatex">\(\theta\)</span> is measured from the positive <span class="arithmatex">\(z\)</span> axis, and azimuthal angle <span class="arithmatex">\(\phi\)</span> is measured from the positive <span class="arithmatex">\(x\)</span> axis.</p>
+</div>
+<p>The energy expression per layer is given by the following:
+$$
+\begin{equation}
+\varepsilon_i = - \mu_0 M_s \vec{m}<em>i \cdot \vec{H} - \
+                    (- K_s + \frac{1}{2}\mu_0 M_s^2) m_z^2 \
+                    - K_v \vec{m} \cdot \vec{K}</em>{dir} \ 
+                    - J_1 \vec{m}<em>i \cdot \vec{m}</em>{i+1} \
+                    - J_2 (\vec{m}<em>i \cdot \vec{m}</em>{i+1})^2
+\end{equation}
+$$</p>
+<p>where <span class="arithmatex">\(\vec{m}\)</span> is in the spherical coordinates, and <span class="arithmatex">\(\vec{K}_{dir}\)</span> is the direction of the in-plane anisotropy.
+$$
+\vec{m} = \begin{bmatrix}
+    \sin\theta\cos\phi \ 
+    \sin\theta\sin\phi \
+    \cos\theta          \
+\end{bmatrix}
+$$</p>
+<p>Similarly, <span class="arithmatex">\(H\)</span> for its respective coordinates.
+Finally, <span class="arithmatex">\(\vec{K}_{dir}\)</span> is given by:
+$$
+\vec{K}_{dir} = \begin{bmatrix}
+    \cos\alpha \ 
+    \sin\alpha \
+    0          \
+\end{bmatrix}
+$$</p>
+<h2 id="solution">Solution</h2>
+<h2 id="equilibrium-magnetisation">Equilibrium magnetisation</h2>
+<p>The solution for equilibrium magnetisation is solved using the Adam gradient descent. It is a quick and reliable algorithm for finding energy minima. It operates on the first derivative of the <span class="arithmatex">\(\varepsilon_i\)</span> expression, i.e. <span class="arithmatex">\(\frac{\partial\varepsilon}{\partial\theta}\)</span> and <span class="arithmatex">\(\frac{\partial\varepsilon}{\partial\phi}\)</span>. If the gradient is found within a certain tolerance, the algorithm stops. Otherwise, it continues to iterate until the maximum number of iterations is reached.</p>
+<h2 id="resonance-frequency">Resonance frequency</h2>
+<p>The equilibrium magnetisation, <span class="arithmatex">\((\theta^*, \phi^*)\)</span>, is then used to compute the hessian matrix of the energy expression. The hessian matrix is a matrix of second derivatives of the energy expression. We use it to find the roots of the det(hessian) expression. Those roots designate the frequencies of the resonance mode. </p>
+<h2 id="root-finding">Root finding</h2>
+<p>Root finding algorithm is a native greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).</p>
 
               
             </article>
@@ -825,41 +858,6 @@ Thomas Schaffter, January 19, 2010</a></p>
       </main>
       
         <footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        
-        <a href="../contributions/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Macromagnetic contributions" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Macromagnetic contributions
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../paralellism/" class="md-footer__link md-footer__link--next" aria-label="Next: Parallelism" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Parallelism
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
