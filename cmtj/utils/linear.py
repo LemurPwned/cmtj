@@ -95,7 +95,7 @@ class FieldScan:
         :param start: polar angle start of the sweep
         :param stop: polar angle end of the sweep
         :param steps: number of steps
-        :param magnitude: magnitude of the scanned field.
+        :param amplitude: amplitude of the scanned field.
         :param phi: azimuthal angle in deg.
         """
         theta_span = np.linspace(start, stop, endpoint=True, num=steps)
@@ -113,7 +113,7 @@ class FieldScan:
         :param start: azimuthal angle start of the sweep
         :param stop: azimuthal angle end of the sweep
         :param steps: number of steps
-        :param magnitude: magnitude of the scanned field
+        :param amplitude: amplitude of the scanned field
         :param theta: polar angle in deg.
         """
         phi_span = np.linspace(start, stop, endpoint=True, num=steps)

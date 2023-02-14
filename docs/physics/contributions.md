@@ -32,8 +32,9 @@ We will go through the contributions step by step. However, before we do that, i
 3. static contributions ${H}_\textrm{dipole}$, and $\mathbf{H}_\textrm{demag}$.
    Static contributions are not driven by any `Driver` system, they are simply added to the $\mathbf{H}_\textrm{eff}$ field. This may be subject to change in future API versions.
 
-!!! attention
-Almost every contribution may be set either using `Layer` api or `Junction` api. They both have the same set of arguments, and the naming convention is such that if e.g. `Layer` has a method `setContribution`, then `Junction` has a method `setLayerContribution` and requires one additional argument specyfing the layer id (or `all` if it is to be set for all layers in the `Junction`). There are some exceptions to this, e.g. `setLayerIEC`, which is only defined for two or more layers, therefore it cannot be set from a `Layer` object.
+!!! note
+
+    Almost every contribution may be set either using `Layer` api or `Junction` api. They both have the same set of arguments, and the naming convention is such that if e.g. `Layer` has a method `setContribution`, then `Junction` has a method `setLayerContribution` and requires one additional argument specyfing the layer id (or `all` if it is to be set for all layers in the `Junction`). There are some exceptions to this, e.g. `setLayerIEC`, which is only defined for two or more layers, therefore it cannot be set from a `Layer` object.
 
 ### External field
 
@@ -182,8 +183,9 @@ $$
 
 We set for `top` and `bottom` separately since it may come for instance from top and bottom layer and thus top or bottom may be different. Effectively, you can just pass either, where you sum the dipole tensors and it'll have the same effect. However, API makes this convenient separation to logically separate those contributions.
 
-!!! attention
-Dipole tensor for now is only set from the Layer API. We may add a function for adding it in the Junction API as well in near future.
+!!! note
+
+    Dipole tensor for now is only set from the Layer API. We may add a function for adding it in the Junction API as well in near future.
 
 ### Anisotropy
 

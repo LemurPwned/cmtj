@@ -59,13 +59,13 @@ class LayerSB:
     def cphi(self):
         return math.cos(self.m.phi)
 
-    def energy_ext_field(self, Hinplane: VectorObj):
-        hx, hy, hz = Hinplane.get_cartesian()
+    def energy_ext_field(self, Hvector: VectorObj):
+        hx, hy, hz = Hvector.get_cartesian()
         return -self.Ms * mu0 * (hx * self.stheta * self.cphi + hy *
                                  self.sphi * self.ctheta + hz * self.ctheta)
 
-    def grad_ext_field(self, Hinplane: VectorObj, full_grad: bool):
-        hx, hy, hz = Hinplane.get_cartesian()
+    def grad_ext_field(self, Hvector: VectorObj, full_grad: bool):
+        hx, hy, hz = Hvector.get_cartesian()
         pref = -self.Ms * mu0
         dEdtheta = pref * (hx * self.cphi * self.ctheta +
                            hy * self.sphi * self.ctheta - hz * self.stheta)
@@ -295,7 +295,7 @@ class LayerSB:
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
     def compute_grad_energy(self,
-                            Hinplane: VectorObj,
+                            Hvector: VectorObj,
                             Jtop: float,
                             Jbottom: float,
                             J2top: float,
@@ -305,7 +305,7 @@ class LayerSB:
                             top_layer: "LayerSB",
                             bottom_layer: "LayerSB",
                             full_grad: bool = False):
-        g1 = self.grad_ext_field(Hinplane, full_grad)
+        g1 = self.grad_ext_field(Hvector, full_grad)
         g2 = self.grad_surface_anisotropy(full_grad)
         g3 = self.grad_volume_anisotropy(full_grad)
         g4 = self.grad_iec_interaction(Jtop, Jbottom, top_layer, bottom_layer,
@@ -318,11 +318,11 @@ class LayerSB:
             g1[i] + g2[i] + g3[i] + g4[i] + g5[i] + g6[i] for i in range(5)
         ]
 
-    def compute_energy(self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
+    def compute_energy(self, Hvector: VectorObj, Jtop: float, Jbottom: float,
                        J2top: float, J2bottom: float, Dtop: float,
                        Dbottom: float, top_layer: "LayerSB",
                        bottom_layer: "LayerSB"):
-        e1 = self.energy_ext_field(Hinplane)
+        e1 = self.energy_ext_field(Hvector)
         e2 = self.energy_surface_anisotropy()
         e3 = self.energy_volume_anisotropy()
         e4 = self.energy_iec_interaction(
@@ -345,20 +345,19 @@ class LayerSB:
         self.m.theta = pos[0]
         self.m.phi = pos[1]
 
-    def compute_frequency_at_equilibrium(self, Hinplane: VectorObj,
-                                         Jtop: float, Jbottom: float,
-                                         J2top: float, J2bottom: float,
-                                         Dtop: float, Dbottom: float,
-                                         top_layer: "LayerSB",
+    def compute_frequency_at_equilibrium(self, Hvector: VectorObj, Jtop: float,
+                                         Jbottom: float, J2top: float,
+                                         J2bottom: float, Dtop: float,
+                                         Dbottom: float, top_layer: "LayerSB",
                                          bottom_layer: "LayerSB"):
         """Computes the resonance frequency (FMR) of the layers.
-        :param Hinplance: vector that describes the applied H.
+        :param Hvector: vector that describes the applied H.
         :param Jtop: IEC constant from the layer above the current one.
         :param Jbottom: IEC constant from the layer below the current one.
         :param top_layer: LayerSB definition of the layer above the current one.
         :param bottom layer: LayerSB definition of the layer below the current one."""
         (_, _, d2Edtheta2, d2Edphi2,
-         d2Edphidtheta) = self.compute_grad_energy(Hinplane,
+         d2Edphidtheta) = self.compute_grad_energy(Hvector,
                                                    Jtop,
                                                    Jbottom,
                                                    J2top,
@@ -378,19 +377,19 @@ class LayerSB:
         return 0
 
     def compute_frequency_at_equilibrium_baselgia(
-            self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
+            self, Hvector: VectorObj, Jtop: float, Jbottom: float,
             J2top: float, J2bottom: float, Dtop: float, Dbottom: float,
             top_layer: "LayerSB", bottom_layer: "LayerSB"):
         """Computes the resonance frequency (FMR) of the layers.
         Uses Baselgia 1988 correction.
         https://link.aps.org/doi/10.1103/PhysRevB.38.2237
-        :param Hinplance: vector that describes the applied H.
+        :param Hvector: vector that describes the applied H.
         :param Jtop: IEC constant from the layer above the current one.
         :param Jbottom: IEC constant from the layer below the current one.
         :param top_layer: LayerSB definition of the layer above the current one.
         :param bottom layer: LayerSB definition of the layer below the current one."""
         (dEdtheta, dEdphi, d2Edtheta2, d2Edphi2,
-         d2Edphidtheta) = self.compute_grad_energy(Hinplane,
+         d2Edphidtheta) = self.compute_grad_energy(Hvector,
                                                    Jtop,
                                                    Jbottom,
                                                    J2top,

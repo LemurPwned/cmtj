@@ -280,8 +280,7 @@ class MultilayerWallDynamics:
             max_step: float = 1e-10):
         """Run simulation of DW dynamics
         :param sim_time: total simulation time (simulation units).
-        :param x0: starting position of the DW.
-        :param phi0: starting chiral angle of the DW.
+        :param starting_conditions: starting position and angle of the DW.
         :param max_step: maximum allowed step of the RK45 method.
         """
         integrator = RK45(fun=self.multilayer_dw_llg,

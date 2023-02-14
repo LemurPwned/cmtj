@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import sympy as sym
 
-from cmtj.utils import VectorObj, gamma, mu0
+from cmtj.utils import VectorObj, gamma, gamma_rad, mu0
 
 from ..utils.solvers import RootFinder
 
@@ -66,6 +66,9 @@ class LayerSB:
 
     def sb_correction(self):
         omega = sym.Symbol(r'\omega')
+        # we use unreduced gamma
+        # later we don't need to divide omega by 2pi
+        # idk but if we use reduced gamma it numericall breaks lol
         Z = (omega / gamma) * self.Ms * sym.sin(self.theta)
         return Z
 
@@ -187,29 +190,66 @@ class Solver:
             current_position = new_position
         return np.asarray(current_position)
 
+    def single_layer_equilibrium(self, eq_position: np.ndarray):
+        """We can compute the equilibrium position of a single layer directly."""
+        # compute grads
+        theta_eq, phi_eq = eq_position
+        layer = self.layers[0]
+        theta, phi = self.layers[0].get_coord_sym()
+        energy = self.create_energy()
+        subs = {theta: theta_eq, phi: phi_eq}
+        d2Edtheta2 = sym.diff(sym.diff(energy, theta), theta).subs(subs)
+        d2Edphi2 = sym.diff(sym.diff(energy, phi), phi).subs(subs)
+        # mixed, assuming symmetry
+        d2Edthetaphi = sym.diff(sym.diff(energy, theta), phi).subs(subs)
+        vareps = 1e-12
+
+        fmr = (d2Edtheta2 * d2Edphi2 - d2Edthetaphi**2) / np.power(
+            np.sin(theta_eq + vareps) * layer.Ms, 2)
+        fmr = np.sqrt(float(fmr)) * gamma_rad / (2 * np.pi)
+        return fmr
+
     def solve(self,
               init_position: np.ndarray,
               ftol: float = 0.01e9,
+              max_steps: int = 1e9,
+              learning_rate: float = 1e-4,
+              first_momentum_decay: float = 0.9,
+              second_momentum_decay: float = 0.999,
               max_freq: float = 80e9):
         """Solves the system.
-        Returns the equilibrium position and frequencies in GHz."""
+        1. Computes the energy functional.
+        2. Computes the gradient of the energy functional.
+        3. Performs a gradient descent to find the equilibrium position.
+        Returns the equilibrium position and frequencies in [GHz].
+        :param init_position: initial position for the gradient descent.
+                              Must be a 1D array of size 2 * number of layers (theta, phi)
+        :param ftol: tolerance for the frequency search.
+        :param max_steps: maximum number of gradient steps.
+        :param learning_rate: the learning rate (descent speed).
+        :param first_momentum_decay: constant for the first momentum.
+        :param second_momentum_decay: constant for the second momentum.
+        :param max_freq: maximum frequency to search for.
+        """
         eq = self.adam_gradient_descent(
             init_position=init_position,
-            max_steps=1e9,
+            max_steps=max_steps,
             tol=1e-9,
-            learning_rate=1e-4,
-            first_momentum_decay=0.9,
-            second_momentum_decay=0.999,
+            learning_rate=learning_rate,
+            first_momentum_decay=first_momentum_decay,
+            second_momentum_decay=second_momentum_decay,
         )
+        if len(self.layers) == 1:
+            return eq, self.single_layer_equilibrium(eq) / 1e9
         hes = self.create_energy_hessian(eq)
         omega = sym.Symbol(r"\omega")
-        smpl = sym.simplify(hes.det())
-        # take the real part only for numerical stability
+        smpl = hes.det()
         smpl = sym.re(smpl)
         y = sym.lambdify(omega, smpl)
-        r = RootFinder(0, max_freq, step=ftol, xtol=1e-9, root_dtype="float16")
+        r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
         roots = r.find(y)
         # convert to GHz
-        f = (roots / 2 * np.pi) / 1e9
-        f = np.unique(np.around(f, 2))
+        # reduce unique solutions to 2 decimal places
+        # don't divide by 2pi, we used gamma instead of gamma / 2pi
+        f = np.unique(np.around(roots / 1e9, 2))
         return eq, f

@@ -70,7 +70,6 @@ def plot_coloured_trajectory(x, y, z, colormap='plasma', ax=None):
     :param y: y-coordinates
     :param z: z-coordinates
     :param colormap: colormap to use
-    :param alpha: alpha value of the trajectory
     """
     xs, ys, zs = get_sphere()
     m = np.asarray([x, y, z])

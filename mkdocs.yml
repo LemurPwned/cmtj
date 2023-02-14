@@ -7,11 +7,13 @@ nav:
   - Theory:
       - Macromagnetic contributions: physics/contributions.md
       - LLG Equation & solvers: physics/macromagnetic_models.md
+      - Static Smit-Beljers model: physics/sb-model.md
   - Parallelism: physics/paralellism.md
   - API:
       - Core: gen-docs/cmtj.md
       - Models:
           - Smit-Beljers: api/models/sb-reference.md
+          - Smit-Beljers-General: api/models/sb-general-reference.md
           - Domain wall: api/models/dw-reference.md
       - Utils:
           - General: api/general-reference.md
