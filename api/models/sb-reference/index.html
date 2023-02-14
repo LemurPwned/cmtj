@@ -305,6 +305,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../physics/sb-model/" class="md-nav__link">
+        Static Smit-Beljers model
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1587,13 +1601,13 @@
     <span class="k">def</span> <span class="nf">cphi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">energy_ext_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
-        <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span> <span class="o">=</span> <span class="n">Hinplane</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">energy_ext_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+        <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span> <span class="o">=</span> <span class="n">Hvector</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="p">(</span><span class="n">hx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">stheta</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cphi</span> <span class="o">+</span> <span class="n">hy</span> <span class="o">*</span>
                                  <span class="bp">self</span><span class="o">.</span><span class="n">sphi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctheta</span> <span class="o">+</span> <span class="n">hz</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctheta</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">grad_ext_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">full_grad</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span> <span class="o">=</span> <span class="n">Hinplane</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">grad_ext_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">full_grad</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span> <span class="o">=</span> <span class="n">Hvector</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
         <span class="n">pref</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span>
         <span class="n">dEdtheta</span> <span class="o">=</span> <span class="n">pref</span> <span class="o">*</span> <span class="p">(</span><span class="n">hx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cphi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctheta</span> <span class="o">+</span>
                            <span class="n">hy</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sphi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctheta</span> <span class="o">-</span> <span class="n">hz</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">stheta</span><span class="p">)</span>
@@ -1823,7 +1837,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">dEdtheta</span><span class="p">,</span> <span class="n">dEdphi</span><span class="p">,</span> <span class="n">d2Edtheta2</span><span class="p">,</span> <span class="n">d2Edphi2</span><span class="p">,</span> <span class="n">d2Edphidtheta</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">compute_grad_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                            <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span>
+                            <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span>
                             <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                             <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                             <span class="n">J2top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1833,7 +1847,7 @@
                             <span class="n">top_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span>
                             <span class="n">bottom_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span>
                             <span class="n">full_grad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">g1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_ext_field</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span> <span class="n">full_grad</span><span class="p">)</span>
+        <span class="n">g1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_ext_field</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span> <span class="n">full_grad</span><span class="p">)</span>
         <span class="n">g2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_surface_anisotropy</span><span class="p">(</span><span class="n">full_grad</span><span class="p">)</span>
         <span class="n">g3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_volume_anisotropy</span><span class="p">(</span><span class="n">full_grad</span><span class="p">)</span>
         <span class="n">g4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grad_iec_interaction</span><span class="p">(</span><span class="n">Jtop</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">,</span> <span class="n">top_layer</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">,</span>
@@ -1846,11 +1860,11 @@
             <span class="n">g1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">g2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">g3</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">g4</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">g5</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">g6</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">compute_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">compute_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                        <span class="n">J2top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                        <span class="n">Dbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">top_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span>
                        <span class="n">bottom_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
-        <span class="n">e1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_ext_field</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">)</span>
+        <span class="n">e1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_ext_field</span><span class="p">(</span><span class="n">Hvector</span><span class="p">)</span>
         <span class="n">e2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_surface_anisotropy</span><span class="p">()</span>
         <span class="n">e3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_volume_anisotropy</span><span class="p">()</span>
         <span class="n">e4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_iec_interaction</span><span class="p">(</span>
@@ -1873,20 +1887,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">compute_frequency_at_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">compute_frequency_at_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span>
                                          <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                          <span class="n">J2top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                          <span class="n">Dtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                          <span class="n">top_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span>
                                          <span class="n">bottom_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Computes the resonance frequency (FMR) of the layers.</span>
-<span class="sd">        :param Hinplance: vector that describes the applied H.</span>
+<span class="sd">        :param Hvector: vector that describes the applied H.</span>
 <span class="sd">        :param Jtop: IEC constant from the layer above the current one.</span>
 <span class="sd">        :param Jbottom: IEC constant from the layer below the current one.</span>
 <span class="sd">        :param top_layer: LayerSB definition of the layer above the current one.</span>
 <span class="sd">        :param bottom layer: LayerSB definition of the layer below the current one.&quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">d2Edtheta2</span><span class="p">,</span> <span class="n">d2Edphi2</span><span class="p">,</span>
-         <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span>
+         <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span>
                                                    <span class="n">Jtop</span><span class="p">,</span>
                                                    <span class="n">Jbottom</span><span class="p">,</span>
                                                    <span class="n">J2top</span><span class="p">,</span>
@@ -1906,19 +1920,19 @@
         <span class="k">return</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="nf">compute_frequency_at_equilibrium_baselgia</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
             <span class="n">J2top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
             <span class="n">top_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Computes the resonance frequency (FMR) of the layers.</span>
 <span class="sd">        Uses Baselgia 1988 correction.</span>
 <span class="sd">        https://link.aps.org/doi/10.1103/PhysRevB.38.2237</span>
-<span class="sd">        :param Hinplance: vector that describes the applied H.</span>
+<span class="sd">        :param Hvector: vector that describes the applied H.</span>
 <span class="sd">        :param Jtop: IEC constant from the layer above the current one.</span>
 <span class="sd">        :param Jbottom: IEC constant from the layer below the current one.</span>
 <span class="sd">        :param top_layer: LayerSB definition of the layer above the current one.</span>
 <span class="sd">        :param bottom layer: LayerSB definition of the layer below the current one.&quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">dEdtheta</span><span class="p">,</span> <span class="n">dEdphi</span><span class="p">,</span> <span class="n">d2Edtheta2</span><span class="p">,</span> <span class="n">d2Edphi2</span><span class="p">,</span>
-         <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span>
+         <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span>
                                                    <span class="n">Jtop</span><span class="p">,</span>
                                                    <span class="n">Jbottom</span><span class="p">,</span>
                                                    <span class="n">J2top</span><span class="p">,</span>
@@ -2005,7 +2019,7 @@
 
 
 <h3 id="cmtj.models.sb.LayerSB.compute_frequency_at_equilibrium" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">compute_frequency_at_equilibrium</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">,</span> <span class="n">J2top</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">,</span> <span class="n">top_layer</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">compute_frequency_at_equilibrium</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">,</span> <span class="n">J2top</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">,</span> <span class="n">top_layer</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2026,8 +2040,9 @@
     </thead>
     <tbody>
         <tr>
-          <td><code>Hinplance</code></td>
+          <td><code>Hvector</code></td>
           <td>
+                <code><span title="cmtj.utils.VectorObj">VectorObj</span></code>
           </td>
           <td><p>vector that describes the applied H.</p></td>
           <td>
@@ -2109,20 +2124,20 @@
 <span class="normal">375</span>
 <span class="normal">376</span>
 <span class="normal">377</span>
-<span class="normal">378</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">compute_frequency_at_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span>
+<span class="normal">378</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">compute_frequency_at_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span>
                                      <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                      <span class="n">J2top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                      <span class="n">Dtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                                      <span class="n">top_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span>
                                      <span class="n">bottom_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Computes the resonance frequency (FMR) of the layers.</span>
-<span class="sd">    :param Hinplance: vector that describes the applied H.</span>
+<span class="sd">    :param Hvector: vector that describes the applied H.</span>
 <span class="sd">    :param Jtop: IEC constant from the layer above the current one.</span>
 <span class="sd">    :param Jbottom: IEC constant from the layer below the current one.</span>
 <span class="sd">    :param top_layer: LayerSB definition of the layer above the current one.</span>
 <span class="sd">    :param bottom layer: LayerSB definition of the layer below the current one.&quot;&quot;&quot;</span>
     <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">d2Edtheta2</span><span class="p">,</span> <span class="n">d2Edphi2</span><span class="p">,</span>
-     <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span>
+     <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span>
                                                <span class="n">Jtop</span><span class="p">,</span>
                                                <span class="n">Jbottom</span><span class="p">,</span>
                                                <span class="n">J2top</span><span class="p">,</span>
@@ -2152,7 +2167,7 @@
 
 
 <h3 id="cmtj.models.sb.LayerSB.compute_frequency_at_equilibrium_baselgia" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">compute_frequency_at_equilibrium_baselgia</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">,</span> <span class="n">J2top</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">,</span> <span class="n">top_layer</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">compute_frequency_at_equilibrium_baselgia</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">,</span> <span class="n">J2top</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">,</span> <span class="n">top_layer</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2175,8 +2190,9 @@ https://link.aps.org/doi/10.1103/PhysRevB.38.2237</p>
     </thead>
     <tbody>
         <tr>
-          <td><code>Hinplance</code></td>
+          <td><code>Hvector</code></td>
           <td>
+                <code><span title="cmtj.utils.VectorObj">VectorObj</span></code>
           </td>
           <td><p>vector that describes the applied H.</p></td>
           <td>
@@ -2267,19 +2283,19 @@ https://link.aps.org/doi/10.1103/PhysRevB.38.2237</p>
 <span class="normal">416</span>
 <span class="normal">417</span>
 <span class="normal">418</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">compute_frequency_at_equilibrium_baselgia</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">Hinplane</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">Hvector</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Jtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Jbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">J2top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2bottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dtop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Dbottom</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">top_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">,</span> <span class="n">bottom_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Computes the resonance frequency (FMR) of the layers.</span>
 <span class="sd">    Uses Baselgia 1988 correction.</span>
 <span class="sd">    https://link.aps.org/doi/10.1103/PhysRevB.38.2237</span>
-<span class="sd">    :param Hinplance: vector that describes the applied H.</span>
+<span class="sd">    :param Hvector: vector that describes the applied H.</span>
 <span class="sd">    :param Jtop: IEC constant from the layer above the current one.</span>
 <span class="sd">    :param Jbottom: IEC constant from the layer below the current one.</span>
 <span class="sd">    :param top_layer: LayerSB definition of the layer above the current one.</span>
 <span class="sd">    :param bottom layer: LayerSB definition of the layer below the current one.&quot;&quot;&quot;</span>
     <span class="p">(</span><span class="n">dEdtheta</span><span class="p">,</span> <span class="n">dEdphi</span><span class="p">,</span> <span class="n">d2Edtheta2</span><span class="p">,</span> <span class="n">d2Edphi2</span><span class="p">,</span>
-     <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hinplane</span><span class="p">,</span>
+     <span class="n">d2Edphidtheta</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_grad_energy</span><span class="p">(</span><span class="n">Hvector</span><span class="p">,</span>
                                                <span class="n">Jtop</span><span class="p">,</span>
                                                <span class="n">Jbottom</span><span class="p">,</span>
                                                <span class="n">J2top</span><span class="p">,</span>

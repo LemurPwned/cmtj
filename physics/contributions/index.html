@@ -391,6 +391,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sb-model/" class="md-nav__link">
+        Static Smit-Beljers model
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -843,8 +857,8 @@
 </ol>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-</div>
 <p>Almost every contribution may be set either using <code>Layer</code> api or <code>Junction</code> api. They both have the same set of arguments, and the naming convention is such that if e.g. <code>Layer</code> has a method <code>setContribution</code>, then <code>Junction</code> has a method <code>setLayerContribution</code> and requires one additional argument specyfing the layer id (or <code>all</code> if it is to be set for all layers in the <code>Junction</code>). There are some exceptions to this, e.g. <code>setLayerIEC</code>, which is only defined for two or more layers, therefore it cannot be set from a <code>Layer</code> object.</p>
+</div>
 <h3 id="external-field">External field</h3>
 <p>The external field is the simplest contribution to the effective field. It is the sum of the applied fields.</p>
 <table>

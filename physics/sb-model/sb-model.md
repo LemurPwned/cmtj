@@ -1,3 +1,9 @@
+---
+author:
+  - LemurPwned
+date: Feburary 2023
+title: Static models -- Smit-Beljers
+---
 # Smit-Beljers model
 
 ## Introduction

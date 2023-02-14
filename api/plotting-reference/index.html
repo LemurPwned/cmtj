@@ -305,6 +305,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../physics/sb-model/" class="md-nav__link">
+        Static Smit-Beljers model
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -898,7 +912,8 @@ https://stackoverflow.com/questions/8230638/parallel-coordinates-plot-in-matplot
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
+<span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
@@ -988,8 +1003,7 @@ https://stackoverflow.com/questions/8230638/parallel-coordinates-plot-in-matplot
 <span class="normal">215</span>
 <span class="normal">216</span>
 <span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_coordinates_plot</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span>
+<span class="normal">218</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_coordinates_plot</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span>
                             <span class="n">ax_names</span><span class="p">,</span>
                             <span class="n">result_map</span><span class="p">,</span>
                             <span class="n">sample</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -1236,7 +1250,8 @@ If a given layer is to have no arrow, pass None.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
+<span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
@@ -1306,8 +1321,7 @@ If a given layer is to have no arrow, pass None.</p>
 <span class="normal">294</span>
 <span class="normal">295</span>
 <span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
+<span class="normal">297</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_stack</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
                  <span class="n">colors</span><span class="p">,</span>
                  <span class="n">heights</span><span class="p">,</span>
                  <span class="n">angles</span><span class="p">,</span>
@@ -1457,15 +1471,6 @@ Colour of the trajectory now designates the flow of time.</p>
                 <code>&#39;plasma&#39;</code>
           </td>
         </tr>
-        <tr>
-          <td><code>alpha</code></td>
-          <td>
-          </td>
-          <td><p>alpha value of the trajectory</p></td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
     </tbody>
   </table>
 
@@ -1510,8 +1515,7 @@ Colour of the trajectory now designates the flow of time.</p>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">plot_coloured_trajectory</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">104</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">plot_coloured_trajectory</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Plot a coloured trajectory in 3D. Normalises to unit sphere.</span>
 <span class="sd">    Colour of the trajectory now designates the flow of time.</span>
 <span class="sd">    :param ax: matplotlib axis</span>
@@ -1519,7 +1523,6 @@ Colour of the trajectory now designates the flow of time.</p>
 <span class="sd">    :param y: y-coordinates</span>
 <span class="sd">    :param z: z-coordinates</span>
 <span class="sd">    :param colormap: colormap to use</span>
-<span class="sd">    :param alpha: alpha value of the trajectory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">get_sphere</span><span class="p">()</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
@@ -1779,7 +1782,8 @@ Colour of the trajectory now designates the flow of time.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/plotting.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
+<span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
@@ -1795,8 +1799,7 @@ Colour of the trajectory now designates the flow of time.</p>
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">unpack_ndim_map</span><span class="p">(</span><span class="nb">map</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">unpack_ndim_map</span><span class="p">(</span><span class="nb">map</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unpack N-dimensional map into a list of 1-dimensional arrays</span>
 <span class="sd">    :param map: N-dimensional map, each axis is separate parameter space.</span>

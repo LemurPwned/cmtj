@@ -33,7 +33,8 @@ We will go through the contributions step by step. However, before we do that, i
    Static contributions are not driven by any `Driver` system, they are simply added to the $\mathbf{H}_\textrm{eff}$ field. This may be subject to change in future API versions.
 
 !!! attention
-Almost every contribution may be set either using `Layer` api or `Junction` api. They both have the same set of arguments, and the naming convention is such that if e.g. `Layer` has a method `setContribution`, then `Junction` has a method `setLayerContribution` and requires one additional argument specyfing the layer id (or `all` if it is to be set for all layers in the `Junction`). There are some exceptions to this, e.g. `setLayerIEC`, which is only defined for two or more layers, therefore it cannot be set from a `Layer` object.
+
+    Almost every contribution may be set either using `Layer` api or `Junction` api. They both have the same set of arguments, and the naming convention is such that if e.g. `Layer` has a method `setContribution`, then `Junction` has a method `setLayerContribution` and requires one additional argument specyfing the layer id (or `all` if it is to be set for all layers in the `Junction`). There are some exceptions to this, e.g. `setLayerIEC`, which is only defined for two or more layers, therefore it cannot be set from a `Layer` object.
 
 ### External field
 

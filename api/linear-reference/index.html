@@ -305,6 +305,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../physics/sb-model/" class="md-nav__link">
+        Static Smit-Beljers model
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1083,7 +1097,7 @@
 <span class="sd">        :param start: polar angle start of the sweep</span>
 <span class="sd">        :param stop: polar angle end of the sweep</span>
 <span class="sd">        :param steps: number of steps</span>
-<span class="sd">        :param magnitude: magnitude of the scanned field.</span>
+<span class="sd">        :param amplitude: amplitude of the scanned field.</span>
 <span class="sd">        :param phi: azimuthal angle in deg.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">theta_span</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
@@ -1101,7 +1115,7 @@
 <span class="sd">        :param start: azimuthal angle start of the sweep</span>
 <span class="sd">        :param stop: azimuthal angle end of the sweep</span>
 <span class="sd">        :param steps: number of steps</span>
-<span class="sd">        :param magnitude: magnitude of the scanned field</span>
+<span class="sd">        :param amplitude: amplitude of the scanned field</span>
 <span class="sd">        :param theta: polar angle in deg.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">phi_span</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
@@ -1549,10 +1563,11 @@
           </td>
         </tr>
         <tr>
-          <td><code>magnitude</code></td>
+          <td><code>amplitude</code></td>
           <td>
+                <code>float</code>
           </td>
-          <td><p>magnitude of the scanned field</p></td>
+          <td><p>amplitude of the scanned field</p></td>
           <td>
               <em>required</em>
           </td>
@@ -1596,7 +1611,7 @@
 <span class="sd">    :param start: azimuthal angle start of the sweep</span>
 <span class="sd">    :param stop: azimuthal angle end of the sweep</span>
 <span class="sd">    :param steps: number of steps</span>
-<span class="sd">    :param magnitude: magnitude of the scanned field</span>
+<span class="sd">    :param amplitude: amplitude of the scanned field</span>
 <span class="sd">    :param theta: polar angle in deg.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">phi_span</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
@@ -1672,10 +1687,11 @@
           </td>
         </tr>
         <tr>
-          <td><code>magnitude</code></td>
+          <td><code>amplitude</code></td>
           <td>
+                <code>float</code>
           </td>
-          <td><p>magnitude of the scanned field.</p></td>
+          <td><p>amplitude of the scanned field.</p></td>
           <td>
               <em>required</em>
           </td>
@@ -1719,7 +1735,7 @@
 <span class="sd">    :param start: polar angle start of the sweep</span>
 <span class="sd">    :param stop: polar angle end of the sweep</span>
 <span class="sd">    :param steps: number of steps</span>
-<span class="sd">    :param magnitude: magnitude of the scanned field.</span>
+<span class="sd">    :param amplitude: amplitude of the scanned field.</span>
 <span class="sd">    :param phi: azimuthal angle in deg.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">theta_span</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
