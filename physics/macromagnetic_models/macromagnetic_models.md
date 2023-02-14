@@ -8,7 +8,7 @@ title: Macromagnetic models
 # Introduction
 
 In this section we will walk through the basics of the LLG equation and the transformation to the LL-form of the LLG equation.
-The LLG equation is a *proper* equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that
+The LLG equation is a _proper_ equation in physical sense (derived from actual mechanics), whereas LL is simply a transformed approximation of the LLG equation that
 allows us to solve it numerically (no implicit term on $\frac{dm}{dt}$).
 
 # Landau Lifshitz form of Landau Lifshitz-Gilbert equation

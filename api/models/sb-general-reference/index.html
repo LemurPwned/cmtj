@@ -1,0 +1,2430 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.1.2">
+    
+    
+      
+        <title>Smit-Beljers-General - CMTJ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.f7951f6f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cmtj.models.general_sb" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="CMTJ" class="md-header__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CMTJ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Smit-Beljers-General
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="CMTJ" class="md-nav__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../../assets/icon.svg" alt="logo">
+
+    </a>
+    CMTJ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Theory
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Theory" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Theory
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../physics/contributions/" class="md-nav__link">
+        Macromagnetic contributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../physics/macromagnetic_models/" class="md-nav__link">
+        LLG Equation & solvers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../physics/sb-model/" class="md-nav__link">
+        Static Smit-Beljers model
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../physics/paralellism/" class="md-nav__link">
+        Parallelism
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          API
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          API
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../gen-docs/cmtj/" class="md-nav__link">
+        Core
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_2" type="checkbox" id="__nav_5_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_2">
+          Models
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Models" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          Models
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sb-reference/" class="md-nav__link">
+        Smit-Beljers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Smit-Beljers-General
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Smit-Beljers-General
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb" class="md-nav__link">
+    cmtj.models.general_sb
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB" class="md-nav__link">
+    LayerSB
+  </a>
+  
+    <nav class="md-nav" aria-label="LayerSB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB.get_coord_sym" class="md-nav__link">
+    get_coord_sym()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB.get_m_sym" class="md-nav__link">
+    get_m_sym()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB.symbolic_layer_energy" class="md-nav__link">
+    symbolic_layer_energy()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver" class="md-nav__link">
+    Solver
+  </a>
+  
+    <nav class="md-nav" aria-label="Solver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.adam_gradient_descent" class="md-nav__link">
+    adam_gradient_descent()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.create_energy" class="md-nav__link">
+    create_energy()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.create_energy_hessian" class="md-nav__link">
+    create_energy_hessian()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.get_gradient_expr" class="md-nav__link">
+    get_gradient_expr()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.single_layer_equilibrium" class="md-nav__link">
+    single_layer_equilibrium()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.solve" class="md-nav__link">
+    solve()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dw-reference/" class="md-nav__link">
+        Domain wall
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5_3" type="checkbox" id="__nav_5_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5_3">
+          Utils
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Utils" data-md-level="2">
+        <label class="md-nav__title" for="__nav_5_3">
+          <span class="md-nav__icon md-icon"></span>
+          Utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../general-reference/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../linear-reference/" class="md-nav__link">
+        Linear
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../filters-reference/" class="md-nav__link">
+        Filters
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../energy-reference/" class="md-nav__link">
+        Energy
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plotting-reference/" class="md-nav__link">
+        Plotting
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../procedures-reference/" class="md-nav__link">
+        Procedures
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../parallel-reference/" class="md-nav__link">
+        Parallel
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../gen-docs/stack/" class="md-nav__link">
+        Stack
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Examples
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Examples
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CMTJBindingsTutorial/" class="md-nav__link">
+        Library introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../trajectory/" class="md-nav__link">
+        Generating trajectories
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb" class="md-nav__link">
+    cmtj.models.general_sb
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB" class="md-nav__link">
+    LayerSB
+  </a>
+  
+    <nav class="md-nav" aria-label="LayerSB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB.get_coord_sym" class="md-nav__link">
+    get_coord_sym()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB.get_m_sym" class="md-nav__link">
+    get_m_sym()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.LayerSB.symbolic_layer_energy" class="md-nav__link">
+    symbolic_layer_energy()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver" class="md-nav__link">
+    Solver
+  </a>
+  
+    <nav class="md-nav" aria-label="Solver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.adam_gradient_descent" class="md-nav__link">
+    adam_gradient_descent()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.create_energy" class="md-nav__link">
+    create_energy()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.create_energy_hessian" class="md-nav__link">
+    create_energy_hessian()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.get_gradient_expr" class="md-nav__link">
+    get_gradient_expr()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.single_layer_equilibrium" class="md-nav__link">
+    single_layer_equilibrium()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.general_sb.Solver.solve" class="md-nav__link">
+    solve()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/LemurPwned/cmtj/edit/master/docs/api/models/sb-general-reference.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+  <h1>Smit-Beljers-General</h1>
+
+<p>This module contains the basic implementation of the Smit-Beljers model. The model is based on the following paper which introduced a corrected model:
+Rodríguez-Suárez et al.,
+"Ferromagnetic resonance investigation of the residual coupling in spin-valve systems"
+10.1103/PhysRevB.71.224406</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="cmtj.models.general_sb"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.models.general_sb.LayerSB" class="doc doc-heading">
+        <code>LayerSB</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Basic Layer for Smit-Beljers model.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>thickness</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>thickness of the FM layer (effective).</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>m</code></td>
+          <td>
+          </td>
+          <td><p>initial magnetisation vector (Cauchy condition).</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Kv</code></td>
+          <td>
+                <code><span title="cmtj.utils.VectorObj">VectorObj</span></code>
+          </td>
+          <td><p>volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Ks</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>surface anisotropy (out-of plane, or perpendicular) value [J/m^3].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Ms</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>magnetisation saturation value in [A/m].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        <details class="quote">
+          <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LayerSB</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Basic Layer for Smit-Beljers model.</span>
+<span class="sd">    :param thickness: thickness of the FM layer (effective).</span>
+<span class="sd">    :param m: initial magnetisation vector (Cauchy condition).</span>
+<span class="sd">    :param Kv: volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].</span>
+<span class="sd">    :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].</span>
+<span class="sd">    :param Ms: magnetisation saturation value in [A/m].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Kv</span><span class="p">:</span> <span class="n">VectorObj</span>
+    <span class="n">Ks</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Ms</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only up to 10 layers supported.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="sa">rf</span><span class="s1">&#39;theta_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s1"> phi_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([</span>
+            <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">sym</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span>
+            <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span>
+            <span class="n">sym</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span>
+        <span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the symbolic coordinates of the layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+
+    <span class="k">def</span> <span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the magnetisation vector.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
+
+    <span class="k">def</span> <span class="nf">symbolic_layer_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">,</span> <span class="n">J1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                              <span class="n">down_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the symbolic expression for the energy of the layer.</span>
+<span class="sd">        Only from the bottom layer (top-down crawl)&quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
+
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([</span><span class="n">sym</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">field_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+        <span class="n">surface_anistropy</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span> <span class="o">+</span>
+                             <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">volume_anisotropy</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">mag</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">down_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iec_energy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">other_m</span> <span class="o">=</span> <span class="n">down_layer</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
+            <span class="n">iec_energy</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">J1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">other_m</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span>
+                <span class="n">J2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">other_m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span> <span class="o">+</span> <span class="n">iec_energy</span>
+
+    <span class="k">def</span> <span class="nf">sb_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\omega&#39;</span><span class="p">)</span>
+        <span class="c1"># we use unreduced gamma</span>
+        <span class="c1"># later we don&#39;t need to divide omega by 2pi</span>
+        <span class="c1"># idk but if we use reduced gamma it numericall breaks lol</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="p">(</span><span class="n">omega</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Z</span>
+</code></pre></div>
+</td></tr></table>
+        </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.LayerSB.get_coord_sym" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_coord_sym</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the symbolic coordinates of the layer.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the symbolic coordinates of the layer.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.LayerSB.get_m_sym" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_m_sym</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the magnetisation vector.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the magnetisation vector.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.LayerSB.symbolic_layer_energy" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">symbolic_layer_energy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">J1</span><span class="p">,</span> <span class="n">J2</span><span class="p">,</span> <span class="n">down_layer</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the symbolic expression for the energy of the layer.
+Only from the bottom layer (top-down crawl)</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">symbolic_layer_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">,</span> <span class="n">J1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">J2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                          <span class="n">down_layer</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the symbolic expression for the energy of the layer.</span>
+<span class="sd">    Only from the bottom layer (top-down crawl)&quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
+
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([</span><span class="n">sym</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">field_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">surface_anistropy</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span> <span class="o">+</span>
+                         <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">volume_anisotropy</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">mag</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">down_layer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">iec_energy</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">other_m</span> <span class="o">=</span> <span class="n">down_layer</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
+        <span class="n">iec_energy</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">J1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">other_m</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span>
+            <span class="n">J2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">other_m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span> <span class="o">+</span> <span class="n">iec_energy</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.models.general_sb.Solver" class="doc doc-heading">
+        <code>Solver</code>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+        <details class="quote">
+          <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Solver</span><span class="p">:</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LayerSB</span><span class="p">]</span>
+    <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span>
+    <span class="n">J1</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">J2</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">create_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the symbolic energy expression.&quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">energy</span> <span class="o">+=</span> <span class="n">layer</span><span class="o">.</span><span class="n">symbolic_layer_energy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">energy</span> <span class="o">+=</span> <span class="n">layer</span><span class="o">.</span><span class="n">symbolic_layer_energy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">J1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">J2</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">energy</span>
+
+    <span class="k">def</span> <span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the symbolic hessian of the energy expression.&quot;&quot;&quot;</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">())</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)):</span>
+            <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+            <span class="n">subs</span><span class="p">[</span><span class="n">theta</span><span class="p">]</span> <span class="o">=</span> <span class="n">equilibrium_position</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">subs</span><span class="p">[</span><span class="n">phi</span><span class="p">]</span> <span class="o">=</span> <span class="n">equilibrium_position</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+        <span class="n">hessian</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sb_correction</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                <span class="c1"># dtheta dtheta</span>
+                <span class="n">theta_i</span><span class="p">,</span> <span class="n">phi_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+                <span class="n">theta_j</span><span class="p">,</span> <span class="n">phi_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+
+                <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta_i</span><span class="p">),</span> <span class="n">theta_j</span><span class="p">)</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+                <span class="c1"># dphi dphi</span>
+                <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi_i</span><span class="p">),</span> <span class="n">phi_j</span><span class="p">)</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+                <span class="c1"># mixed terms</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta_i</span><span class="p">),</span> <span class="n">phi_j</span><span class="p">)</span>
+                    <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span> <span class="o">+</span> <span class="n">sym</span><span class="o">.</span><span class="n">I</span> <span class="o">*</span> <span class="n">z</span>
+                    <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span> <span class="o">-</span> <span class="n">sym</span><span class="o">.</span><span class="n">I</span> <span class="o">*</span> <span class="n">z</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta_i</span><span class="p">),</span> <span class="n">phi_j</span><span class="p">)</span>
+                    <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+                    <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+                    <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi_i</span><span class="p">),</span> <span class="n">theta_j</span><span class="p">)</span>
+                    <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+                    <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+        <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="n">hessian</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the symbolic gradient of the energy expression.&quot;&quot;&quot;</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">()</span>
+        <span class="n">grad_vector</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">symbols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+            <span class="n">grad_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta</span><span class="p">))</span>
+            <span class="n">grad_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+            <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">lambdify</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">grad_vector</span><span class="p">,</span> <span class="n">accel</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">adam_gradient_descent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                              <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                              <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                              <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+                              <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+                              <span class="n">first_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                              <span class="n">second_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A naive implementation of Adam gradient descent.</span>
+<span class="sd">        See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</span>
+<span class="sd">        :param max_steps: maximum number of gradient steps.</span>
+<span class="sd">        :param tol: tolerance of the solution.</span>
+<span class="sd">        :param learning_rate: the learning rate (descent speed).</span>
+<span class="sd">        :param first_momentum_decay: constant for the first momentum.</span>
+<span class="sd">        :param second_momentum_decay: constant for the second momentum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">gradfn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_gradient_expr</span><span class="p">()</span>
+        <span class="n">current_position</span> <span class="o">=</span> <span class="n">init_position</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>  <span class="c1"># first momentum</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>  <span class="c1"># second momentum</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-12</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">gradfn</span><span class="p">(</span><span class="o">*</span><span class="n">current_position</span><span class="p">))</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">first_momentum_decay</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">first_momentum_decay</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">second_momentum_decay</span> <span class="o">*</span> <span class="n">v</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span>
+                                             <span class="n">second_momentum_decay</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">m_hat</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">first_momentum_decay</span><span class="o">**</span><span class="n">step</span><span class="p">)</span>
+            <span class="n">v_hat</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">second_momentum_decay</span><span class="o">**</span><span class="n">step</span><span class="p">)</span>
+            <span class="n">new_position</span> <span class="o">=</span> <span class="n">current_position</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">m_hat</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">v_hat</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">max_steps</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">current_position</span> <span class="o">-</span> <span class="n">new_position</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">current_position</span> <span class="o">=</span> <span class="n">new_position</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">single_layer_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;We can compute the equilibrium position of a single layer directly.&quot;&quot;&quot;</span>
+        <span class="c1"># compute grads</span>
+        <span class="n">theta_eq</span><span class="p">,</span> <span class="n">phi_eq</span> <span class="o">=</span> <span class="n">eq_position</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">()</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">{</span><span class="n">theta</span><span class="p">:</span> <span class="n">theta_eq</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="n">phi_eq</span><span class="p">}</span>
+        <span class="n">d2Edtheta2</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+        <span class="n">d2Edphi2</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi</span><span class="p">),</span> <span class="n">phi</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+        <span class="c1"># mixed, assuming symmetry</span>
+        <span class="n">d2Edthetaphi</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span> <span class="n">phi</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+        <span class="n">vareps</span> <span class="o">=</span> <span class="mf">1e-12</span>
+
+        <span class="n">fmr</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2Edtheta2</span> <span class="o">*</span> <span class="n">d2Edphi2</span> <span class="o">-</span> <span class="n">d2Edthetaphi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_eq</span> <span class="o">+</span> <span class="n">vareps</span><span class="p">)</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">fmr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fmr</span><span class="p">))</span> <span class="o">*</span> <span class="n">gamma_rad</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fmr</span>
+
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+              <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01e9</span><span class="p">,</span>
+              <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
+              <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+              <span class="n">first_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+              <span class="n">second_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">,</span>
+              <span class="n">max_freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">80e9</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Solves the system.</span>
+<span class="sd">        1. Computes the energy functional.</span>
+<span class="sd">        2. Computes the gradient of the energy functional.</span>
+<span class="sd">        3. Performs a gradient descent to find the equilibrium position.</span>
+<span class="sd">        Returns the equilibrium position and frequencies in [GHz].</span>
+<span class="sd">        :param init_position: initial position for the gradient descent.</span>
+<span class="sd">                              Must be a 1D array of size 2 * number of layers (theta, phi)</span>
+<span class="sd">        :param ftol: tolerance for the frequency search.</span>
+<span class="sd">        :param max_steps: maximum number of gradient steps.</span>
+<span class="sd">        :param learning_rate: the learning rate (descent speed).</span>
+<span class="sd">        :param first_momentum_decay: constant for the first momentum.</span>
+<span class="sd">        :param second_momentum_decay: constant for the second momentum.</span>
+<span class="sd">        :param max_freq: maximum frequency to search for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adam_gradient_descent</span><span class="p">(</span>
+            <span class="n">init_position</span><span class="o">=</span><span class="n">init_position</span><span class="p">,</span>
+            <span class="n">max_steps</span><span class="o">=</span><span class="n">max_steps</span><span class="p">,</span>
+            <span class="n">tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+            <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+            <span class="n">first_momentum_decay</span><span class="o">=</span><span class="n">first_momentum_decay</span><span class="p">,</span>
+            <span class="n">second_momentum_decay</span><span class="o">=</span><span class="n">second_momentum_decay</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_layer_equilibrium</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e9</span>
+        <span class="n">hes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy_hessian</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\omega&quot;</span><span class="p">)</span>
+        <span class="n">smpl</span> <span class="o">=</span> <span class="n">hes</span><span class="o">.</span><span class="n">det</span><span class="p">()</span>
+        <span class="n">smpl</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">re</span><span class="p">(</span><span class="n">smpl</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">lambdify</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">smpl</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">RootFinder</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_freq</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">ftol</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">root_dtype</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span>
+        <span class="n">roots</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="c1"># convert to GHz</span>
+        <span class="c1"># reduce unique solutions to 2 decimal places</span>
+        <span class="c1"># don&#39;t divide by 2pi, we used gamma instead of gamma / 2pi</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">roots</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="n">f</span>
+</code></pre></div>
+</td></tr></table>
+        </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.Solver.adam_gradient_descent" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">adam_gradient_descent</span><span class="p">(</span><span class="n">init_position</span><span class="p">,</span> <span class="n">max_steps</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">first_momentum_decay</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">second_momentum_decay</span><span class="o">=</span><span class="mf">0.999</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>A naive implementation of Adam gradient descent.
+See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>max_steps</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>maximum number of gradient steps.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>tol</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>tolerance of the solution.</p></td>
+          <td>
+                <code>1e-08</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>learning_rate</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the learning rate (descent speed).</p></td>
+          <td>
+                <code>0.0001</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>first_momentum_decay</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>constant for the first momentum.</p></td>
+          <td>
+                <code>0.9</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>second_momentum_decay</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>constant for the second momentum.</p></td>
+          <td>
+                <code>0.999</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">adam_gradient_descent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                          <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                          <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                          <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
+                          <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+                          <span class="n">first_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                          <span class="n">second_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A naive implementation of Adam gradient descent.</span>
+<span class="sd">    See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</span>
+<span class="sd">    :param max_steps: maximum number of gradient steps.</span>
+<span class="sd">    :param tol: tolerance of the solution.</span>
+<span class="sd">    :param learning_rate: the learning rate (descent speed).</span>
+<span class="sd">    :param first_momentum_decay: constant for the first momentum.</span>
+<span class="sd">    :param second_momentum_decay: constant for the second momentum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">gradfn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_gradient_expr</span><span class="p">()</span>
+    <span class="n">current_position</span> <span class="o">=</span> <span class="n">init_position</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>  <span class="c1"># first momentum</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>  <span class="c1"># second momentum</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-12</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">step</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">gradfn</span><span class="p">(</span><span class="o">*</span><span class="n">current_position</span><span class="p">))</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">first_momentum_decay</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">first_momentum_decay</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">second_momentum_decay</span> <span class="o">*</span> <span class="n">v</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span>
+                                         <span class="n">second_momentum_decay</span><span class="p">)</span> <span class="o">*</span> <span class="n">grad</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">m_hat</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">first_momentum_decay</span><span class="o">**</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">v_hat</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">second_momentum_decay</span><span class="o">**</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">new_position</span> <span class="o">=</span> <span class="n">current_position</span> <span class="o">-</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">m_hat</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">v_hat</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="n">max_steps</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">current_position</span> <span class="o">-</span> <span class="n">new_position</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">current_position</span> <span class="o">=</span> <span class="n">new_position</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.Solver.create_energy" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_energy</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Creates the symbolic energy expression.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates the symbolic energy expression.&quot;&quot;&quot;</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">energy</span> <span class="o">+=</span> <span class="n">layer</span><span class="o">.</span><span class="n">symbolic_layer_energy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">energy</span> <span class="o">+=</span> <span class="n">layer</span><span class="o">.</span><span class="n">symbolic_layer_energy</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">J1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">J2</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">energy</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.Solver.create_energy_hessian" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_energy_hessian</span><span class="p">(</span><span class="n">equilibrium_position</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Creates the symbolic hessian of the energy expression.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Creates the symbolic hessian of the energy expression.&quot;&quot;&quot;</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">())</span>
+    <span class="n">subs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)):</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+        <span class="n">subs</span><span class="p">[</span><span class="n">theta</span><span class="p">]</span> <span class="o">=</span> <span class="n">equilibrium_position</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">subs</span><span class="p">[</span><span class="n">phi</span><span class="p">]</span> <span class="o">=</span> <span class="n">equilibrium_position</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span>
+    <span class="n">hessian</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">N</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sb_correction</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+            <span class="c1"># dtheta dtheta</span>
+            <span class="n">theta_i</span><span class="p">,</span> <span class="n">phi_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+            <span class="n">theta_j</span><span class="p">,</span> <span class="n">phi_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta_i</span><span class="p">),</span> <span class="n">theta_j</span><span class="p">)</span>
+            <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+            <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+            <span class="c1"># dphi dphi</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi_i</span><span class="p">),</span> <span class="n">phi_j</span><span class="p">)</span>
+            <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+            <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+            <span class="c1"># mixed terms</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta_i</span><span class="p">),</span> <span class="n">phi_j</span><span class="p">)</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span> <span class="o">+</span> <span class="n">sym</span><span class="o">.</span><span class="n">I</span> <span class="o">*</span> <span class="n">z</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span> <span class="o">-</span> <span class="n">sym</span><span class="o">.</span><span class="n">I</span> <span class="o">*</span> <span class="n">z</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta_i</span><span class="p">),</span> <span class="n">phi_j</span><span class="p">)</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+                <span class="n">expr</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi_i</span><span class="p">),</span> <span class="n">theta_j</span><span class="p">)</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+                <span class="n">hessian</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+
+    <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="n">hessian</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.Solver.get_gradient_expr" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_gradient_expr</span><span class="p">(</span><span class="n">accel</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the symbolic gradient of the energy expression.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the symbolic gradient of the energy expression.&quot;&quot;&quot;</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">()</span>
+    <span class="n">grad_vector</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">symbols</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+        <span class="n">grad_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta</span><span class="p">))</span>
+        <span class="n">grad_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
+        <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">lambdify</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">grad_vector</span><span class="p">,</span> <span class="n">accel</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.Solver.single_layer_equilibrium" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">single_layer_equilibrium</span><span class="p">(</span><span class="n">eq_position</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>We can compute the equilibrium position of a single layer directly.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">single_layer_equilibrium</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;We can compute the equilibrium position of a single layer directly.&quot;&quot;&quot;</span>
+    <span class="c1"># compute grads</span>
+    <span class="n">theta_eq</span><span class="p">,</span> <span class="n">phi_eq</span> <span class="o">=</span> <span class="n">eq_position</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_coord_sym</span><span class="p">()</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">()</span>
+    <span class="n">subs</span> <span class="o">=</span> <span class="p">{</span><span class="n">theta</span><span class="p">:</span> <span class="n">theta_eq</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="n">phi_eq</span><span class="p">}</span>
+    <span class="n">d2Edtheta2</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+    <span class="n">d2Edphi2</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">phi</span><span class="p">),</span> <span class="n">phi</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+    <span class="c1"># mixed, assuming symmetry</span>
+    <span class="n">d2Edthetaphi</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span> <span class="n">phi</span><span class="p">)</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+    <span class="n">vareps</span> <span class="o">=</span> <span class="mf">1e-12</span>
+
+    <span class="n">fmr</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2Edtheta2</span> <span class="o">*</span> <span class="n">d2Edphi2</span> <span class="o">-</span> <span class="n">d2Edthetaphi</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta_eq</span> <span class="o">+</span> <span class="n">vareps</span><span class="p">)</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">fmr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fmr</span><span class="p">))</span> <span class="o">*</span> <span class="n">gamma_rad</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fmr</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.general_sb.Solver.solve" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">solve</span><span class="p">(</span><span class="n">init_position</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">10000000.0</span><span class="p">,</span> <span class="n">max_steps</span><span class="o">=</span><span class="mf">1000000000.0</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">first_momentum_decay</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">second_momentum_decay</span><span class="o">=</span><span class="mf">0.999</span><span class="p">,</span> <span class="n">max_freq</span><span class="o">=</span><span class="mf">80000000000.0</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Solves the system.
+1. Computes the energy functional.
+2. Computes the gradient of the energy functional.
+3. Performs a gradient descent to find the equilibrium position.
+Returns the equilibrium position and frequencies in [GHz].</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>init_position</code></td>
+          <td>
+                <code><span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span></code>
+          </td>
+          <td><p>initial position for the gradient descent. Must be a 1D array of size 2 * number of layers (theta, phi)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>ftol</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>tolerance for the frequency search.</p></td>
+          <td>
+                <code>10000000.0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_steps</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>maximum number of gradient steps.</p></td>
+          <td>
+                <code>1000000000.0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>learning_rate</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the learning rate (descent speed).</p></td>
+          <td>
+                <code>0.0001</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>first_momentum_decay</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>constant for the first momentum.</p></td>
+          <td>
+                <code>0.9</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>second_momentum_decay</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>constant for the second momentum.</p></td>
+          <td>
+                <code>0.999</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_freq</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>maximum frequency to search for.</p></td>
+          <td>
+                <code>80000000000.0</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+          <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+          <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01e9</span><span class="p">,</span>
+          <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
+          <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+          <span class="n">first_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+          <span class="n">second_momentum_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">,</span>
+          <span class="n">max_freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">80e9</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Solves the system.</span>
+<span class="sd">    1. Computes the energy functional.</span>
+<span class="sd">    2. Computes the gradient of the energy functional.</span>
+<span class="sd">    3. Performs a gradient descent to find the equilibrium position.</span>
+<span class="sd">    Returns the equilibrium position and frequencies in [GHz].</span>
+<span class="sd">    :param init_position: initial position for the gradient descent.</span>
+<span class="sd">                          Must be a 1D array of size 2 * number of layers (theta, phi)</span>
+<span class="sd">    :param ftol: tolerance for the frequency search.</span>
+<span class="sd">    :param max_steps: maximum number of gradient steps.</span>
+<span class="sd">    :param learning_rate: the learning rate (descent speed).</span>
+<span class="sd">    :param first_momentum_decay: constant for the first momentum.</span>
+<span class="sd">    :param second_momentum_decay: constant for the second momentum.</span>
+<span class="sd">    :param max_freq: maximum frequency to search for.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adam_gradient_descent</span><span class="p">(</span>
+        <span class="n">init_position</span><span class="o">=</span><span class="n">init_position</span><span class="p">,</span>
+        <span class="n">max_steps</span><span class="o">=</span><span class="n">max_steps</span><span class="p">,</span>
+        <span class="n">tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+        <span class="n">first_momentum_decay</span><span class="o">=</span><span class="n">first_momentum_decay</span><span class="p">,</span>
+        <span class="n">second_momentum_decay</span><span class="o">=</span><span class="n">second_momentum_decay</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">single_layer_equilibrium</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e9</span>
+    <span class="n">hes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy_hessian</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\omega&quot;</span><span class="p">)</span>
+    <span class="n">smpl</span> <span class="o">=</span> <span class="n">hes</span><span class="o">.</span><span class="n">det</span><span class="p">()</span>
+    <span class="n">smpl</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">re</span><span class="p">(</span><span class="n">smpl</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">lambdify</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">smpl</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">RootFinder</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_freq</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">ftol</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">root_dtype</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span>
+    <span class="n">roots</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="c1"># convert to GHz</span>
+    <span class="c1"># reduce unique solutions to 2 decimal places</span>
+    <span class="c1"># don&#39;t divide by 2pi, we used gamma instead of gamma / 2pi</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">roots</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="n">f</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../sb-reference/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Smit-Beljers" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Smit-Beljers
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../dw-reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Domain wall" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Domain wall
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.0bbba5b5.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.649a939e.min.js"></script>
+      
+        <script src="../../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
