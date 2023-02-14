@@ -40,6 +40,7 @@ And the external field is also given by it's own ($\theta$, $\phi$, $H$) where $
     This assumes physical, not mathematical spherical coordinates! Here, polar angle $\theta$ is measured from the positive $z$ axis, and azimuthal angle $\phi$ is measured from the positive $x$ axis.
 
 The energy expression per layer is given by the following:
+
 $$
     \varepsilon_i = - \mu_0 M_s \vec{m}_i \cdot \vec{H} + (- K_s + \frac{1}{2}\mu_0 M_s^2) m_z^2 - K_v \vec{m} \cdot \vec{K}_{dir} - J_1 \vec{m}_i \cdot \vec{m}_{i+1} - J_2 (\vec{m}_i \cdot \vec{m}_{i+1})^2
 $$
