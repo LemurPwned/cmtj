@@ -855,8 +855,8 @@
 <li>static contributions <span class="arithmatex">\({H}_\textrm{dipole}\)</span>, and <span class="arithmatex">\(\mathbf{H}_\textrm{demag}\)</span>.
    Static contributions are not driven by any <code>Driver</code> system, they are simply added to the <span class="arithmatex">\(\mathbf{H}_\textrm{eff}\)</span> field. This may be subject to change in future API versions.</li>
 </ol>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Almost every contribution may be set either using <code>Layer</code> api or <code>Junction</code> api. They both have the same set of arguments, and the naming convention is such that if e.g. <code>Layer</code> has a method <code>setContribution</code>, then <code>Junction</code> has a method <code>setLayerContribution</code> and requires one additional argument specyfing the layer id (or <code>all</code> if it is to be set for all layers in the <code>Junction</code>). There are some exceptions to this, e.g. <code>setLayerIEC</code>, which is only defined for two or more layers, therefore it cannot be set from a <code>Layer</code> object.</p>
 </div>
 <h3 id="external-field">External field</h3>
@@ -1048,10 +1048,10 @@ Since <code>demag</code> tensor is inherent to the geometry (shape) of the syste
     \mathbf{H}_\textrm{dipole} = \mathbf{H}_\textrm{dipole, top} + \mathbf{H}_\textrm{dipole, bottom}
 \]</div>
 <p>We set for <code>top</code> and <code>bottom</code> separately since it may come for instance from top and bottom layer and thus top or bottom may be different. Effectively, you can just pass either, where you sum the dipole tensors and it'll have the same effect. However, API makes this convenient separation to logically separate those contributions.</p>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Dipole tensor for now is only set from the Layer API. We may add a function for adding it in the Junction API as well in near future.</p>
+</div>
 <h3 id="anisotropy">Anisotropy</h3>
 <p>Anisotropy computation has two components -- axis <span class="arithmatex">\(\mathbf{a}\)</span> which is in CMTJ a vector, and value <span class="arithmatex">\(K_\textrm{u}\)</span> which is a scalar. The axis is passed in the <code>Layer</code> constructor under <code>anis</code> parameter. The scalar value, however, is driven with a <code>ScalarDriver</code> object and can be dynamically operated from either <code>Layer</code> or <code>Junction</code> API.</p>
 <table>
