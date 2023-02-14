@@ -41,7 +41,7 @@ And the external field is also given by it's own ($\theta$, $\phi$, $H$) where $
 
 The energy expression per layer is given by the following:
 $$
-\varepsilon_i = - \mu_0 M_s \vec{m}_i \cdot \vec{H} + (- K_s + \frac{1}{2}\mu_0 M_s^2) m_z^2 - K_v \vec{m} \cdot \vec{K}_{dir} - J_1 \vec{m}_i \cdot \vec{m}_{i+1} - J_2 (\vec{m}_i \cdot \vec{m}_{i+1})^2
+    \varepsilon_i = - \mu_0 M_s \vec{m}_i \cdot \vec{H} + (- K_s + \frac{1}{2}\mu_0 M_s^2) m_z^2 - K_v \vec{m} \cdot \vec{K}_{dir} - J_1 \vec{m}_i \cdot \vec{m}_{i+1} - J_2 (\vec{m}_i \cdot \vec{m}_{i+1})^2
 $$
 
 where $\vec{m}$ is in the spherical coordinates, and $\vec{K}_{dir}$ is the direction of the in-plane anisotropy.
