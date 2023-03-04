@@ -1,7 +1,8 @@
 import math
+from abc import ABC
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Callable, List
+from typing import Callable, List, Literal
 
 from numba import njit
 from scipy.integrate import RK45
@@ -167,14 +168,15 @@ class DomainWallDynamics:
     For relativisitc formulation see:
     Relativistic kinematics of a magnetic soliton, Caretta et al., 2020
     """
-    alpha: float
-    domain_width: float
     H: VectorObj
-    Hk: float
+    alpha: float
     Ms: float
     thickness: float
     SHE_angle: float
     D: float
+    Ku: float  # The out-of-plane anisotropy constant
+    Kp: float  # The in-plane anisotropy constant
+    A: float = 1e-11  # J/m
     beta: float = 1
     p: float = 1
     V0_pin: float = 1.65e-20
@@ -186,19 +188,27 @@ class DomainWallDynamics:
     Q: int = 1
     Hr: float = 0
     kappa: float = 1
-    relativistic: bool = False
-    vmax_magnon: float = 5000  # m/s, max magnon velocity => 2A/Sd
+    moving_field: Literal["perpendicular", "inplane"] = "perpendicular"
 
-    def __post_init__(self):
-        self.dw = self.domain_width
-        self.dw_hat = self.dw
+    def __post__init__(self):
+        # in post init we already have p
+        self.bj = bohr_magneton * self.p / (echarge * self.Ms)
+        self.je_driver = lambda t: 0
         denom = (2 * self.Ms * mu0 * echarge * self.thickness)
         self.Hshe = hbar * self.SHE_angle / denom
-        self.Hdmi = self.D / (mu0 * self.Ms * self.dw)
-
-        self.bj = bohr_magneton * self.p / (echarge * self.Ms)
         self.hx, self.hy, self.hz = self.H.get_cartesian()
-        self.je_driver = lambda t: 0
+        self.dw0 = self.get_unrelaxed_domain_width()
+        if self.moving_field == "perpendicular":
+            self.Hk = self.get_perpendicular_anisotropy_field()
+        elif self.moving_field == "inplane":
+            self.Hk = self.get_inplane_anisotropy_field()
+
+    def get_unrelaxed_domain_width(self):
+        """Domain width is based off the effective perpendicular anisotropy.
+        We reduce the perpendicular anisotropy by demagnetising field"""
+        # Keff = self.Ku - 0.5*mu0*(self.Ms/mu0)**2
+        Keff = self.Ku - (0.5 / mu0) * (self.Ms**2)
+        return math.sqrt(self.A / Keff)
 
     def set_current_function(self, driver: Callable):
         """
@@ -206,11 +216,24 @@ class DomainWallDynamics:
         """
         self.je_driver = driver
 
+    def get_Hdmi(self, domain_width):
+        """Returns the DMI field"""
+        return self.D / (mu0 * self.Ms * domain_width)
+
+    def get_perpendicular_anisotropy_field(self):
+        """Returns the perpeanisotropy field"""
+        return 2 * self.Ku / (mu0 * self.Ms)
+
+    def get_inplane_anisotropy_field(self):
+        """Returns the in-plane anisotropy field"""
+        return 2 * self.Kp / (mu0 * self.Ms)
+
 
 @dataclass
 class MultilayerWallDynamics:
     layers: List[DomainWallDynamics]
     J: float = 0
+    vector_size: int = 3  # 3 for X, phi, delta
 
     def __post_init__(self):
         if len(self.layers) > 2:
@@ -220,8 +243,8 @@ class MultilayerWallDynamics:
     def multilayer_dw_llg(self, t, vec):
         """Solve the Thiaville llg equation for LLG.
         :param t: current simulation time.
-        :param vec: contains [X, phi], current DW position and its chirality.
-        :returns (dXdt, dPhidt): velocity and change of chirality.
+        :param vec: contains [X, phi, delta], current DW position, its angle and domain width.
+        :returns (dXdt, dPhidt, dDeltad): velocity and change of angle and domain width.
         """
         # vector is X1, phi1, X2, phi2, ...
         layer: DomainWallDynamics
@@ -229,27 +252,30 @@ class MultilayerWallDynamics:
         for i, layer in enumerate(self.layers):
             je_at_t = layer.je_driver(t=t)
             reduced_alpha = (1. + layer.alpha**2)
-            cphi = vec[(2 * i) + 1]
+            lx = vec[self.vector_size * i]
+            lphi = vec[(self.vector_size * i) + 1]
+            ldomain_width = vec[(self.vector_size * i) + 2]
             if len(self.layers) == 1:
                 Jterm = 0
             else:
                 Jterm = 2 * self.J / (layer.Ms * mu0 * layer.thickness)
-                otherphi = vec[2 * (i - 1) + 1]
-                Jterm *= math.sin(cphi - otherphi)
+                otherphi = vec[self.vector_size * (i - 1) + 1]
+                Jterm *= math.sin(lphi - otherphi)
 
-            dXdt, dPhidt = compute_dynamics(vec[2 * i],
-                                            phi=cphi,
+            hdmi = layer.get_Hdmi(ldomain_width)
+            dXdt, dPhidt = compute_dynamics(lx,
+                                            phi=lphi,
                                             Q=layer.Q,
                                             hx=layer.hx,
                                             hy=layer.hy,
                                             hz=layer.hz,
                                             alpha=layer.alpha,
-                                            dw=layer.dw_hat,
+                                            dw=ldomain_width,
                                             bj=layer.bj * je_at_t,
                                             hr=layer.Hr,
                                             beta=layer.beta,
                                             hshe=layer.Hshe * je_at_t,
-                                            hdmi=layer.Hdmi,
+                                            hdmi=hdmi,
                                             hk=layer.Hk,
                                             Ms=layer.Ms,
                                             IECterm=Jterm,
@@ -261,17 +287,11 @@ class MultilayerWallDynamics:
                                             Lz=layer.Lz)
             dXdt = dXdt / reduced_alpha
             dPhidt = dPhidt / reduced_alpha
-            # relaxation term for the domain wall width
-            layer.dw_hat = layer.dw / math.sqrt(1 + layer.kappa *
-                                                (math.sin(cphi)**2))
-            if layer.relativistic:
-                # contract the domain wall width
-                lorentz_factor = 1 / math.sqrt(1 -
-                                               (layer.vmax_magnon / dXdt)**2)
-                layer.dw_hat = layer.dw / lorentz_factor
-            layer.Hdmi = layer.D / (mu0 * layer.Ms * layer.dw_hat)
-            new_vec.append(dXdt)
-            new_vec.append(dPhidt)
+            pref = gyro / (layer.alpha * mu0 * layer.Ms * layer.thickness)
+            # domain width relaxation from Thiaville
+            dDeltadt = pref * (layer.A / ldomain_width - ldomain_width *
+                               (layer.Ku + layer.Kp * math.sin(lphi)**2))
+            new_vec.extend([dXdt, dPhidt, dDeltadt])
         return new_vec
 
     def run(self,
@@ -298,10 +318,12 @@ class MultilayerWallDynamics:
                 break
             layer_vecs = integrator.y
             result['t'].append(integrator.t)
-            for i, layer in enumerate(self.layers):
-                x, phi = layer_vecs[2 * i], layer_vecs[2 * i + 1]
+            for i, _ in enumerate(self.layers):
+                x, phi, dw = layer_vecs[self.vector_size * i], layer_vecs[
+                    self.vector_size * i +
+                    1], layer_vecs[self.vector_size * i + 2]
                 vel = (x - integrator.y_old[2 * i]) / integrator.step_size
-                result[f'dw_{i}'].append(layer.dw_hat)
+                result[f'dw_{i}'].append(dw)
                 result[f'v_{i}'].append(vel)
                 result[f'x_{i}'].append(x)
                 result[f'phi_{i}'].append(phi)
