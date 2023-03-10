@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 import sympy as sym
+from numba import njit
 
 from cmtj.utils import VectorObj, gamma, gamma_rad, mu0
 
@@ -101,7 +102,7 @@ class Solver:
         for i in range(len(self.layers)):
             theta, phi = self.layers[i].get_coord_sym()
             subs[theta] = equilibrium_position[2 * i]
-            subs[phi] = equilibrium_position[2 * i + 1]
+            subs[phi] = equilibrium_position[(2 * i) + 1]
 
         N = len(self.layers)
         hessian = [[0 for _ in range(2 * N)] for _ in range(2 * N)]
@@ -167,7 +168,7 @@ class Solver:
         :param second_momentum_decay: constant for the second momentum.
         """
         step = 0
-        gradfn = self.get_gradient_expr()
+        gradfn = njit(self.get_gradient_expr())
         current_position = init_position
 
         m = np.zeros_like(current_position)  # first momentum
@@ -245,7 +246,7 @@ class Solver:
         omega = sym.Symbol(r"\omega")
         smpl = hes.det()
         smpl = sym.re(smpl)
-        y = sym.lambdify(omega, smpl)
+        y = njit(sym.lambdify(omega, smpl))
         r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
         roots = r.find(y)
         # convert to GHz
