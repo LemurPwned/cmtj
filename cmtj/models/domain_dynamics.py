@@ -65,7 +65,7 @@ def get_field_contribution(X, phi, hx, hy, hz, alpha, dw, Ms, V0_pin, pinning,
 def compute_gamma_a(X, phi, Q, dw, hk, hx, hy, hdmi, bj, IECterm):
     pi2 = math.pi / 2.
     fact_gamma = -0.5 * hk * math.sin(
-        2 * phi) + pi2 * hy * math.cos(phi) - pi2 * hx * math.sin(
+        2 * phi) - pi2 * hy * math.cos(phi) + pi2 * hx * math.sin(
             phi) + Q * pi2 * hdmi * math.sin(phi) + IECterm
     fact_stt = bj / dw
     return gyro * fact_gamma + fact_stt
@@ -301,6 +301,7 @@ class MultilayerWallDynamics:
                 result[f'v_{i}'].append(vel)
                 result[f'x_{i}'].append(x)
                 result[f'phi_{i}'].append(phi)
+                result[f'je_{i}'].append(layer.je_driver(t=integrator.t))
             if integrator.status == 'finished':
                 break
 

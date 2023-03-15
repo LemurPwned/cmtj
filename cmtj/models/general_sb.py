@@ -14,7 +14,6 @@ from ..utils.solvers import RootFinder
 class LayerSB:
     """Basic Layer for Smit-Beljers model.
     :param thickness: thickness of the FM layer (effective).
-    :param m: initial magnetisation vector (Cauchy condition).
     :param Kv: volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].
     :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].
     :param Ms: magnetisation saturation value in [A/m].
@@ -75,7 +74,7 @@ class LayerSB:
 
 
 @dataclass
-class Solver:
+class SolverSB:
     layers: List[LayerSB]
     H: VectorObj
     J1: List[float]
