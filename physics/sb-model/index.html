@@ -403,6 +403,20 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#runnning-the-model" class="md-nav__link">
+    Runnning the model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -844,6 +858,20 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#runnning-the-model" class="md-nav__link">
+    Runnning the model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    References
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -870,8 +898,8 @@
 <ol>
 <li>Create energy expression of the system.</li>
 <li>Obtain equilibirum magnetisation position of the system.</li>
-<li>Compute the hessian matrix of the energy expression.</li>
-<li>Find the roots of the det(hessian).</li>
+<li>Compute the hessian matrix <span class="arithmatex">\(H\)</span> of the energy expression.</li>
+<li>Find the roots of the <span class="arithmatex">\(\det H\)</span>.</li>
 </ol>
 <p>Each layer is described by the following parameters:</p>
 <h5 id="parameter-table">Parameter table</h5>
@@ -965,9 +993,74 @@ Finally, <span class="arithmatex">\(\vec{K}_{dir}\)</span> is given by:</p>
 <h2 id="equilibrium-magnetisation">Equilibrium magnetisation</h2>
 <p>The solution for equilibrium magnetisation is solved using the Adam gradient descent. It is a quick and reliable algorithm for finding energy minima. It operates on the first derivative of the <span class="arithmatex">\(\varepsilon_i\)</span> expression, i.e. <span class="arithmatex">\(\frac{\partial\varepsilon}{\partial\theta}\)</span> and <span class="arithmatex">\(\frac{\partial\varepsilon}{\partial\phi}\)</span>. If the gradient is found within a certain tolerance, the algorithm stops. Otherwise, it continues to iterate until the maximum number of iterations is reached.</p>
 <h2 id="resonance-frequency">Resonance frequency</h2>
-<p>The equilibrium magnetisation, <span class="arithmatex">\((\theta^*, \phi^*)\)</span>, is then used to compute the hessian matrix of the energy expression. The hessian matrix is a matrix of second derivatives of the energy expression. We use it to find the roots of the det(hessian) expression. Those roots designate the frequencies of the resonance mode.</p>
+<p>The equilibrium magnetisation, <span class="arithmatex">\((\theta^*, \phi^*)\)</span>, is then used to compute the hessian matrix of the energy expression. The hessian matrix is a matrix of second derivatives of the energy expression. We use it to find the roots of the <span class="arithmatex">\(\det H\)</span>(hessian) expression. Those roots designate the frequencies of the resonance mode.</p>
 <h2 id="root-finding">Root finding</h2>
-<p>Root finding algorithm is a native greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).</p>
+<p>Root finding algorithm is a naive greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).</p>
+<h2 id="runnning-the-model">Runnning the model</h2>
+<p>Below is an example of how the model can be used, based on a system with 2 ferromagnetic layers:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span> 
+<span class="kn">from</span> <span class="nn">cmtj.models.general_sb</span> <span class="kn">import</span> <span class="n">LayerSB</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">SolverSB</span>
+<span class="kn">from</span> <span class="nn">cmtj.utils</span> <span class="kn">import</span> <span class="n">mu0</span>
+
+<span class="n">Ms1</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">mu0</span> <span class="c1"># here we pass the saturation magnetisation in A/m, but in the dynamic model we use T!</span>
+<span class="n">Ms2</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="o">/</span> <span class="n">mu0</span>
+<span class="n">layerA</span> <span class="o">=</span> <span class="n">LayerSB</span><span class="p">(</span>
+    <span class="n">_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">thickness</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+    <span class="n">Kv</span><span class="o">=</span><span class="n">VectorObj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mf">1e1</span><span class="p">),</span> <span class="c1"># for the Kv only phi angle counts !</span>
+    <span class="n">Ks</span><span class="o">=</span><span class="mf">3e4</span><span class="p">,</span>
+    <span class="n">Ms</span><span class="o">=</span><span class="n">Ms1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">layerB</span> <span class="o">=</span> <span class="n">LayerSB</span><span class="p">(</span>
+    <span class="n">_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">thickness</span><span class="o">=</span><span class="mf">1.3e-9</span><span class="p">,</span>
+    <span class="n">Kv</span><span class="o">=</span><span class="n">VectorObj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="mf">1e4</span><span class="p">),</span> 
+    <span class="n">Ks</span><span class="o">=</span><span class="mf">1e1</span><span class="p">,</span>
+    <span class="n">Ms</span><span class="o">=</span><span class="n">Ms2</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># we indicate the &quot;guess&quot; of the initial position</span>
+<span class="c1"># it&#39;s generally good to align it with the field, but it&#39;s not necessary</span>
+<span class="n">current_position</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">89</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">180</span><span class="p">),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">Hspace</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">400e3</span><span class="p">,</span> <span class="mf">400e3</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">result_dictionary</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="c1"># we perform a sweep over the field magnitude</span>
+<span class="k">for</span> <span class="n">Hmag</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">Hspace</span><span class="p">):</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span>
+        <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="n">layerA</span><span class="p">,</span> <span class="n">layerB</span><span class="p">],</span>
+        <span class="n">J1</span><span class="o">=</span><span class="p">[</span><span class="mf">1e-4</span><span class="p">],</span>
+        <span class="n">J2</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">],</span>
+        <span class="n">H</span><span class="o">=</span><span class="n">VectorObj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">89</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Hmag</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># check for additional parameters in the solver</span>
+    <span class="c1"># such as gradient convergence tolerance, max iterations, etc.</span>
+    <span class="c1"># also in the solver there are root finding parameters</span>
+    <span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">p2</span><span class="p">),</span> <span class="n">frequencies</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">init_position</span><span class="o">=</span><span class="n">current_position</span><span class="p">)</span>
+    <span class="c1"># frequencies are already in GHz</span>
+    <span class="k">for</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="n">frequencies</span><span class="p">:</span>
+        <span class="n">result_dictionary</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frequency</span><span class="p">)</span>
+        <span class="n">result_dictionary</span><span class="p">[</span><span class="s2">&quot;Hmag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Hmag</span><span class="p">)</span>
+
+    <span class="c1"># we note the final position of the magnetisation in spherical coordinates</span>
+    <span class="n">result_dictionary</span><span class="p">[</span><span class="s2">&quot;theta_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span>
+    <span class="n">result_dictionary</span><span class="p">[</span><span class="s2">&quot;phi_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+    <span class="n">result_dictionary</span><span class="p">[</span><span class="s2">&quot;theta_2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span>
+    <span class="n">result_dictionary</span><span class="p">[</span><span class="s2">&quot;phi_2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+    <span class="c1"># we reuse the previous solution as the initial guess for the next iteration</span>
+    <span class="n">current_position</span> <span class="o">=</span> <span class="p">[</span><span class="n">t1</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">p2</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="references">References</h2>
+<ol>
+<li>Rodríguez-Suárez, R. L., Rezende, S. M. &amp; Azevedo, A. Ferromagnetic resonance investigation of the residual coupling in spin-valve systems. Phys. Rev. B 71, 224406 (2005).</li>
+<li>Baselgia, L. et al. Derivation of the resonance frequency from the free energy of ferromagnets. Phys. Rev. B 38, 2237–2242 (1988).</li>
+</ol>
 
               
             </article>

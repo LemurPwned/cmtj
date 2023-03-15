@@ -498,6 +498,34 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_Hdmi" class="md-nav__link">
+    get_Hdmi()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_inplane_anisotropy_field" class="md-nav__link">
+    get_inplane_anisotropy_field()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_perpendicular_anisotropy_field" class="md-nav__link">
+    get_perpendicular_anisotropy_field()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_unrelaxed_domain_width" class="md-nav__link">
+    get_unrelaxed_domain_width()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.set_current_function" class="md-nav__link">
     set_current_function()
   </a>
@@ -812,6 +840,34 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_Hdmi" class="md-nav__link">
+    get_Hdmi()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_inplane_anisotropy_field" class="md-nav__link">
+    get_inplane_anisotropy_field()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_perpendicular_anisotropy_field" class="md-nav__link">
+    get_perpendicular_anisotropy_field()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.get_unrelaxed_domain_width" class="md-nav__link">
+    get_unrelaxed_domain_width()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#cmtj.models.domain_dynamics.DomainWallDynamics.set_current_function" class="md-nav__link">
     set_current_function()
   </a>
@@ -905,12 +961,12 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
-<span class="normal">17</span>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
 <span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
-<span class="normal">21</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DW</span><span class="p">:</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DW</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Initial conditions for the phi of DW equation.&quot;&quot;&quot;</span>
     <span class="n">NEEL_RIGHT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">NEEL_LEFT</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
@@ -972,26 +1028,6 @@
     </thead>
     <tbody>
         <tr>
-          <td><code>alpha</code></td>
-          <td>
-                <code>float</code>
-          </td>
-          <td><p>Gilbert damping.</p></td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>domain_width</code></td>
-          <td>
-                <code>float</code>
-          </td>
-          <td><p>width of the domain.</p></td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
           <td><code>H</code></td>
           <td>
                 <code><span title="cmtj.models.sb.VectorObj">VectorObj</span></code>
@@ -1002,11 +1038,11 @@
           </td>
         </tr>
         <tr>
-          <td><code>Hk</code></td>
+          <td><code>alpha</code></td>
           <td>
                 <code>float</code>
           </td>
-          <td><p>anisotropy field [A/m].</p></td>
+          <td><p>Gilbert damping.</p></td>
           <td>
               <em>required</em>
           </td>
@@ -1052,6 +1088,36 @@
           </td>
         </tr>
         <tr>
+          <td><code>Ku</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>perpendicular anisotropy constant.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Kp</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>inplane anisotropy constant.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>A</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>exchange constant.</p></td>
+          <td>
+                <code>1e-11</code>
+          </td>
+        </tr>
+        <tr>
           <td><code>beta</code></td>
           <td>
                 <code>float</code>
@@ -1079,6 +1145,16 @@
           <td><p>pinning voltage constant.</p></td>
           <td>
                 <code>1.65e-20</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>V0_edge</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>edge voltage constant.</p></td>
+          <td>
+                <code>0</code>
           </td>
         </tr>
         <tr>
@@ -1142,33 +1218,23 @@
           </td>
         </tr>
         <tr>
-          <td><code>kappa</code></td>
+          <td><code>moving_field</code></td>
           <td>
-                <code>float</code>
+                <code><span title="typing.Literal">Literal</span>[&#39;perpendicular&#39;, &#39;inplane&#39;]</code>
           </td>
-          <td><p>ratio of anisotropies, K = K/K0, (try 0-1)</p></td>
+          <td><p>whether the anisotropy field is perpendicular or parallel</p></td>
           <td>
-                <code>1</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>relativistic</code></td>
-          <td>
-                <code>bool</code>
-          </td>
-          <td><p>whether to include relativistic effects?</p></td>
-          <td>
-                <code>False</code>
+                <code>&#39;perpendicular&#39;</code>
           </td>
         </tr>
         <tr>
-          <td><code>vmax_magnon</code></td>
+          <td><code>relax_dw</code></td>
           <td>
-                <code>float</code>
+                <code><span title="cmtj.models.domain_dynamics.DWRelax">DWRelax</span></code>
           </td>
-          <td><p>m/s, max magnon velocity =&gt; 2A/Sd A -- exchange constant. S -- |S1| + |S2| = total spin density of sublattices. d -- interatomic distance.  For classical formulation see: Current-driven dynamics of chiral ferromagnetic domain walls, Emori et al, 2013  For relativisitc formulation see: Relativistic kinematics of a magnetic soliton, Caretta et al., 2020</p></td>
+          <td><p>whether to relax the domain width. See DWRelax class. For classical formulation see: Current-driven dynamics of chiral ferromagnetic domain walls, Emori et al, 2013</p></td>
           <td>
-                <code>5000</code>
+                <code>DWRelax.STATIC</code>
           </td>
         </tr>
     </tbody>
@@ -1177,7 +1243,37 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
@@ -1237,57 +1333,42 @@
 <span class="normal">194</span>
 <span class="normal">195</span>
 <span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">197</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">DomainWallDynamics</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Domain Wall dynamics class.</span>
-<span class="sd">    :param alpha: Gilbert damping.</span>
-<span class="sd">    :param domain_width: width of the domain.</span>
 <span class="sd">    :param H: applied magnetic field vector.</span>
-<span class="sd">    :param Hk: anisotropy field [A/m].</span>
+<span class="sd">    :param alpha: Gilbert damping.</span>
 <span class="sd">    :param Ms: magnetisation saturation [A/m].</span>
 <span class="sd">    :param thickness: thickness of the FM material.</span>
 <span class="sd">    :param SHE_angle: Spin Hall Effect angle.</span>
 <span class="sd">    :param D: DMI constant.</span>
+<span class="sd">    :param Ku: perpendicular anisotropy constant.</span>
+<span class="sd">    :param Kp: inplane anisotropy constant.</span>
+<span class="sd">    :param A: exchange constant.</span>
 <span class="sd">    :param beta: STT beta parameter.</span>
 <span class="sd">    :param p: STT polarisation efficiency.</span>
 <span class="sd">    :param V0_pin: pinning voltage constant.</span>
+<span class="sd">    :param V0_edge: edge voltage constant.</span>
 <span class="sd">    :param pinning: the pinning period.</span>
 <span class="sd">    :param Lx: z-dimension of the FM block.</span>
 <span class="sd">    :param Ly: y-dimension of the FM block.</span>
 <span class="sd">    :param Lz: z-dimension of the FM block.</span>
 <span class="sd">    :param Q: up-down or down-up wall parameter (either 1 or -1).</span>
 <span class="sd">    :param Hr: Rashba field [A/m].</span>
-<span class="sd">    :param kappa: ratio of anisotropies, K = K/K0, (try 0-1)</span>
-<span class="sd">    :param relativistic: whether to include relativistic effects?</span>
-<span class="sd">    :param vmax_magnon: m/s, max magnon velocity =&gt; 2A/Sd</span>
-<span class="sd">                        A -- exchange constant.</span>
-<span class="sd">                        S -- |S1| + |S2| = total spin density of sublattices.</span>
-<span class="sd">                        d -- interatomic distance.</span>
-
+<span class="sd">    :param moving_field: whether the anisotropy field is perpendicular or parallel</span>
+<span class="sd">    :param relax_dw: whether to relax the domain width. See DWRelax class.</span>
 <span class="sd">    For classical formulation see:</span>
 <span class="sd">    Current-driven dynamics of chiral ferromagnetic domain walls, Emori et al, 2013</span>
-
-<span class="sd">    For relativisitc formulation see:</span>
-<span class="sd">    Relativistic kinematics of a magnetic soliton, Caretta et al., 2020</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">domain_width</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span>
-    <span class="n">Hk</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">Ms</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">SHE_angle</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">D</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Ku</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># The out-of-plane anisotropy constant</span>
+    <span class="n">Kp</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># The in-plane anisotropy constant</span>
+    <span class="n">A</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-11</span>  <span class="c1"># J/m</span>
     <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">V0_pin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.65e-20</span>
@@ -1298,26 +1379,51 @@
     <span class="n">Lz</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3e-9</span>
     <span class="n">Q</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">Hr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">relativistic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">vmax_magnon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5000</span>  <span class="c1"># m/s, max magnon velocity =&gt; 2A/Sd</span>
+    <span class="n">moving_field</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;perpendicular&quot;</span><span class="p">,</span> <span class="s2">&quot;inplane&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;perpendicular&quot;</span>
+    <span class="n">relax_dw</span><span class="p">:</span> <span class="n">DWRelax</span> <span class="o">=</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">STATIC</span>
+    <span class="n">dw0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain_width</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dw</span>
+        <span class="c1"># in post init we already have p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bj</span> <span class="o">=</span> <span class="n">bohr_magneton</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="n">echarge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mi">0</span>
         <span class="n">denom</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">echarge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">=</span> <span class="n">hbar</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">SHE_angle</span> <span class="o">/</span> <span class="n">denom</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dw</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">bj</span> <span class="o">=</span> <span class="n">bohr_magneton</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="n">echarge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dw0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unrelaxed_domain_width</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moving_field</span> <span class="o">==</span> <span class="s2">&quot;perpendicular&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Hk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_perpendicular_anisotropy_field</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">moving_field</span> <span class="o">==</span> <span class="s2">&quot;inplane&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Hk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_inplane_anisotropy_field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_unrelaxed_domain_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Domain width is based off the effective perpendicular anisotropy.</span>
+<span class="sd">        We reduce the perpendicular anisotropy by demagnetising field&quot;&quot;&quot;</span>
+        <span class="c1"># Keff = self.Ku - 0.5*mu0*(self.Ms)**2</span>
+        <span class="k">if</span> <span class="n">effective</span><span class="p">:</span>
+            <span class="n">Keff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">mu0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Keff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">/</span> <span class="n">Keff</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param driver: A function of time that returns the current density</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span> <span class="o">=</span> <span class="n">driver</span>
+
+    <span class="k">def</span> <span class="nf">get_Hdmi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain_width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the DMI field&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">domain_width</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_perpendicular_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the perpeanisotropy field&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_inplane_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the in-plane anisotropy field&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
 </code></pre></div>
 </td></tr></table>
         </details>
@@ -1333,6 +1439,131 @@
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.domain_dynamics.DomainWallDynamics.get_Hdmi" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_Hdmi</span><span class="p">(</span><span class="n">domain_width</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the DMI field</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_Hdmi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain_width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the DMI field&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">domain_width</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.domain_dynamics.DomainWallDynamics.get_inplane_anisotropy_field" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_inplane_anisotropy_field</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the in-plane anisotropy field</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_inplane_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the in-plane anisotropy field&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.domain_dynamics.DomainWallDynamics.get_perpendicular_anisotropy_field" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_perpendicular_anisotropy_field</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the perpeanisotropy field</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_perpendicular_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the perpeanisotropy field&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.models.domain_dynamics.DomainWallDynamics.get_unrelaxed_domain_width" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_unrelaxed_domain_width</span><span class="p">(</span><span class="n">effective</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Domain width is based off the effective perpendicular anisotropy.
+We reduce the perpendicular anisotropy by demagnetising field</p>
+
+      <details class="quote">
+        <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_unrelaxed_domain_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Domain width is based off the effective perpendicular anisotropy.</span>
+<span class="sd">    We reduce the perpendicular anisotropy by demagnetising field&quot;&quot;&quot;</span>
+    <span class="c1"># Keff = self.Ku - 0.5*mu0*(self.Ms)**2</span>
+    <span class="k">if</span> <span class="n">effective</span><span class="p">:</span>
+        <span class="n">Keff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">mu0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Keff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">/</span> <span class="n">Keff</span><span class="p">)</span>
+</code></pre></div>
+</td></tr></table>
+      </details>
+  </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 
@@ -1374,11 +1605,11 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param driver: A function of time that returns the current density</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1419,7 +1650,17 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
@@ -1517,81 +1758,78 @@
 <span class="normal">305</span>
 <span class="normal">306</span>
 <span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">308</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">MultilayerWallDynamics</span><span class="p">:</span>
     <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DomainWallDynamics</span><span class="p">]</span>
     <span class="n">J</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">vector_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># 3 for X, phi, delta</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;BilayerWallDynamics only supports up to 2 layers&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wall dynamics supported up to 2 layers&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Solve the Thiaville llg equation for LLG.</span>
 <span class="sd">        :param t: current simulation time.</span>
-<span class="sd">        :param vec: contains [X, phi], current DW position and its chirality.</span>
-<span class="sd">        :returns (dXdt, dPhidt): velocity and change of chirality.</span>
+<span class="sd">        :param vec: contains [X, phi, delta], current DW position, its angle and domain width.</span>
+<span class="sd">        :returns (dXdt, dPhidt, dDeltad): velocity and change of angle and domain width.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># vector is X1, phi1, X2, phi2, ...</span>
+        <span class="c1"># vector is X1, phi1, Delta1, X2, phi2, Delta2...</span>
         <span class="n">layer</span><span class="p">:</span> <span class="n">DomainWallDynamics</span>
         <span class="n">new_vec</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
             <span class="n">je_at_t</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
             <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">cphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">lx</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">lphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">ldomain_width</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">/</span> <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
-                <span class="n">otherphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-                <span class="n">Jterm</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span> <span class="o">-</span> <span class="n">otherphi</span><span class="p">)</span>
+                <span class="n">otherphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">Jterm</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lphi</span> <span class="o">-</span> <span class="n">otherphi</span><span class="p">)</span>
 
-            <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span>
-                                            <span class="n">phi</span><span class="o">=</span><span class="n">cphi</span><span class="p">,</span>
-                                            <span class="n">Q</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span>
-                                            <span class="n">hx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
-                                            <span class="n">hy</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
-                                            <span class="n">hz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
-                                            <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
-                                            <span class="n">dw</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">,</span>
-                                            <span class="n">bj</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">bj</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
-                                            <span class="n">hr</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hr</span><span class="p">,</span>
-                                            <span class="n">beta</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
-                                            <span class="n">hshe</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
-                                            <span class="n">hdmi</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">,</span>
-                                            <span class="n">hk</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
-                                            <span class="n">Ms</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
-                                            <span class="n">IECterm</span><span class="o">=</span><span class="n">Jterm</span><span class="p">,</span>
-                                            <span class="n">V0_pin</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
-                                            <span class="n">V0_edge</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_edge</span><span class="p">,</span>
-                                            <span class="n">pinning</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
-                                            <span class="n">Lx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span>
-                                            <span class="n">Ly</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span>
-                                            <span class="n">Lz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lz</span><span class="p">)</span>
+            <span class="n">hdmi</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_Hdmi</span><span class="p">(</span><span class="n">ldomain_width</span><span class="p">)</span>
+            <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span><span class="p">,</span> <span class="n">dDeltadt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span>
+                <span class="n">X</span><span class="o">=</span><span class="n">lx</span><span class="p">,</span>
+                <span class="n">phi</span><span class="o">=</span><span class="n">lphi</span><span class="p">,</span>
+                <span class="n">delta</span><span class="o">=</span><span class="n">ldomain_width</span><span class="p">,</span>
+                <span class="n">Q</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span>
+                <span class="n">hx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
+                <span class="n">hy</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
+                <span class="n">hz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+                <span class="n">bj</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">bj</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+                <span class="n">hr</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hr</span><span class="p">,</span>
+                <span class="n">beta</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+                <span class="n">hshe</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+                <span class="n">hdmi</span><span class="o">=</span><span class="n">hdmi</span><span class="p">,</span>
+                <span class="n">hk</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
+                <span class="n">Ms</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
+                <span class="n">IECterm</span><span class="o">=</span><span class="n">Jterm</span><span class="p">,</span>
+                <span class="n">V0_pin</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
+                <span class="n">V0_edge</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_edge</span><span class="p">,</span>
+                <span class="n">pinning</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
+                <span class="n">Lx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span>
+                <span class="n">Ly</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span>
+                <span class="n">Lz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lz</span><span class="p">,</span>
+                <span class="n">A</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
+                <span class="n">Ku</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ku</span><span class="p">,</span>
+                <span class="n">Kp</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Kp</span><span class="p">,</span>
+                <span class="n">thickness</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
             <span class="n">dXdt</span> <span class="o">=</span> <span class="n">dXdt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
             <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">dPhidt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
-            <span class="c1"># relaxation term for the domain wall width</span>
-            <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span>
-                                                <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relativistic</span><span class="p">:</span>
-                <span class="c1"># contract the domain wall width</span>
-                <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span>
-                                               <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">vmax_magnon</span> <span class="o">/</span> <span class="n">dXdt</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-                <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">lorentz_factor</span>
-            <span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
-            <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dXdt</span><span class="p">)</span>
-            <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dPhidt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">!=</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">DYNAMIC</span><span class="p">:</span>
+                <span class="n">dDeltadt</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># no relaxation in the ODE</span>
+            <span class="n">new_vec</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span><span class="p">,</span> <span class="n">dDeltadt</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">new_vec</span>
 
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
             <span class="n">starting_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
             <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics</span>
+        <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics.</span>
 <span class="sd">        :param sim_time: total simulation time (simulation units).</span>
 <span class="sd">        :param starting_conditions: starting position and angle of the DW.</span>
 <span class="sd">        :param max_step: maximum allowed step of the RK45 method.</span>
@@ -1612,12 +1850,19 @@
             <span class="n">layer_vecs</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
             <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span>
+                    <span class="mi">1</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="c1"># static relaxation Thiaville</span>
+                <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">==</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">STATIC</span><span class="p">:</span>
+                    <span class="n">ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ku</span>
+                    <span class="n">dw</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
                 <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
-                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span>
                 <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
                 <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                 <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;je_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
                 <span class="k">break</span>
 
@@ -1676,7 +1921,7 @@
           <td><code>vec</code></td>
           <td>
           </td>
-          <td><p>contains [X, phi], current DW position and its chirality.</p></td>
+          <td><p>contains [X, phi, delta], current DW position, its angle and domain width.</p></td>
           <td>
               <em>required</em>
           </td>
@@ -1696,14 +1941,24 @@
         <tr>
           <td>
           </td>
-          <td><p>velocity and change of chirality.</p></td>
+          <td><p>velocity and change of angle and domain width.</p></td>
         </tr>
     </tbody>
   </table>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">220</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
 <span class="normal">221</span>
 <span class="normal">222</span>
 <span class="normal">223</span>
@@ -1748,71 +2003,61 @@
 <span class="normal">262</span>
 <span class="normal">263</span>
 <span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+<span class="normal">265</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Solve the Thiaville llg equation for LLG.</span>
 <span class="sd">    :param t: current simulation time.</span>
-<span class="sd">    :param vec: contains [X, phi], current DW position and its chirality.</span>
-<span class="sd">    :returns (dXdt, dPhidt): velocity and change of chirality.</span>
+<span class="sd">    :param vec: contains [X, phi, delta], current DW position, its angle and domain width.</span>
+<span class="sd">    :returns (dXdt, dPhidt, dDeltad): velocity and change of angle and domain width.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># vector is X1, phi1, X2, phi2, ...</span>
+    <span class="c1"># vector is X1, phi1, Delta1, X2, phi2, Delta2...</span>
     <span class="n">layer</span><span class="p">:</span> <span class="n">DomainWallDynamics</span>
     <span class="n">new_vec</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
         <span class="n">je_at_t</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
         <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">cphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">lphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">ldomain_width</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">Jterm</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span> <span class="o">/</span> <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
-            <span class="n">otherphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">Jterm</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span> <span class="o">-</span> <span class="n">otherphi</span><span class="p">)</span>
+            <span class="n">otherphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">Jterm</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lphi</span> <span class="o">-</span> <span class="n">otherphi</span><span class="p">)</span>
 
-        <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span>
-                                        <span class="n">phi</span><span class="o">=</span><span class="n">cphi</span><span class="p">,</span>
-                                        <span class="n">Q</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span>
-                                        <span class="n">hx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
-                                        <span class="n">hy</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
-                                        <span class="n">hz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
-                                        <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
-                                        <span class="n">dw</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">,</span>
-                                        <span class="n">bj</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">bj</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
-                                        <span class="n">hr</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hr</span><span class="p">,</span>
-                                        <span class="n">beta</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
-                                        <span class="n">hshe</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
-                                        <span class="n">hdmi</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">,</span>
-                                        <span class="n">hk</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
-                                        <span class="n">Ms</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
-                                        <span class="n">IECterm</span><span class="o">=</span><span class="n">Jterm</span><span class="p">,</span>
-                                        <span class="n">V0_pin</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
-                                        <span class="n">V0_edge</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_edge</span><span class="p">,</span>
-                                        <span class="n">pinning</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
-                                        <span class="n">Lx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span>
-                                        <span class="n">Ly</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span>
-                                        <span class="n">Lz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lz</span><span class="p">)</span>
+        <span class="n">hdmi</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_Hdmi</span><span class="p">(</span><span class="n">ldomain_width</span><span class="p">)</span>
+        <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span><span class="p">,</span> <span class="n">dDeltadt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span>
+            <span class="n">X</span><span class="o">=</span><span class="n">lx</span><span class="p">,</span>
+            <span class="n">phi</span><span class="o">=</span><span class="n">lphi</span><span class="p">,</span>
+            <span class="n">delta</span><span class="o">=</span><span class="n">ldomain_width</span><span class="p">,</span>
+            <span class="n">Q</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Q</span><span class="p">,</span>
+            <span class="n">hx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span>
+            <span class="n">hy</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span>
+            <span class="n">hz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">hz</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">bj</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">bj</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+            <span class="n">hr</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hr</span><span class="p">,</span>
+            <span class="n">beta</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+            <span class="n">hshe</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">*</span> <span class="n">je_at_t</span><span class="p">,</span>
+            <span class="n">hdmi</span><span class="o">=</span><span class="n">hdmi</span><span class="p">,</span>
+            <span class="n">hk</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Hk</span><span class="p">,</span>
+            <span class="n">Ms</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ms</span><span class="p">,</span>
+            <span class="n">IECterm</span><span class="o">=</span><span class="n">Jterm</span><span class="p">,</span>
+            <span class="n">V0_pin</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_pin</span><span class="p">,</span>
+            <span class="n">V0_edge</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">V0_edge</span><span class="p">,</span>
+            <span class="n">pinning</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pinning</span><span class="p">,</span>
+            <span class="n">Lx</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span>
+            <span class="n">Ly</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span>
+            <span class="n">Lz</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Lz</span><span class="p">,</span>
+            <span class="n">A</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
+            <span class="n">Ku</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ku</span><span class="p">,</span>
+            <span class="n">Kp</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Kp</span><span class="p">,</span>
+            <span class="n">thickness</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
         <span class="n">dXdt</span> <span class="o">=</span> <span class="n">dXdt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
         <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">dPhidt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
-        <span class="c1"># relaxation term for the domain wall width</span>
-        <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">kappa</span> <span class="o">*</span>
-                                            <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">cphi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relativistic</span><span class="p">:</span>
-            <span class="c1"># contract the domain wall width</span>
-            <span class="n">lorentz_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span>
-                                           <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">vmax_magnon</span> <span class="o">/</span> <span class="n">dXdt</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw</span> <span class="o">/</span> <span class="n">lorentz_factor</span>
-        <span class="n">layer</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
-        <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dXdt</span><span class="p">)</span>
-        <span class="n">new_vec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dPhidt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">!=</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">DYNAMIC</span><span class="p">:</span>
+            <span class="n">dDeltadt</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># no relaxation in the ODE</span>
+        <span class="n">new_vec</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span><span class="p">,</span> <span class="n">dDeltadt</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">new_vec</span>
 </code></pre></div>
 </td></tr></table>
@@ -1833,7 +2078,7 @@
 
   <div class="doc doc-contents ">
   
-      <p>Run simulation of DW dynamics</p>
+      <p>Run simulation of DW dynamics.</p>
 
   <p><strong>Parameters:</strong></p>
   <table>
@@ -1881,7 +2126,17 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
@@ -1912,14 +2167,11 @@
 <span class="normal">305</span>
 <span class="normal">306</span>
 <span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">308</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
         <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">starting_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics</span>
+    <span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics.</span>
 <span class="sd">    :param sim_time: total simulation time (simulation units).</span>
 <span class="sd">    :param starting_conditions: starting position and angle of the DW.</span>
 <span class="sd">    :param max_step: maximum allowed step of the RK45 method.</span>
@@ -1940,12 +2192,19 @@
         <span class="n">layer_vecs</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
         <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span>
+                <span class="mi">1</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="c1"># static relaxation Thiaville</span>
+            <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">==</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">STATIC</span><span class="p">:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ku</span>
+                <span class="n">dw</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">dw_hat</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span>
             <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
             <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;je_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
             <span class="k">break</span>
 
