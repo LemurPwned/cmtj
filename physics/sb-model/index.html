@@ -1003,6 +1003,7 @@ Finally, <span class="arithmatex">\(\vec{K}_{dir}\)</span> is given by:</p>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span> 
 <span class="kn">from</span> <span class="nn">cmtj.models.general_sb</span> <span class="kn">import</span> <span class="n">LayerSB</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">SolverSB</span>
 <span class="kn">from</span> <span class="nn">cmtj.utils</span> <span class="kn">import</span> <span class="n">mu0</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span> 
 
 <span class="n">Ms1</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">mu0</span> <span class="c1"># here we pass the saturation magnetisation in A/m, but in the dynamic model we use T!</span>
 <span class="n">Ms2</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="o">/</span> <span class="n">mu0</span>
@@ -1033,7 +1034,7 @@ Finally, <span class="arithmatex">\(\vec{K}_{dir}\)</span> is given by:</p>
 <span class="n">result_dictionary</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 <span class="c1"># we perform a sweep over the field magnitude</span>
 <span class="k">for</span> <span class="n">Hmag</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">Hspace</span><span class="p">):</span>
-    <span class="n">solver</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">(</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">SolverSB</span><span class="p">(</span>
         <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="n">layerA</span><span class="p">,</span> <span class="n">layerB</span><span class="p">],</span>
         <span class="n">J1</span><span class="o">=</span><span class="p">[</span><span class="mf">1e-4</span><span class="p">],</span>
         <span class="n">J2</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">],</span>

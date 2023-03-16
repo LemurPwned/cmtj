@@ -89,8 +89,8 @@ The equilibrium magnetisation, $(\theta^*, \phi^*)$, is then used to compute the
 
 Root finding algorithm is a naive greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).
 
-
 ## Runnning the model
+
 Below is an example of how the model can be used, based on a system with 2 ferromagnetic layers:
 
 ```python
@@ -99,6 +99,7 @@ import numpy as np
 from collections import defaultdict 
 from cmtj.models.general_sb import LayerSB, VectorObj, SolverSB
 from cmtj.utils import mu0
+from tqdm import tqdm 
 
 Ms1 = 1. / mu0 # here we pass the saturation magnetisation in A/m, but in the dynamic model we use T!
 Ms2 = 1.2 / mu0
@@ -129,7 +130,7 @@ Hspace = np.linspace(-400e3, 400e3, 100)
 result_dictionary = defaultdict(list)
 # we perform a sweep over the field magnitude
 for Hmag in tqdm(Hspace):
-    solver = Solver(
+    solver = SolverSB(
         layers=[layerA, layerB],
         J1=[1e-4],
         J2=[0.],
@@ -152,7 +153,6 @@ for Hmag in tqdm(Hspace):
     # we reuse the previous solution as the initial guess for the next iteration
     current_position = [t1, p1, t2, p2]
 ```
-
 
 ## References
 
