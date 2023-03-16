@@ -19,8 +19,8 @@ For the full model we need:
 
 1. Create energy expression of the system.
 2. Obtain equilibirum magnetisation position of the system.
-3. Compute the hessian matrix of the energy expression.
-4. Find the roots of the det(hessian).
+3. Compute the hessian matrix $H$ of the energy expression.
+4. Find the roots of the $\det H$.
 
 Each layer is described by the following parameters:
 
@@ -83,8 +83,77 @@ The solution for equilibrium magnetisation is solved using the Adam gradient des
 
 ## Resonance frequency
 
-The equilibrium magnetisation, $(\theta^*, \phi^*)$, is then used to compute the hessian matrix of the energy expression. The hessian matrix is a matrix of second derivatives of the energy expression. We use it to find the roots of the det(hessian) expression. Those roots designate the frequencies of the resonance mode.
+The equilibrium magnetisation, $(\theta^*, \phi^*)$, is then used to compute the hessian matrix of the energy expression. The hessian matrix is a matrix of second derivatives of the energy expression. We use it to find the roots of the $\det H$(hessian) expression. Those roots designate the frequencies of the resonance mode.
 
 ## Root finding
 
-Root finding algorithm is a native greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).
+Root finding algorithm is a naive greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).
+
+## Runnning the model
+
+Below is an example of how the model can be used, based on a system with 2 ferromagnetic layers:
+
+```python
+import numpy as np
+
+from collections import defaultdict
+from cmtj.models.general_sb import LayerSB, VectorObj, SolverSB
+from cmtj.utils import mu0
+
+Ms1 = 1. / mu0 # here we pass the saturation magnetisation in A/m, but in the dynamic model we use T!
+Ms2 = 1.2 / mu0
+layerA = LayerSB(
+    _id=0,
+    thickness=1e-9,
+    Kv=VectorObj(np.deg2rad(0.), np.deg2rad(0), 1e1), # for the Kv only phi angle counts !
+    Ks=3e4,
+    Ms=Ms1,
+)
+layerB = LayerSB(
+    _id=1,
+    thickness=1.3e-9,
+    Kv=VectorObj(np.deg2rad(0.), np.deg2rad(0), 1e4),
+    Ks=1e1,
+    Ms=Ms2,
+)
+
+# we indicate the "guess" of the initial position
+# it's generally good to align it with the field, but it's not necessary
+current_position = [
+    np.deg2rad(89),
+    np.deg2rad(0.1),
+    np.deg2rad(180),
+    np.deg2rad(0.1)
+]
+Hspace = np.linspace(-400e3, 400e3, 100)
+result_dictionary = defaultdict(list)
+# we perform a sweep over the field magnitude
+for Hmag in tqdm(Hspace):
+    solver = Solver(
+        layers=[layerA, layerB],
+        J1=[1e-4],
+        J2=[0.],
+        H=VectorObj(np.deg2rad(89), np.deg2rad(0.1), Hmag)
+    )
+    # check for additional parameters in the solver
+    # such as gradient convergence tolerance, max iterations, etc.
+    # also in the solver there are root finding parameters
+    (t1, p1, t2, p2), frequencies = solver.solve(init_position=current_position)
+    # frequencies are already in GHz
+    for frequency in frequencies:
+        result_dictionary["frequency"].append(frequency)
+        result_dictionary["Hmag"].append(Hmag)
+
+    # we note the final position of the magnetisation in spherical coordinates
+    result_dictionary["theta_1"].append(t1)
+    result_dictionary["phi_1"].append(p1)
+    result_dictionary["theta_2"].append(t2)
+    result_dictionary["phi_2"].append(p2)
+    # we reuse the previous solution as the initial guess for the next iteration
+    current_position = [t1, p1, t2, p2]
+```
+
+## References
+
+1. Rodríguez-Suárez, R. L., Rezende, S. M. & Azevedo, A. Ferromagnetic resonance investigation of the residual coupling in spin-valve systems. Phys. Rev. B 71, 224406 (2005).
+2. Baselgia, L. et al. Derivation of the resonance frequency from the free energy of ferromagnets. Phys. Rev. B 38, 2237–2242 (1988).
