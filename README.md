@@ -4,9 +4,9 @@
 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
-[![Version](https://img.shields.io/pypi/v/cmtj)]()
-[![License](https://img.shields.io/pypi/l/cmtj.svg)]()
-[![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)]()
+[![Version](https://img.shields.io/pypi/v/cmtj)](https://pypi.org/project/cmtj/)
+[![License](https://img.shields.io/pypi/l/cmtj.svg)](https://github.com/LemurPwned/cmtj/blob/master/LICENSE)
+![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
 
 ## Short description
 
@@ -72,7 +72,7 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 
 ## Citing
 
-We would appreciate citing either of the listed work if you decide to use the project:
+We would appreciate citing either of the listed work if you decide to use the project or using the cite button on the right hand side panel of the repository:
 
 1. [**Numerical model of Harmonic Hall voltage detection for spintronic devices**](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403)
 

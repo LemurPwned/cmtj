@@ -33,7 +33,7 @@ class LayerSB:
         if self.thermal_noise:
             self.m = self.add_thermal_noise(self.m, self.thermal_noise)
 
-    def add_thermal_noise(self, m, thermal) -> VectorObj:
+    def add_thermal_noise(self, m: VectorObj, thermal) -> VectorObj:
         """
         Adds small themal noise to the magnetization vector
         """
@@ -336,6 +336,19 @@ class LayerSB:
                 J2top, top_layer)
 
         evec = [e1, e2, e3, e4, e5, e6]
+        return evec
+
+    def compute_energy(self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
+                       Dtop: float, Dbottom: float, top_layer: "LayerSB",
+                       bottom_layer: "LayerSB"):
+        e1 = self.ext_field(Hinplane)
+        e2 = self.surface_anisotropy()
+        e3 = self.volume_anisotropy()
+        e4 = self.iec_interaction(
+            Jbottom, bottom_layer) + self.iec_interaction(Jtop, top_layer)
+        e5 = self.dmi_interaction(Dtop, top_layer) + self.dmi_interaction(
+            Dbottom, bottom_layer)
+        evec = [e1, e2, e3, e4, e5]
         return evec
 
     def get_current_position(self):
