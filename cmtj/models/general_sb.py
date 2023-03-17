@@ -190,12 +190,15 @@ class SolverSB:
             current_position = new_position
         return np.asarray(current_position)
 
-    def single_layer_equilibrium(self, eq_position: np.ndarray):
-        """We can compute the equilibrium position of a single layer directly."""
+    def single_layer_equilibrium(self, layer_indx: int,
+                                 eq_position: np.ndarray):
+        """We can compute the equilibrium position of a single layer directly.
+        :param layer_indx: the index of the layer to compute the equilibrium
+        :param eq_position: the equilibrium position vector"""
         # compute grads
         theta_eq, phi_eq = eq_position
-        layer = self.layers[0]
-        theta, phi = self.layers[0].get_coord_sym()
+        layer = self.layers[layer_indx]
+        theta, phi = self.layers[layer_indx].get_coord_sym()
         energy = self.create_energy()
         subs = {theta: theta_eq, phi: phi_eq}
         d2Edtheta2 = sym.diff(sym.diff(energy, theta), theta).subs(subs)
@@ -240,7 +243,7 @@ class SolverSB:
             second_momentum_decay=second_momentum_decay,
         )
         if len(self.layers) == 1:
-            return eq, self.single_layer_equilibrium(eq) / 1e9
+            return eq, self.single_layer_equilibrium(0, eq) / 1e9
         hes = self.create_energy_hessian(eq)
         omega = sym.Symbol(r"\omega")
         smpl = hes.det()
