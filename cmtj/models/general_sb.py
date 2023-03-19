@@ -25,8 +25,7 @@ def real_deocrator(fn):
 
 @njit
 def fast_norm(x):
-    """Fast norm function for !D arrays.
-    """
+    """Fast norm function for 1D arrays."""
     sum_ = 0
     for x_ in x:
         sum_ += x_**2
@@ -173,8 +172,9 @@ class LayerSB:
         """Returns the magnetisation vector."""
         return self.m
 
-    def symbolic_layer_energy(self, H: sym.Matrix, J1: float, J2: float,
-                              down_layer: "LayerSB"):
+    def symbolic_layer_energy(self, H: sym.Matrix, J1top: float,
+                              J1bottom: float, J2top: float, J2bottom: float,
+                              top_layer: "LayerSB", down_layer: "LayerSB"):
         """Returns the symbolic expression for the energy of the layer.
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
@@ -186,14 +186,19 @@ class LayerSB:
                              (1. / 2.) * mu0 * self.Ms**2) * (m[-1]**2)
         volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
 
-        if down_layer is None:
-            iec_energy = 0
-        else:
-            other_m = down_layer.get_m_sym()
-            iec_energy = -(J1 / self.thickness) * m.dot(other_m) - (
-                J2 / self.thickness) * m.dot(other_m)**2
+        top_iec_energy = 0
+        bottom_iec_energy = 0
 
-        return field_energy + surface_anistropy + volume_anisotropy + iec_energy
+        if not (top_layer is None):
+            other_m = top_layer.get_m_sym()
+            top_iec_energy = -(J1top / self.thickness) * m.dot(other_m) - (
+                J2top / self.thickness) * m.dot(other_m)**2
+        if not (down_layer is None):
+            other_m = down_layer.get_m_sym()
+            bottom_iec_energy = -(J1bottom / self.thickness) * m.dot(
+                other_m) - (J2bottom / self.thickness) * m.dot(other_m)**2
+
+        return field_energy + surface_anistropy + volume_anisotropy + top_iec_energy + bottom_iec_energy
 
     def sb_correction(self):
         omega = sym.Symbol(r'\omega')
@@ -223,6 +228,21 @@ class SolverSB:
         if id_sets != ideal_set:
             raise ValueError("Layer ids must be 0, 1, 2, ... and unique")
 
+    def get_layer_references(self, layer_indx, interaction_constant):
+        """Returns the references to the layers above and below the layer
+        with index layer_indx."""
+        if layer_indx == 0:
+            return None, self.layers[layer_indx +
+                                     1], 0, interaction_constant[0]
+        elif layer_indx == len(self.layers) - 1:
+            return self.layers[layer_indx -
+                               1], None, interaction_constant[-1], 0
+        else:
+            return self.layers[layer_indx - 1], self.layers[
+                layer_indx +
+                1], interaction_constant[layer_indx -
+                                         1], interaction_constant[layer_indx]
+
     def create_energy(self, H: Union[VectorObj, sym.Matrix] = None):
         """Creates the symbolic energy expression."""
         if H is None:
@@ -231,12 +251,12 @@ class SolverSB:
 
         energy = 0
         for i, layer in enumerate(self.layers):
-            if i == 0:
-                energy += layer.symbolic_layer_energy(H, 0, 0, None)
-            else:
-                energy += layer.symbolic_layer_energy(H, self.J1[i - 1],
-                                                      self.J2[i - 1],
-                                                      self.layers[i - 1])
+            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
+                i, self.J1)
+            _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
+            energy += layer.symbolic_layer_energy(H, Jtop, Jbottom, J2top,
+                                                  J2bottom, top_layer,
+                                                  bottom_layer)
         return energy
 
     def create_energy_hessian(self, equilibrium_position: List[float]):
@@ -341,7 +361,7 @@ class SolverSB:
         :param layer_indx: the index of the layer to compute the equilibrium
         :param eq_position: the equilibrium position vector"""
         layer = self.layers[layer_indx]
-        theta_eq, _ = eq_position[2 * layer_indx:(2 * layer_indx) + 2]
+        theta_eq = eq_position[2 * layer_indx]
         theta, phi = self.layers[layer_indx].get_coord_sym()
         energy = self.create_energy()
         subs = self.get_subs(eq_position)

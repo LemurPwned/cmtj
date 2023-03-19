@@ -13,7 +13,7 @@ TINY_EPS = 1e-14
 
 
 @dataclass
-class LayerSB:
+class NumLayerSB:
     """Basic Layer for Smit-Beljers model.
     :param thickness: thickness of the FM layer (effective).
     :param m: initial magnetisation vector (Cauchy condition).
@@ -82,7 +82,7 @@ class LayerSB:
                                 hy * self.cphi * self.ctheta)
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def energy_iec_interaction(self, J, layer: "LayerSB"):
+    def energy_iec_interaction(self, J, layer: "NumLayerSB"):
         """
         Energy is symmetric and computed only once
         """
@@ -93,8 +93,8 @@ class LayerSB:
         constJ = J / self.thickness
         return -constJ * (m1x * m2x + m1y * m2y + m1z * m2z)
 
-    def grad_iec_interaction(self, J_top, J_bottom, top_layer: "LayerSB",
-                             bottom_layer: "LayerSB", full_grad: bool):
+    def grad_iec_interaction(self, J_top, J_bottom, top_layer: "NumLayerSB",
+                             bottom_layer: "NumLayerSB", full_grad: bool):
         """
         IEC gradient is not symmetric and is computed per layer
         Compute joint interaction on the layers from the top and bottom
@@ -110,7 +110,8 @@ class LayerSB:
             grad1[3] + grad2[3], grad1[4] + grad2[4]
         ]
 
-    def __any_grad_iec_interaction(self, J, layer: "LayerSB", full_grad: bool):
+    def __any_grad_iec_interaction(self, J, layer: "NumLayerSB",
+                                   full_grad: bool):
         # from any of the layers
         if (layer is None) or J == 0:
             return [0, 0, 0, 0, 0]
@@ -142,14 +143,14 @@ class LayerSB:
 
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def energy_j2_interaction(self, J2, layer: "LayerSB"):
+    def energy_j2_interaction(self, J2, layer: "NumLayerSB"):
         if layer is None:
             return 0
         return -J2 * (sum(
             (self.m * layer.m).get_cartesian())**2) / self.thickness
 
-    def grad_j2_interaction(self, J2_top, J2_bottom, top_layer: "LayerSB",
-                            bottom_layer: "LayerSB", full_grad: bool):
+    def grad_j2_interaction(self, J2_top, J2_bottom, top_layer: "NumLayerSB",
+                            bottom_layer: "NumLayerSB", full_grad: bool):
         grad1 = self.__any_grad_j2_interaction(J2_top,
                                                top_layer,
                                                full_grad=full_grad)
@@ -161,7 +162,8 @@ class LayerSB:
             grad1[3] + grad2[3], grad1[4] + grad2[4]
         ]
 
-    def __any_grad_j2_interaction(self, J2, layer: "LayerSB", full_grad: bool):
+    def __any_grad_j2_interaction(self, J2, layer: "NumLayerSB",
+                                  full_grad: bool):
         if (layer is None) or J2 == 0:
             return [0, 0, 0, 0, 0]
         constJ2 = J2 / self.thickness
@@ -206,7 +208,7 @@ class LayerSB:
             layer.stheta * math.sin(self.m.phi - layer.m.phi))
         return [dEdtheta, dEdphi, d2Edtheta2, d2Edphi2, d2Edphidtheta]
 
-    def energy_dmi_interaction(self, D, layer: "LayerSB"):
+    def energy_dmi_interaction(self, D, layer: "NumLayerSB"):
         """
         DMi energy is Edmi = D z(m1 x m2)
         """
@@ -216,8 +218,8 @@ class LayerSB:
         [m2x, m2y, _] = layer.m.get_cartesian()
         return D * (m1x * m2y - m1y * m2x)
 
-    def grad_dmi_interaction(self, D_top, D_bottom, top_layer: "LayerSB",
-                             bottom_layer: "LayerSB", full_grad: bool):
+    def grad_dmi_interaction(self, D_top, D_bottom, top_layer: "NumLayerSB",
+                             bottom_layer: "NumLayerSB", full_grad: bool):
         """
         DMI energy and its gradient are both not symmetric and is computed per layer
         Compute joint interaction on the layers from the top and bottom
@@ -233,7 +235,8 @@ class LayerSB:
             grad1[3] + grad2[3], grad1[4] + grad2[4]
         ]
 
-    def __any_grad_dmi_interaction(self, D, layer: "LayerSB", full_grad: bool):
+    def __any_grad_dmi_interaction(self, D, layer: "NumLayerSB",
+                                   full_grad: bool):
         if (layer is None) or D == 0:
             return [0, 0, 0, 0, 0]
         constD = D
@@ -302,8 +305,8 @@ class LayerSB:
                             J2bottom: float,
                             Dtop: float,
                             Dbottom: float,
-                            top_layer: "LayerSB",
-                            bottom_layer: "LayerSB",
+                            top_layer: "NumLayerSB",
+                            bottom_layer: "NumLayerSB",
                             full_grad: bool = False):
         g1 = self.grad_ext_field(Hvector, full_grad)
         g2 = self.grad_surface_anisotropy(full_grad)
@@ -320,8 +323,8 @@ class LayerSB:
 
     def compute_energy(self, Hvector: VectorObj, Jtop: float, Jbottom: float,
                        J2top: float, J2bottom: float, Dtop: float,
-                       Dbottom: float, top_layer: "LayerSB",
-                       bottom_layer: "LayerSB"):
+                       Dbottom: float, top_layer: "NumLayerSB",
+                       bottom_layer: "NumLayerSB"):
         e1 = self.energy_ext_field(Hvector)
         e2 = self.energy_surface_anisotropy()
         e3 = self.energy_volume_anisotropy()
@@ -338,19 +341,6 @@ class LayerSB:
         evec = [e1, e2, e3, e4, e5, e6]
         return evec
 
-    def compute_energy(self, Hinplane: VectorObj, Jtop: float, Jbottom: float,
-                       Dtop: float, Dbottom: float, top_layer: "LayerSB",
-                       bottom_layer: "LayerSB"):
-        e1 = self.ext_field(Hinplane)
-        e2 = self.surface_anisotropy()
-        e3 = self.volume_anisotropy()
-        e4 = self.iec_interaction(
-            Jbottom, bottom_layer) + self.iec_interaction(Jtop, top_layer)
-        e5 = self.dmi_interaction(Dtop, top_layer) + self.dmi_interaction(
-            Dbottom, bottom_layer)
-        evec = [e1, e2, e3, e4, e5]
-        return evec
-
     def get_current_position(self):
         return [self.m.theta, self.m.phi]
 
@@ -361,14 +351,15 @@ class LayerSB:
     def compute_frequency_at_equilibrium(self, Hvector: VectorObj, Jtop: float,
                                          Jbottom: float, J2top: float,
                                          J2bottom: float, Dtop: float,
-                                         Dbottom: float, top_layer: "LayerSB",
-                                         bottom_layer: "LayerSB"):
+                                         Dbottom: float,
+                                         top_layer: "NumLayerSB",
+                                         bottom_layer: "NumLayerSB"):
         """Computes the resonance frequency (FMR) of the layers.
         :param Hvector: vector that describes the applied H.
         :param Jtop: IEC constant from the layer above the current one.
         :param Jbottom: IEC constant from the layer below the current one.
-        :param top_layer: LayerSB definition of the layer above the current one.
-        :param bottom layer: LayerSB definition of the layer below the current one."""
+        :param top_layer: NumLayerSB definition of the layer above the current one.
+        :param bottom layer: NumLayerSB definition of the layer below the current one."""
         (_, _, d2Edtheta2, d2Edphi2,
          d2Edphidtheta) = self.compute_grad_energy(Hvector,
                                                    Jtop,
@@ -392,15 +383,15 @@ class LayerSB:
     def compute_frequency_at_equilibrium_baselgia(
             self, Hvector: VectorObj, Jtop: float, Jbottom: float,
             J2top: float, J2bottom: float, Dtop: float, Dbottom: float,
-            top_layer: "LayerSB", bottom_layer: "LayerSB"):
+            top_layer: "NumLayerSB", bottom_layer: "NumLayerSB"):
         """Computes the resonance frequency (FMR) of the layers.
         Uses Baselgia 1988 correction.
         https://link.aps.org/doi/10.1103/PhysRevB.38.2237
         :param Hvector: vector that describes the applied H.
         :param Jtop: IEC constant from the layer above the current one.
         :param Jbottom: IEC constant from the layer below the current one.
-        :param top_layer: LayerSB definition of the layer above the current one.
-        :param bottom layer: LayerSB definition of the layer below the current one."""
+        :param top_layer: NumLayerSB definition of the layer above the current one.
+        :param bottom layer: NumLayerSB definition of the layer below the current one."""
         (dEdtheta, dEdphi, d2Edtheta2, d2Edphi2,
          d2Edphidtheta) = self.compute_grad_energy(Hvector,
                                                    Jtop,
@@ -437,18 +428,18 @@ class SmitBeljersModel:
     """
 
     def __init__(self,
-                 layers: List[LayerSB],
+                 layers: List[NumLayerSB],
                  Hext: VectorObj,
                  J: List[float] = [],
                  J2: List[float] = [],
                  D: List[float] = [],
-                 silent: bool = False) -> None:
+                 silent: bool = True) -> None:
         """
-        :param layers: list of LayerSB, layer definitions.
+        :param layers: list of NumLayerSB, layer definitions.
         :param Hext: applied external magnetic field vector. Defined for all the layers.
         :param J: list of IEC constants. 0 element defines coupling between 0 and 1 layer, etc.
         :param D: list of DMI constants.
-        :param silent: debug mode? defaults to False.
+        :param silent: debug mode? defaults to Tr.
         """
         if len(layers) != (len(J) + 1):
             raise ValueError("Number of layers must be equal to len(J) + 1")
@@ -461,7 +452,7 @@ class SmitBeljersModel:
             self.D = [0] * len(J)
         else:
             self.D = D
-        self.layers: List[LayerSB] = layers
+        self.layers: List[NumLayerSB] = layers
         self.energy = np.zeros((len(self.layers), ), dtype=np.float32)
         self.current_position = np.zeros((len(self.layers), 2),
                                          dtype=np.float32)
@@ -471,7 +462,7 @@ class SmitBeljersModel:
         self.ener_labels = ['external', 'surface', 'volume', 'iec']
         self.history = defaultdict(list)
 
-    def __get_interaction_constant(self, layers: List[LayerSB],
+    def __get_interaction_constant(self, layers: List[NumLayerSB],
                                    layer_indx: int,
                                    interaction_constant_list: List[float]):
         """Simple function to figure out top and bottom handles and interaction constants"""
