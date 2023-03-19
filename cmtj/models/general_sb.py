@@ -340,17 +340,16 @@ class SolverSB:
         """We can compute the equilibrium position of a single layer directly.
         :param layer_indx: the index of the layer to compute the equilibrium
         :param eq_position: the equilibrium position vector"""
-        # compute grads
-        theta_eq, phi_eq = eq_position
         layer = self.layers[layer_indx]
+        theta_eq, _ = eq_position[2 * layer_indx:(2 * layer_indx) + 2]
         theta, phi = self.layers[layer_indx].get_coord_sym()
         energy = self.create_energy()
-        subs = {theta: theta_eq, phi: phi_eq}
+        subs = self.get_subs(eq_position)
         d2Edtheta2 = sym.diff(sym.diff(energy, theta), theta).subs(subs)
         d2Edphi2 = sym.diff(sym.diff(energy, phi), phi).subs(subs)
         # mixed, assuming symmetry
         d2Edthetaphi = sym.diff(sym.diff(energy, theta), phi).subs(subs)
-        vareps = 1e-12
+        vareps = 1e-18
 
         fmr = (d2Edtheta2 * d2Edphi2 - d2Edthetaphi**2) / np.power(
             np.sin(theta_eq + vareps) * layer.Ms, 2)
@@ -364,7 +363,8 @@ class SolverSB:
               first_momentum_decay: float = 0.9,
               second_momentum_decay: float = 0.999,
               ftol: float = 0.01e9,
-              max_freq: float = 80e9):
+              max_freq: float = 80e9,
+              force_single_layer: bool = False):
         """Solves the system.
         1. Computes the energy functional.
         2. Computes the gradient of the energy functional.
@@ -392,9 +392,15 @@ class SolverSB:
             first_momentum_decay=first_momentum_decay,
             second_momentum_decay=second_momentum_decay,
         )
-        if len(self.layers) == 1:
+        N = len(self.layers)
+        if N == 1:
             return eq, self.single_layer_equilibrium(0, eq) / 1e9
-
+        if force_single_layer:
+            frequencies = []
+            for indx in range(N):
+                frequency = self.single_layer_equilibrium(indx, eq) / 1e9
+                frequencies.append(frequency)
+            return eq, frequencies
         return self.num_solve(eq, ftol=ftol, max_freq=max_freq)
 
     def num_solve(self,
