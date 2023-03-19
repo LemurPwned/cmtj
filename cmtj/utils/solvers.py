@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, root
 
 
 class RootFinder:
@@ -9,7 +9,7 @@ class RootFinder:
                  start,
                  stop,
                  step=0.01,
-                 root_dtype="float64",
+                 root_dtype="float32",
                  xtol=1e-9):
 
         self.start = start
@@ -27,12 +27,15 @@ class RootFinder:
 
         self.roots = np.append(self.roots, x)
 
-    def find(self, f, *args):
+    def find(self, f, *args, **kwargs):
+        # roots = root(f, 40e9, tol=1e6, args=args, **kwargs)
+        # return roots.x
         current = self.start
-        for x0 in np.arange(self.start, self.stop + self.step, self.step):
+        nsteps = int((self.stop - self.start) / self.step)
+        for x0 in np.linspace(self.start, self.stop + self.step, nsteps):
             if x0 < current:
                 continue
-            x = self.find_root(f, x0, *args)
+            x = self.find_root(f, x0, *args, **kwargs)
             if x is None:  # no root found.
                 continue
             current = x
@@ -40,12 +43,8 @@ class RootFinder:
 
         return self.roots
 
-    def find_root(self, f, x0, *args):
-        x, _, ier, _ = fsolve(f,
-                              x0=x0,
-                              args=args,
-                              full_output=True,
-                              xtol=self.xtol)
-        if ier == 1:
-            return x[0]
+    def find_root(self, f, x0, *args, fprime=None):
+        sol = root(f, x0, args=args, jac=fprime, method="hybr")
+        if sol.success:
+            return sol.x[0]
         return None
