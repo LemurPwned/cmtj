@@ -96,10 +96,10 @@ Below is an example of how the model can be used, based on a system with 2 ferro
 ```python
 import numpy as np
 
-from collections import defaultdict 
+from collections import defaultdict
 from cmtj.models.general_sb import LayerSB, VectorObj, SolverSB
 from cmtj.utils import mu0
-from tqdm import tqdm 
+from tqdm import tqdm
 
 Ms1 = 1. / mu0 # here we pass the saturation magnetisation in A/m, but in the dynamic model we use T!
 Ms2 = 1.2 / mu0
@@ -113,7 +113,7 @@ layerA = LayerSB(
 layerB = LayerSB(
     _id=1,
     thickness=1.3e-9,
-    Kv=VectorObj(np.deg2rad(0.), np.deg2rad(0), 1e4), 
+    Kv=VectorObj(np.deg2rad(0.), np.deg2rad(0), 1e4),
     Ks=1e1,
     Ms=Ms2,
 )
