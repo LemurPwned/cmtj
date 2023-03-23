@@ -25,8 +25,9 @@ nav:
           - Parallel: api/parallel-reference.md
       - Stack: gen-docs/stack.md
   - Examples:
-      - Library introduction: CMTJBindingsTutorial.ipynb
-      - Trajectories: trajectory.ipynb
+      - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
+      - Advanced experiments: tutorials/examples.ipynb
+      - Trajectories: tutorials/trajectory.ipynb
 
 theme:
   icon:

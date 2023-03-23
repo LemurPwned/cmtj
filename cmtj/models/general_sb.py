@@ -433,7 +433,6 @@ class SolverSB:
         y = real_deocrator(njit(sym.lambdify(omega, hes, 'math')))
         r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
         roots = r.find(y)
-        # print("Root finding took {:.2f} seconds".format(t2 - t1))
         # convert to GHz
         # reduce unique solutions to 2 decimal places
         # don't divide by 2pi, we used gamma instead of gamma / 2pi

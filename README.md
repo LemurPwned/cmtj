@@ -21,7 +21,7 @@ It is also possible to connect devices in parallel or in series to have electric
 Installation is as easy as doing:
 A recommended way is to use the `pip` package manager and virtualenv (or conda).
 
-1. With `virtualenv`
+1. With `virtualenv` (recommended):
 
 ```bash
 $(bash) python -m venv .my-venv
