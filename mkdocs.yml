@@ -4,6 +4,7 @@ repo_name: LemurPwned/cmtj
 nav:
   - Home: index.md
   - Overview: overview.md
+  - Tips & Tricks: tipsandtricks.md
   - Theory:
       - Macromagnetic contributions: physics/contributions.md
       - LLG Equation & solvers: physics/macromagnetic_models.md

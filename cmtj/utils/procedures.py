@@ -7,7 +7,7 @@ import numpy as np
 from scipy.fft import fft, fftfreq
 from tqdm import tqdm
 
-from cmtj import AxialDriver, Axis, Junction, NullDriver, ScalarDriver
+from cmtj import AxialDriver, Axis, CVector, Junction, NullDriver, ScalarDriver
 
 from .resistance import calculate_resistance_series, compute_sd
 
@@ -36,6 +36,7 @@ def PIMM_procedure(
     Hoe_duration: int = 3,
     simulation_duration: float = 5e-9,
     max_frequency: float = 80e9,
+    disturbance: float = 1e-3,
     output_full_trajectories: bool = False
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     """Procedure for computing Pulse Induced Microwave Magnetometry
@@ -48,6 +49,7 @@ def PIMM_procedure(
     :param Hoe_excitation: excitation amplitude of Hoe [A/m].
     :param Hoe_duration: duration of Hoe excitation in multiples of in step
     :param max_frequency: maximum frequency -- larger will be dropped [Hz].
+    :param disturbance: disturbance to be applied to the magnetization (std of normal distribution).
     :param output_full_trajectories: if True, return the full trajectories of the magnets.
     :return: (spectrum, frequencies, other_data)
     other_data is a dictionary with the following keys:
@@ -89,7 +91,14 @@ def PIMM_procedure(
                         ScalarDriver.getConstantDriver(H[1]),
                         ScalarDriver.getConstantDriver(H[2])))
         junction.setLayerOerstedFieldDriver("all", oedriver)
-
+        if disturbance:
+            for layer_id in layer_ids:
+                old_mag = junction.getLayerMagnetisation(layer_id)
+                new_mag = CVector(old_mag.x + np.random.normal(0, disturbance),
+                                  old_mag.y + np.random.normal(0, disturbance),
+                                  old_mag.z + np.random.normal(0, disturbance))
+                new_mag.normalize()
+                junction.setLayerMagnetisation(layer_id, new_mag)
         junction.runSimulation(simulation_duration, int_step, int_step)
         log = junction.getLog()
 
@@ -142,8 +151,10 @@ def VSD_procedure(junction: Junction,
                   Hoe_direction: Axis = Axis.yaxis,
                   Hoe_excitation: float = 50,
                   simulation_duration: float = 30e-9,
+                  disturbance: float = 1e-3,
                   Rtype: str = 'Rz'):
-    """Procedure for computing Voltage-Spin Diode
+    """Procedure for computing Voltage-Spin Diode.
+    We use the Oersted field sine exctitation to excite the system.
     :param junction: junction to be simulated.
     :param Hvecs: list of cartesian vectors. (use FieldScan.amplitude_scan or alike)
     :param frequencies: list of frequencies [Hz].
@@ -152,6 +163,7 @@ def VSD_procedure(junction: Junction,
     :param Hoe_direction: direction of oersted field (x, y or z).
     :param Hoe_excitation: excitation amplitude of Hoe [A/m].
     :param simulation_duration: duration of simulation [s].
+    :param disturbance: disturbance to be applied to the magnetization (std of normal distribution).
     :param Rtype: type of resistance to be used. (Rx Ry or Rz)
     """
     layer_ids = junction.getLayerIds()
@@ -179,6 +191,14 @@ def VSD_procedure(junction: Junction,
                         ScalarDriver.getConstantDriver(H[1]),
                         ScalarDriver.getConstantDriver(H[2])))
         junction.setLayerOerstedFieldDriver("all", oedriver)
+        if disturbance:
+            for layer_id in layer_ids:
+                old_mag = junction.getLayerMagnetisation(layer_id)
+                new_mag = CVector(old_mag.x + np.random.normal(0, disturbance),
+                                  old_mag.y + np.random.normal(0, disturbance),
+                                  old_mag.z + np.random.normal(0, disturbance))
+                new_mag.normalize()
+                junction.setLayerMagnetisation(layer_id, new_mag)
         junction.runSimulation(simulation_duration, int_step, int_step)
         log = junction.getLog()
         m_traj = np.asarray([[

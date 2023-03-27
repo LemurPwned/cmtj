@@ -93,3 +93,10 @@ def box_muller_random(mean, std):
     z0 = mag * math.cos(2 * math.pi * u2) + mean
     z1 = mag * math.sin(2 * math.pi * u2) + mean
     return z0, z1
+
+
+def perturb_position(eq_point, pmax=1e-3):
+    """
+    Perturbs an equilibrium point by a random amount.
+    """
+    return np.asarray(eq_point) + np.random.normal(0, pmax, len(eq_point))

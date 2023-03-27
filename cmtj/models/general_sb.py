@@ -10,12 +10,12 @@ import sympy as sym
 from numba import njit
 from tqdm import tqdm
 
-from cmtj.utils import VectorObj, gamma, gamma_rad, mu0
-
+from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
 from ..utils.solvers import RootFinder
 
 
 def real_deocrator(fn):
+    """Using numpy real cast is way faster than sympy."""
 
     def wrap_fn(*args):
         return np.real(fn(*args))
@@ -222,7 +222,6 @@ class SolverSB:
         if len(self.layers) != len(self.J2) + 1:
             raise ValueError("Number of layers must be 1 more than J2.")
 
-        # TODO: check the ids of the layers
         id_sets = set([layer._id for layer in self.layers])
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
@@ -237,11 +236,10 @@ class SolverSB:
         elif layer_indx == len(self.layers) - 1:
             return self.layers[layer_indx -
                                1], None, interaction_constant[-1], 0
-        else:
-            return self.layers[layer_indx - 1], self.layers[
-                layer_indx +
-                1], interaction_constant[layer_indx -
-                                         1], interaction_constant[layer_indx]
+        return self.layers[layer_indx - 1], self.layers[
+            layer_indx +
+            1], interaction_constant[layer_indx -
+                                     1], interaction_constant[layer_indx]
 
     def create_energy(self, H: Union[VectorObj, sym.Matrix] = None):
         """Creates the symbolic energy expression."""
@@ -254,8 +252,17 @@ class SolverSB:
             top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
                 i, self.J1)
             _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
-            energy += layer.symbolic_layer_energy(H, Jtop, Jbottom, J2top,
-                                                  J2bottom, top_layer,
+            ratio_top, ratio_bottom = 0, 0
+            if top_layer:
+                ratio_top = top_layer.thickness / (top_layer.thickness +
+                                                   layer.thickness)
+            if bottom_layer:
+                ratio_bottom = bottom_layer.thickness / (
+                    layer.thickness + bottom_layer.thickness)
+
+            energy += layer.symbolic_layer_energy(H, Jtop * ratio_top,
+                                                  Jbottom * ratio_bottom,
+                                                  J2top, J2bottom, top_layer,
                                                   bottom_layer)
         return energy
 
@@ -318,7 +325,8 @@ class SolverSB:
                               tol: float = 1e-8,
                               learning_rate: float = 1e-4,
                               first_momentum_decay: float = 0.9,
-                              second_momentum_decay: float = 0.999):
+                              second_momentum_decay: float = 0.999,
+                              perturbation: float = 1e-6):
         """
         A naive implementation of Adam gradient descent.
         See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015
@@ -331,7 +339,8 @@ class SolverSB:
         step = 0
         gradfn = self.get_gradient_expr()
         current_position = init_position
-
+        if perturbation:
+            current_position = perturb_position(init_position, perturbation)
         m = np.zeros_like(current_position)  # first momentum
         v = np.zeros_like(current_position)  # second momentum
         eps = 1e-12
@@ -380,8 +389,10 @@ class SolverSB:
               init_position: np.ndarray,
               max_steps: int = 1e9,
               learning_rate: float = 1e-4,
+              adam_tol: float = 1e-8,
               first_momentum_decay: float = 0.9,
               second_momentum_decay: float = 0.999,
+              perturbation: float = 1e-3,
               ftol: float = 0.01e9,
               max_freq: float = 80e9,
               force_single_layer: bool = False):
@@ -396,8 +407,10 @@ class SolverSB:
                               Must be a 1D array of size 2 * number of layers (theta, phi)
         :param max_steps: maximum number of gradient steps.
         :param learning_rate: the learning rate (descent speed).
+        :param adam_tol: tolerance for the consecutive Adam minima.
         :param first_momentum_decay: constant for the first momentum.
         :param second_momentum_decay: constant for the second momentum.
+        :param pertubarion: the perturbation to use for the numerical gradient computation.
         :param ftol: tolerance for the frequency search. [numerical only]
         :param max_freq: maximum frequency to search for. [numerical only]
         """
@@ -407,11 +420,11 @@ class SolverSB:
         eq = self.adam_gradient_descent(
             init_position=init_position,
             max_steps=max_steps,
-            tol=1e-9,
+            tol=adam_tol,
             learning_rate=learning_rate,
             first_momentum_decay=first_momentum_decay,
             second_momentum_decay=second_momentum_decay,
-        )
+            perturbation=perturbation)
         N = len(self.layers)
         if N == 1:
             return eq, self.single_layer_equilibrium(0, eq) / 1e9

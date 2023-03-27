@@ -616,7 +616,7 @@ public:
         // const T nom = J / (this->Ms * this->thickness);
         // return (coupledMag - stepMag) * nom; // alternative form
         // return (coupledMag + coupledMag * 2 * J2 * c_dot(coupledMag, stepMag)) * nom;
-        return coupledMag * (J + J2 * c_dot(coupledMag, stepMag)) / (this->Ms * this->thickness);
+        return coupledMag * (J + 2 * J2 * c_dot(coupledMag, stepMag)) / (this->Ms * this->thickness);
     }
 
     CVector<T> calculateIEC(T time, const CVector<T>& stepMag, const CVector<T>& bottom, const CVector<T>& top)
