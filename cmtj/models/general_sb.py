@@ -179,12 +179,7 @@ class LayerSB:
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
 
-        alpha = sym.Matrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
-
-        field_energy = -mu0 * self.Ms * m.dot(H)
-        surface_anistropy = (-self.Ks +
-                             (1. / 2.) * mu0 * self.Ms**2) * (m[-1]**2)
-        volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
+        eng_non_interaction = self.no_iec_symbolic_layer_energy(H)
 
         top_iec_energy = 0
         bottom_iec_energy = 0
@@ -197,8 +192,20 @@ class LayerSB:
             other_m = down_layer.get_m_sym()
             bottom_iec_energy = -(J1bottom / self.thickness) * m.dot(
                 other_m) - (J2bottom / self.thickness) * m.dot(other_m)**2
+        return eng_non_interaction + top_iec_energy + bottom_iec_energy
 
-        return field_energy + surface_anistropy + volume_anisotropy + top_iec_energy + bottom_iec_energy
+    def no_iec_symbolic_layer_energy(self, H: sym.Matrix):
+        """Returns the symbolic expression for the energy of the layer.
+        Coupling contribution comes only from the bottom layer (top-down crawl)"""
+        m = self.get_m_sym()
+
+        alpha = sym.Matrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
+
+        field_energy = -mu0 * self.Ms * m.dot(H)
+        surface_anistropy = (-self.Ks +
+                             (1. / 2.) * mu0 * self.Ms**2) * (m[-1]**2)
+        volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
+        return (field_energy + surface_anistropy + volume_anisotropy)
 
     def sb_correction(self):
         omega = sym.Symbol(r'\omega')
@@ -215,6 +222,7 @@ class SolverSB:
     J1: List[float]
     J2: List[float]
     H: VectorObj = None
+    symmetry: bool = False
 
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
@@ -242,28 +250,48 @@ class SolverSB:
                                      1], interaction_constant[layer_indx]
 
     def create_energy(self, H: Union[VectorObj, sym.Matrix] = None):
-        """Creates the symbolic energy expression."""
+        """Creates the symbolic energy expression.
+
+        Due to problematic nature of coupling, there is an issue of
+        computing each layer's FMR in the presence of IEC.
+        If symmetry = True then we use the thicness of the layer to multiply the
+        energy and hence avoid having to divide J by the thickness of a layer.
+        If symmetry = False the J constant is divided by weighted thickness
+        and included in every layer's energy, correcting FMR automatically.
+        """
         if H is None:
             h = self.H.get_cartesian()
             H = sym.Matrix(h)
-
         energy = 0
-        for i, layer in enumerate(self.layers):
-            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
-                i, self.J1)
-            _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
-            ratio_top, ratio_bottom = 0, 0
-            if top_layer:
-                ratio_top = top_layer.thickness / (top_layer.thickness +
-                                                   layer.thickness)
-            if bottom_layer:
-                ratio_bottom = bottom_layer.thickness / (
-                    layer.thickness + bottom_layer.thickness)
+        if not self.symmetry:
+            for i, layer in enumerate(self.layers):
+                top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
+                    i, self.J1)
+                _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
+                ratio_top, ratio_bottom = 0, 0
+                if top_layer:
+                    ratio_top = top_layer.thickness / (top_layer.thickness +
+                                                       layer.thickness)
+                if bottom_layer:
+                    ratio_bottom = bottom_layer.thickness / (
+                        layer.thickness + bottom_layer.thickness)
 
-            energy += layer.symbolic_layer_energy(H, Jtop * ratio_top,
-                                                  Jbottom * ratio_bottom,
-                                                  J2top, J2bottom, top_layer,
-                                                  bottom_layer)
+                energy += layer.symbolic_layer_energy(H, Jtop * ratio_top,
+                                                      Jbottom * ratio_bottom,
+                                                      J2top, J2bottom,
+                                                      top_layer, bottom_layer)
+        else:
+            for i, layer in enumerate(self.layers):
+                # to avoid dividing J by thickness
+                energy += layer.no_iec_symbolic_layer_energy(
+                    H) * layer.thickness
+
+            for i in range(len(self.layers) - 1):
+                energy += self.J1[i] * (self.layers[i].get_m_sym().dot(
+                    self.layers[i + 1].get_m_sym()))
+                energy += self.J2[i] * (self.layers[i].get_m_sym().dot(
+                    self.layers[i + 1].get_m_sym()))**2
+
         return energy
 
     def create_energy_hessian(self, equilibrium_position: List[float]):
@@ -306,7 +334,7 @@ class SolverSB:
         _, U, _ = hes.LUdecomposition()
         return U.det().subs(subs)
 
-    def get_gradient_expr(self, accel="numpy"):
+    def get_gradient_expr(self, accel="math"):
         """Returns the symbolic gradient of the energy expression."""
         energy = self.create_energy()
         grad_vector = []

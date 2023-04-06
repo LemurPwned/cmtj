@@ -8,7 +8,7 @@ from numba import njit
 from scipy.integrate import RK45
 
 from ..utils import bohr_magneton, echarge, gyromagnetic_ratio, hbar, mu0
-from .sb import VectorObj
+from ..utils.general import VectorObj
 
 gyro = gyromagnetic_ratio
 pi2 = math.pi / 2.
