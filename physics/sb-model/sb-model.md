@@ -49,7 +49,7 @@ The energy expression per layer is given by the following:
 $$
     \varepsilon_i = - \mu_0 M_s \vec{m}_i \cdot \vec{H} +
         (- K_s + \frac{1}{2}\mu_0 M_s^2) m_z^2
-        - K_v \vec{m} \cdot \vec{K}_{dir}
+        - K_v (\vec{m} \cdot \vec{K}_{dir})^2
         - J_1 \vec{m}_i \cdot \vec{m}_{i+1}
         - J_2 (\vec{m}_i \cdot \vec{m}_{i+1})^2
 $$
