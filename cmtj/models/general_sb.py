@@ -222,7 +222,6 @@ class SolverSB:
     J1: List[float]
     J2: List[float]
     H: VectorObj = None
-    symmetry: bool = False
 
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
@@ -249,21 +248,24 @@ class SolverSB:
             1], interaction_constant[layer_indx -
                                      1], interaction_constant[layer_indx]
 
-    def create_energy(self, H: Union[VectorObj, sym.Matrix] = None):
+    def create_energy(self,
+                      H: Union[VectorObj, sym.Matrix] = None,
+                      volumetric: bool = False):
         """Creates the symbolic energy expression.
 
         Due to problematic nature of coupling, there is an issue of
         computing each layer's FMR in the presence of IEC.
-        If symmetry = True then we use the thicness of the layer to multiply the
+        If volumetric = True then we use the thickness of the layer to multiply the
         energy and hence avoid having to divide J by the thickness of a layer.
-        If symmetry = False the J constant is divided by weighted thickness
+        If volumetric = False the J constant is divided by weighted thickness
         and included in every layer's energy, correcting FMR automatically.
         """
         if H is None:
             h = self.H.get_cartesian()
             H = sym.Matrix(h)
         energy = 0
-        if not self.symmetry:
+        if volumetric:
+            # volumetric energy for FMR
             for i, layer in enumerate(self.layers):
                 top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
                     i, self.J1)
@@ -281,6 +283,7 @@ class SolverSB:
                                                       J2top, J2bottom,
                                                       top_layer, bottom_layer)
         else:
+            # surface energy for correct angular gradient
             for i, layer in enumerate(self.layers):
                 # to avoid dividing J by thickness
                 energy += layer.no_iec_symbolic_layer_energy(
@@ -296,7 +299,7 @@ class SolverSB:
 
     def create_energy_hessian(self, equilibrium_position: List[float]):
         """Creates the symbolic hessian of the energy expression."""
-        energy = self.create_energy()
+        energy = self.create_energy(volumetric=True)
         subs = self.get_subs(equilibrium_position)
         N = len(self.layers)
         hessian = [[0 for _ in range(2 * N)] for _ in range(2 * N)]
@@ -336,7 +339,7 @@ class SolverSB:
 
     def get_gradient_expr(self, accel="math"):
         """Returns the symbolic gradient of the energy expression."""
-        energy = self.create_energy()
+        energy = self.create_energy(volumetric=False)
         grad_vector = []
         symbols = []
         for layer in self.layers:
@@ -400,7 +403,7 @@ class SolverSB:
         layer = self.layers[layer_indx]
         theta_eq = eq_position[2 * layer_indx]
         theta, phi = self.layers[layer_indx].get_coord_sym()
-        energy = self.create_energy()
+        energy = self.create_energy(volumetric=True)
         subs = self.get_subs(eq_position)
         d2Edtheta2 = sym.diff(sym.diff(energy, theta), theta).subs(subs)
         d2Edphi2 = sym.diff(sym.diff(energy, phi), phi).subs(subs)
@@ -495,7 +498,7 @@ class SolverSB:
             warnings.warn(
                 "Analytical solutions for over 2 layers may be computationally expensive."
             )
-        system_energy = self.create_energy(H=Hsym)
+        system_energy = self.create_energy(H=Hsym, volumetric=True)
         root_expr, energy_functional_expr = find_analytical_roots(N)
         subs = get_all_second_derivatives(energy_functional_expr,
                                           energy_expression=system_energy,
