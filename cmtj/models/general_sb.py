@@ -237,6 +237,8 @@ class SolverSB:
     def get_layer_references(self, layer_indx, interaction_constant):
         """Returns the references to the layers above and below the layer
         with index layer_indx."""
+        if len(self.layers) == 1:
+            return None, None, 0, 0
         if layer_indx == 0:
             return None, self.layers[layer_indx +
                                      1], 0, interaction_constant[0]
