@@ -292,10 +292,11 @@ class SolverSB:
                     H) * layer.thickness
 
             for i in range(len(self.layers) - 1):
-                energy += self.J1[i] * (self.layers[i].get_m_sym().dot(
-                    self.layers[i + 1].get_m_sym()))
-                energy += self.J2[i] * (self.layers[i].get_m_sym().dot(
-                    self.layers[i + 1].get_m_sym()))**2
+                l1m = self.layers[i].get_m_sym()
+                l2m = self.layers[i + 1].get_m_sym()
+                ldot = (l1m.dot(l2m))
+                energy -= self.J1[i] * ldot
+                energy -= self.J2[i] * (ldot)**2
 
         return energy
 
@@ -397,8 +398,7 @@ class SolverSB:
             current_position = new_position
         return np.asarray(current_position)
 
-    def single_layer_equilibrium(self, layer_indx: int,
-                                 eq_position: np.ndarray):
+    def single_layer_resonance(self, layer_indx: int, eq_position: np.ndarray):
         """We can compute the equilibrium position of a single layer directly.
         :param layer_indx: the index of the layer to compute the equilibrium
         :param eq_position: the equilibrium position vector"""
@@ -460,11 +460,11 @@ class SolverSB:
             perturbation=perturbation)
         N = len(self.layers)
         if N == 1:
-            return eq, self.single_layer_equilibrium(0, eq) / 1e9
+            return eq, self.single_layer_resonance(0, eq) / 1e9
         if force_single_layer:
             frequencies = []
             for indx in range(N):
-                frequency = self.single_layer_equilibrium(indx, eq) / 1e9
+                frequency = self.single_layer_resonance(indx, eq) / 1e9
                 frequencies.append(frequency)
             return eq, frequencies
         return self.num_solve(eq, ftol=ftol, max_freq=max_freq)
