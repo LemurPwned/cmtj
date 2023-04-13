@@ -8,6 +8,7 @@ from scipy.fft import fft, fftfreq
 from tqdm import tqdm
 
 from cmtj import AxialDriver, Axis, CVector, Junction, NullDriver, ScalarDriver
+from cmtj.utils.filters import Filters
 
 from .resistance import calculate_resistance_series, compute_sd
 
@@ -26,6 +27,20 @@ class ResistanceParameters:
     l: float = 0  # length
 
 
+def compute_spectrum_strip(input_m: np.ndarray, int_step: float,
+                           max_frequency: float):
+    yf = np.abs(fft(input_m))
+    freqs = fftfreq(len(yf), int_step)
+    freqs = freqs[:len(freqs) // 2]
+    yf = yf[:len(yf) // 2]
+
+    findx = np.argwhere(freqs <= max_frequency)
+    freqs = freqs[findx]
+    yf = yf[findx]
+
+    return yf, freqs
+
+
 def PIMM_procedure(
     junction: 'Junction',
     Hvecs: np.ndarray,
@@ -35,9 +50,10 @@ def PIMM_procedure(
     Hoe_excitation: float = 50,
     Hoe_duration: int = 3,
     simulation_duration: float = 5e-9,
+    wait_time: float = 0e-9,
     max_frequency: float = 80e9,
     disturbance: float = 1e-3,
-    output_full_trajectories: bool = False
+    full_output: bool = False
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
     """Procedure for computing Pulse Induced Microwave Magnetometry
     :param junction: junction to be simulated.
@@ -46,11 +62,11 @@ def PIMM_procedure(
     :param resistance_params: list of resistance parameters.
     :param Hoe_direction: direction of oersted field (x, y or z).
     :param simulation_duration: duration of simulation [s].
-    :param Hoe_excitation: excitation amplitude of Hoe [A/m].
+    :param wait_time: time to wait before taking vector for the fft [s].
     :param Hoe_duration: duration of Hoe excitation in multiples of in step
     :param max_frequency: maximum frequency -- larger will be dropped [Hz].
     :param disturbance: disturbance to be applied to the magnetization (std of normal distribution).
-    :param output_full_trajectories: if True, return the full trajectories of the magnets.
+    :param full_output: if True, return the full trajectories and per layer spectra.
     :return: (spectrum, frequencies, other_data)
     other_data is a dictionary with the following keys:
     - 'H': Hext field [A/m]
@@ -59,6 +75,8 @@ def PIMM_procedure(
     - 'm_avg': average magnetization [unit]
     - 'm_traj': magnetization trajectories [unit]
     """
+    if wait_time > simulation_duration:
+        raise ValueError("wait_time must be smaller than simulation_duration!")
     spectrum = []
     extraction_m_component = None
     if Hoe_direction == Axis.zaxis:
@@ -83,6 +101,8 @@ def PIMM_procedure(
     # get layer strings
     layer_ids = junction.getLayerIds()
     output = defaultdict(list)
+    normalising_factor = np.sum(
+        [layer.thickness * layer.Ms for layer in junction.layers])
     for H in tqdm(Hvecs, desc="Computing PIMM"):
         junction.clearLog()
         junction.setLayerExternalFieldDriver(
@@ -101,26 +121,23 @@ def PIMM_procedure(
                 junction.setLayerMagnetisation(layer_id, new_mag)
         junction.runSimulation(simulation_duration, int_step, int_step)
         log = junction.getLog()
-
-        m_traj = np.asarray([[
-            log[f'{layer_ids[i]}_mx'], log[f'{layer_ids[i]}_my'],
-            log[f'{layer_ids[i]}_mz']
-        ] for i in range(len(layer_ids))])
-        m = m_traj[:, :, -100:]  # all layers, all x, y, z, last timestamp
-        m_avg = np.mean(m_traj[:, :, -1], 0)
-        mixed = [
-            np.asarray(log[f"{layer_ids[i]}_m{extraction_m_component}"])
-            for i in range(len(layer_ids))
-        ]
-        mixed = np.mean(np.squeeze(mixed), axis=0)
-        yf = np.abs(fft(mixed))
-        freqs = fftfreq(len(yf), int_step)
-        freqs = freqs[:len(freqs) // 2]
-        yf = yf[:len(yf) // 2]
-
-        findx = np.argwhere(freqs <= max_frequency)
-        freqs = freqs[findx]
-        yf = yf[findx]
+        indx = np.argwhere(np.asarray(log['time']) >= wait_time).ravel()
+        m_traj = np.asarray([
+            np.asarray([
+                log[f'{layer.id}_mx'], log[f'{layer.id}_my'],
+                log[f'{layer.id}_mz']
+            ]) * layer.thickness * layer.Ms / normalising_factor
+            for layer in junction.layers
+        ])
+        m = m_traj[:, :, -100:]  # all layers, all x, y, z, last 100 steps
+        mixed = np.asarray([
+            np.asarray(log[f"{layer.id}_m{extraction_m_component}"])[indx] *
+            layer.thickness * layer.Ms / normalising_factor
+            for layer in junction.layers
+        ])
+        mixed = np.squeeze(mixed)
+        mixed_sum = mixed.sum(axis=0)
+        yf, freqs = compute_spectrum_strip(mixed_sum, int_step, max_frequency)
 
         spectrum.append(yf)
         Rx, Ry = calculate_resistance_series(
@@ -136,10 +153,17 @@ def PIMM_procedure(
         output['H'].append(H)
         output['Rx'].append(Rx)
         output['Ry'].append(Ry)
-        output['m_avg'].append(m_avg)
-        if output_full_trajectories:
+        output['m_avg'].append(m_traj[:, :, -1].sum(0))
+        if full_output:
             output['m_traj'].append(m_traj)
+            for li, layer_id in enumerate(layer_ids):
+                y, _ = compute_spectrum_strip(mixed[li], int_step,
+                                              max_frequency)
+                output[layer_id].append(y)
     spectrum = np.squeeze(np.asarray(spectrum))
+    if full_output:
+        for layer_id in layer_ids:
+            output[layer_id] = np.asarray(output[layer_id]).squeeze()
     return spectrum, freqs, output
 
 

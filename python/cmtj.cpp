@@ -41,7 +41,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("length", [](const DVector& vec) { return vec.length(); })
         .def("normalize", &DVector::normalize)
         .def("tolist", &DVector::tolist)
-        // operators 
+        // operators
         .def(py::self + py::self)
         .def(py::self += py::self)
         .def(py::self *= double())
@@ -177,6 +177,13 @@ PYBIND11_MODULE(cmtj, m)
         .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor)
         .def("setKappa", &DLayer::setKappa)
         .def("setAlternativeSTT", &DLayer::setAlternativeSTT)
+        // readonly props
+        .def_readonly("id", &DLayer::id)
+        .def_readonly("Ms", &DLayer::Ms)
+        .def_readonly("thickness", &DLayer::thickness)
+        .def_readonly("damping", &DLayer::damping)
+        .def_readonly("cellSurface", &DLayer::cellSurface)
+        .def_readonly("demagTensor", &DLayer::demagTensor)
         // getters
         .def("getId", &DLayer::getId);
 
@@ -243,7 +250,9 @@ PYBIND11_MODULE(cmtj, m)
         .def("getLayerMagnetisation", &DJunction::getLayerMagnetisation)
         .def("getMagnetoresistance", &DJunction::getMagnetoresistance)
         // getters
-        .def("getLayerIds", &DJunction::getLayerIds);
+        .def("getLayerIds", &DJunction::getLayerIds)
+        // readonly props
+        .def_readonly("layers", &DJunction::layers);
 
     // stack module
     py::module stack_module = m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
