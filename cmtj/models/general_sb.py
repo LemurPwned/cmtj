@@ -56,10 +56,11 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
         # indx_i = str(i + 1) # for display purposes
         indx_i = str(i)
         # z = sym.Symbol("Z")
-
         # these here must match the Ms symbols!
-        z = sym.Symbol(r"\omega") * sym.Symbol(
-            r"M_{" + indx_i + "}") * sym.sin(sym.Symbol(r"\theta_" + indx_i))
+        z = sym.Symbol(
+            r"\omega") * sym.Symbol(r"M_{" + indx_i + "}") * sym.sin(
+                sym.Symbol(r"\theta_" + indx_i)) * sym.Symbol(r"t_{" + indx_i +
+                                                              "}")
         for j in range(i, N):
             # indx_j = str(j + 1) # for display purposes
             indx_j = str(j)
@@ -212,7 +213,7 @@ class LayerSB:
         # we use unreduced gamma
         # later we don't need to divide omega by 2pi
         # idk but if we use reduced gamma it numerically breaks lol
-        Z = (omega / gamma) * self.Ms * sym.sin(self.theta)
+        Z = (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
         return Z
 
 
@@ -267,7 +268,7 @@ class SolverSB:
             H = sym.Matrix(h)
         energy = 0
         if volumetric:
-            # volumetric energy for FMR
+            # volumetric energy -- DO NOT USE IN GENERAL
             for i, layer in enumerate(self.layers):
                 top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
                     i, self.J1)
@@ -279,7 +280,6 @@ class SolverSB:
                 if bottom_layer:
                     ratio_bottom = bottom_layer.thickness / (
                         layer.thickness + bottom_layer.thickness)
-
                 energy += layer.symbolic_layer_energy(H, Jtop * ratio_top,
                                                       Jbottom * ratio_bottom,
                                                       J2top, J2bottom,
@@ -302,7 +302,7 @@ class SolverSB:
 
     def create_energy_hessian(self, equilibrium_position: List[float]):
         """Creates the symbolic hessian of the energy expression."""
-        energy = self.create_energy(volumetric=True)
+        energy = self.create_energy(volumetric=False)
         subs = self.get_subs(equilibrium_position)
         N = len(self.layers)
         hessian = [[0 for _ in range(2 * N)] for _ in range(2 * N)]
@@ -500,7 +500,7 @@ class SolverSB:
             warnings.warn(
                 "Analytical solutions for over 2 layers may be computationally expensive."
             )
-        system_energy = self.create_energy(H=Hsym, volumetric=True)
+        system_energy = self.create_energy(H=Hsym, volumetric=False)
         root_expr, energy_functional_expr = find_analytical_roots(N)
         subs = get_all_second_derivatives(energy_functional_expr,
                                           energy_expression=system_energy,
@@ -521,10 +521,12 @@ class SolverSB:
 
     def get_ms_subs(self):
         """Returns a dictionary of substitutions for the Ms symbols."""
-        return {
-            r"M_{" + str(layer._id) + "}": layer.Ms
+        a = {r"M_{" + str(layer._id) + "}": layer.Ms for layer in self.layers}
+        b = {
+            r"t_{" + str(layer._id) + r"}": layer.thickness
             for layer in self.layers
         }
+        return {**a, **b}
 
     def set_H(self, H: VectorObj):
         """Sets the external field."""
