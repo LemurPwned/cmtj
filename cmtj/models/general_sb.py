@@ -475,8 +475,10 @@ class SolverSB:
                   max_freq: float = 80e9):
         hes = self.create_energy_hessian(eq)
         omega = sym.Symbol(r"\omega")
-
-        y = real_deocrator(njit(sym.lambdify(omega, hes, 'math')))
+        if len(self.layers) <= 3:
+            y = real_deocrator(njit(sym.lambdify(omega, hes, 'math')))
+        else:
+            y = real_deocrator(sym.lambdify(omega, hes, 'math'))
         r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
         roots = r.find(y)
         # convert to GHz

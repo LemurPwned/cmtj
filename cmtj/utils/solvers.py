@@ -28,8 +28,6 @@ class RootFinder:
         self.roots = np.append(self.roots, x)
 
     def find(self, f, *args, **kwargs):
-        # roots = root(f, 40e9, tol=1e6, args=args, **kwargs)
-        # return roots.x
         current = self.start
         nsteps = int((self.stop - self.start) / self.step)
         for x0 in np.linspace(self.start, self.stop + self.step, nsteps):

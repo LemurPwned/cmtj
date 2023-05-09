@@ -142,7 +142,8 @@ enum SolverMode
 };
 
 // seems to be the faster so far.
-static std::mt19937 generator;
+// static std::mt19937 generator((std::random_device{}()));
+
 template <typename T = double>
 class Layer
 {
@@ -172,7 +173,7 @@ private:
 
     // the distribution is binded for faster generation
     // is also shared between 1f and Gaussian noise.
-    std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), generator);
+    std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), std::mt19937(std::random_device{}()));
 
     CVector<T> dWn, dWn2; // one for thermal, one for OneF
     Layer(
@@ -188,7 +189,7 @@ private:
         T dampingLikeTorque,
         T SlonczewskiSpacerLayerParameter,
         T beta,
-        T spinPolarisation): id(id),
+        T spinPolarisation) : id(id),
         mag(mag),
         anis(anis),
         Ms(Ms),
@@ -269,7 +270,7 @@ public:
         T thickness,
         T cellSurface,
         const std::vector<CVector<T>>& demagTensor,
-        T damping): Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T damping) : Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping, 0, 0, 0, 0, 0) {}
 
@@ -299,7 +300,7 @@ public:
         const std::vector<CVector<T>>& demagTensor,
         T damping,
         T fieldLikeTorque,
-        T dampingLikeTorque): Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T dampingLikeTorque) : Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping,
             fieldLikeTorque,
@@ -338,7 +339,7 @@ public:
         T damping,
         T SlonczewskiSpacerLayerParameter,
         T beta,
-        T spinPolarisation): Layer(id, mag, anis, Ms, thickness, cellSurface,
+        T spinPolarisation) : Layer(id, mag, anis, Ms, thickness, cellSurface,
             demagTensor,
             damping, 0, 0, SlonczewskiSpacerLayerParameter, beta, spinPolarisation)
     {
@@ -1036,7 +1037,7 @@ public:
             throw std::invalid_argument("Passed a zero length Layer vector!");
         }
     }
-    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap): Junction(
+    explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap) : Junction(
         layersToSet)
     {
         if (this->layerNo == 1)
@@ -1079,7 +1080,7 @@ public:
         std::vector<T> AMR_Y,
         std::vector<T> SMR_X,
         std::vector<T> SMR_Y,
-        std::vector<T> AHE): Rx0(std::move(Rx0)),
+        std::vector<T> AHE) : Rx0(std::move(Rx0)),
         Ry0(std::move(Ry0)),
         AMR_X(std::move(AMR_X)),
         AMR_Y(std::move(AMR_Y)),
@@ -1629,7 +1630,7 @@ public:
         {
             if (l.hasTemperature())
             {
-                if (mode != HEUN) {
+                if (mode != HEUN && mode != EULER_HEUN) {
                     std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
                 }
                 // if at least one temp. driver is set
