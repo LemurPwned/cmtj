@@ -8,6 +8,7 @@
 #include "../core/cvector.hpp"
 #include "../core/drivers.hpp"
 #include "../core/junction.hpp"
+#include "../core/noise.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -321,4 +322,15 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerAnisotropy", &Reservoir::setLayerAnisotropy)
         .def("setLayerExternalField", &Reservoir::setLayerExternalField)
         .def("getMagnetisation", &Reservoir::getMagnetisation);
+
+    // generatormodule
+    py::module generator_module = m.def_submodule("noise", "Submodule with noise generation functions");
+    py::class_<BufferedAlphaNoise<double>>(generator_module, "BufferedAlphaNoise")
+        .def(py::init<unsigned int, double, double, double>(),
+            "bufferSize"_a,
+            "alpha"_a,
+            "std"_a,
+            "scale"_a)
+        .def("fillBuffer", &BufferedAlphaNoise<double>::fillBuffer)
+        .def("tick", &BufferedAlphaNoise<double>::tick);
 }

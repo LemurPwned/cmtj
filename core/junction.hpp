@@ -149,7 +149,7 @@ class Layer
 {
 private:
 
-    OneFNoise<T>* ofn;
+    std::shared_ptr<OneFNoise<T>> ofn;
 
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> IECDriverTop;
@@ -216,7 +216,7 @@ private:
         dWn = CVector<T>(this->distribution);
         dWn.normalize();
         this->cellVolume = this->cellSurface * this->thickness;
-        this->ofn = new OneFNoise<T>(0, 0., 0.);
+        this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(0, 0., 0.));
     }
 
 public:
@@ -440,7 +440,7 @@ public:
     }
 
     void setOneFNoise(unsigned int sources, T bias, T scale) {
-        this->ofn = new OneFNoise<T>(sources, bias, scale);
+        this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(sources, bias, scale));
         this->pinkNoiseSet = true;
         this->nonStochasticOneFSet = true; // by default turn it on, but in the stochastic sims, we will have to turn it off
     }
@@ -678,6 +678,8 @@ public:
         {
             this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // use standard STT formulation
+            // see that literature reports Ms/MAGNETIC_PERMEABILITY
+            // but then the units don't match, we use Ms [T] which works
             const T aJ = HBAR * this->I_log /
                 (ELECTRON_CHARGE * this->Ms * this->thickness);
             // field like
