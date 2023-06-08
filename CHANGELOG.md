@@ -3,7 +3,7 @@
 # 1.3.1
 
 - `CVector` got extra functionality in Python bindings. Operators are now supported.
-- Domain Wall dynamics is now also for 2 layer systems. Added edge potetnial.
+- Domain Wall dynamics is now also for 2 layer systems. Added edge potential.
 - SB model generalised for N layers.
 
 ## 1.3.0
