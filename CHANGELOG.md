@@ -1,10 +1,12 @@
 # Changelog
 
-## [Unreleased yet]
+## 1.3.0
 
-- Adding SB model as an alternative mode of calculation.
+- Adding DW dynamics 1D model with dynamic drivers. (Numba optimised)
+- Adding SB model for energy-based FMR computation. Gradient computed using Adam optimiser.
 - Moving resistance functions from `utils` to `resistance`
 - Introducting docs updates for tutorial notebook (dark/light toggle works now).
+- Reservoir computing is now exposed in Python in the `reservoir` computing module.
 
 ## 1.2.0
 

@@ -725,7 +725,7 @@ public:
     }
     const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, const CVector<T>& m,
         const CVector<T>& bottom, const CVector<T>& top,
-        const CVector<T>& dipole, T timeStep, const CVector<T>& Hfluctuation)
+        const CVector<T>& dipole, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
     {
         // classic LLG first
         const CVector<T> heff = calculateHeffDipoleInjection(time, timeStep, m, bottom, top, dipole, Hfluctuation);
@@ -741,7 +741,8 @@ public:
      * @param top: layer above the current layer (current layer's magnetisation is m). For IEC interaction.
      * @param timeStep: RK45 integration step.
      */
-    const CVector<T> calculateLLGWithFieldTorque(T time, const CVector<T>& m, const CVector<T>& bottom, const CVector<T>& top, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
+    const CVector<T> calculateLLGWithFieldTorque(T time, const CVector<T>& m, const CVector<T>& bottom,
+        const CVector<T>& top, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
     {
         // classic LLG first
         const CVector<T> heff = calculateHeff(time, timeStep, m, bottom, top, Hfluctuation);
@@ -1034,7 +1035,6 @@ public:
         {
             throw std::invalid_argument("Passed a zero length Layer vector!");
         }
-        // this->fileSave = std::move(filename);
     }
     explicit Junction(const std::vector<Layer<T>>& layersToSet, T Rp, T Rap): Junction(
         layersToSet)

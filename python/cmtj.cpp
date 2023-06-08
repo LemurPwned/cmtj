@@ -2,6 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "../core/reservoir.hpp"
 #include "../core/stack.hpp"
 #include "../core/cvector.hpp"
 #include "../core/drivers.hpp"
@@ -19,8 +20,8 @@ using DScalarDriver = ScalarDriver<double>;
 using DAxialDriver = AxialDriver<double>;
 using DNullDriver = NullDriver<double>;
 using DStack = Stack<double>;
-
-
+using DLayerMatrix = std::vector<std::vector<DLayer>>;
+using DVectorMatrix = std::vector<std::vector<DVector>>;
 
 #define USING_PY true
 PYBIND11_MODULE(cmtj, m)
@@ -284,4 +285,20 @@ PYBIND11_MODULE(cmtj, m)
         .def("clearLogs", &ParallelStack<double>::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&ParallelStack<double>::getLog))
         .def("getLog", py::overload_cast<>(&ParallelStack<double>::getLog));
+
+
+    // reservoir module
+    py::module reservoir_module = m.def_submodule("reservoir", "A reservoir submodule for joining MTJ junctions");
+    py::class_<Reservoir>(reservoir_module, "Reservoir")
+        .def(py::init<DVectorMatrix, DLayerMatrix >(),
+            "coordinateMatrix"_a,
+            "layerMatrix"_a)
+        .def("runSimulation", &Reservoir::runSimulation)
+        .def("clearLogs", &Reservoir::clearLogs)
+        .def("saveLogs", &Reservoir::saveLogs)
+        .def("getLayer", &Reservoir::getLayer)
+        .def("setAllExternalField", &Reservoir::setAllExternalField)
+        .def("setLayerAnisotropy", &Reservoir::setLayerAnisotropy)
+        .def("setLayerExternalField", &Reservoir::setLayerExternalField)
+        .def("getMagnetisation", &Reservoir::getMagnetisation);
 }

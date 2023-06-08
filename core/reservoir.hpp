@@ -8,6 +8,8 @@
 #include <string>
 #include "cvector.hpp"
 #include "junction.hpp"
+
+
 /**
  * @brief Computes the combinations
  * https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
@@ -64,7 +66,7 @@ private:
         {
             std::array<int, 2> consideredPair;
             int asgn = 0;
-            for (int i = 0; i < this->noElements; ++i) // [0..N-1] integers
+            for (unsigned int i = 0; i < this->noElements; ++i) // [0..N-1] integers
             {
                 if (bitmask[i])
                     consideredPair[asgn++] = i; // currently selected index in the combination
@@ -139,7 +141,7 @@ public:
     unsigned int rows, cols;
     unsigned int noElements;
 
-    Reservoir(std::vector<std::vector<DVector>> coordinateMatrix, std::vector<std::vector<Layer<double>>> layerMatrix) : coordinateMatrix(std::move(coordinateMatrix)),
+    Reservoir(std::vector<std::vector<DVector>> coordinateMatrix, std::vector<std::vector<Layer<double>>> layerMatrix): coordinateMatrix(std::move(coordinateMatrix)),
         layerMatrix(std::move(layerMatrix))
     {
         this->rows = this->coordinateMatrix.size();
@@ -162,7 +164,7 @@ public:
 
     std::vector<CVector<double>> collectFrozenMMatrix()
     {
-        for (int i = 0; i < this->noElements; i++)
+        for (unsigned int i = 0; i < this->noElements; i++)
         {
             const auto coords = this->getMatrixCoordinates(i);
             const unsigned int i0 = std::get<0>(coords);
@@ -226,7 +228,7 @@ public:
         this->getLayer(index).setExternalFieldDriver(hDriver);
     }
 
-    void setLayerAnisotropy(unsigned int index, ScalarDriver<double> anisotropyDriver)
+    void setLayerAnisotropy(unsigned int index, const ScalarDriver<double>& anisotropyDriver)
     {
         this->getLayer(index).setAnisotropyDriver(anisotropyDriver);
     }
@@ -275,14 +277,12 @@ public:
         const double totalIterations = (int)(totalTime / timeStep);
         // this->clearLogs();
         // this->prepareLog(totalIterations);
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             double t = i * timeStep;
             runSolver(t, timeStep);
             logReservoirkData(t);
         }
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     }
 };
 

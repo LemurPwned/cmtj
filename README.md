@@ -4,9 +4,9 @@
 
 [![PyPI](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/LemurPwned/cmtj/actions/workflows/main.yml)
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
-[![Version](https://img.shields.io/pypi/v/cmtj)]()
-[![License](https://img.shields.io/pypi/l/cmtj.svg)]()
-[![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)]()
+[![Version](https://img.shields.io/pypi/v/cmtj)](https://pypi.org/project/cmtj/)
+[![License](https://img.shields.io/pypi/l/cmtj.svg)](https://github.com/LemurPwned/cmtj/blob/master/LICENSE)
+![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
 
 ## Short description
 
@@ -58,13 +58,9 @@ The package requires (if `utils` subpackage is used):
 - matplotlib
 ```
 
-#### Read the docs
+## Read the docs
 
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
-
-## WIKI :mortar_board:
-
-Read more in do [the docs here](https://lemurpwned.github.io/cmtj/).
 
 ## Extensions
 
@@ -72,42 +68,23 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 
 ## Citing
 
-We would appreciate citing either of the listed work if you decide to use the project:
+We would appreciate citing either of the listed work if you decide to use the project or using the cite button on the right hand side panel of the repository:
 
-1. [**Numerical model of Harmonic Hall voltage detection for spintronic devices**](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.106.024403)
 
-```bibtex
-@article{PhysRevB.106.024403,
-  title = {Numerical model of harmonic Hall voltage detection for spintronic devices},
-  author = {Ziętek, Sławomir and Mojsiejuk, Jakub and Grochot, Krzysztof and Łazarski, Stanisław and Skowroński, Witold and Stobiecki, Tomasz},
-  journal = {Phys. Rev. B},
-  volume = {106},
-  issue = {2},
-  pages = {024403},
-  numpages = {9},
-  year = {2022},
-  month = {Jul},
-  publisher = {American Physical Society},
-  doi = {10.1103/PhysRevB.106.024403},
-  url = {https://link.aps.org/doi/10.1103/PhysRevB.106.024403}
-}
-```
-
-2. [**A comprehensive simulation package for analysis of multilayer spintronic devices**](https://arxiv.org/abs/2207.11606)
+ [**cmtj: Simulation package for analysis of multilayer spintronic devices**](https://www.nature.com/articles/s41524-023-01002-x)
 
 ```bibtex
-@article{mojsiejuk_comprehensive_2022,
-	title = {A comprehensive simulation package for analysis of multilayer spintronic devices},
-	url = {http://arxiv.org/abs/2207.11606},
-	number = {{arXiv}:2207.11606},
-	publisher = {{arXiv}},
+@article{mojsiejuk_cmtj_2023,
+	title = {cmtj: Simulation package for analysis of multilayer spintronic devices},
+	volume = {9},
+	issn = {2057-3960},
+	url = {https://www.nature.com/articles/s41524-023-01002-x},
+	doi = {10.1038/s41524-023-01002-x},
+	pages = {54},
+	number = {1},
+	journaltitle = {npj Comput Mater},
 	author = {Mojsiejuk, Jakub and Ziętek, Sławomir and Grochot, Krzysztof and Skowroński, Witold and Stobiecki, Tomasz},
-	urldate = {2022-07-26},
-	date = {2022-07-23},
-	langid = {english},
-	eprinttype = {arxiv},
-	eprint = {2207.11606 [cond-mat]},
-	keywords = {Condensed Matter - Materials Science},
+	date = {2023-04-06},
 }
 ```
 
