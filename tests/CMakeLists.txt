@@ -1,35 +1,13 @@
-cmake_minimum_required(VERSION 3.14)
-project(CMTJ)
+cmake_minimum_required(VERSION 3.4...3.18)
+project(CMTJ LANGUAGES CXX)
 
 # GoogleTest requires at least C++11
-set(CMAKE_CXX_STANDARD 20)
-
 find_package (Eigen3 3.4 REQUIRED NO_MODULE)
-
-######## FFTW DOWNLOADS ########
-
-# download FFTW
-# configure_file(downloadFindFFTW.cmake.in findFFTW-download/CMakeLists.txt)
-# execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-#         RESULT_VARIABLE result
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/findFFTW-download )
-# if(result)
-#     message(FATAL_ERROR "CMake step for findFFTW failed: ${result}")
-#     else()
-#     message("CMake step for findFFTW completed (${result}).")
-# endif()
-# execute_process(COMMAND ${CMAKE_COMMAND} --build .
-#         RESULT_VARIABLE result
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/findFFTW-download )
-# if(result)
-#     message(FATAL_ERROR "Build step for findFFTW failed: ${result}")
-# endif()
-
-# set(findFFTW_DIR ${CMAKE_CURRENT_BINARY_DIR}/findFFTW-src)
-
-# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${findFFTW_DIR}")
-# find_package(FFTW REQUIRED)
-
+set(CMAKE_CXX_STANDARD 20)
+set(INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/../core
+    ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/kissfft)
+include_directories(${INCLUDE_DIR})
 
 include(FetchContent)
 FetchContent_Declare(
@@ -40,9 +18,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-
 enable_testing()
-
 include(GoogleTest)
 
 # source: https://cliutils.gitlab.io/modern-cmake/chapters/testing/googletest.html
@@ -68,5 +44,6 @@ endmacro()
 # package_add_test(test_sot test_sot.cpp)
 # package_add_test(test_vector test_vector.cpp)
 # package_add_test(test_layer test_layer.cpp)
-package_add_test(test_reservoir test_reservoir.cpp)
-target_link_libraries(test_reservoir Eigen3::Eigen)
+# package_add_test(test_reservoir test_reservoir.cpp)
+# target_link_libraries(test_reservoir Eigen3::Eigen)
+package_add_test(test_noise test_noise.cpp)

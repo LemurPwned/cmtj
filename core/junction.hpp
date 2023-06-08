@@ -150,6 +150,7 @@ class Layer
 private:
 
     std::shared_ptr<OneFNoise<T>> ofn;
+    std::shared_ptr<BufferedAlphaNoise<T>> bfn_x, bfn_y,bfn_z;
 
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> IECDriverTop;
@@ -220,6 +221,15 @@ private:
     }
 
 public:
+    struct BufferedNoiseParameters
+    {
+        /* data */
+        T alphaNoise = 1.0;
+        T scaleNoise = 0.0;
+        T stdNoise = 0.0;
+    };
+    BufferedNoiseParameters noiseParams;
+
     bool includeSTT = false;
     bool includeSOT = false;
 
@@ -442,7 +452,29 @@ public:
     void setOneFNoise(unsigned int sources, T bias, T scale) {
         this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(sources, bias, scale));
         this->pinkNoiseSet = true;
-        this->nonStochasticOneFSet = true; // by default turn it on, but in the stochastic sims, we will have to turn it off
+        // by default turn it on, but in the stochastic sims, we will have to turn it off
+        this->nonStochasticOneFSet = true;
+    }
+
+    void setAlphaNoise(T alpha, T std, T scale) {
+        if ((alpha < 0) || (alpha > 2))
+            throw std::runtime_error("alpha must be between 0 and 2");
+        this->noiseParams.alphaNoise = alpha;
+        this->noiseParams.stdNoise = std;
+        this->noiseParams.scaleNoise = scale;
+        this->pinkNoiseSet = true;
+    }
+
+    void createBufferedAlphaNoise(unsigned int bufferSize) {
+        this->bfn_x = std::shared_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize,
+            this->noiseParams.alphaNoise,
+            this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
+        this->bfn_y = std::shared_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize,
+            this->noiseParams.alphaNoise,
+            this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
+        this->bfn_z = std::shared_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize,
+            this->noiseParams.alphaNoise,
+            this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
     }
 
     void setCurrentDriver(const ScalarDriver<T>& driver)
@@ -882,7 +914,8 @@ public:
     const T getStochasticOneFNoise(T time) {
         if (!this->pinkNoiseSet)
             return 0;
-        return this->ofn->tick();
+        const auto val = this->bfn->tick();
+        return val;
     }
 
     T getLangevinStochasticStandardDeviation(T time, T timeStep)
@@ -1626,21 +1659,32 @@ public:
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        auto solver = this->selectSolver(mode);
         // pick a solver based on drivers
+        SolverMode localMode = mode;
         for (auto& l : this->layers)
         {
             if (l.hasTemperature())
             {
-                if (mode != HEUN && mode != EULER_HEUN) {
+                if (localMode != HEUN && localMode != EULER_HEUN) {
                     std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
                 }
                 // if at least one temp. driver is set
                 // then use heun for consistency
-                solver = this->selectSolver(HEUN);
-                break;
+                localMode = HEUN;
+            }
+            if (l.noiseParams.scaleNoise != 0) {
+                if (localMode != HEUN && localMode != EULER_HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
+                }
+                // if at least one temp. driver is set
+                // then use heun for consistency
+                localMode = HEUN;
+
+                // create a buffer
+                l.createBufferedAlphaNoise(totalIterations);
             }
         }
+        auto solver = this->selectSolver(localMode);
 
         for (unsigned int i = 0; i < totalIterations; i++)
         {

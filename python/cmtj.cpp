@@ -185,6 +185,9 @@ PYBIND11_MODULE(cmtj, m)
         .def_readonly("damping", &DLayer::damping)
         .def_readonly("cellSurface", &DLayer::cellSurface)
         .def_readonly("demagTensor", &DLayer::demagTensor)
+        // noise
+        .def("setAlphaNoise", &DLayer::setAlphaNoise)
+        .def("setOneFNoise", &DLayer::setOneFNoise)
         // getters
         .def("getId", &DLayer::getId);
 
