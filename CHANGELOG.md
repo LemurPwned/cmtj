@@ -1,5 +1,9 @@
 # Changelog
 
+# 1.3.2
+
+- Added new `ScalarDrivers` -- Gaussian impulse and Gaussian step.
+
 # 1.3.1
 
 - `CVector` got extra functionality in Python bindings. Operators are now supported.

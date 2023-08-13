@@ -74,7 +74,7 @@ def calculate_resistance_series(Rx0: List[float], Ry0: List[float],
                                 AMR: List[float], AHE: List[float],
                                 SMR: List[float], m: List[float],
                                 l: List[float], w: List[float]):
-    """Calculates the resistance of the system in parallel.
+    """Calculates the resistance of the system in series.
     Uses Kim's formula from the paper:
     https://link.aps.org/doi/10.1103/PhysRevLett.116.097201"""
     SxAll, SyAll = compute_resistance(Rx0, Ry0, AMR, AHE, SMR, m, l, w)
