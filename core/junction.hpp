@@ -150,7 +150,7 @@ class Layer
 private:
 
     std::shared_ptr<OneFNoise<T>> ofn;
-    std::shared_ptr<BufferedAlphaNoise<T>> bfn_x, bfn_y,bfn_z;
+    std::shared_ptr<VectorAlphaNoise<T>> bfn;
 
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> IECDriverTop;
@@ -466,13 +466,7 @@ public:
     }
 
     void createBufferedAlphaNoise(unsigned int bufferSize) {
-        this->bfn_x = std::shared_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize,
-            this->noiseParams.alphaNoise,
-            this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
-        this->bfn_y = std::shared_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize,
-            this->noiseParams.alphaNoise,
-            this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
-        this->bfn_z = std::shared_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize,
+        this->bfn = std::shared_ptr<VectorAlphaNoise<T>>(new VectorAlphaNoise<T>(bufferSize,
             this->noiseParams.alphaNoise,
             this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
     }
@@ -914,8 +908,11 @@ public:
     const T getStochasticOneFNoise(T time) {
         if (!this->pinkNoiseSet)
             return 0;
-        const auto val = this->bfn->tick();
-        return val;
+        else if (this->noiseParams.scaleNoise != 0){
+            // use buffered noise if available
+            return this->bfn->tick();
+        }
+        return this->ofn->tick();
     }
 
     T getLangevinStochasticStandardDeviation(T time, T timeStep)
@@ -950,7 +947,7 @@ public:
      * @param bottom: bottom layer to the current layer
      * @param top: top layer to the current layer
      */
-    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
+    void euler_heun_step2(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         // we compute the two below in stochastic part, not non stochastic.
         this->nonStochasticTempSet = false;
@@ -986,6 +983,40 @@ public:
         this->mag = m_t;
     }
 
+    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
+    {
+        // we compute the two below in stochastic part, not non stochastic.
+        this->nonStochasticTempSet = false;
+        this->nonStochasticOneFSet = false;
+        // this is Stratonovich integral
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
+        // Brownian motion sample
+        // Generate the noise from the Brownian motion
+        // dW2 is used for 1/f noise generation
+        CVector<T> dW = CVector<T>(this->distribution); // * sqrt(timeStep);
+        // squared dW -- just utility
+        dW.normalize();
+        // f_n is the vector of non-stochastic part at step n
+        // multiply by timeStep (h) here for convenience
+        const CVector<T> Honef = this->bfn->tick();
+        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
+        // g_n is the stochastic part of the LLG at step n
+        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, Honef, this->bfn->getScale()) * timeStep;
+
+        // actual solution
+        // approximate next step ytilde
+        const CVector<T> mapprox = this->mag + g_n;
+        // calculate the approx g_n
+        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, Honef, this->bfn->getScale()) * timeStep;
+        // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
+        CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
+        m_t.normalize();
+        this->mag = m_t;
+    }
+
     /**
      * @brief Computes a single Heun step.
      * This method is preferred over Euler-Heun method.
@@ -997,6 +1028,46 @@ public:
      * @param top: top layer to the current layer
      */
     void heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
+        // we compute the two below in stochastic part, not non stochastic.
+        this->nonStochasticTempSet = false;
+        this->nonStochasticOneFSet = false;
+        // this is Stratonovich integral
+        if (isnan(this->mag.x))
+        {
+            throw std::runtime_error("NAN magnetisation");
+        }
+        // Brownian motion sample
+        // Generate the noise from the Brownian motion
+        const T Honef_scale = this->noiseParams.scaleNoise;
+        const T Hthermal_scale = this->getLangevinStochasticStandardDeviation(time, timeStep);
+        const CVector<T> Hlangevin = dWn * Hthermal_scale;
+        const CVector<T> Honef = dWn2 * Honef_scale;
+        const CVector<T> m_t = this->mag;
+        const CVector<T> f_n = this->calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep, Hlangevin + Honef);
+        // immediate m approximation
+        CVector<T> m_approx = m_t + f_n * timeStep;
+        CVector<T> dW = CVector<T>(this->distribution);
+        CVector<T> dW2 = CVector<T>(this->distribution);
+        if (this->noiseParams.scaleNoise != 0)
+        {
+            dW2 = this->bfn->tick();
+        }
+        // CVector<T> dW2 = this->bfn->tick();
+        dW.normalize();
+        dW2.normalize();
+        m_approx.normalize();
+        const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
+        const CVector<T> Honef_approx = dW2 * Honef_scale;
+        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep,
+            m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
+        dWn = dW; // replace
+        dWn2 = dW2;
+        CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
+        nm_t.normalize();
+        this->mag = nm_t;
+    }
+
+    void heun_step2(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
         // we compute the two below in stochastic part, not non stochastic.
         this->nonStochasticTempSet = false;
         this->nonStochasticOneFSet = false;
@@ -1030,6 +1101,7 @@ public:
         nm_t.normalize();
         this->mag = nm_t;
     }
+
 };
 
 template <typename T>
@@ -1685,7 +1757,6 @@ public:
             }
         }
         auto solver = this->selectSolver(localMode);
-
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             T t = i * timeStep;

@@ -125,7 +125,7 @@ public:
 std::mt19937 generator(std::random_device{}());
 template<typename T = double>
 class BufferedAlphaNoise {
-private:
+protected:
     std::vector<std::complex<float>> bufferWhite, bufferColoured;
     std::vector<std::complex<float>> bufferWhiteComplex, bufferColouredComplex;
     std::vector<float> result;
@@ -219,6 +219,34 @@ public:
         return this->scale * ret;
     }
 
+};
+
+template<typename T = double>
+class VectorAlphaNoise {
+private:
+    T scale = 1.;
+    // 3 components of type BufferedAlphaNoise
+    std::unique_ptr<BufferedAlphaNoise<T>> components_x, components_y, components_z;
+    CVector<T> prevSample, currentSample;
+public:
+    VectorAlphaNoise(unsigned int bufferSize, T alpha, T std, T scale) : scale(scale) {
+        this->components_x = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+        this->components_y = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+        this->components_z = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+    }
+    CVector<T> tick() {
+        this->prevSample = this->currentSample;
+        this->currentSample = CVector<T>(
+            this->components_x->tick(),
+            this->components_y->tick(),
+            this->components_z->tick()
+        );
+        this->currentSample.normalize();
+        return this->currentSample;
+    }
+    T getScale() {
+        return this->scale;
+    }
 };
 
 #endif
