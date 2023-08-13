@@ -108,7 +108,20 @@ PYBIND11_MODULE(cmtj, m)
             "amplitude"_a,
             "timeStart"_a,
             "edgeTime"_a,
-            "steadyTime"_a);
+            "steadyTime"_a)
+        .def_static("getGaussianImpulseDriver",
+            &DScalarDriver::getGaussianImpulseDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "t0"_a,
+            "sigma"_a)
+        .def_static("getGaussianStepDriver",
+            &DScalarDriver::getGaussianStepDriver,
+            "constantValue"_a,
+            "amplitude"_a,
+            "t0"_a,
+            "sigma"_a);
+
     py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
         .def(py::init<>());
 
@@ -275,8 +288,8 @@ PYBIND11_MODULE(cmtj, m)
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)
-        .def("setMagnetistation", &SeriesStack<double>::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
-        .def("getMagnetistation", &SeriesStack<double>::getMagnetisation, "junction"_a, "layerId"_a)
+        .def("setMagnetisation", &SeriesStack<double>::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
+        .def("getMagnetisation", &SeriesStack<double>::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &SeriesStack<double>::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &SeriesStack<double>::setExternalFieldDriver, "driver"_a)
         .def("setCouplingStrength", &SeriesStack<double>::setCouplingStrength, "coupling"_a)
@@ -300,8 +313,8 @@ PYBIND11_MODULE(cmtj, m)
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)
-        .def("setMagnetistation", &ParallelStack<double>::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
-        .def("getMagnetistation", &ParallelStack<double>::getMagnetisation, "junction"_a, "layerId"_a)
+        .def("setMagnetisation", &ParallelStack<double>::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
+        .def("getMagnetisation", &ParallelStack<double>::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &ParallelStack<double>::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &ParallelStack<double>::setExternalFieldDriver, "driver"_a)
         .def("setCouplingStrength", &ParallelStack<double>::setCouplingStrength, "coupling"_a)

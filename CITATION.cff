@@ -1,18 +1,67 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below, or use publication citing"
+title: cmtj
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
 authors:
-- family-names: "Jakub"
-  given-names: "Mojsiejuk"
-  orcid: "https://orcid.org/0000-0001-7501-3250"
-- family-names: "Sławomir"
-  given-names: "Ziętek"
-- family-names: "Krzysztof"
-  given-names: "Grochot"
-- family-names: "Witold"
-  given-names: "Skowroński"
-- family-names: "Tomasz"
-  given-names: "Stobiecki"
-title: "cmtj"
+  - given-names: Jakub
+    family-names: Mojsiejuk
+    orcid: 'https://orcid.org/0000-0001-7501-3250'
+identifiers:
+  - type: doi
+    value: 10.1038/s41524-023-01002-x
+  - type: url
+    value: 'https://github.com/LemurPwned/cmtj'
+repository-code: 'https://github.com/LemurPwned/cmtj'
+url: 'https://lemurpwned.github.io/cmtj/'
+abstract: >-
+  We present CMTJ—a simulation package for large-scale
+  macrospin analysis of multilayer spintronics devices.
+  Apart from conventional simulations, such as
+  magnetoresistance and magnetisation hysteresis loops, CMTJ
+  implements a mathematical model of dynamic experimental
+  techniques commonly used for spintronics devices
+  characterisation, for instance: spin diode ferromagnetic
+  resonance, pulse-induced microwave magnetometry, or
+  harmonic Hall voltage measurements. We find that macrospin
+  simulations offer a satisfactory level of agreement,
+  demonstrated by a variety of examples. As a unified
+  simulation package, CMTJ aims to accelerate wide-range
+  parameter search in the process of optimising spintronics
+  devices.
+keywords:
+  - spintronics
+  - magnetism
+  - simulation
+  - llg
+  - magnetic tunnel junctions
+  - spin
+  - macrospin
+license: AGPL-3.0
 version: 1.3.0
-date-released: 2022-07-23
-url: "https://arxiv.org/pdf/2207.11606v1.pdf"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Jakub"
+    given-names: "Mojsiejuk"
+    orcid: "https://orcid.org/0000-0001-7501-3250"
+  - family-names: "Ziętek"
+    given-names: "Sławomir"
+  - family-names: "Grochot"
+    given-names: "Krzysztof"
+  - family-names: "Skowroński"
+    given-names: "Witold"
+  - family-names: "Stobiecki"
+    given-names: "Tomasz"
+  doi: "10.1038/s41524-023-01002-x"
+  journal: "npj Computational Materials"
+  month: 4
+  start: 54 # First page number
+  title: "cmtj: Simulation package for analysis of multilayer spintronic devices"
+  issue: 1
+  volume: 9
+  year: 2023

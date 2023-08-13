@@ -58,7 +58,7 @@ The package requires (if `utils` subpackage is used):
 - matplotlib
 ```
 
-#### Read the docs
+## Read the docs
 
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
 

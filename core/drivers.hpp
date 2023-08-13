@@ -21,7 +21,9 @@ enum UpdateType
     step,
     posine,
     halfsine,
-    trapezoid
+    trapezoid,
+    gaussimpulse,
+    gaussstep
 };
 
 template <typename T>
@@ -123,7 +125,6 @@ protected:
         }
         return 0;
     }
-
 
 public:
     explicit ScalarDriver(
@@ -263,6 +264,40 @@ public:
             -1, -1, -1, -1, timeStart, -1, edgeTime, steadyTime);
     }
 
+    /**
+     * @brief Get the Gaussian Impulse Driver object
+     *
+     * @param constantValue
+     * @param amplitude
+     * @param t0 center of the pulse
+     * @param sigma sigma of the gaussian
+     * @return ScalarDriver
+     */
+    static ScalarDriver getGaussianImpulseDriver(T constantValue, T amplitude, T t0, T sigma) {
+        return ScalarDriver(
+            gaussimpulse,
+            constantValue,
+            amplitude,
+            -1, -1, -1, -1, t0, -1, sigma);
+    }
+
+    /**
+     * @brief Get the Gaussian Impulse Driver object
+     *
+     * @param constantValue
+     * @param amplitude
+     * @param t0 center of the growth
+     * @param sigma sigma of the gaussian
+     * @return ScalarDriver
+     */
+    static ScalarDriver getGaussianStepDriver(T constantValue, T amplitude, T t0, T sigma) {
+        return ScalarDriver(
+            gaussimpulse,
+            constantValue,
+            amplitude,
+            -1, -1, -1, -1, t0, -1, sigma);
+    }
+
     T getCurrentScalarValue(T& time) override
     {
         T returnValue = this->constantValue;
@@ -293,7 +328,14 @@ public:
         else if (this->update == trapezoid) {
             returnValue += trapezoidalUpdate(this->amplitude, time, this->timeStart, this->edgeTime, this->steadyTime);
         }
-
+        else if (this->update == gaussimpulse) {
+            const T gaussImp = this->amplitude * exp(-pow(time - this->timeStart, 2) / (2 * pow(this->edgeTime, 2)));
+            returnValue += gaussImp;
+        }
+        else if (this->update == gaussstep) {
+            const T gaussStep = 0.5 * this->amplitude * (1 + std::erf((time - this->timeStart) / (sqrt(2) * this->edgeTime)));
+            returnValue += gaussStep;
+        }
         return returnValue;
     }
     void setConstantValue(const T& val)
