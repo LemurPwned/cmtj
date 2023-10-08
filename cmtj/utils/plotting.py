@@ -170,7 +170,7 @@ def create_coordinates_plot(axes,
         zs[:, 0] = ys[:, 0]
         zs[:, 1:] = (ys[:, 1:] - ymins[1:]) / dys[1:] * dys[0] + ymins[0]
 
-        axes = [host] + [host.twinx() for i in range(ys.shape[1] - 1)]
+        axes = [host] + [host.twinx() for _ in range(ys.shape[1] - 1)]
         for i, ax in enumerate(axes):
             ax.set_ylim(ymins[i], ymaxs[i])
             ax.spines['top'].set_visible(False)
@@ -196,19 +196,20 @@ def create_coordinates_plot(axes,
             # x-coordinate of the control vertices: at each integer (for the axes) and two inbetween
             # y-coordinate: repeat every point three times, except the first and last only twice
             verts = list(
-                zip([
-                    x for x in np.linspace(
-                        0, len(ys) - 1, len(ys) * 3 - 2, endpoint=True)
-                ],
-                    np.repeat(zs[j, :], 3)[1:-1]))
+                zip(
+                    list(
+                        np.linspace(
+                            0, len(ys) - 1, len(ys) * 3 - 2, endpoint=True
+                        )
+                    ),
+                    np.repeat(zs[j, :], 3)[1:-1],
+                )
+            )
             # for x,y in verts: host.plot(x, y, 'go') # to show the control points of the beziers
             codes = [Path.MOVETO
                      ] + [Path.CURVE4 for _ in range(len(verts) - 1)]
             path = Path(verts, codes)
-            if ys[j, -1] == 0:
-                alpha = alpha_black
-            else:
-                alpha = 0.8
+            alpha = alpha_black if ys[j, -1] == 0 else 0.8
             patch = patches.PathPatch(path,
                                       facecolor='none',
                                       lw=.5,
@@ -277,7 +278,7 @@ def create_stack(ax,
                 verticalalignment='center',
                 fontsize=text_fontsize,
                 zorder=11)
-        if not (angle is None):
+        if angle is not None:
             [dx, dy] = np.dot(rotation_matrix(np.deg2rad(angle)), [x, y])
             x_mid = dx / 2
             y_mid = dy / 2
