@@ -85,7 +85,6 @@ class PhysicsModel(pl.LightningModule):
         else:
             raise ValueError(f"Unknown loss type: {loss_type}")
 
-            infeat = 2998 * 80
         self.model = nn.Sequential(
             nn.Flatten(), nn.Linear(in_features=infeat, out_features=2048),
             nn.ReLU(), nn.Dropout(p=1 - keep_prob),
@@ -162,8 +161,7 @@ class PhysicsModel(pl.LightningModule):
         return {'val_loss': avg_loss}
 
     def configure_optimizers(self):
-        opt = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
-        return opt
+        return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
 
 
 if __name__ == "__main__":
