@@ -1,5 +1,10 @@
 # Changelog
 
+# 1.3.3
+
+- Added tests for procedures.
+- `VSD` and `PIMM` procedures accept additional new parameters.
+
 # 1.3.2
 
 - Added new `ScalarDrivers` -- Gaussian impulse and Gaussian step.

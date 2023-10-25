@@ -5,7 +5,7 @@ import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.3.2"
+__version__ = "1.3.3"
 """
 As per
 https://github.com/pybind/python_example
@@ -24,7 +24,6 @@ class get_pybind_include(object):
     until it is actually installed, so that the ``get_include()``
     method can be invoked.
     """
-
     def __str__(self):
         import pybind11
 
