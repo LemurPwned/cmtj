@@ -378,7 +378,7 @@ class SolverSB:
         m = np.zeros_like(current_position)  # first momentum
         v = np.zeros_like(current_position)  # second momentum
         eps = 1e-12
-
+        # history = []
         while True:
             step += 1
             grad = np.asarray(gradfn(*current_position))
@@ -391,11 +391,11 @@ class SolverSB:
                 np.sqrt(v_hat) + eps)
             if step > max_steps:
                 break
-            # if np.linalg.norm(current_position - new_position) < tol:
-            # break
             if fast_norm(current_position - new_position) < tol:
                 break
             current_position = new_position
+            # history.append(current_position)
+        # return np.asarray(current_position), np.asarray(history)
         return np.asarray(current_position)
 
     def single_layer_resonance(self, layer_indx: int, eq_position: np.ndarray):

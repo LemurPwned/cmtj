@@ -947,7 +947,7 @@ public:
      * @param bottom: bottom layer to the current layer
      * @param top: top layer to the current layer
      */
-    void euler_heun_step2(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
+    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         // we compute the two below in stochastic part, not non stochastic.
         this->nonStochasticTempSet = false;
@@ -977,40 +977,6 @@ public:
         const CVector<T> mapprox = this->mag + g_n;
         // calculate the approx g_n
         const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
-        // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
-        CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
-        m_t.normalize();
-        this->mag = m_t;
-    }
-
-    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        // we compute the two below in stochastic part, not non stochastic.
-        this->nonStochasticTempSet = false;
-        this->nonStochasticOneFSet = false;
-        // this is Stratonovich integral
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-        // Brownian motion sample
-        // Generate the noise from the Brownian motion
-        // dW2 is used for 1/f noise generation
-        CVector<T> dW = CVector<T>(this->distribution); // * sqrt(timeStep);
-        // squared dW -- just utility
-        dW.normalize();
-        // f_n is the vector of non-stochastic part at step n
-        // multiply by timeStep (h) here for convenience
-        const CVector<T> Honef = this->bfn->tick();
-        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
-        // g_n is the stochastic part of the LLG at step n
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, Honef, this->bfn->getScale()) * timeStep;
-
-        // actual solution
-        // approximate next step ytilde
-        const CVector<T> mapprox = this->mag + g_n;
-        // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, Honef, this->bfn->getScale()) * timeStep;
         // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
         CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
         m_t.normalize();
@@ -1052,7 +1018,6 @@ public:
         {
             dW2 = this->bfn->tick();
         }
-        // CVector<T> dW2 = this->bfn->tick();
         dW.normalize();
         dW2.normalize();
         m_approx.normalize();
