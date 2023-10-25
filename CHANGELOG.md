@@ -4,6 +4,7 @@
 
 - Added tests for procedures.
 - `VSD` and `PIMM` procedures accept additional new parameters.
+- Added some optimization utilities like `coordinate_descent`.
 
 # 1.3.2
 
