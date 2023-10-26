@@ -422,6 +422,15 @@ public:
     {
     }
 
+    explicit AxialDriver(
+        const T x, const T y, const T z
+    ) : AxialDriver(
+        ScalarDriver<T>::getConstantDriver(x),
+        ScalarDriver<T>::getConstantDriver(y),
+        ScalarDriver<T>::getConstantDriver(z))
+    {
+    }
+
     explicit AxialDriver(std::vector<ScalarDriver<T>> axialDrivers)
     {
         if (axialDrivers.size() != 3)
@@ -460,6 +469,7 @@ public:
             this->drivers[1].constantValue,
             this->drivers[2].constantValue);
     }
+
     /**
      * Returns the mask for the Axial Driver.
      * For instance: a vector (1213, 123, 0) returns (1, 1, 0)

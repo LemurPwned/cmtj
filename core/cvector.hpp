@@ -11,7 +11,6 @@ class CVector
 {
 
 public:
-    // friend std::ostream& operator<<(std::ostream &o, const CVector<T> &obj);
     T x, y, z;
     CVector()
     {
@@ -19,6 +18,7 @@ public:
         this->y = 0.0;
         this->z = 0.0;
     }
+
     explicit CVector(std::vector<T> vec)
     {
         if (vec.size() != 3)
@@ -36,6 +36,7 @@ public:
         this->y = y;
         this->z = z;
     }
+
     CVector(const CVector& v)
     {
         this->x = v.x;
@@ -66,6 +67,7 @@ public:
         this->z -= v.z;
         return *this;
     }
+
     CVector operator+(CVector v)
     {
         CVector res(
@@ -120,6 +122,7 @@ public:
         y = v.y;
         z = v.z;
     }
+
     bool operator==(const CVector& v)
     {
         if (
