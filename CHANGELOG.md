@@ -4,6 +4,7 @@
 
 - Added tests for procedures and operators.
 - Added missing operators for `CVector` class in Python.
+- `CVector` is now subscriptable.
 - Added new `CVector` and `AxialDriver` initialisations.
 - `VSD` and `PIMM` procedures accept additional new parameters.
 - Added some optimization utilities like `coordinate_descent`.

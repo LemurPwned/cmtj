@@ -47,5 +47,5 @@ def mixed_lorentz(H, dH, Hr, Va, Vas):
     :param Vs: amplitude of symmetric Lorentzian
     :param Vas: amplitude of antisymmetric Lorentzian
     """
-    return symmetric_lorentz(H, dH, Hr,
-                             Va) + Vb * antisymmetric_lorentz(H, dH, Hr, Vas)
+    return symmetric_lorentz(H, dH, Hr, Va) + antisymmetric_lorentz(
+        H, dH, Hr, Vas)

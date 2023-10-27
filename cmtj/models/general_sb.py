@@ -26,9 +26,7 @@ def real_deocrator(fn):
 @njit
 def fast_norm(x):
     """Fast norm function for 1D arrays."""
-    sum_ = 0
-    for x_ in x:
-        sum_ += x_**2
+    sum_ = sum(x_**2 for x_ in x)
     return math.sqrt(sum_)
 
 
@@ -42,8 +40,8 @@ def general_hessian_functional(N: int):
     for i in range(N):
         # indx_i = str(i + 1) # for display purposes
         indx_i = str(i)
-        all_symbols.append(sym.Symbol(r"\theta_" + indx_i))
-        all_symbols.append(sym.Symbol(r"\phi_" + indx_i))
+        all_symbols.extend(
+            (sym.Symbol(r"\theta_" + indx_i), sym.Symbol(r"\phi_" + indx_i)))
     energy_functional_expr = sym.Function("E")(*all_symbols)
     return get_hessian_from_energy_expr(
         N, energy_functional_expr), energy_functional_expr
@@ -76,16 +74,13 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
             hessian[2 * i + 1][2 * j + 1] = expr
             hessian[2 * j + 1][2 * i + 1] = expr
 
+            s1 = sym.Symbol(r"\theta_" + indx_i)
+            s2 = sym.Symbol(r"\phi_" + indx_j)
+            expr = sym.diff(energy_functional_expr, s1, s2)
             if i == j:
-                s1 = sym.Symbol(r"\theta_" + indx_i)
-                s2 = sym.Symbol(r"\phi_" + indx_j)
-                expr = sym.diff(energy_functional_expr, s1, s2)
                 hessian[2 * i + 1][2 * j] = expr + sym.I * z
                 hessian[2 * i][2 * j + 1] = expr - sym.I * z
             else:
-                s1 = sym.Symbol(r"\theta_" + indx_i)
-                s2 = sym.Symbol(r"\phi_" + indx_j)
-                expr = sym.diff(energy_functional_expr, s1, s2)
                 hessian[2 * i][2 * j + 1] = expr
                 hessian[2 * j + 1][2 * i] = expr
 
@@ -185,11 +180,11 @@ class LayerSB:
         top_iec_energy = 0
         bottom_iec_energy = 0
 
-        if not (top_layer is None):
+        if top_layer is not None:
             other_m = top_layer.get_m_sym()
             top_iec_energy = -(J1top / self.thickness) * m.dot(other_m) - (
                 J2top / self.thickness) * m.dot(other_m)**2
-        if not (down_layer is None):
+        if down_layer is not None:
             other_m = down_layer.get_m_sym()
             bottom_iec_energy = -(J1bottom / self.thickness) * m.dot(
                 other_m) - (J2bottom / self.thickness) * m.dot(other_m)**2
@@ -230,7 +225,7 @@ class SolverSB:
         if len(self.layers) != len(self.J2) + 1:
             raise ValueError("Number of layers must be 1 more than J2.")
 
-        id_sets = set([layer._id for layer in self.layers])
+        id_sets = {layer._id for layer in self.layers}
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
             raise ValueError("Layer ids must be 0, 1, 2, ... and unique")
@@ -286,7 +281,7 @@ class SolverSB:
                                                       top_layer, bottom_layer)
         else:
             # surface energy for correct angular gradient
-            for i, layer in enumerate(self.layers):
+            for layer in self.layers:
                 # to avoid dividing J by thickness
                 energy += layer.no_iec_symbolic_layer_energy(
                     H) * layer.thickness
@@ -322,13 +317,12 @@ class SolverSB:
                 hessian[2 * i + 1][2 * j + 1] = expr
                 hessian[2 * j + 1][2 * i + 1] = expr
 
+                expr = sym.diff(sym.diff(energy, theta_i), phi_j)
                 # mixed terms
                 if i == j:
-                    expr = sym.diff(sym.diff(energy, theta_i), phi_j)
                     hessian[2 * i + 1][2 * j] = expr + sym.I * z
                     hessian[2 * i][2 * j + 1] = expr - sym.I * z
                 else:
-                    expr = sym.diff(sym.diff(energy, theta_i), phi_j)
                     hessian[2 * i][2 * j + 1] = expr
                     hessian[2 * j + 1][2 * i] = expr
 
@@ -347,10 +341,9 @@ class SolverSB:
         symbols = []
         for layer in self.layers:
             (theta, phi) = layer.get_coord_sym()
-            grad_vector.append(sym.diff(energy, theta))
-            grad_vector.append(sym.diff(energy, phi))
-            symbols.append(theta)
-            symbols.append(phi)
+            grad_vector.extend((sym.diff(energy, theta), sym.diff(energy,
+                                                                  phi)))
+            symbols.extend((theta, phi))
         return sym.lambdify(symbols, grad_vector, accel)
 
     def adam_gradient_descent(self,
@@ -508,9 +501,7 @@ class SolverSB:
                                           energy_expression=system_energy,
                                           subs={})
         subs.update(self.get_ms_subs())
-        # substitute all known values
-        solutions = [s.subs(subs) for s in root_expr]
-        return solutions
+        return [s.subs(subs) for s in root_expr]
 
     def get_subs(self, equilibrium_position: List[float]):
         """Returns the substitution dictionary for the energy expression."""
@@ -528,7 +519,7 @@ class SolverSB:
             r"t_{" + str(layer._id) + r"}": layer.thickness
             for layer in self.layers
         }
-        return {**a, **b}
+        return a | b
 
     def set_H(self, H: VectorObj):
         """Sets the external field."""

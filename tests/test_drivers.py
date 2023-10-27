@@ -15,7 +15,7 @@ def test_cvector_operators():
     assert vec1[1] == cvec1[1]
     assert vec1[2] == cvec1[2]
 
-    # test ops 
+    # test ops
     assert cvec1 == cvec2
     assert cvec1 != cvec3
     assert (cvec1 + cvec2) == cvec3
