@@ -205,11 +205,7 @@ class LayerSB:
 
     def sb_correction(self):
         omega = sym.Symbol(r'\omega')
-        # we use unreduced gamma
-        # later we don't need to divide omega by 2pi
-        # idk but if we use reduced gamma it numerically breaks lol
-        Z = (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
-        return Z
+        return (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
 
 
 @dataclass

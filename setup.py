@@ -121,10 +121,7 @@ class BuildExt(build_ext):
                 opts.append("-fvisibility=hidden")
 
         for ext in self.extensions:
-            ext.define_macros = [
-                ("VERSION_INFO",
-                 '"{}"'.format(self.distribution.get_version()))
-            ]
+            ext.define_macros = [("VERSION_INFO", f'"{self.distribution.get_version()}"')]
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts
         build_ext.build_extensions(self)
