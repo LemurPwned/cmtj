@@ -17,6 +17,6 @@ jobs:
         password: ${{secrets.GITHUB_TOKEN}}
     - name: Build and push
       run: |
-        docker build . --tag ghcr.io/LemurPwned/cmtj:latest
-        docker push ghcr.io/LemurPwned/cmtj:latest
+        docker build . --tag ghcr.io/lemurpwned/cmtj:latest
+        docker push ghcr.io/lemurpwned/cmtj:latest
           
