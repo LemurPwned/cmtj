@@ -1,6 +1,6 @@
 # Changelog
 
-# 1.3.3
+# 1.4.0
 
 - Added tests for procedures and operators.
 - Added missing operators for `CVector` class in Python.
