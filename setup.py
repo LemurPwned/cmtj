@@ -135,7 +135,6 @@ setup(
     author_email="mojsieju@agh.edu.pl",
     url="https://github.com/LemurPwned/cmtj",
     description="CMTJ - C Magnetic Tunnel Junctions.",
-    long_description="Fast library for simulating magnetic multilayers.",
     ext_modules=ext_modules,
     include_package_data=True,
     namespace_packages=["cmtj"],

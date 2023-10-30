@@ -22,7 +22,7 @@ class EnergyCompute:
         Computes a log of energies over time and returns it
         in the same form of the
         """
-        field_keys = list(set((k[:-1] for k in self.log if "_H" in k)))
+        field_keys = list({k[:-1] for k in self.log if "_H" in k})
         mag_k = (k.replace("_mx", "") for k in self.log if "_mx" in k)
         mag_vectors = {
             k: np.asarray([

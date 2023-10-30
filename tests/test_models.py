@@ -4,12 +4,10 @@ from typing import Tuple
 
 
 def test_sb_dynamic(two_layer_symbolic_dyn: Tuple[LayerDynamic]):
-
-    Hscan = np.linspace(-300e3, 300e3, 8)
     J1 = -1e-3
     J2 = 1e-4
 
-    for Hmag in Hscan:
+    for Hmag in np.linspace(-300e3, 300e3, 8):
         H = VectorObj(np.deg2rad(88), np.deg2rad(0.1), Hmag)
         solver_dyn = Solver(layers=two_layer_symbolic_dyn,
                             J1=[J1],

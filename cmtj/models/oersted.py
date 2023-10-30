@@ -65,9 +65,7 @@ class Block:
                           (other_block.x, other_block.y))
 
     def __eq__(self, __o: 'Block') -> bool:
-        if (self.ix == __o.ix) and (self.iy == __o.iy) and (self.iz == __o.iz):
-            return True
-        return False
+        return self.ix == __o.ix and self.iy == __o.iy and self.iz == __o.iz
 
 
 class Structure:
