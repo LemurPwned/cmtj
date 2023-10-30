@@ -2,6 +2,7 @@
 
 # 1.4.0
 
+- Adding new, dynamic symbolic model compatible with `Solver` class. It is now possible to use the `Solver` class with `LayerDynamic` to solve the LLG equation.
 - Added tests for procedures and operators.
 - Added missing operators for `CVector` class in Python.
 - `CVector` is now subscriptable.
