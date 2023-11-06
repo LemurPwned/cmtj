@@ -1,5 +1,5 @@
+import contextlib
 import os
-import sys
 
 import setuptools
 from setuptools import Extension, find_namespace_packages, setup
@@ -67,10 +67,8 @@ def has_flag(compiler, flagname):
     except setuptools.distutils.errors.CompileError:
         return False
     finally:
-        try:
+        with contextlib.suppress(OSError):
             os.remove(fname)
-        except OSError:
-            pass
     return True
 
 
@@ -121,7 +119,8 @@ class BuildExt(build_ext):
                 opts.append("-fvisibility=hidden")
 
         for ext in self.extensions:
-            ext.define_macros = [("VERSION_INFO", f'"{self.distribution.get_version()}"')]
+            ext.define_macros = [("VERSION_INFO",
+                                  f'"{self.distribution.get_version()}"')]
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts
         build_ext.build_extensions(self)

@@ -255,7 +255,7 @@ class LayerDynamic(LayerSB):
         dphi = (inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin)**2)
         return prefac * sym.ImmutableMatrix([dtheta, dphi]) / self.Ms
 
-    def __eq__(self, __value: "Layer") -> bool:
+    def __eq__(self, __value: "LayerDynamic") -> bool:
         return super().__eq__(__value) and self.alpha == __value.alpha
 
     def __hash__(self) -> int:
