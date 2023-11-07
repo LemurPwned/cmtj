@@ -186,7 +186,7 @@ def simulate():
             Hmax=st.session_state.Hmax,
             J=st.session_state.J,
         )
-    with plt.style.context(["science", "nature"]):
+    with plt.style.context(["dark_background"]):
         fig, ax = plt.subplots(dpi=300)
         ax.pcolormesh(
             Hscan / 1e3,
