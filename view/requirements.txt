@@ -1,4 +1,7 @@
 cmtj
 matplotlib
+numba
 numpy
+scipy
 streamlit
+tqdm
