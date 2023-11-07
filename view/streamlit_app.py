@@ -33,6 +33,7 @@ def get_axis_angles(axis: str):
         raise ValueError(f"Invalid axis {axis}")
 
 
+@st.cache_data
 def get_pimm_data(
     Ms1,
     Ms2,
@@ -109,9 +110,15 @@ def get_pimm_data(
 N = 2
 st.markdown(
     """
+    ## Simulation info
     This app simulates the resonance characteristics of a MTJ device.
     The device is composed of two layers, each with its own magnetic properties.
     The number in bracket indicates the layer number.
+
+    ## Data Upload
+    If you want to upload data, to overlay it on the plot, please upload
+    a file with two columns: H and f. Put H in (A/m) and f in (Hz).
+    They will be rescaled to (kA/m) and (GHz) automatically.
     """
 )
 
@@ -190,6 +197,22 @@ with st.sidebar:
         format="%.1e",
     )
 
+global fig, ax
+fig = None
+ax = None
+
+
+def read_data():
+    filedata = st.session_state.upload.read().decode("utf-8")
+    lines = filedata.split("\n")
+    fields, freqs = [], []
+    for line in lines[1:]:
+        if line.startswith("#"):
+            continue
+        fields.append(float(line.split()[0]))
+        freqs.append(float(line.split()[1]))
+    return np.asarray(fields), np.asarray(freqs)
+
 
 def simulate():
     with st.spinner("Simulating..."):
@@ -228,7 +251,31 @@ def simulate():
         ax.set_ylabel("Frequency (GHz)")
         ax.set_title("Resonance spectrum")
 
+        try:
+            fields, freqs = read_data()
+            ax.plot(fields / 1e3, freqs / 1e9, "o", color="white", label="user data")
+        except (ValueError, AttributeError):
+            ...
         st.pyplot(fig)
 
 
+def overlay_fig():
+    try:
+        fields, freqs = read_data()
+        if fig is not None:
+            ax.plot(fields, freqs, "o", color="white")
+    except (ValueError, AttributeError):
+        st.error(
+            "Invalid file format. Must be `\t` separated values and have H and f headers."
+        )
+
+
 st.button("Simulate", on_click=simulate)
+st.file_uploader(
+    "Upload your data here",
+    help="Upload your data here. Must be `\t` separated values and have H and f headers.",
+    type=["txt", "dat"],
+    accept_multiple_files=False,
+    key="upload",
+    on_change=overlay_fig,
+)
