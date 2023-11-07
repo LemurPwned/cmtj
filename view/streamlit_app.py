@@ -211,7 +211,7 @@ def simulate():
             H_axis=st.session_state.H_axis,
             Hmin=st.session_state.Hmin * 1e3,
             Hmax=st.session_state.Hmax * 1e3,
-            J=st.session_state.J * 1e3,
+            J=st.session_state.J * 1e-3,
             int_step=st.session_state.int_step,
         )
     with plt.style.context(["dark_background"]):
