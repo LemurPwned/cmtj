@@ -120,33 +120,37 @@ with st.sidebar:
     st.markdown("### Layer parameters")
     for i in range(N):
         st.slider(
-            f"Ms {i}", min_value=0.2, max_value=2.0, value=1.0, step=0.1, key=f"Ms{i}"
+            f"Ms ({i})", min_value=0.2, max_value=2.0, value=1.0, step=0.1, key=f"Ms{i}"
         )
         st.number_input(
-            f"K {i}", min_value=0.1, max_value=100e6, value=50e3, key=f"K{i}"
+            f"K ({i})", min_value=0.1, max_value=100e6, value=50e3, key=f"K{i}"
         )
         st.number_input(
-            f"alpha {i}", min_value=1e-5, max_value=0.1, value=0.001, key=f"alpha{i}"
+            f"alpha ({i})", min_value=1e-5, max_value=0.1, value=0.001, key=f"alpha{i}"
         )
         st.number_input(
-            f"thickness {i}",
+            f"thickness ({i})",
             min_value=1e-9,
             max_value=10e-9,
             value=1e-9,
             key=f"thickness{i}",
         )
         st.number_input(
-            f"width {i}", min_value=1e-6, max_value=500e-6, value=10e-6, key=f"width{i}"
+            f"width ({i})",
+            min_value=1e-6,
+            max_value=500e-6,
+            value=10e-6,
+            key=f"width{i}",
         )
         st.number_input(
-            f"length {i}",
+            f"length ({i})",
             min_value=1e-6,
             max_value=500e-6,
             value=10e-6,
             key=f"length{i}",
         )
         st.radio(
-            f"anisotropy axis {i}", options=["x", "y", "z"], key=f"anisotropy_axis{i}"
+            f"anisotropy axis ({i})", options=["x", "y", "z"], key=f"anisotropy_axis{i}"
         )
     st.number_input("J", min_value=-1e3, max_value=1e3, value=0.0, key="J")
 
@@ -158,6 +162,8 @@ with st.sidebar:
     st.number_input("Hmax", min_value=0.0, max_value=1000e3, value=400e3, key="Hmax")
 
 global placeholder
+
+
 def simulate():
     with st.spinner("Simulating..."):
         spec, freqs, _, Hscan = get_pimm_data(
