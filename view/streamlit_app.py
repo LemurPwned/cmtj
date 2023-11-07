@@ -111,57 +111,84 @@ st.markdown(
     """
     This app simulates the resonance characteristics of a MTJ device.
     The device is composed of two layers, each with its own magnetic properties.
+    The number in bracket indicates the layer number.
     """
 )
 
+display_format = "%.3f"
 
 with st.sidebar:
     st.markdown("## Simulation parameters")
     st.markdown("### Layer parameters")
     for i in range(N):
         st.slider(
-            f"Ms ({i})", min_value=0.2, max_value=2.0, value=1.0, step=0.1, key=f"Ms{i}"
+            f"Ms ({i}) (T)",
+            min_value=0.2,
+            max_value=2.0,
+            value=1.0,
+            step=0.1,
+            key=f"Ms{i}",
         )
         st.number_input(
-            f"K ({i})", min_value=0.1, max_value=100e6, value=50e3, key=f"K{i}"
+            f"K ({i}) (kJ/m^3)",
+            min_value=0.1,
+            max_value=10e3,
+            value=50.0,
+            step=10.0,
+            key=f"K{i}",
         )
         st.number_input(
-            f"alpha ({i})", min_value=1e-5, max_value=0.1, value=0.001, key=f"alpha{i}"
+            f"alpha ({i})",
+            min_value=1e-3,
+            max_value=0.1,
+            value=1e-3,
+            key=f"alpha{i}",
+            format="%.3f",
         )
         st.number_input(
-            f"thickness ({i})",
-            min_value=1e-9,
-            max_value=10e-9,
-            value=1e-9,
+            f"thickness ({i}) (nm)",
+            min_value=1.0,
+            max_value=10.0,
+            value=1.0,
             key=f"thickness{i}",
         )
         st.number_input(
-            f"width ({i})",
-            min_value=1e-6,
-            max_value=500e-6,
-            value=10e-6,
+            f"width ({i}) (um)",
+            min_value=1.0,
+            max_value=500.0,
+            value=10.0,
             key=f"width{i}",
         )
         st.number_input(
-            f"length ({i})",
-            min_value=1e-6,
-            max_value=500e-6,
-            value=10e-6,
+            f"length ({i}) (um)",
+            min_value=1.0,
+            max_value=500.0,
+            value=10.0,
             key=f"length{i}",
         )
         st.radio(
             f"anisotropy axis ({i})", options=["x", "y", "z"], key=f"anisotropy_axis{i}"
         )
-    st.number_input("J", min_value=-1e3, max_value=1e3, value=0.0, key="J")
+    st.number_input(
+        "J (mJ/m^2)", min_value=-1.0, max_value=1.0, value=0.0, key="J", format="%.2f"
+    )
 
     st.markdown("### External field")
     st.radio("H axis", options=["x", "y", "z"], key="H_axis")
     st.number_input(
-        "Hmin", min_value=-1000e3, max_value=1000e3, value=-400e3, key="Hmin"
+        "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
     )
-    st.number_input("Hmax", min_value=0.0, max_value=1000e3, value=400e3, key="Hmax")
-
-global placeholder
+    st.number_input(
+        "Hmax (kA/m)", min_value=0.0, max_value=1000.0, value=400.0, key="Hmax"
+    )
+    st.number_input(
+        "int_step",
+        min_value=1e-14,
+        max_value=1e-12,
+        value=1e-12,
+        key="int_step",
+        format="%.1e",
+    )
 
 
 def simulate():
@@ -169,22 +196,23 @@ def simulate():
         spec, freqs, _, Hscan = get_pimm_data(
             Ms1=st.session_state.Ms0,
             Ms2=st.session_state.Ms1,
-            K1=st.session_state.K0,
-            K2=st.session_state.K1,
+            K1=st.session_state.K0 * 1e3,
+            K2=st.session_state.K1 * 1e3,
             alpha1=st.session_state.alpha0,
             alpha2=st.session_state.alpha1,
-            thickness1=st.session_state.thickness0,
-            thickness2=st.session_state.thickness1,
-            width1=st.session_state.width0,
-            width2=st.session_state.width1,
-            length1=st.session_state.length0,
-            length2=st.session_state.length1,
+            thickness1=st.session_state.thickness0 * 1e-9,
+            thickness2=st.session_state.thickness1 * 1e-9,
+            width1=st.session_state.width0 * 1e-6,
+            width2=st.session_state.width1 * 1e-6,
+            length1=st.session_state.length0 * 1e-6,
+            length2=st.session_state.length1 * 1e-6,
             anisotropy_axis1=st.session_state.anisotropy_axis0,
             anisotropy_axis2=st.session_state.anisotropy_axis1,
             H_axis=st.session_state.H_axis,
-            Hmin=st.session_state.Hmin,
-            Hmax=st.session_state.Hmax,
-            J=st.session_state.J,
+            Hmin=st.session_state.Hmin * 1e3,
+            Hmax=st.session_state.Hmax * 1e3,
+            J=st.session_state.J * 1e3,
+            int_step=st.session_state.int_step,
         )
     with plt.style.context(["dark_background"]):
         fig, ax = plt.subplots(dpi=300)
