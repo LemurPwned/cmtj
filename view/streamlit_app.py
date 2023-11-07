@@ -1,125 +1,27 @@
-import matplotlib.pyplot as plt
-import numpy as np
+# Authors: LemurPwned
 import streamlit as st
-
-from cmtj import *
-from cmtj.utils import FieldScan
-from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters
-
-apptitle = "CMTJ simulator"
-st.set_page_config(page_title=apptitle, page_icon=":eyeglasses:")
-st.title(apptitle)
-
-
-def get_axis_cvector(axis: str):
-    if axis == "x":
-        return CVector(1, 0, 0)
-    elif axis == "y":
-        return CVector(0, 1, 0)
-    elif axis == "z":
-        return CVector(0, 0, 1)
-    else:
-        raise ValueError(f"Invalid axis {axis}")
-
-
-def get_axis_angles(axis: str):
-    if axis == "x":
-        return 0, 0
-    elif axis == "y":
-        return 0, 90
-    elif axis == "z":
-        return 90, 0
-    else:
-        raise ValueError(f"Invalid axis {axis}")
-
-
-@st.cache_data
-def get_pimm_data(
-    Ms1,
-    Ms2,
-    K1,
-    K2,
-    alpha1,
-    alpha2,
-    thickness1,
-    thickness2,
-    width1,
-    width2,
-    length1,
-    length2,
-    anisotropy_axis1,
-    anisotropy_axis2,
-    H_axis,
-    Hmin,
-    Hmax,
-    J,
-    int_step=1e-12,
-    sim_time=16e-9,
-):
-    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
-    Kdir1 = get_axis_cvector(anisotropy_axis1)
-    Kdir2 = get_axis_cvector(anisotropy_axis2)
-    layer1 = Layer(
-        "top",
-        mag=Kdir1,
-        anis=Kdir1,
-        Ms=Ms1,
-        thickness=thickness1,
-        cellSurface=1e-16,
-        demagTensor=demag,
-        damping=alpha1,
-    )
-    layer2 = Layer(
-        id="bottom",
-        mag=Kdir2,
-        anis=Kdir2,
-        Ms=Ms2,
-        damping=alpha2,
-        demagTensor=demag,
-        cellSurface=1e-16,
-        thickness=thickness2,
-    )
-    j = Junction([layer1, layer2])
-    j.setLayerAnisotropyDriver("top", ScalarDriver.getConstantDriver(K1))
-    j.setLayerAnisotropyDriver("bottom", ScalarDriver.getConstantDriver(K2))
-    j.setIECDriver("top", "bottom", ScalarDriver.getConstantDriver(J))
-    htheta, hphi = get_axis_angles(H_axis)
-    Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, 100, htheta, hphi)
-    rparams = [
-        ResistanceParameters(
-            Rxx0=100, Rxy0=1, Rsmr=-0.46, Rahe=-2.7, Ramr=-0.24, l=width1, w=length1
-        ),
-        ResistanceParameters(
-            Rxx0=100, Rxy0=1, Rsmr=-0.46, Rahe=-2.7, Ramr=-0.24, l=width2, w=length2
-        ),
-    ]
-
-    spec, freqs, out = PIMM_procedure(
-        j,
-        Hvecs=Hvecs,
-        int_step=int_step,
-        resistance_params=rparams,
-        max_frequency=60e9,
-        simulation_duration=sim_time,
-        disturbance=1e-6,
-        wait_time=4e-9,
-    )
-    return spec, freqs, out, Hscan
-
+from helpers import simulate_pimm, simulate_vsd
 
 N = 2
-st.markdown(
-    """
-    ## Simulation info
-    This app simulates the resonance characteristics of a MTJ device.
-    The device is composed of two layers, each with its own magnetic properties.
-    The number in bracket indicates the layer number.
+apptitle = "CMTJ simulator"
 
+st.set_page_config(page_title=apptitle, page_icon=":eyeglasses:")
+st.title(apptitle)
+container = st.container()
+container.markdown(
+    """
     ## Data Upload
     If you want to upload data, to overlay it on the plot, please upload
     a file with two columns: H and f. Put H in (A/m) and f in (Hz).
     They will be rescaled to (kA/m) and (GHz) automatically.
     """
+)
+container.file_uploader(
+    "Upload your data here",
+    help="Upload your data here. Must be `\t` separated values and have H and f headers.",
+    type=["txt", "dat"],
+    accept_multiple_files=False,
+    key="upload",
 )
 
 display_format = "%.3f"
@@ -132,7 +34,7 @@ with st.sidebar:
             f"Ms ({i}) (T)",
             min_value=0.2,
             max_value=2.0,
-            value=1.0,
+            value=1.2,
             step=0.1,
             key=f"Ms{i}",
         )
@@ -174,14 +76,21 @@ with st.sidebar:
             key=f"length{i}",
         )
         st.radio(
-            f"anisotropy axis ({i})", options=["x", "y", "z"], key=f"anisotropy_axis{i}"
+            f"anisotropy axis ({i})",
+            options=["x", "y", "z"],
+            key=f"anisotropy_axis{i}",
         )
     st.number_input(
-        "J (mJ/m^2)", min_value=-1.0, max_value=1.0, value=0.0, key="J", format="%.2f"
+        "J (mJ/m^2)",
+        min_value=-1.0,
+        max_value=1.0,
+        value=0.0,
+        key="J",
+        format="%.2f",
     )
 
     st.markdown("### External field")
-    st.radio("H axis", options=["x", "y", "z"], key="H_axis")
+    st.radio("H axis", options=["x", "y", "z"], key="H_axis", index=2)
     st.number_input(
         "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
     )
@@ -197,85 +106,38 @@ with st.sidebar:
         format="%.1e",
     )
 
-global fig, ax
-fig = None
-ax = None
 
+pimm_tab, vsd_tab = st.tabs(["PIMM", "VSD"])
+with vsd_tab:
+    st.number_input(
+        "Frequency min (GHz)", min_value=0.0, max_value=50.0, value=0.0, key="fmin"
+    )
+    st.number_input(
+        "Frequency max (GHz)", min_value=0.0, max_value=50.0, value=30.0, key="fmax"
+    )
+    st.number_input(
+        "Number of frequencies",
+        min_value=1,
+        max_value=100,
+        value=30,
+        key="nf",
+        format="%d",
+    )
 
-def read_data():
-    filedata = st.session_state.upload.read().decode("utf-8")
-    lines = filedata.split("\n")
-    fields, freqs = [], []
-    for line in lines[1:]:
-        if line.startswith("#"):
-            continue
-        fields.append(float(line.split()[0]))
-        freqs.append(float(line.split()[1]))
-    return np.asarray(fields), np.asarray(freqs)
+    st.markdown(
+        """### Simulation info
 
+    This is Voltage Spin Diode experiment (WIP).
+    """
+    )
 
-def simulate():
-    with st.spinner("Simulating..."):
-        spec, freqs, _, Hscan = get_pimm_data(
-            Ms1=st.session_state.Ms0,
-            Ms2=st.session_state.Ms1,
-            K1=st.session_state.K0 * 1e3,
-            K2=st.session_state.K1 * 1e3,
-            alpha1=st.session_state.alpha0,
-            alpha2=st.session_state.alpha1,
-            thickness1=st.session_state.thickness0 * 1e-9,
-            thickness2=st.session_state.thickness1 * 1e-9,
-            width1=st.session_state.width0 * 1e-6,
-            width2=st.session_state.width1 * 1e-6,
-            length1=st.session_state.length0 * 1e-6,
-            length2=st.session_state.length1 * 1e-6,
-            anisotropy_axis1=st.session_state.anisotropy_axis0,
-            anisotropy_axis2=st.session_state.anisotropy_axis1,
-            H_axis=st.session_state.H_axis,
-            Hmin=st.session_state.Hmin * 1e3,
-            Hmax=st.session_state.Hmax * 1e3,
-            J=st.session_state.J * 1e-3,
-            int_step=st.session_state.int_step,
-        )
-    with plt.style.context(["dark_background"]):
-        fig, ax = plt.subplots(dpi=300)
-        ax.pcolormesh(
-            Hscan / 1e3,
-            freqs / 1e9,
-            10 * np.log10(spec.T),
-            shading="auto",
-            cmap="inferno",
-            rasterized=True,
-        )
-        ax.set_xlabel("H (kA/m)")
-        ax.set_ylabel("Frequency (GHz)")
-        ax.set_title("Resonance spectrum")
+    st.button("Simulate VSD", on_click=simulate_vsd, key="VSD_btn")
+with pimm_tab:
+    fn = simulate_pimm
+    st.markdown(
+        """### Simulation info
 
-        try:
-            fields, freqs = read_data()
-            ax.plot(fields / 1e3, freqs / 1e9, "o", color="white", label="user data")
-        except (ValueError, AttributeError):
-            ...
-        st.pyplot(fig)
-
-
-def overlay_fig():
-    try:
-        fields, freqs = read_data()
-        if fig is not None:
-            ax.plot(fields, freqs, "o", color="white")
-    except (ValueError, AttributeError):
-        st.error(
-            "Invalid file format. Must be `\t` separated values and have H and f headers."
-        )
-
-
-st.button("Simulate", on_click=simulate)
-st.file_uploader(
-    "Upload your data here",
-    help="Upload your data here. Must be `\t` separated values and have H and f headers.",
-    type=["txt", "dat"],
-    accept_multiple_files=False,
-    key="upload",
-    on_change=overlay_fig,
-)
+    This app simulates PIMM experiment.
+    """
+    )
+    st.button("Simulate PIMM", on_click=simulate_pimm, key="PIMM_btn")
