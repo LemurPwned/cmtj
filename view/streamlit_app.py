@@ -2,12 +2,15 @@
 import streamlit as st
 from helpers import simulate_pimm, simulate_vsd
 
-N = 2
 apptitle = "CMTJ simulator"
 
 st.set_page_config(page_title=apptitle, page_icon=":eyeglasses:")
 st.title(apptitle)
 container = st.container()
+# N = container.number_input(
+#     "Number of layers", min_value=1, max_value=10, value=2, key="N", format="%d"
+# )
+N = 2
 container.markdown(
     """
     ## Data Upload
@@ -98,6 +101,9 @@ with st.sidebar:
         "Hmax (kA/m)", min_value=0.0, max_value=1000.0, value=400.0, key="Hmax"
     )
     st.number_input(
+        "H steps", min_value=1, max_value=1000, value=50, key="Hsteps", format="%d"
+    )
+    st.number_input(
         "int_step",
         min_value=1e-14,
         max_value=1e-12,
@@ -123,7 +129,7 @@ with vsd_tab:
         key="nf",
         format="%d",
     )
-
+    st.radio("excitation axis", options=["x", "y", "z"], key="Hoex", index=2)
     st.markdown(
         """### Simulation info
 

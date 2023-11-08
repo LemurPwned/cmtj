@@ -259,7 +259,7 @@ def VSD_procedure(junction: Junction,
             log[f'{layer_ids[i]}_mz']
         ] for i in range(len(layer_ids))])
         if Rtype == 'Rz':
-            if len(layer_ids) > 1:
+            if len(layer_ids) > 2:
                 raise ValueError(
                     "Rz can only be used for 2 layer junctions. One layer can be fictisious."
                 )
