@@ -8,6 +8,34 @@ from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
                                    VSD_procedure)
 
 
+def create_single_layer(id_: str) -> tuple:
+    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
+    layer = Layer(
+        id=f"layer_{id_}",
+        mag=Kdir1,
+        anis=Kdir1,
+        Ms=st.session_state[f"Ms{id_}"],
+        thickness=st.session_state[f"thickness{id_}"],
+        cellSurface=1e-16,
+        demagTensor=demag,
+        damping=st.session_state[f"alpha{id_}"],
+    )
+    layer.setAnisotropyDriver(
+        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"])
+    )
+    rp = ResistanceParameters(
+        Rxx0=100,
+        Rxy0=1,
+        Rsmr=-0.46,
+        Rahe=-2.7,
+        Ramr=-0.24,
+        l=st.session_state[f"length{id_}"],
+        w=st.session_state[f"width{id_}"],
+    )
+    return layer, rp
+
+
 def get_axis_cvector(axis: str):
     if axis == "x":
         return CVector(1, 0, 0)
@@ -41,105 +69,35 @@ def get_axis_angles(axis: str):
         raise ValueError(f"Invalid axis {axis}")
 
 
-def prepare_simulation(
-    Ms1,
-    Ms2,
-    K1,
-    K2,
-    alpha1,
-    alpha2,
-    thickness1,
-    thickness2,
-    width1,
-    width2,
-    length1,
-    length2,
-    anisotropy_axis1,
-    anisotropy_axis2,
-    J,
-):
-    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
-    Kdir1 = get_axis_cvector(anisotropy_axis1)
-    Kdir2 = get_axis_cvector(anisotropy_axis2)
-    layer1 = Layer(
-        "top",
-        mag=Kdir1,
-        anis=Kdir1,
-        Ms=Ms1,
-        thickness=thickness1,
-        cellSurface=1e-16,
-        demagTensor=demag,
-        damping=alpha1,
-    )
-    layer2 = Layer(
-        id="bottom",
-        mag=Kdir2,
-        anis=Kdir2,
-        Ms=Ms2,
-        damping=alpha2,
-        demagTensor=demag,
-        cellSurface=1e-16,
-        thickness=thickness2,
-    )
-    j = Junction([layer1, layer2], 100, 200)
-    j.setLayerAnisotropyDriver("top", ScalarDriver.getConstantDriver(K1))
-    j.setLayerAnisotropyDriver("bottom", ScalarDriver.getConstantDriver(K2))
-    j.setIECDriver("top", "bottom", ScalarDriver.getConstantDriver(J))
-
-    rparams = [
-        ResistanceParameters(
-            Rxx0=100, Rxy0=1, Rsmr=-0.46, Rahe=-2.7, Ramr=-0.24, l=width1, w=length1
-        ),
-        ResistanceParameters(
-            Rxx0=100, Rxy0=1, Rsmr=-0.46, Rahe=-2.7, Ramr=-0.24, l=width2, w=length2
-        ),
-    ]
+def prepare_simulation():
+    layers = []
+    rparams = []
+    N = st.session_state["N"]
+    for i in range(N):
+        layer, rp = create_single_layer(i)
+        layers.append(layer)
+        rparams.append(rp)
+    j = Junction(layers=layers)
+    for jvals in range(N - 1):
+        J = st.session_state[f"J{jvals}"]
+        l1_name = layers[jvals].id
+        l2_name = layers[jvals + 1].id
+        j.setIECDriver(l1_name, l2_name, ScalarDriver.getConstantDriver(J))
     return j, rparams
 
 
-@st.cache_data
+# @st.cache_data
 def get_pimm_data(
-    Ms1,
-    Ms2,
-    K1,
-    K2,
-    alpha1,
-    alpha2,
-    thickness1,
-    thickness2,
-    width1,
-    width2,
-    length1,
-    length2,
-    anisotropy_axis1,
-    anisotropy_axis2,
     H_axis,
     Hmin,
     Hmax,
     Hsteps,
-    J,
     int_step=1e-12,
     sim_time=16e-9,
 ):
     htheta, hphi = get_axis_angles(H_axis)
     Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
-    j, rparams = prepare_simulation(
-        Ms1,
-        Ms2,
-        K1,
-        K2,
-        alpha1,
-        alpha2,
-        thickness1,
-        thickness2,
-        width1,
-        width2,
-        length1,
-        length2,
-        anisotropy_axis1,
-        anisotropy_axis2,
-        J,
-    )
+    j, rparams = prepare_simulation()
     spec, freqs, out = PIMM_procedure(
         j,
         Hvecs=Hvecs,
@@ -153,28 +111,12 @@ def get_pimm_data(
     return spec, freqs, out, Hscan
 
 
-@st.cache_data
 def get_vsd_data(
-    Ms1,
-    Ms2,
-    K1,
-    K2,
-    alpha1,
-    alpha2,
-    thickness1,
-    thickness2,
-    width1,
-    width2,
-    length1,
-    length2,
-    anisotropy_axis1,
-    anisotropy_axis2,
     H_axis,
     Hmin,
     Hmax,
     Hsteps,
     Hoex,
-    J,
     fmin=0,
     fmax=30e9,
     nf=50,
@@ -183,23 +125,7 @@ def get_vsd_data(
 ):
     htheta, hphi = get_axis_angles(H_axis)
     Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
-    j, rparams = prepare_simulation(
-        Ms1,
-        Ms2,
-        K1,
-        K2,
-        alpha1,
-        alpha2,
-        thickness1,
-        thickness2,
-        width1,
-        width2,
-        length1,
-        length2,
-        anisotropy_axis1,
-        anisotropy_axis2,
-        J,
-    )
+    j, rparams = prepare_simulation()
     frequencies = np.linspace(fmin, fmax, nf)
     spec = VSD_procedure(
         j,
@@ -208,7 +134,7 @@ def get_vsd_data(
         frequencies=frequencies,
         resistance_params=rparams,
         simulation_duration=sim_time,
-        Rtype="Rz",
+        Rtype="Rx",
         Hoe_excitation=500,
         Hoe_direction=get_axis(Hoex),
         disturbance=1e-6,
@@ -228,7 +154,7 @@ def read_data():
     return np.asarray(fields), np.asarray(freqs)
 
 
-def plot_data(Hscan, freqs, spec):
+def plot_data(Hscan, freqs, spec, title="Resonance spectrum"):
     with plt.style.context(["dark_background"]):
         fig, ax = plt.subplots(dpi=300)
         ax.pcolormesh(
@@ -241,7 +167,7 @@ def plot_data(Hscan, freqs, spec):
         )
         ax.set_xlabel("H (kA/m)")
         ax.set_ylabel("Frequency (GHz)")
-        ax.set_title("Resonance spectrum")
+        ax.set_title(title)
 
         try:
             fields, freqs = read_data()
@@ -252,61 +178,30 @@ def plot_data(Hscan, freqs, spec):
 
 
 def simulate_vsd():
-    st.write("### VSD")
     with st.spinner("Simulating VSD..."):
         spec, freqs, Hscan = get_vsd_data(
-            Ms1=st.session_state.Ms0,
-            Ms2=st.session_state.Ms1,
-            K1=st.session_state.K0 * 1e3,
-            K2=st.session_state.K1 * 1e3,
-            alpha1=st.session_state.alpha0,
-            alpha2=st.session_state.alpha1,
-            thickness1=st.session_state.thickness0 * 1e-9,
-            thickness2=st.session_state.thickness1 * 1e-9,
-            width1=st.session_state.width0 * 1e-6,
-            width2=st.session_state.width1 * 1e-6,
-            length1=st.session_state.length0 * 1e-6,
-            length2=st.session_state.length1 * 1e-6,
-            anisotropy_axis1=st.session_state.anisotropy_axis0,
-            anisotropy_axis2=st.session_state.anisotropy_axis1,
+            int_step=st.session_state.int_step,
+            fmin=st.session_state.fmin * 1e9,
+            fmax=st.session_state.fmax * 1e9,
             H_axis=st.session_state.H_axis,
             Hmin=st.session_state.Hmin * 1e3,
             Hmax=st.session_state.Hmax * 1e3,
             Hsteps=st.session_state.Hsteps,
-            J=st.session_state.J * 1e-3,
-            int_step=st.session_state.int_step,
-            fmin=st.session_state.fmin * 1e9,
-            fmax=st.session_state.fmax * 1e9,
             Hoex=st.session_state.Hoex,
             nf=st.session_state.nf,
         )
-    plot_data(Hscan, freqs, spec)
+    plot_data(Hscan, freqs, spec, title="VSD spectrum")
 
 
 def simulate_pimm():
     st.write("### PIMM")
     with st.spinner("Simulating PIMM..."):
         spec, freqs, _, Hscan = get_pimm_data(
-            Ms1=st.session_state.Ms0,
-            Ms2=st.session_state.Ms1,
-            K1=st.session_state.K0 * 1e3,
-            K2=st.session_state.K1 * 1e3,
-            alpha1=st.session_state.alpha0,
-            alpha2=st.session_state.alpha1,
-            thickness1=st.session_state.thickness0 * 1e-9,
-            thickness2=st.session_state.thickness1 * 1e-9,
-            width1=st.session_state.width0 * 1e-6,
-            width2=st.session_state.width1 * 1e-6,
-            length1=st.session_state.length0 * 1e-6,
-            length2=st.session_state.length1 * 1e-6,
-            anisotropy_axis1=st.session_state.anisotropy_axis0,
-            anisotropy_axis2=st.session_state.anisotropy_axis1,
             H_axis=st.session_state.H_axis,
             Hmin=st.session_state.Hmin * 1e3,
             Hmax=st.session_state.Hmax * 1e3,
             Hsteps=st.session_state.Hsteps,
-            J=st.session_state.J * 1e-3,
             int_step=st.session_state.int_step,
         )
 
-    plot_data(Hscan, freqs, spec)
+    plot_data(Hscan, freqs, spec, title="PIMM spectrum")

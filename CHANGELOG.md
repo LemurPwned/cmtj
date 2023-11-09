@@ -9,6 +9,7 @@
 - Added new `CVector` and `AxialDriver` initialisations.
 - `VSD` and `PIMM` procedures accept additional new parameters.
 - Added some optimization utilities like `coordinate_descent`.
+- Added a `streamlit` service for an example PIMM simulation.
 
 # 1.3.2
 

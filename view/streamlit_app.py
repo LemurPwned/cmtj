@@ -7,10 +7,9 @@ apptitle = "CMTJ simulator"
 st.set_page_config(page_title=apptitle, page_icon=":eyeglasses:")
 st.title(apptitle)
 container = st.container()
-# N = container.number_input(
-#     "Number of layers", min_value=1, max_value=10, value=2, key="N", format="%d"
-# )
-N = 2
+N = container.number_input(
+    "Number of layers", min_value=1, max_value=10, value=2, key="N", format="%d"
+)
 container.markdown(
     """
     ## Data Upload
@@ -83,14 +82,15 @@ with st.sidebar:
             options=["x", "y", "z"],
             key=f"anisotropy_axis{i}",
         )
-    st.number_input(
-        "J (mJ/m^2)",
-        min_value=-1.0,
-        max_value=1.0,
-        value=0.0,
-        key="J",
-        format="%.2f",
-    )
+    for j in range(N - 1):
+        st.number_input(
+            f"J ({j} {j+1}) (mJ/m^2)",
+            min_value=-1.0,
+            max_value=1.0,
+            value=0.0,
+            key=f"J{j}",
+            format="%.2f",
+        )
 
     st.markdown("### External field")
     st.radio("H axis", options=["x", "y", "z"], key="H_axis", index=2)
@@ -138,6 +138,7 @@ with vsd_tab:
     )
 
     st.button("Simulate VSD", on_click=simulate_vsd, key="VSD_btn")
+
 with pimm_tab:
     fn = simulate_pimm
     st.markdown(
