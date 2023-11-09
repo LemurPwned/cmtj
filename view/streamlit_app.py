@@ -83,16 +83,19 @@ with st.sidebar:
             options=["x", "y", "z"],
             key=f"anisotropy_axis{i}",
         )
+        st.markdown("-----\n")
+    st.markdown("### Interlayer parameters")
     for j in range(N - 1):
         st.number_input(
-            f"J ({j+1} {j+2}) (mJ/m^2)",
+            f"J ({j+1}<-->{j+2}) (mJ/m^2)",
             min_value=-1.0,
             max_value=1.0,
             value=0.0,
             key=f"J{j}",
             format="%.2f",
         )
-
+    st.markdown("-----\n")
+    st.markdown("## Control parameters")
     st.markdown("### External field")
     st.radio("H axis", options=["x", "y", "z"], key="H_axis", index=2)
     st.number_input(
