@@ -32,8 +32,9 @@ with st.sidebar:
     st.markdown("## Simulation parameters")
     st.markdown("### Layer parameters")
     for i in range(N):
+        st.markdown(f"#### Layer {i+1}")
         st.slider(
-            f"Ms ({i}) (T)",
+            f"Ms ({i+1}) (T)",
             min_value=0.2,
             max_value=2.0,
             value=1.2,
@@ -41,7 +42,7 @@ with st.sidebar:
             key=f"Ms{i}",
         )
         st.number_input(
-            f"K ({i}) (kJ/m^3)",
+            f"K ({i+1}) (kJ/m^3)",
             min_value=0.1,
             max_value=10e3,
             value=50.0,
@@ -49,7 +50,7 @@ with st.sidebar:
             key=f"K{i}",
         )
         st.number_input(
-            f"alpha ({i})",
+            f"alpha ({i+1})",
             min_value=1e-3,
             max_value=0.1,
             value=1e-3,
@@ -57,34 +58,34 @@ with st.sidebar:
             format="%.3f",
         )
         st.number_input(
-            f"thickness ({i}) (nm)",
+            f"thickness ({i+1}) (nm)",
             min_value=1.0,
             max_value=10.0,
             value=1.0,
             key=f"thickness{i}",
         )
         st.number_input(
-            f"width ({i}) (um)",
+            f"width ({i+1}) (um)",
             min_value=1.0,
             max_value=500.0,
             value=10.0,
             key=f"width{i}",
         )
         st.number_input(
-            f"length ({i}) (um)",
+            f"length ({i+1}) (um)",
             min_value=1.0,
             max_value=500.0,
             value=10.0,
             key=f"length{i}",
         )
         st.radio(
-            f"anisotropy axis ({i})",
+            f"anisotropy axis ({i+1})",
             options=["x", "y", "z"],
             key=f"anisotropy_axis{i}",
         )
     for j in range(N - 1):
         st.number_input(
-            f"J ({j} {j+1}) (mJ/m^2)",
+            f"J ({j+1} {j+2}) (mJ/m^2)",
             min_value=-1.0,
             max_value=1.0,
             value=0.0,
