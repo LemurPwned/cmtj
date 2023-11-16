@@ -1,19 +1,11 @@
-from itertools import groupby
 from typing import List
 
 import numpy as np
 import streamlit as st
-from bayes_opt import BayesianOptimization
 from hebo.design_space.design_space import DesignSpace
 from hebo.optimizers.hebo import HEBO
 from helpers import read_data
-from scipy.optimize import linear_sum_assignment
-from simulation_fns import (compute_sb_mse, get_axis_angles,
-                            prepare_simulation, simulate_sb)
-from utils import extract_max_resonance_lines
-
-from cmtj.utils import VectorObj, mu0
-from cmtj.utils.procedures import PIMM_procedure
+from simulation_fns import compute_sb_mse, simulate_sb
 
 
 def hebo_fit(
@@ -37,24 +29,25 @@ def hebo_fit(
             result_dictionary = simulate_sb(hvals=hvals)
             opt.observe(rec, target_fn(yhat=result_dictionary, y=y))
             try:
-                progres_text = (
-                    f"###\niteration {i}/{N}: {opt.y.min()}\n"
-                    f"Params: {opt.best_x.iloc[0].to_dict()}"
-                )
-                prog_bar.progress(i, text=progres_text)
+                val = opt.y.min()
+                progres_text = f"({i}/{N}) MSE: {val:.2f}"
+                prog = int((i * 100) / N)
+                prog_bar.progress(prog, text=progres_text)
             except Exception as e:
                 print(f"Error printing progress: {e}")
     except KeyboardInterrupt:
         print("Optimisation interrupted")
         return opt
+    return opt
 
 
 def autofit(placeholder=None):
     N = st.session_state.N
     cfg = []
+    # keep the same units as in the GUI
     bounds = {
         "Ms": (0.2, 2.0),
-        "K": (10, 10e6),
+        "K": (10, 10e3),
     }
     for param_name in ("Ms", "K"):
         cfg.extend(
@@ -85,106 +78,15 @@ def autofit(placeholder=None):
     except AttributeError:
         st.write("Upload the data to start optimization!")
     else:
-        hebo_fit(
+        result = hebo_fit(
             hvals=h,
             y=f,
             design_space=DesignSpace().parse(cfg),
             N=st.session_state.n_iters,
         )
-
-
-def initialise_autofit(
-    pbounds: dict,
-    initial_values: dict,
-    target_data: list,
-    n_iters: int = 50,
-):
-    def optimise_sb(**kwargs):
-        for k, v in kwargs.items():
-            st.session_state[k] = v
-        return simulate_sb(target_data[0], target_data[1])
-
-    optimizer = BayesianOptimization(
-        f=optimise_sb,
-        pbounds=pbounds,
-        # verbose=2,  # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
-        random_state=1,
-    )
-    optimizer.probe(initial_values)
-    optimizer.maximize(
-        init_points=5,
-        n_iter=n_iters,
-    )
-    return optimizer
-
-
-def initialise_autofit2(
-    pbounds: dict,
-    initial_values: dict,
-    target_data: list,
-    n_iters: int = 50,
-):
-    def mse_target(target_data, model_data):
-        total_mse = 0
-        for h, freqs in groupby(target_data, lambda x: x[0]):
-            freqs = list(freqs)
-            print(h, model_data)
-            model_freqs = model_data[h]
-            if isinstance(model_freqs, np.ndarray):
-                model_freqs = model_freqs.tolist()
-            cost_matrix = np.zeros((len(freqs), len(model_freqs)))
-            for f in freqs:
-                for mf in model_freqs:
-                    cost = np.inf
-                    if mf is not None:
-                        cost = (f - mf) ** 2
-                    print(cost)
-                    cost_matrix[freqs.index(f), model_freqs.index(mf)] = cost
-            row_ind, col_ind = linear_sum_assignment(cost_matrix)
-            total_mse += cost_matrix[row_ind, col_ind].sum()
-        return -total_mse
-
-    def simulate(**kwargs):
-        for k, v in kwargs.items():
-            st.session_state[k] = v
-
-        htheta, hphi = get_axis_angles(st.session_state.H_axis)
-
-        Hvecs = [
-            VectorObj.from_spherical(theta=htheta, phi=hphi, mag=mag)
-            for mag in target_data[0]
-        ]
-        j, rparams = prepare_simulation()
-        spec, freqs, _ = PIMM_procedure(
-            j,
-            Hvecs=Hvecs,
-            int_step=st.session_state.int_step,
-            resistance_params=rparams,
-            max_frequency=45e9,
-            simulation_duration=12e-9,
-            disturbance=1e-6,
-            wait_time=4e-9,
-            disable_tqdm=True,
+        placeholder.markdown(
+            f"""## OPTIMISATION COMPLETE
+                Best MSE: {result.y.min():.2f}
+                Best parameters: {result.best_x.iloc[0].to_dict()}
+            """
         )
-
-        # model frequencies are the same for all H values
-        model_data = extract_max_resonance_lines(
-            spectrum=spec,
-            h_vals=target_data[0],
-            frequencies=freqs,
-            N_layers=st.session_state.N,
-        )
-        return mse_target(target_data, model_data)
-
-    optimizer = BayesianOptimization(
-        f=simulate,
-        pbounds=pbounds,
-        # verbose=2,  # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
-        random_state=1,
-    )
-    optimizer.probe(initial_values)
-    optimizer.maximize(
-        init_points=5,
-        n_iter=n_iters,
-    )
-    return optimizer

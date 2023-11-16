@@ -1,3 +1,4 @@
+import cycler
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
@@ -56,16 +57,20 @@ def plot_data(Hscan, freqs, spec, mag=None, title="Resonance spectrum"):
         fig.suptitle(title)
         try:
             fields, freqs = read_data()
+            freqs = np.asarray(freqs)
+            fields = np.asarray(fields)
+            cmap = plt.colormaps["Pastel2"]
             for f_indx in range(freqs.shape[1]):
                 ax1.plot(
                     fields / 1e3,
                     freqs[:, f_indx] / 1e9,
                     "o",
-                    color="white",
-                    label="user data",
+                    markeredgecolor="white",
+                    color=cmap(f_indx),
+                    label=f"Data {f_indx}",
                 )
-        except (ValueError, AttributeError):
-            ...
+        except (ValueError, AttributeError) as e:
+            print(f"Error plotting data: {e}")
         st.pyplot(fig)
 
 
