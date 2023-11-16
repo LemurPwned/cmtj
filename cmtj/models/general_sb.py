@@ -531,7 +531,7 @@ class Solver:
             return eq, eigenvalues / 1e9, eigenvectors
         N = len(self.layers)
         if N == 1:
-            return eq, self.single_layer_resonance(0, eq) / 1e9
+            return eq, [self.single_layer_resonance(0, eq) / 1e9]
         if force_single_layer:
             frequencies = []
             for indx in range(N):
