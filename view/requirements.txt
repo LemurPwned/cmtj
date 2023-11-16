@@ -1,5 +1,7 @@
 cmtj
+git+https://github.com/huawei-noah/HEBO.git#subdirectory=HEBO
 matplotlib
+networkx
 numba
 numpy
 scipy

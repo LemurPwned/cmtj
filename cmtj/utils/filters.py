@@ -28,10 +28,10 @@ class Filters:
                         btype="bandpass",
                         analog=False,
                     )
-                except ValueError:
+                except ValueError as e:
                     print(fs, pass_freq, nyq, 0.9 * pass_freq / nyq,
                           pass_freq / nyq)
-                    raise ValueError("Error in filtering")
+                    raise ValueError("Error in filtering") from e
         elif isinstance(pass_freq, tuple):
             b, a = butter(order, [pass_freq[0], pass_freq[1]],
                           btype="bandpass",

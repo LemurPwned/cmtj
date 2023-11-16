@@ -1,6 +1,9 @@
 # Authors: LemurPwned
+from functools import partial
+
 import streamlit as st
-from helpers import simulate_pimm, simulate_vsd
+from autofit import autofit
+from helpers import StreamlitOutputRedirector, simulate_pimm, simulate_vsd
 
 apptitle = "CMTJ simulator"
 
@@ -8,13 +11,13 @@ st.set_page_config(page_title=apptitle, page_icon=":eyeglasses:")
 st.title(apptitle)
 container = st.container()
 N = container.number_input(
-    "Number of layers", min_value=1, max_value=10, value=2, key="N", format="%d"
+    "Number of layers", min_value=1, max_value=10, value=1, key="N", format="%d"
 )
 container.markdown(
     """
     ## Data Upload
     If you want to upload data, to overlay it on the plot, please upload
-    a file with two columns: H and f. Put H in (A/m) and f in (Hz).
+    a file with \t separated columns: H, f1, f2, ... Put H in (A/m) and f in (Hz).
     They will be rescaled to (kA/m) and (GHz) automatically.
     """
 )
@@ -25,8 +28,6 @@ container.file_uploader(
     accept_multiple_files=False,
     key="upload",
 )
-
-display_format = "%.3f"
 
 with st.sidebar:
     st.markdown("## Simulation parameters")
@@ -82,6 +83,7 @@ with st.sidebar:
             f"anisotropy axis ({i+1})",
             options=["x", "y", "z"],
             key=f"anisotropy_axis{i}",
+            index=2,
         )
         st.markdown("-----\n")
     st.markdown("### Interlayer parameters")
@@ -117,7 +119,33 @@ with st.sidebar:
     )
 
 
-pimm_tab, vsd_tab = st.tabs(["PIMM", "VSD"])
+pimm_tab, vsd_tab, opt_tab = st.tabs(["PIMM", "VSD", "Optimization"])
+with opt_tab:
+    st.markdown(
+        """
+    ## Optimization
+
+    Run Bayesian optimisation.
+    Select the number of iterations.
+    The only optimised values are: Ms, and K.
+    All other parameters are treated as constants.
+    """
+    )
+    st.number_input(
+        "Number of iterations",
+        min_value=1,
+        max_value=100,
+        value=10,
+        key="n_iters",
+        format="%d",
+    )
+    placeholder = st.empty()
+    st.button(
+        "Run optimization",
+        on_click=partial(autofit, placeholder=placeholder),
+        key="opt_btn",
+    )
+
 with vsd_tab:
     st.number_input(
         "Frequency min (GHz)", min_value=0.0, max_value=50.0, value=0.0, key="fmin"
