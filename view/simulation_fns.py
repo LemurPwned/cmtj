@@ -13,6 +13,7 @@ from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
 
 
 def create_single_layer(id_: str) -> tuple:
+    """Do not forget to rescale the units!"""
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
     Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
     layer = Layer(
@@ -20,13 +21,13 @@ def create_single_layer(id_: str) -> tuple:
         mag=Kdir1,
         anis=Kdir1,
         Ms=st.session_state[f"Ms{id_}"],
-        thickness=st.session_state[f"thickness{id_}"],
+        thickness=st.session_state[f"thickness{id_}"] * 1e-9,
         cellSurface=1e-16,
         demagTensor=demag,
         damping=st.session_state[f"alpha{id_}"],
     )
     layer.setAnisotropyDriver(
-        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"])
+        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"] * 1e3)
     )
     rp = ResistanceParameters(
         Rxx0=100,
@@ -34,8 +35,8 @@ def create_single_layer(id_: str) -> tuple:
         Rsmr=-0.46,
         Rahe=-2.7,
         Ramr=-0.24,
-        l=st.session_state[f"length{id_}"],
-        w=st.session_state[f"width{id_}"],
+        l=st.session_state[f"length{id_}"] * 1e-6,
+        w=st.session_state[f"width{id_}"] * 1e-6,
     )
     return layer, rp
 
@@ -83,7 +84,7 @@ def prepare_simulation():
         rparams.append(rp)
     j = Junction(layers=layers)
     for jvals in range(N - 1):
-        J = st.session_state[f"J{jvals}"]
+        J = st.session_state[f"J{jvals}"] * 1e-3  # rescale GUI units
         l1_name = layers[jvals].id
         l2_name = layers[jvals + 1].id
         j.setIECDriver(l1_name, l2_name, ScalarDriver.getConstantDriver(J))
@@ -169,7 +170,7 @@ def simulate_sb(hvals: List[float]):
     init_pos = []
     for i in range(N):
         ktheta, kphi = get_axis_angles(st.session_state[f"anisotropy_axis{i}"])
-        Kval = st.session_state[f"K{i}"]
+        Kval = st.session_state[f"K{i}"] * 1e3  # rescale GUI units
         if ktheta == 0:
             Ks = Kval
             Kv = 10
@@ -178,7 +179,7 @@ def simulate_sb(hvals: List[float]):
             Kv = Kval
         layer = LayerSB(
             _id=i,
-            thickness=st.session_state[f"thickness{i}"],
+            thickness=st.session_state[f"thickness{i}"] * 1e-9,  # rescale GUI units
             Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(0), Kv),
             Ks=Ks,
             Ms=st.session_state[f"Ms{i}"] / mu0,
@@ -186,7 +187,7 @@ def simulate_sb(hvals: List[float]):
         )
         init_pos.extend([np.deg2rad(ktheta), np.deg2rad(kphi)])
         layers.append(layer)
-    Js = [st.session_state[f"J{i}"] for i in range(N - 1)]
+    Js = [st.session_state[f"J{i}"] * 1e-3 for i in range(N - 1)]
     result_dictionary = defaultdict(list)
     # we perform a sweep over the field magnitude
     htheta, hphi = get_axis_angles(st.session_state.H_axis)

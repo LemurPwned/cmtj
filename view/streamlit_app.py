@@ -3,7 +3,7 @@ from functools import partial
 
 import streamlit as st
 from autofit import autofit
-from helpers import StreamlitOutputRedirector, simulate_pimm, simulate_vsd
+from helpers import simulate_pimm, simulate_vsd
 
 apptitle = "CMTJ simulator"
 
@@ -125,7 +125,7 @@ with opt_tab:
         """
     ## Optimization
 
-    Run Bayesian optimisation.
+    Run Bayesian optimisation -- fitting data is source from file upload.
     Select the number of iterations.
     The only optimised values are: Ms, and K.
     All other parameters are treated as constants.
