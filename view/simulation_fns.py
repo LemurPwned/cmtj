@@ -6,7 +6,7 @@ import numpy as np
 import streamlit as st
 
 from cmtj import *
-from cmtj.models import LayerSB, Solver
+from cmtj.models.general_sb import LayerSB, Solver
 from cmtj.utils import FieldScan, VectorObj, mu0
 from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
                                    VSD_procedure)
