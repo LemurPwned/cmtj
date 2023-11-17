@@ -13,6 +13,8 @@ from tqdm import tqdm
 from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
 from ..utils.solvers import RootFinder
 
+EPS = np.finfo('float64').resolution
+
 
 def real_deocrator(fn):
     """Using numpy real cast is way faster than sympy."""
@@ -24,9 +26,11 @@ def real_deocrator(fn):
 
 
 @njit
-def fast_norm(x):
+def fast_norm(x):  # sourcery skip: for-index-underscore, sum-comprehension
     """Fast norm function for 1D arrays."""
-    sum_ = sum(x_**2 for x_ in x)
+    sum_ = 0
+    for x_ in x:
+        sum_ += x_**2
     return math.sqrt(sum_)
 
 
@@ -41,8 +45,7 @@ def general_hessian_functional(N: int):
         # indx_i = str(i + 1) # for display purposes
         indx_i = str(i)
         all_symbols.extend(
-            (sym.Symbol(r"\theta_" + indx_i), sym.Symbol(r"\phi_" + indx_i))
-        )
+            (sym.Symbol(r"\theta_" + indx_i), sym.Symbol(r"\phi_" + indx_i)))
     energy_functional_expr = sym.Function("E")(*all_symbols)
     return get_hessian_from_energy_expr(
         N, energy_functional_expr), energy_functional_expr
@@ -50,6 +53,14 @@ def general_hessian_functional(N: int):
 
 @lru_cache
 def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
+    """
+    Computes the Hessian matrix of the energy functional expression with respect to the spin angles and phases.
+
+    :param N (int): The number of spins.
+    :param energy_functional_expr (sympy.Expr): The energy functional expression.
+
+    returns: sympy.Matrix: The Hessian matrix of the energy functional expression.
+    """
     hessian = [[0 for _ in range(2 * N)] for _ in range(2 * N)]
     for i in range(N):
         # indx_i = str(i + 1) # for display purposes
@@ -155,7 +166,7 @@ class LayerSB:
             raise ValueError("Only up to 10 layers supported.")
         self.theta = sym.Symbol(r"\theta_" + str(self._id))
         self.phi = sym.Symbol(r"\phi_" + str(self._id))
-        self.m = sym.Matrix([
+        self.m = sym.ImmutableMatrix([
             sym.sin(self.theta) * sym.cos(self.phi),
             sym.sin(self.theta) * sym.sin(self.phi),
             sym.cos(self.theta)
@@ -169,7 +180,8 @@ class LayerSB:
         """Returns the magnetisation vector."""
         return self.m
 
-    def symbolic_layer_energy(self, H: sym.Matrix, J1top: float,
+    @lru_cache(3)
+    def symbolic_layer_energy(self, H: sym.ImmutableMatrix, J1top: float,
                               J1bottom: float, J2top: float, J2bottom: float,
                               top_layer: "LayerSB", down_layer: "LayerSB"):
         """Returns the symbolic expression for the energy of the layer.
@@ -191,12 +203,14 @@ class LayerSB:
                 other_m) - (J2bottom / self.thickness) * m.dot(other_m)**2
         return eng_non_interaction + top_iec_energy + bottom_iec_energy
 
-    def no_iec_symbolic_layer_energy(self, H: sym.Matrix):
+    def no_iec_symbolic_layer_energy(self, H: sym.ImmutableMatrix):
         """Returns the symbolic expression for the energy of the layer.
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
 
-        alpha = sym.Matrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
+        alpha = sym.ImmutableMatrix(
+            [sym.cos(self.Kv.phi),
+             sym.sin(self.Kv.phi), 0])
 
         field_energy = -mu0 * self.Ms * m.dot(H)
         surface_anistropy = (-self.Ks +
@@ -208,10 +222,49 @@ class LayerSB:
         omega = sym.Symbol(r'\omega')
         return (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
 
+    def __hash__(self) -> int:
+        return hash(str(self))
+
+    def __eq__(self, __value: "LayerSB") -> bool:
+        return self._id == __value._id and self.thickness == __value.thickness and self.Kv == __value.Kv and self.Ks == __value.Ks and self.Ms == __value.Ms
+
 
 @dataclass
-class SolverSB:
-    layers: List[LayerSB]
+class LayerDynamic(LayerSB):
+    alpha: float
+
+    def rhs_llg(self, H: sym.Matrix, J1top: float, J1bottom: float,
+                J2top: float, J2bottom: float, top_layer: "LayerSB",
+                down_layer: "LayerSB"):
+        """Returns the symbolic expression for the RHS of the spherical LLG equation.
+        Coupling contribution comes only from the bottom layer (top-down crawl)"""
+        U = self.symbolic_layer_energy(H,
+                                       J1top=J1top,
+                                       J1bottom=J1bottom,
+                                       J2top=J2top,
+                                       J2bottom=J2bottom,
+                                       top_layer=top_layer,
+                                       down_layer=down_layer)
+        # sum all components
+        prefac = gamma_rad / (1. + self.alpha)**2
+        inv_sin = 1. / (sym.sin(self.theta) + EPS)
+        dUdtheta = sym.diff(U, self.theta)
+        dUdphi = sym.diff(U, self.phi)
+
+        dtheta = (-inv_sin * dUdphi - self.alpha * dUdtheta)
+        dphi = (inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin)**2)
+        return prefac * sym.ImmutableMatrix([dtheta, dphi]) / self.Ms
+
+    def __eq__(self, __value: "LayerDynamic") -> bool:
+        return super().__eq__(__value) and self.alpha == __value.alpha
+
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+
+@dataclass
+class Solver:
+    layers: List[Union[LayerSB, LayerDynamic]]
     J1: List[float]
     J2: List[float]
     H: VectorObj = None
@@ -225,7 +278,8 @@ class SolverSB:
         id_sets = {layer._id for layer in self.layers}
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
-            raise ValueError("Layer ids must be 0, 1, 2, ... and unique")
+            raise ValueError("Layer ids must be 0, 1, 2, ... and unique."
+                             "Ids must start from 0.")
 
     def get_layer_references(self, layer_indx, interaction_constant):
         """Returns the references to the layers above and below the layer
@@ -243,8 +297,26 @@ class SolverSB:
             1], interaction_constant[layer_indx -
                                      1], interaction_constant[layer_indx]
 
+    def compose_llg_jacobian(self, H: VectorObj):
+        """Create a symbolic jacobian of the LLG equation in spherical coordinates."""
+        # has order theta0, phi0, theta1, phi1, ...
+        if isinstance(H, VectorObj):
+            H = sym.ImmutableMatrix(H.get_cartesian())
+
+        symbols, fns = [], []
+        for i, layer in enumerate(self.layers):
+            symbols.extend((layer.theta, layer.phi))
+            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
+                i, self.J1)
+            _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
+            fns.append(
+                layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer,
+                              bottom_layer))
+        jac = sym.ImmutableMatrix(fns).jacobian(symbols)
+        return jac, symbols
+
     def create_energy(self,
-                      H: Union[VectorObj, sym.Matrix] = None,
+                      H: Union[VectorObj, sym.ImmutableMatrix] = None,
                       volumetric: bool = False):
         """Creates the symbolic energy expression.
 
@@ -257,7 +329,7 @@ class SolverSB:
         """
         if H is None:
             h = self.H.get_cartesian()
-            H = sym.Matrix(h)
+            H = sym.ImmutableMatrix(h)
         energy = 0
         if volumetric:
             # volumetric energy -- DO NOT USE IN GENERAL
@@ -327,7 +399,7 @@ class SolverSB:
                     hessian[2 * i + 1][2 * j] = expr
                     hessian[2 * j][2 * i + 1] = expr
 
-        hes = sym.Matrix(hessian)
+        hes = sym.ImmutableMatrix(hessian)
         _, U, _ = hes.LUdecomposition()
         return U.det().subs(subs)
 
@@ -338,7 +410,8 @@ class SolverSB:
         symbols = []
         for layer in self.layers:
             (theta, phi) = layer.get_coord_sym()
-            grad_vector.extend((sym.diff(energy, theta), sym.diff(energy, phi)))
+            grad_vector.extend((sym.diff(energy, theta), sym.diff(energy,
+                                                                  phi)))
             symbols.extend((theta, phi))
         return sym.lambdify(symbols, grad_vector, accel)
 
@@ -417,7 +490,8 @@ class SolverSB:
               perturbation: float = 1e-3,
               ftol: float = 0.01e9,
               max_freq: float = 80e9,
-              force_single_layer: bool = False):
+              force_single_layer: bool = False,
+              force_sb: bool = False):
         """Solves the system.
         1. Computes the energy functional.
         2. Computes the gradient of the energy functional.
@@ -435,6 +509,11 @@ class SolverSB:
         :param pertubarion: the perturbation to use for the numerical gradient computation.
         :param ftol: tolerance for the frequency search. [numerical only]
         :param max_freq: maximum frequency to search for. [numerical only]
+        :param force_single_layer: whether to force the computation of the frequencies
+                                   for each layer individually.
+        :param force_sb: whether to force the computation of the frequencies.
+                        Takes effect only if the layers are LayerDynamic, not LayerSB.
+        :return: equilibrium position and frequencies in [GHz] (and eigenvectors if LayerDynamic instead of LayerSB).
         """
         if self.H is None:
             raise ValueError(
@@ -447,9 +526,12 @@ class SolverSB:
             first_momentum_decay=first_momentum_decay,
             second_momentum_decay=second_momentum_decay,
             perturbation=perturbation)
+        if not force_sb and isinstance(self.layers[0], LayerDynamic):
+            eigenvalues, eigenvectors = self.dynamic_layer_solve(eq)
+            return eq, eigenvalues / 1e9, eigenvectors
         N = len(self.layers)
         if N == 1:
-            return eq, self.single_layer_resonance(0, eq) / 1e9
+            return eq, [self.single_layer_resonance(0, eq) / 1e9]
         if force_single_layer:
             frequencies = []
             for indx in range(N):
@@ -457,6 +539,20 @@ class SolverSB:
                 frequencies.append(frequency)
             return eq, frequencies
         return self.num_solve(eq, ftol=ftol, max_freq=max_freq)
+
+    def dynamic_layer_solve(self, eq: List[float]):
+        """Return the FMR frequencies and modes for N layers using the
+        dynamic RHS model
+        :param eq: the equilibrium position of the system.
+        :return: frequencies and eigenmode vectors."""
+        jac, symbols = self.compose_llg_jacobian(self.H)
+        subs = {symbols[i]: eq[i] for i in range(len(eq))}
+        jac = jac.subs(subs)
+        jac = np.asarray(jac, dtype=np.float32)
+        eigvals, eigvecs = np.linalg.eig(jac)
+        eigvals_im = np.imag(eigvals) / (2 * np.pi)
+        indx = np.argwhere(eigvals_im > 0).ravel()
+        return eigvals_im[indx], eigvecs[indx]
 
     def num_solve(self,
                   eq: List[float],

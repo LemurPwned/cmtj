@@ -1,0 +1,9 @@
+git+https://github.com/huawei-noah/HEBO.git#subdirectory=HEBO
+git+https://github.com/lemurpwned/cmtj.git@cmtj-updates
+matplotlib
+networkx
+numba
+numpy
+scipy
+streamlit
+tqdm

@@ -15,8 +15,10 @@ jobs:
         registry: ghcr.io
         username: ${{github.actor}}
         password: ${{secrets.GITHUB_TOKEN}}
-    - name: Build and push
-      run: |
-        docker build . --tag ghcr.io/LemurPwned/cmtj:latest
-        docker push ghcr.io/LemurPwned/cmtj:latest
-          
+    - name: Build and push image
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        file: docker/Dockerfile
+        tags: |
+          ghcr.io/lemurpwned/cmtj:latest

@@ -37,6 +37,12 @@ class VectorObj:
     def __repr__(self) -> str:
         return f"VectorObj(theta={self.theta}, phi={self.phi}, mag={self.mag})"
 
+    def __hash__(self) -> int:
+        return hash(str(self))
+
+    def __eq__(self, __value: "VectorObj") -> bool:
+        return self.theta == __value.theta and self.phi == __value.phi and self.mag == __value.mag
+
     def _componentwise_mul(self, other):
         coors = self.get_cartesian()
         other_coords = other.get_cartesian()
