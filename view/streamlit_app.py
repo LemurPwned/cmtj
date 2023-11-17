@@ -7,7 +7,7 @@ from helpers import simulate_pimm, simulate_vsd
 
 apptitle = "CMTJ simulator"
 
-st.set_page_config(page_title=apptitle, page_icon=":eyeglasses:")
+st.set_page_config(page_title=apptitle, page_icon=":rocket:")
 st.title(apptitle)
 container = st.container()
 N = container.number_input(
@@ -38,15 +38,15 @@ with st.sidebar:
             f"Ms ({i+1}) (T)",
             min_value=0.2,
             max_value=2.0,
-            value=1.2,
-            step=0.1,
+            value=0.52,
+            step=0.01,
             key=f"Ms{i}",
         )
         st.number_input(
             f"K ({i+1}) (kJ/m^3)",
             min_value=0.1,
             max_value=10e3,
-            value=50.0,
+            value=150.0,
             step=10.0,
             key=f"K{i}",
         )
@@ -86,6 +86,7 @@ with st.sidebar:
             index=2,
         )
         st.markdown("-----\n")
+
     st.markdown("### Interlayer parameters")
     for j in range(N - 1):
         st.number_input(
@@ -99,7 +100,7 @@ with st.sidebar:
     st.markdown("-----\n")
     st.markdown("## Control parameters")
     st.markdown("### External field")
-    st.radio("H axis", options=["x", "y", "z"], key="H_axis", index=2)
+    st.selectbox("H axis", options=["x", "y", "z"], key="H_axis", index=2)
     st.number_input(
         "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
     )
@@ -116,6 +117,14 @@ with st.sidebar:
         value=1e-12,
         key="int_step",
         format="%.1e",
+    )
+    st.number_input(
+        "sim_time (ns)",
+        min_value=1,
+        max_value=500,
+        value=16,
+        key="sim_time",
+        format="%d",
     )
 
 
@@ -151,17 +160,26 @@ with vsd_tab:
         "Frequency min (GHz)", min_value=0.0, max_value=50.0, value=0.0, key="fmin"
     )
     st.number_input(
-        "Frequency max (GHz)", min_value=0.0, max_value=50.0, value=30.0, key="fmax"
+        "Frequency max (GHz)", min_value=0.0, max_value=50.0, value=20.0, key="fmax"
     )
     st.number_input(
-        "Number of frequencies",
-        min_value=1,
-        max_value=100,
-        value=30,
-        key="nf",
-        format="%d",
+        "Frequency step (GHz)",
+        min_value=0.1,
+        max_value=10.0,
+        value=0.5,
+        key="fstep",
+        step=0.1,
     )
-    st.radio("excitation axis", options=["x", "y", "z"], key="Hoex", index=2)
+    st.number_input(
+        "Excitation (kA/m)", min_value=0.5, max_value=50.0, value=5.0, key="Hoex_mag"
+    )
+    st.selectbox(
+        "Resistance type",
+        options=["Rx", "Ry"],
+        key="res_type",
+        index=1,
+    )
+    st.selectbox("excitation axis", options=["x", "y", "z"], key="Hoex", index=1)
     st.markdown(
         """### Simulation info
 

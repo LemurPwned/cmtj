@@ -124,14 +124,16 @@ def get_vsd_data(
     Hoex,
     fmin=0,
     fmax=30e9,
-    nf=50,
+    fstep=0.5e9,
     int_step=1e-12,
     sim_time=16e-9,
+    Rtype="Ry",
+    Hoex_mag=500,
 ):
     htheta, hphi = get_axis_angles(H_axis)
     Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
     j, rparams = prepare_simulation()
-    frequencies = np.linspace(fmin, fmax, nf)
+    frequencies = np.arange(fmin, fmax, step=fstep)
     spec = VSD_procedure(
         j,
         Hvecs=Hvecs,
@@ -139,8 +141,8 @@ def get_vsd_data(
         frequencies=frequencies,
         resistance_params=rparams,
         simulation_duration=sim_time,
-        Rtype="Rx",
-        Hoe_excitation=500,
+        Rtype=Rtype,
+        Hoe_excitation=Hoex_mag,
         Hoe_direction=get_axis(Hoex),
         disturbance=1e-6,
     )

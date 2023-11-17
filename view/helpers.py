@@ -85,7 +85,10 @@ def simulate_vsd():
             Hmax=st.session_state.Hmax * 1e3,
             Hsteps=st.session_state.Hsteps,
             Hoex=st.session_state.Hoex,
-            nf=st.session_state.nf,
+            fstep=st.session_state.fstep * 1e9,
+            Rtype=st.session_state.res_type,
+            sim_time=st.session_state.sim_time * 1e-9,
+            Hoex_mag=st.session_state.Hoex_mag * 1e3,
         )
     plot_data(Hscan, freqs, spec, title="VSD spectrum")
 
@@ -98,6 +101,7 @@ def simulate_pimm():
             Hmax=st.session_state.Hmax * 1e3,
             Hsteps=st.session_state.Hsteps,
             int_step=st.session_state.int_step,
+            sim_time=st.session_state.sim_time * 1e-9,
         )
     mag = np.asarray(output["m_avg"])
     plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum")
