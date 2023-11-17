@@ -85,8 +85,10 @@ def autofit(placeholder=None):
             N=st.session_state.n_iters,
         )
         placeholder.markdown(
-            f"""## OPTIMISATION COMPLETE
-                Best MSE: {result.y.min():.2f}
-                Best parameters: {result.best_x.iloc[0].to_dict()}
+            f"""## OPTIMISATION COMPLETE\n
+            Best MSE: {result.y.min():.2f}\n
+            Best parameters: {result.best_x.iloc[0].to_dict()}
             """
         )
+        for k, v in result.best_x.iloc[0].to_dict().items():
+            st.session_state[k] = v
