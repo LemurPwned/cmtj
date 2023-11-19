@@ -70,8 +70,7 @@ There's a GUI version available! If you wish to conduct a subset of simulations,
 
 We would appreciate citing either of the listed work if you decide to use the project or using the cite button on the right hand side panel of the repository:
 
-
- [**cmtj: Simulation package for analysis of multilayer spintronic devices**](https://www.nature.com/articles/s41524-023-01002-x)
+[**cmtj: Simulation package for analysis of multilayer spintronic devices**](https://www.nature.com/articles/s41524-023-01002-x)
 
 ```bibtex
 @article{mojsiejuk_cmtj_2023,
