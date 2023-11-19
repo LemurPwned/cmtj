@@ -26,17 +26,17 @@ Each layer is described by the following parameters:
 
 ##### Parameter table
 
-|    Parameter    |                   Description                    |      Units      |
-| :-------------: | :----------------------------------------------: | :-------------: |
-|    $\theta$     |       Polar angle of magnetisation vector        |       rad       |
-|     $\phi$      |     Azimuthal angle of magnetisation vector      |       rad       |
-| $t_\textrm{FM}$ |            Thickness of the FM layer             |        m        |
-|      $M_s$      |             Magnetisation saturation             |  $\frac{A}{m}$  |
-|      $K_s$      | Surface anisotropy (perpendicular, out of plane) | $\frac{J}{m^3}$ |
-|      $K_s$      |           Volume anisotropy (in-plane)           | $\frac{J}{m^3}$ |
-|    $\alpha$     |      Azimuthal angle of in-plane anisotropy      | $\frac{J}{m^3}$ |
-|      $J_1$      |   Interlayer exchange coupling value (linear)    | $\frac{J}{m^2}$ |
-|      $J_2$      |  Interlayer exchange coupling value (quadratic)  | $\frac{J}{m^2}$ |
+|    Parameter    |                  Description                   |      Units      |
+| :-------------: | :--------------------------------------------: | :-------------: |
+|    $\theta$     |      Polar angle of magnetisation vector       |       rad       |
+|     $\phi$      |    Azimuthal angle of magnetisation vector     |       rad       |
+| $t_\textrm{FM}$ |           Thickness of the FM layer            |        m        |
+|      $M_s$      |            Magnetisation saturation            |  $\frac{A}{m}$  |
+|      $K_s$      | Shape anisotropy (perpendicular, out of plane) | $\frac{J}{m^3}$ |
+|      $K_v$      |          Volume anisotropy (in-plane)          | $\frac{J}{m^3}$ |
+|    $\alpha$     |     Azimuthal angle of in-plane anisotropy     |       rad       |
+|      $J_1$      |  Interlayer exchange coupling value (linear)   | $\frac{J}{m^2}$ |
+|      $J_2$      | Interlayer exchange coupling value (quadratic) | $\frac{J}{m^2}$ |
 
 And the external field is also given by it's own ($\theta$, $\phi$, $H$) where $H$ is the magnitude of the field.
 
