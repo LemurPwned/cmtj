@@ -50,3 +50,7 @@ Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhe
 | **`timeStart`**     | `float` | start of the pulse                                  | `-`     |
 
 ## `AxialDriver`
+
+Requires three scalar drivers, one for each axis.
+
+### `__init__(self, x: 'ScalarDriver', y: 'ScalarDriver', z: 'ScalarDriver')`
