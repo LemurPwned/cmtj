@@ -44,7 +44,7 @@ def mixed_lorentz(H, dH, Hr, Va, Vas):
     :param H: applied field in A/m
     :param dH: half width at half maximum in A/m
     :param Hr: resonance field in A/m
-    :param Vs: amplitude of symmetric Lorentzian
+    :param Va: amplitude of symmetric Lorentzian
     :param Vas: amplitude of antisymmetric Lorentzian
     """
     return symmetric_lorentz(H, dH, Hr, Va) + antisymmetric_lorentz(

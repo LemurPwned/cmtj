@@ -24,7 +24,7 @@ nav:
           - Plotting: api/plotting-reference.md
           - Procedures: api/procedures-reference.md
           - Parallel: api/parallel-reference.md
-          - Optimization: api/optmization-reference.md
+          - Optimization: api/optimization-reference.md
           - Ensemble models: api/ensemble-reference.md
           - Miscellanous: api/general-reference.md
       - Stack: gen-docs/stack.md

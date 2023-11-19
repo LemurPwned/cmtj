@@ -506,7 +506,7 @@ class Solver:
         :param adam_tol: tolerance for the consecutive Adam minima.
         :param first_momentum_decay: constant for the first momentum.
         :param second_momentum_decay: constant for the second momentum.
-        :param pertubarion: the perturbation to use for the numerical gradient computation.
+        :param perturbation: the perturbation to use for the numerical gradient computation.
         :param ftol: tolerance for the frequency search. [numerical only]
         :param max_freq: maximum frequency to search for. [numerical only]
         :param force_single_layer: whether to force the computation of the frequencies
