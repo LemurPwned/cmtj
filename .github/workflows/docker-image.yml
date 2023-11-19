@@ -3,7 +3,15 @@ name: Docker Image CI
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'examples/**'
+      - LICENSE
+      - mkdocs.yml
+            
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest

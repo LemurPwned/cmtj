@@ -6,8 +6,20 @@ name: Test Python bindings
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'examples/**'
+      - LICENSE
+      - mkdocs.yml
   pull_request:
     branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'examples/**'
+      - LICENSE
+      - mkdocs.yml
   workflow_dispatch:
 
 jobs:
