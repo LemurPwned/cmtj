@@ -78,10 +78,13 @@ def hebo_optimization_loop(
     :param n_iters: number of iterations
     :param n_suggestions: number of suggestions per iteration
     """
-
-    from hebo.design_space.design_space import DesignSpace
-    from hebo.optimizers.hebo import HEBO
-
+    try:
+        from hebo.design_space.design_space import DesignSpace
+        from hebo.optimizers.hebo import HEBO
+    except ImportError as e:
+        raise ImportError(
+            "HEBO is not installed. Please install it with `pip install HEBO`"
+        ) from e
     space = DesignSpace().parse(cfg)
     opt = HEBO(space)
     best_mse = float("inf")
@@ -101,3 +104,4 @@ def hebo_optimization_loop(
             best_params = opt.best_x.iloc[0].to_dict()
             print(f"iteration {i} best mse {best_mse}")
             print(best_params)
+    return opt
