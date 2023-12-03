@@ -63,6 +63,28 @@ The package requires (if `utils` subpackage is used):
 - matplotlib
 ```
 
+## Subpackages
+```mermaid
+graph TD;
+cmtj --> models
+cmtj --> utils
+models --> domain_dynamics
+models --> drivers
+models --> ensemble
+models --> general_sb
+models --> oersted
+utils --> optimization
+utils --> parallel
+utils --> plotting
+utils --> procedures
+utils --> resistance
+utils --> solvers
+utils --> linear
+utils --> energy
+utils --> filters
+```
+
+
 ## Read the docs
 
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
