@@ -1,11 +1,11 @@
+import contextlib
 import os
-import sys
 
 import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.3.2"
+__version__ = "1.4.0"
 """
 As per
 https://github.com/pybind/python_example
@@ -24,7 +24,6 @@ class get_pybind_include(object):
     until it is actually installed, so that the ``get_include()``
     method can be invoked.
     """
-
     def __str__(self):
         import pybind11
 
@@ -68,10 +67,8 @@ def has_flag(compiler, flagname):
     except setuptools.distutils.errors.CompileError:
         return False
     finally:
-        try:
+        with contextlib.suppress(OSError):
             os.remove(fname)
-        except OSError:
-            pass
     return True
 
 
@@ -122,10 +119,8 @@ class BuildExt(build_ext):
                 opts.append("-fvisibility=hidden")
 
         for ext in self.extensions:
-            ext.define_macros = [
-                ("VERSION_INFO",
-                 '"{}"'.format(self.distribution.get_version()))
-            ]
+            ext.define_macros = [("VERSION_INFO",
+                                  f'"{self.distribution.get_version()}"')]
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts
         build_ext.build_extensions(self)
@@ -139,7 +134,6 @@ setup(
     author_email="mojsieju@agh.edu.pl",
     url="https://github.com/LemurPwned/cmtj",
     description="CMTJ - C Magnetic Tunnel Junctions.",
-    long_description="Fast library for simulating magnetic multilayers.",
     ext_modules=ext_modules,
     include_package_data=True,
     namespace_packages=["cmtj"],

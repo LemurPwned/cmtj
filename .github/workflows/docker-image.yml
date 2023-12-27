@@ -1,0 +1,32 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'examples/**'
+      - LICENSE
+      - mkdocs.yml
+            
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login to GH container registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{github.actor}}
+        password: ${{secrets.GITHUB_TOKEN}}
+    - name: Build and push image
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        file: docker/Dockerfile
+        tags: |
+          ghcr.io/lemurpwned/cmtj:latest

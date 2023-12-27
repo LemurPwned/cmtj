@@ -43,6 +43,4 @@ class RootFinder:
 
     def find_root(self, f, x0, *args, fprime=None):
         sol = root(f, x0, args=args, jac=fprime, method="hybr")
-        if sol.success:
-            return sol.x[0]
-        return None
+        return sol.x[0] if sol.success else None

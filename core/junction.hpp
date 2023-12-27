@@ -1092,6 +1092,8 @@ public:
     // std::string fileSave;
     unsigned int logLength = 0;
     unsigned int layerNo;
+    std::string Rtag = "R";
+
     Junction() {}
 
     /**
@@ -1129,6 +1131,8 @@ public:
         this->Rp = Rp;
         this->Rap = Rap;
         this->MR_mode = CLASSIC;
+        // A string representing the tag for the junction's resistance value.
+        this->Rtag = "R_" + this->layers[0].id + "_" + this->layers[1].id;
     }
 
     /**
@@ -1504,7 +1508,7 @@ public:
         {
             const auto magnetoresistance = calculateMagnetoresistance(c_dot<T>(this->layers[0].mag,
                 this->layers[1].mag));
-            this->log["R_free_bottom"].emplace_back(magnetoresistance);
+            this->log[this->Rtag].emplace_back(magnetoresistance);
         }
         else if (MR_mode == STRIP)
         {

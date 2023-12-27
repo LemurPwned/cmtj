@@ -6,6 +6,7 @@
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
 [![Version](https://img.shields.io/pypi/v/cmtj)](https://pypi.org/project/cmtj/)
 [![License](https://img.shields.io/pypi/l/cmtj.svg)](https://github.com/LemurPwned/cmtj/blob/master/LICENSE)
+[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](http://cmtj-simulations.streamlit.app/)
 ![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
 
 ## Short description
@@ -13,6 +14,10 @@
 A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
+
+## Demo
+
+Check out the [streamlit hosted demo here](http://cmtj-simulations.streamlit.app/).
 
 ## Quickstart
 
@@ -58,6 +63,28 @@ The package requires (if `utils` subpackage is used):
 - matplotlib
 ```
 
+## Subpackages
+```mermaid
+graph TD;
+cmtj --> models
+cmtj --> utils
+models --> domain_dynamics
+models --> drivers
+models --> ensemble
+models --> general_sb
+models --> oersted
+utils --> optimization
+utils --> parallel
+utils --> plotting
+utils --> procedures
+utils --> resistance
+utils --> solvers
+utils --> linear
+utils --> energy
+utils --> filters
+```
+
+
 ## Read the docs
 
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
@@ -96,6 +123,11 @@ Many thanks to professor Jack Sankey for his help with the development of therma
 ## Contributions
 
 All contributions are welcome, please leave an issue if you've encountered any trouble with setup or running the library.
+
+## Docker
+
+In the `docker` directory there's a `Dockerfile` that can be used to build a docker image with the library installed.
+`Dockerfile.app` is used for streamlit development.
 
 ## Precommit
 

@@ -172,10 +172,7 @@ class DomainWallDynamics:
         """Domain width is based off the effective perpendicular anisotropy.
         We reduce the perpendicular anisotropy by demagnetising field"""
         # Keff = self.Ku - 0.5*mu0*(self.Ms)**2
-        if effective:
-            Keff = self.Ku - (0.5 * mu0) * (self.Ms**2)
-        else:
-            Keff = self.Ku
+        Keff = self.Ku - (0.5 * mu0) * (self.Ms**2) if effective else self.Ku
         return math.sqrt(self.A / Keff)
 
     def set_current_function(self, driver: Callable):

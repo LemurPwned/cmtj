@@ -213,5 +213,5 @@ device.setLayerAnisotropyDriver(
 The resulting anisotropy field is computed as:
 
 $$
-    \mathbf{H}_{\textrm{anis}} = \frac{2K_\textrm{u}}{t_{FM} \mu_0M_s}(\mathbf{m}\cdot\mathbf{a})\mathbf{a}
+    \mathbf{H}_{\textrm{anis}} = \frac{2K_\textrm{u}}{M_s}(\mathbf{m}\cdot\mathbf{a})\mathbf{a}
 $$

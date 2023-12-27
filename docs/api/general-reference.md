@@ -1,4 +1,5 @@
-# Resistance functions
-Those functions are used to compute the resistance of a given system.
-They are all defined in the `resistance` module for version upside of 1.2.0.
-::: cmtj.utils.resistance
+# Miscellaneous Utilities
+
+Contains definition of a base vector object used in the models such as Domain Wall Dynamics or Smit-Beljers model.
+
+::: cmtj.utils.general
