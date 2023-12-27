@@ -1,5 +1,10 @@
 # Changelog
 
+# 1.4.1
+
+- Adding a basic optimisation script in the `optimization` module.
+- Switched to the smart pointers for some noise computations.
+
 # 1.4.0
 
 - Adding new, dynamic symbolic model compatible with `Solver` class. It is now possible to use the `Solver` class with `LayerDynamic` to solve the LLG equation.
