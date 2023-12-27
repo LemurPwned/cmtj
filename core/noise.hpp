@@ -234,7 +234,7 @@ public:
         this->components_y = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
         this->components_z = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
     }
-    CVector<T> tick() {
+    CVector<T> tickVector() {
         this->prevSample = this->currentSample;
         this->currentSample = CVector<T>(
             this->components_x->tick(),
@@ -244,6 +244,16 @@ public:
         this->currentSample.normalize();
         return this->currentSample;
     }
+
+    T tick(){
+        return this->components_x->tick();
+    }
+
+
+    CVector<T> getPrevSample() {
+        return this->prevSample;
+    }
+
     T getScale() {
         return this->scale;
     }

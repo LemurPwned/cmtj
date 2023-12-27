@@ -141,9 +141,6 @@ enum SolverMode
     HEUN = 3
 };
 
-// seems to be the faster so far.
-// static std::mt19937 generator((std::random_device{}()));
-
 template <typename T = double>
 class Layer
 {
@@ -173,7 +170,7 @@ private:
     Reference referenceType = NONE;
 
     // the distribution is binded for faster generation
-    // is also shared between 1f and Gaussian noise.
+    // is also shared between 1/f and Gaussian noise.
     std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), std::mt19937(std::random_device{}()));
 
     CVector<T> dWn, dWn2; // one for thermal, one for OneF
@@ -908,7 +905,7 @@ public:
     const T getStochasticOneFNoise(T time) {
         if (!this->pinkNoiseSet)
             return 0;
-        else if (this->noiseParams.scaleNoise != 0){
+        else if (this->noiseParams.scaleNoise != 0) {
             // use buffered noise if available
             return this->bfn->tick();
         }
@@ -1016,7 +1013,7 @@ public:
         CVector<T> dW2 = CVector<T>(this->distribution);
         if (this->noiseParams.scaleNoise != 0)
         {
-            dW2 = this->bfn->tick();
+            dW2 = this->bfn->tickVector();
         }
         dW.normalize();
         dW2.normalize();
