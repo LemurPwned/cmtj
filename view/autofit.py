@@ -23,6 +23,7 @@ def hebo_fit(
     try:
         for i in range(1, N + 1):
             rec = opt.suggest(n_suggestions=n_suggestions)
+            # TODO: parallelize over n_suggestions
             param_values = rec.to_dict("records")
             for k, v in param_values[0].items():
                 st.session_state[k] = v
@@ -46,8 +47,8 @@ def autofit(placeholder=None):
     cfg = []
     # keep the same units as in the GUI
     bounds = {
-        "Ms": (0.2, 2.0),
-        "K": (10, 10e3),
+        "Ms": (0.2, 2.0), # in T
+        "K": (10, 10e3), # in kJ/m^3
     }
     for param_name in ("Ms", "K"):
         cfg.extend(
@@ -63,7 +64,7 @@ def autofit(placeholder=None):
         {
             "name": f"J{i}",
             "type": "num",
-            "lb": -1e3,
+            "lb": -1e3, # in uJ/m^2
             "ub": 1e3,
         }
         for i in range(N - 1)
@@ -84,11 +85,16 @@ def autofit(placeholder=None):
             design_space=DesignSpace().parse(cfg),
             N=st.session_state.n_iters,
         )
-        placeholder.markdown(
-            f"""## OPTIMISATION COMPLETE\n
-            Best MSE: {result.y.min():.2f}\n
-            Best parameters: {result.best_x.iloc[0].to_dict()}
-            """
-        )
-        for k, v in result.best_x.iloc[0].to_dict().items():
-            st.session_state[k] = v
+        if len(result.y) == 0:
+            placeholder.markdown("Optimisation failed!")
+            return
+        else:
+            placeholder.markdown(
+                f"""## OPTIMISATION COMPLETE\n
+                Best MSE: {result.y.min():.2f}\n
+                Best parameters: {result.best_x.iloc[0].to_dict()}
+                """
+            )
+            for k, v in result.best_x.iloc[0].to_dict().items():
+                print("setting: ", k, v, "in session state")
+                st.session_state[k] = v

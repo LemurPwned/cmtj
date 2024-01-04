@@ -37,7 +37,7 @@ with st.sidebar:
         st.slider(
             f"Ms ({i+1}) (T)",
             min_value=0.2,
-            max_value=2.0,
+            max_value=2.5,
             value=0.52,
             step=0.01,
             key=f"Ms{i}",
@@ -90,17 +90,17 @@ with st.sidebar:
     st.markdown("### Interlayer parameters")
     for j in range(N - 1):
         st.number_input(
-            f"J ({j+1}<-->{j+2}) (mJ/m^2)",
-            min_value=-1.0,
-            max_value=1.0,
+            f"J ({j+1}<-->{j+2}) (uJ/m^2)",
+            min_value=-500.0,
+            max_value=500.0,
             value=0.0,
             key=f"J{j}",
-            format="%.2f",
+            format="%.3f",
         )
     st.markdown("-----\n")
     st.markdown("## Control parameters")
     st.markdown("### External field")
-    st.selectbox("H axis", options=["x", "y", "z"], key="H_axis", index=2)
+    st.selectbox("H axis", options=["x", "y", "z"], key="H_axis", index=0)
     st.number_input(
         "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
     )
@@ -124,6 +124,14 @@ with st.sidebar:
         max_value=500,
         value=16,
         key="sim_time",
+        format="%d",
+    )
+    st.number_input(
+        "max_freq (GHz)",
+        min_value=1,
+        max_value=100,
+        value=50,
+        key="max_freq",
         format="%d",
     )
 
@@ -198,3 +206,12 @@ with pimm_tab:
     """
     )
     st.button("Simulate PIMM", on_click=simulate_pimm, key="PIMM_btn")
+    st.number_input(
+        "Hoe (kA/m)", min_value=0.05, max_value=50.0, value=0.05, key="Hoe_mag"
+    )
+    st.radio(
+        "Hoe axis",
+        options=["x", "y", "z"],
+        key="Hoeaxis",
+        index=1,
+    )

@@ -64,12 +64,13 @@ def get_axis(axis: str) -> Axis:
 
 
 def get_axis_angles(axis: str):
+    """Returns (theta, phi)"""
     if axis == "x":
-        return 0, 0
-    elif axis == "y":
-        return 0, 90
-    elif axis == "z":
         return 90, 0
+    elif axis == "y":
+        return 90, 90
+    elif axis == "z":
+        return 0, 0
     else:
         raise ValueError(f"Invalid axis {axis}")
 
@@ -84,7 +85,7 @@ def prepare_simulation():
         rparams.append(rp)
     j = Junction(layers=layers)
     for jvals in range(N - 1):
-        J = st.session_state[f"J{jvals}"] * 1e-3  # rescale GUI units
+        J = st.session_state[f"J{jvals}"] * 1e-6  # rescale GUI units
         l1_name = layers[jvals].id
         l2_name = layers[jvals + 1].id
         j.setIECDriver(l1_name, l2_name, ScalarDriver.getConstantDriver(J))
@@ -106,9 +107,11 @@ def get_pimm_data(
     spec, freqs, out = PIMM_procedure(
         j,
         Hvecs=Hvecs,
+        Hoe_direction=get_axis(st.session_state["Hoeaxis"]),
+        Hoe_excitation=st.session_state["Hoe_mag"] * 1e3,
         int_step=int_step,
         resistance_params=rparams,
-        max_frequency=60e9,
+        max_frequency=st.session_state["max_freq"] * 1e9,
         simulation_duration=sim_time,
         disturbance=1e-6,
         wait_time=4e-9,
@@ -189,7 +192,7 @@ def simulate_sb(hvals: List[float]):
         )
         init_pos.extend([np.deg2rad(ktheta), np.deg2rad(kphi)])
         layers.append(layer)
-    Js = [st.session_state[f"J{i}"] * 1e-3 for i in range(N - 1)]
+    Js = [st.session_state[f"J{i}"] * 1e-6 for i in range(N - 1)]
     result_dictionary = defaultdict(list)
     # we perform a sweep over the field magnitude
     htheta, hphi = get_axis_angles(st.session_state.H_axis)
