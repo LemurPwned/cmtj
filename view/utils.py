@@ -2,6 +2,17 @@ from typing import List
 
 import numpy as np
 
+GENERIC_BOUNDS = {
+    "Ms": (0.2, 2.5),  # T
+    "K": (0.1, 3e3),  # kJ/m^3
+    "J": (-5e3, 5e3),  # uJ/m^2
+}
+
+GENERIC_UNITS = {
+    "Ms": "T",
+    "K": "kJ/m^3",
+    "J": "uJ/m^2",
+}
 
 def extract_max_resonance_lines(
     spectrum,

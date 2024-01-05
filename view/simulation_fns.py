@@ -212,19 +212,6 @@ def simulate_sb(hvals: List[float]):
     return result_dictionary
 
 
-def get_fixed_arguments_from_state():
-    thickness = [st.session_state[f"thickness{i}"] for i in range(st.session_state.N)]
-    anisotropy_axis = [
-        st.session_state[f"anisotropy_axis{i}"] for i in range(st.session_state.N)
-    ]
-    return {
-        "thickness": thickness,
-        "anisotropy_axis": anisotropy_axis,
-        "H_axis": st.session_state.H_axis,
-        "N": st.session_state.N,
-    }
-
-
 def kwargs_to_list(kwargs: dict, N: int):
     return {
         "J": [kwargs[f"J{i}"] for i in range(N - 1)],
@@ -246,13 +233,12 @@ def simulate_sb_wrapper(
     init_pos = []
     for i in range(N):
         ktheta, kphi = get_axis_angles(anisotropy_axis[i])
-        # Kval = st.session_state[f"K{i}"] * 1e3  # rescale GUI units
         Kval = K[i] * 1e3
         if ktheta == 0:
             Ks = Kval
-            Kv = 10
+            Kv = 1
         else:
-            Ks = 10
+            Ks = 1
             Kv = Kval
         layer = LayerSB(
             _id=i,
@@ -260,7 +246,6 @@ def simulate_sb_wrapper(
             Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(kphi), Kv),
             Ks=Ks,
             Ms=Ms[i] / mu0,
-            # alpha=st.session_state[f"alpha{i}"],
         )
         init_pos.extend([np.deg2rad(ktheta), np.deg2rad(kphi)])
         layers.append(layer)
