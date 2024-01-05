@@ -3,7 +3,7 @@
 # 1.4.1
 
 - Adding a basic optimisation script in the `optimization` module.
-- Switched to the smart pointers for some noise computations.
+- Streamlit optimization updates.
 
 # 1.4.0
 
