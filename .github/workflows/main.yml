@@ -36,11 +36,13 @@ jobs:
       - name: Python wheels manylinux stable build
         uses: RalfG/python-wheels-manylinux-build@v0.5.0
         with:
-          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
+          python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
       - name: upload wheel
         if:  ${{ !inputs.dry-run }} 
         run: |
-          pip install twine
+          python -m pip install --upgrade pip 
+          python -m pip install wheel setuptools
+          python3 -m pip install twine
           twine upload dist/*-manylinux*.whl
         continue-on-error: false
     
@@ -62,12 +64,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: build wheel
         run: |
-          pip install wheel
+          python -m pip install --upgrade pip 
+          python -m pip install wheel setuptools
           python setup.py bdist_wheel
       - name: upload wheel
         if:  ${{ !inputs.dry-run }} 
         run: |
-          pip install twine
+          python3 -m pip install twine
           twine upload dist/*
         continue-on-error: false
         
