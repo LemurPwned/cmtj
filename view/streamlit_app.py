@@ -45,7 +45,7 @@ with st.sidebar:
         st.number_input(
             f"K ({i+1}) (kJ/m^3)",
             min_value=0.1,
-            max_value=10e3,
+            max_value=300e3,
             value=150.0,
             step=10.0,
             key=f"K{i}",
@@ -91,8 +91,8 @@ with st.sidebar:
     for j in range(N - 1):
         st.number_input(
             f"J ({j+1}<-->{j+2}) (uJ/m^2)",
-            min_value=-500.0,
-            max_value=500.0,
+            min_value=-5000.0,
+            max_value=5000.0,
             value=0.0,
             key=f"J{j}",
             format="%.3f",

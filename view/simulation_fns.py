@@ -185,7 +185,7 @@ def simulate_sb(hvals: List[float]):
         layer = LayerSB(
             _id=i,
             thickness=st.session_state[f"thickness{i}"] * 1e-9,  # rescale GUI units
-            Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(0), Kv),
+            Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(kphi), Kv),
             Ks=Ks,
             Ms=st.session_state[f"Ms{i}"] / mu0,
             # alpha=st.session_state[f"alpha{i}"],
@@ -196,6 +196,78 @@ def simulate_sb(hvals: List[float]):
     result_dictionary = defaultdict(list)
     # we perform a sweep over the field magnitude
     htheta, hphi = get_axis_angles(st.session_state.H_axis)
+    for i in range(len(hvals)):
+        solver = Solver(
+            layers=layers,
+            J1=Js,
+            J2=[0 for _ in Js],
+            H=VectorObj(theta=htheta, phi=hphi, mag=hvals[i]),
+        )
+        eq, frequencies = solver.solve(init_position=init_pos, perturbation=1e-4)
+        for freq in frequencies:
+            result_dictionary["Hmag"].append(hvals[i] / 1e3)
+            result_dictionary["frequency"].append(freq)
+        init_pos = eq
+
+    return result_dictionary
+
+
+def get_fixed_arguments_from_state():
+    thickness = [st.session_state[f"thickness{i}"] for i in range(st.session_state.N)]
+    anisotropy_axis = [
+        st.session_state[f"anisotropy_axis{i}"] for i in range(st.session_state.N)
+    ]
+    return {
+        "thickness": thickness,
+        "anisotropy_axis": anisotropy_axis,
+        "H_axis": st.session_state.H_axis,
+        "N": st.session_state.N,
+    }
+
+
+def kwargs_to_list(kwargs: dict, N: int):
+    return {
+        "J": [kwargs[f"J{i}"] for i in range(N - 1)],
+        "K": [kwargs[f"K{i}"] for i in range(N)],
+        "Ms": [kwargs[f"Ms{i}"] for i in range(N)],
+    }
+
+
+def simulate_sb_wrapper(
+    hvals: List[float],
+    N: int,
+    thickness: List[float],
+    anisotropy_axis: List[str],
+    H_axis: str,
+    **kwargs,
+):
+    J, K, Ms = kwargs_to_list(kwargs, N).values()
+    layers = []
+    init_pos = []
+    for i in range(N):
+        ktheta, kphi = get_axis_angles(anisotropy_axis[i])
+        # Kval = st.session_state[f"K{i}"] * 1e3  # rescale GUI units
+        Kval = K[i] * 1e3
+        if ktheta == 0:
+            Ks = Kval
+            Kv = 10
+        else:
+            Ks = 10
+            Kv = Kval
+        layer = LayerSB(
+            _id=i,
+            thickness=thickness[i] * 1e-9,  # rescale GUI units
+            Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(kphi), Kv),
+            Ks=Ks,
+            Ms=Ms[i] / mu0,
+            # alpha=st.session_state[f"alpha{i}"],
+        )
+        init_pos.extend([np.deg2rad(ktheta), np.deg2rad(kphi)])
+        layers.append(layer)
+    Js = [J[i] * 1e-6 for i in range(N - 1)]
+    result_dictionary = defaultdict(list)
+    # we perform a sweep over the field magnitude
+    htheta, hphi = get_axis_angles(H_axis)
     for i in range(len(hvals)):
         solver = Solver(
             layers=layers,

@@ -13,28 +13,40 @@ def hebo_fit(
     y: List[float],
     design_space: DesignSpace,
     N: int,
-    n_suggestions: int = 1,
+    n_suggestions: int = 4,
 ):
-    def target_fn(yhat, y):
-        return np.asarray([compute_sb_mse(target=y, data=yhat)])
-
     opt = HEBO(design_space)
     prog_bar = st.progress(0, text="Optimisation")
     try:
         for i in range(1, N + 1):
             rec = opt.suggest(n_suggestions=n_suggestions)
-            # TODO: parallelize over n_suggestions
             param_values = rec.to_dict("records")
-            for k, v in param_values[0].items():
-                st.session_state[k] = v
-            result_dictionary = simulate_sb(hvals=hvals)
-            opt.observe(rec, target_fn(yhat=result_dictionary, y=y))
+            errors = []
+            # errors = multiprocess_simulate(
+            #     fn=simulate_sb_wrapper,
+            #     error_fn=compute_sb_mse,
+            #     target=y,
+            #     suggestions=param_values,
+            #     fixed_parameters={
+            #         "hvals": hvals,
+            #         **get_fixed_arguments_from_state(),
+            #     },
+            # )
+
+            """Multiprocess is not really stable, so we use a single process instead"""
+            for param_set in param_values:
+                for k, v in param_set.items():
+                    st.session_state[k] = v
+                result_dictionary = simulate_sb(hvals=hvals)
+                errors.append(compute_sb_mse(target=y, data=result_dictionary))
+            errors = np.asarray(errors)
+            opt.observe(rec, errors)
             try:
                 val = opt.y.min()
                 progres_text = f"({i}/{N}) MSE: {val:.2f}"
                 prog = int((i * 100) / N)
                 prog_bar.progress(prog, text=progres_text)
-            except Exception as e:
+            except ValueError as e:
                 print(f"Error printing progress: {e}")
     except KeyboardInterrupt:
         print("Optimisation interrupted")
@@ -47,8 +59,8 @@ def autofit(placeholder=None):
     cfg = []
     # keep the same units as in the GUI
     bounds = {
-        "Ms": (0.2, 2.0), # in T
-        "K": (10, 10e3), # in kJ/m^3
+        "Ms": (0.2, 2.5),  # in T
+        "K": (0.1, 500e3),  # in kJ/m^3
     }
     for param_name in ("Ms", "K"):
         cfg.extend(
@@ -64,8 +76,8 @@ def autofit(placeholder=None):
         {
             "name": f"J{i}",
             "type": "num",
-            "lb": -1e3, # in uJ/m^2
-            "ub": 1e3,
+            "lb": -5e3,  # in uJ/m^2
+            "ub": 5e3,
         }
         for i in range(N - 1)
     )
@@ -96,5 +108,4 @@ def autofit(placeholder=None):
                 """
             )
             for k, v in result.best_x.iloc[0].to_dict().items():
-                print("setting: ", k, v, "in session state")
                 st.session_state[k] = v
