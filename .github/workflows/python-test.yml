@@ -7,8 +7,8 @@ on:
   push:
     branches: [ "master" ]
     paths-ignore:
-      - '*.yaml'
-      - '*.md'
+      - '**.yaml'
+      - '**.md'
       - 'docs/**'
       - 'examples/**'
       - LICENSE
@@ -16,8 +16,8 @@ on:
   pull_request:
     branches: [ "master" ]
     paths-ignore:
-      - '*.yaml'
-      - '*.md'
+      - '**.yaml'
+      - '**.md'
       - 'docs/**'
       - 'examples/**'
       - LICENSE
