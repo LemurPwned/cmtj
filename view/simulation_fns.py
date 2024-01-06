@@ -64,12 +64,13 @@ def get_axis(axis: str) -> Axis:
 
 
 def get_axis_angles(axis: str):
+    """Returns (theta, phi)"""
     if axis == "x":
-        return 0, 0
-    elif axis == "y":
-        return 0, 90
-    elif axis == "z":
         return 90, 0
+    elif axis == "y":
+        return 90, 90
+    elif axis == "z":
+        return 0, 0
     else:
         raise ValueError(f"Invalid axis {axis}")
 
@@ -84,7 +85,7 @@ def prepare_simulation():
         rparams.append(rp)
     j = Junction(layers=layers)
     for jvals in range(N - 1):
-        J = st.session_state[f"J{jvals}"] * 1e-3  # rescale GUI units
+        J = st.session_state[f"J{jvals}"] * 1e-6  # rescale GUI units
         l1_name = layers[jvals].id
         l2_name = layers[jvals + 1].id
         j.setIECDriver(l1_name, l2_name, ScalarDriver.getConstantDriver(J))
@@ -106,9 +107,11 @@ def get_pimm_data(
     spec, freqs, out = PIMM_procedure(
         j,
         Hvecs=Hvecs,
+        Hoe_direction=get_axis(st.session_state["Hoeaxis"]),
+        Hoe_excitation=st.session_state["Hoe_mag"] * 1e3,
         int_step=int_step,
         resistance_params=rparams,
-        max_frequency=60e9,
+        max_frequency=st.session_state["max_freq"] * 1e9,
         simulation_duration=sim_time,
         disturbance=1e-6,
         wait_time=4e-9,
@@ -182,17 +185,74 @@ def simulate_sb(hvals: List[float]):
         layer = LayerSB(
             _id=i,
             thickness=st.session_state[f"thickness{i}"] * 1e-9,  # rescale GUI units
-            Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(0), Kv),
+            Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(kphi), Kv),
             Ks=Ks,
             Ms=st.session_state[f"Ms{i}"] / mu0,
             # alpha=st.session_state[f"alpha{i}"],
         )
         init_pos.extend([np.deg2rad(ktheta), np.deg2rad(kphi)])
         layers.append(layer)
-    Js = [st.session_state[f"J{i}"] * 1e-3 for i in range(N - 1)]
+    Js = [st.session_state[f"J{i}"] * 1e-6 for i in range(N - 1)]
     result_dictionary = defaultdict(list)
     # we perform a sweep over the field magnitude
     htheta, hphi = get_axis_angles(st.session_state.H_axis)
+    for i in range(len(hvals)):
+        solver = Solver(
+            layers=layers,
+            J1=Js,
+            J2=[0 for _ in Js],
+            H=VectorObj(theta=htheta, phi=hphi, mag=hvals[i]),
+        )
+        eq, frequencies = solver.solve(init_position=init_pos, perturbation=1e-4)
+        for freq in frequencies:
+            result_dictionary["Hmag"].append(hvals[i] / 1e3)
+            result_dictionary["frequency"].append(freq)
+        init_pos = eq
+
+    return result_dictionary
+
+
+def kwargs_to_list(kwargs: dict, N: int):
+    return {
+        "J": [kwargs[f"J{i}"] for i in range(N - 1)],
+        "K": [kwargs[f"K{i}"] for i in range(N)],
+        "Ms": [kwargs[f"Ms{i}"] for i in range(N)],
+    }
+
+
+def simulate_sb_wrapper(
+    hvals: List[float],
+    N: int,
+    thickness: List[float],
+    anisotropy_axis: List[str],
+    H_axis: str,
+    **kwargs,
+):
+    J, K, Ms = kwargs_to_list(kwargs, N).values()
+    layers = []
+    init_pos = []
+    for i in range(N):
+        ktheta, kphi = get_axis_angles(anisotropy_axis[i])
+        Kval = K[i] * 1e3
+        if ktheta == 0:
+            Ks = Kval
+            Kv = 1
+        else:
+            Ks = 1
+            Kv = Kval
+        layer = LayerSB(
+            _id=i,
+            thickness=thickness[i] * 1e-9,  # rescale GUI units
+            Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(kphi), Kv),
+            Ks=Ks,
+            Ms=Ms[i] / mu0,
+        )
+        init_pos.extend([np.deg2rad(ktheta), np.deg2rad(kphi)])
+        layers.append(layer)
+    Js = [J[i] * 1e-6 for i in range(N - 1)]
+    result_dictionary = defaultdict(list)
+    # we perform a sweep over the field magnitude
+    htheta, hphi = get_axis_angles(H_axis)
     for i in range(len(hvals)):
         solver = Solver(
             layers=layers,

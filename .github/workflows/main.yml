@@ -1,10 +1,7 @@
-# This is a basic workflow to help you get started with Actions
 
 name: Python Package Publication
 
-# Controls when the action will run.
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       release-version:
@@ -27,8 +24,8 @@ jobs:
     if: ${{ inputs.linux }} 
     runs-on: ubuntu-latest
     env:
-      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      TWINE_USERNAME: __token__
+      TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -36,11 +33,12 @@ jobs:
       - name: Python wheels manylinux stable build
         uses: RalfG/python-wheels-manylinux-build@v0.5.0
         with:
-          python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
+          python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
       - name: upload wheel
         if:  ${{ !inputs.dry-run }} 
         run: |
-          pip install twine
+          python -m pip install --upgrade pip 
+          python -m pip install wheel setuptools twine
           twine upload dist/*-manylinux*.whl
         continue-on-error: false
     
@@ -48,12 +46,12 @@ jobs:
     if: ${{ inputs.other-os }} 
     runs-on: ${{ matrix.os }}
     env:
-      TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-      TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      TWINE_USERNAME: __token__
+      TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
@@ -62,12 +60,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: build wheel
         run: |
-          pip install wheel
+          python -m pip install --upgrade pip 
+          python -m pip install wheel setuptools twine
           python setup.py bdist_wheel
       - name: upload wheel
         if:  ${{ !inputs.dry-run }} 
         run: |
-          pip install twine
           twine upload dist/*
         continue-on-error: false
         
@@ -76,16 +74,12 @@ jobs:
     needs: [ linux-build, other-os-build ]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Archive Release
-      uses: thedoctor0/zip-release@main
-      with:
-        type: 'zip'
-        filename: "package-release.zip"
-        exclusions: '*.git* __pycache__/* .editorconfig build/* .eggs/*'
-    - name: Upload Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "package-release.zip"
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ github.event.inputs.release-version }}
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.inputs.release-version }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --generate-notes

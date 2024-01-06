@@ -7,7 +7,8 @@ on:
   push:
     branches: [ "master" ]
     paths-ignore:
-      - 'README.md'
+      - '**.yaml'
+      - '**.md'
       - 'docs/**'
       - 'examples/**'
       - LICENSE
@@ -15,7 +16,8 @@ on:
   pull_request:
     branches: [ "master" ]
     paths-ignore:
-      - 'README.md'
+      - '**.yaml'
+      - '**.md'
       - 'docs/**'
       - 'examples/**'
       - LICENSE

@@ -18,6 +18,23 @@ def read_data():
     return fields, freqs
 
 
+def plot_optim(hvals, target, simulation, title="Optimisation"):
+    hvals = np.asarray(hvals)
+    with plt.style.context(["dark_background"]):
+        fig, ax = plt.subplots(dpi=300)
+        ax.plot(
+            hvals / 1e3, np.asarray(target) / 1e9, "o", color="crimson", label="Target"
+        )
+        ax.plot(
+            simulation["Hmag"], simulation["frequency"], "x", color="white", label="Sim"
+        )
+        ax.set_xlabel("H (kA/m)")
+        ax.set_ylabel("Frequency (GHz)")
+        ax.legend()
+        fig.suptitle(title)
+        st.pyplot(fig)
+
+
 def plot_data(Hscan, freqs, spec, mag=None, title="Resonance spectrum"):
     with plt.style.context(["dark_background"]):
         if mag is not None:
