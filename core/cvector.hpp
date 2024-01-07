@@ -259,6 +259,13 @@ public:
         ss << "[x:" << this->x << ", y:" << this->y << ", z:" << this->z << "]";
         return ss.str();
     }
+
+    const std::string toString() const
+    {
+        std::stringstream ss;
+        ss << "[x:" << this->x << ", y:" << this->y << ", z:" << this->z << "]";
+        return ss.str();
+    }
 };
 
 #endif // CORE_CVECTOR_HPP_

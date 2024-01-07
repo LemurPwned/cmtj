@@ -146,9 +146,6 @@ class Layer
 {
 private:
 
-    std::shared_ptr<OneFNoise<T>> ofn;
-    std::shared_ptr<VectorAlphaNoise<T>> bfn;
-
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> IECDriverTop;
     ScalarDriver<T> IECDriverBottom;
@@ -226,7 +223,8 @@ public:
         T stdNoise = 0.0;
     };
     BufferedNoiseParameters noiseParams;
-
+    std::shared_ptr<OneFNoise<T>> ofn;
+    std::shared_ptr<VectorAlphaNoise<T>> bfn;
     bool includeSTT = false;
     bool includeSOT = false;
 
@@ -824,61 +822,6 @@ public:
         this->mag = m_t;
     }
 
-    void dormandPriceStep(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        CVector<T> m_t = this->mag;
-        CVector<T> e_t;
-        std::array<CVector<T>, 7> K;
-        // if (this->hopt < 0)
-        // {
-        // }
-        // this makes the step non-adaptive
-        // we will deal with this problem later, this requires consistency in step
-        // across all the layers
-        this->hopt = timeStep;
-        // define Buchter tableau below
-        // there are redundant zeros, but for clarity, we'll leave them
-        const std::array<double, 7> c = {
-            0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1. };
-        const std::array<double, 7> b = {
-            35. / 384., 0, 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0. };
-        const std::array<double, 7> b2 = {
-            5179. / 57600., 0, 7571. / 16695., 393. / 640., -92097. / 339200., 187. / 2100., 1. / 40. };
-        // extra braces are required even though the struct is 2D only
-        const std::array<std::array<double, 7>, 7> aCoefs = { {{0, 0, 0, 0, 0, 0, 0},
-                                                              {1. / 5., 0, 0, 0, 0, 0, 0},
-                                                              {3. / 40., 9. / 40., 0, 0, 0, 0, 0},
-                                                              {44. / 45., -56. / 15., 32. / 9., 0, 0, 0, 0},
-                                                              {19372. / 6561., -25360. / 2187., 64448. / 6561., -212. / 729., 0, 0, 0},
-                                                              {9017. / 3168., -355. / 33., 46732. / 5247., 49. / 176., -5103. / 18656., 0, 0},
-                                                              {35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.}} };
-        // compute the first
-        K[0] = calculateLLGWithFieldTorque(time, this->mag, bottom, top, this->hopt);
-        m_t = m_t + K[0] * b[0] * this->hopt;
-        for (int i = 1; i < 7; i++)
-        {
-            CVector<T> kS;
-            for (int j = 0; j < i; j++)
-            {
-                kS = kS + K[j] * aCoefs[i][j];
-            }
-            K[i] = calculateLLGWithFieldTorque(time + c[i] * this->hopt, this->mag + kS * this->hopt,
-                bottom, top, this->hopt);
-            m_t = m_t + K[i] * b[i] * this->hopt;           // this is function estimate
-            e_t = e_t + K[i] * (b[i] - b2[i]) * this->hopt; // this is error estimate
-        }
-        // adapt the step size
-        const T eps = 1e-3;
-        const T s = pow((eps * timeStep) / (2 * e_t.length()), 1. / 5.);
-        this->hopt = s * timeStep;
-        m_t.normalize();
-        this->mag = m_t;
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-    }
-
     CVector<T> non_stochastic_llg(const CVector<T>& cm, T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
     {
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
@@ -1028,42 +971,6 @@ public:
         nm_t.normalize();
         this->mag = nm_t;
     }
-
-    void heun_step2(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
-        // we compute the two below in stochastic part, not non stochastic.
-        this->nonStochasticTempSet = false;
-        this->nonStochasticOneFSet = false;
-        // this is Stratonovich integral
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-        // Brownian motion sample
-        // Generate the noise from the Brownian motion
-        const T Honef_scale = this->getStochasticOneFNoise(time);
-        const T Hthermal_scale = this->getLangevinStochasticStandardDeviation(time, timeStep);
-        const CVector<T> Hlangevin = dWn * Hthermal_scale;
-        const CVector<T> Honef = dWn2 * Honef_scale;
-        const CVector<T> m_t = this->mag;
-        const CVector<T> f_n = this->calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep, Hlangevin + Honef);
-        // immediate m approximation
-        CVector<T> m_approx = m_t + f_n * timeStep;
-        CVector<T> dW = CVector<T>(this->distribution);
-        CVector<T> dW2 = CVector<T>(this->distribution);
-        dW.normalize();
-        dW2.normalize();
-        m_approx.normalize();
-        const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
-        const CVector<T> Honef_approx = dW2 * Honef_scale;
-        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep,
-            m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
-        dWn = dW; // replace
-        dWn2 = dW2;
-        CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
-        nm_t.normalize();
-        this->mag = nm_t;
-    }
-
 };
 
 template <typename T>
@@ -1193,9 +1100,6 @@ public:
         {
         case EULER_HEUN:
             return &Layer<T>::euler_heun_step;
-
-        case DORMAND_PRICE:
-            return &Layer<T>::dormandPriceStep;
 
         case RK4:
             return &Layer<T>::rk4_step;
@@ -1594,6 +1498,53 @@ public:
         }
     }
 
+    void heunSolverStep(solverFn& functor, T& t, T& timeStep) {
+        /*
+            Heun method
+            y'(t+1) = y(t) + dy(y, t)
+            y(t+1) = y(t) + 0.5 * (dy(y, t) + dy(y'(t+1), t+1))
+        */
+        std::vector<CVector<T>> firstApprox(this->layerNo, CVector<T>());
+        // first approximation
+
+        // make sure that
+        // 1. Thermal field is added if needed
+        // 2. One/f noise is added if needed
+        // 3. The timestep is correctly multiplied
+
+        for (unsigned int i = 0; i < this->layerNo; i++)
+        {
+            const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
+            const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
+            CVector<T> Hfluct_ = (this->layers[i].noiseParams.scaleNoise) ? this->layers[i].bfn->tickVector() : CVector<T>();
+            std::cout << Hfluct_ << std::endl;
+            firstApprox[i] = this->layers[i].calculateLLGWithFieldTorque(
+                t, this->layers[i].mag, bottom, top, timeStep, Hfluct_) * timeStep;
+        }
+        // second approximation
+        for (unsigned int i = 0; i < this->layerNo; i++)
+        {
+
+            CVector<T> bottom = (i == 0) ? CVector<T>() : (this->layers[i - 1].mag + firstApprox[i - 1]);
+            CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : (this->layers[i + 1].mag + firstApprox[i + 1]);
+            bottom.normalize();
+            top.normalize();
+            CVector<T> Hfluct_ = (this->layers[i].noiseParams.scaleNoise) ? this->layers[i].bfn->tickVector() : CVector<T>();
+            // std::cout << "Hfluct_2: " << Hfluct_ << std::endl;
+            // first approximation is already multiplied by timeStep
+            this->layers[i].mag = this->layers[i].mag + 0.5 * (
+                firstApprox[i] + this->layers[i].calculateLLGWithFieldTorque(
+                    t + timeStep, this->layers[i].mag + firstApprox[i],
+                    bottom,
+                    top, timeStep, Hfluct_)
+                );
+            // normalise
+            this->layers[i].mag.normalize();
+        }
+
+    }
+
+
     /**
      * @brief Calculate strip magnetoresistance for multilayer.
      *
@@ -1723,17 +1674,22 @@ public:
             }
         }
         auto solver = this->selectSolver(localMode);
+
+        // assign a runner function pointer from junction
+        auto runner = &Junction<T>::runMultiLayerSolver;
+
+        if (this->layerNo == 1)
+        {
+            runner = &Junction<T>::runSingleLayerSolver;
+        }
+        if (localMode == HEUN)
+        {
+            runner = &Junction<T>::heunSolverStep;
+        }
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             T t = i * timeStep;
-            if (this->layerNo == 1)
-            {
-                runSingleLayerSolver(solver, t, timeStep);
-            }
-            else
-            {
-                runMultiLayerSolver(solver, t, timeStep);
-            }
+            (*this.*runner)(solver, t, timeStep);
 
             if (!(i % writeEvery))
             {

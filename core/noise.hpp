@@ -235,6 +235,7 @@ public:
         this->components_z = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
     }
     CVector<T> tickVector() {
+        // TODO  -- if normalized, generate only 2 values and compute the third from the normalization
         this->prevSample = this->currentSample;
         this->currentSample = CVector<T>(
             this->components_x->tick(),
