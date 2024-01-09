@@ -243,11 +243,11 @@ public:
             this->components_z->tick()
         );
         this->currentSample.normalize();
-        return this->currentSample;
+        return this->currentSample * this->scale;
     }
 
-    T tick(){
-        return this->components_x->tick();
+    T tick() {
+        return this->components_x->tick() * this->scale;
     }
 
 

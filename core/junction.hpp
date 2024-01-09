@@ -1535,7 +1535,7 @@ public:
                 firstApprox[i] + this->layers[i].calculateLLGWithFieldTorque(
                     t + timeStep, this->layers[i].mag + firstApprox[i],
                     bottom,
-                    top, timeStep, Hfluct_)
+                    top, timeStep, Hfluct_)*timeStep
                 );
             // normalise
             this->layers[i].mag.normalize();
@@ -1653,20 +1653,21 @@ public:
         {
             if (l.hasTemperature())
             {
-                if (localMode != HEUN && localMode != EULER_HEUN) {
-                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
-                }
                 // if at least one temp. driver is set
                 // then use heun for consistency
-                localMode = HEUN;
+                if (localMode != HEUN && localMode != EULER_HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
+                    localMode = HEUN;
+                }
             }
             if (l.noiseParams.scaleNoise != 0) {
-                if (localMode != HEUN && localMode != EULER_HEUN) {
-                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
-                }
                 // if at least one temp. driver is set
                 // then use heun for consistency
-                localMode = HEUN;
+                if (localMode != HEUN && localMode != EULER_HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
+                    localMode = HEUN;
+                }
+
 
                 // create a buffer
                 l.createBufferedAlphaNoise(totalIterations);
