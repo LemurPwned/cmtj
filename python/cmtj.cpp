@@ -54,8 +54,8 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::self * double())
         .def("__getitem__", [](const DVector& v, const int key) { return v[key]; })
         .def("__len__", [](const DVector& v) { return 3; })
-        .def("__str__", &DVector::toString)
-        .def("__repr__", &DVector::toString);
+        .def("__str__", py::overload_cast<>(&DVector::toString))
+        .def("__repr__", py::overload_cast<>(&DVector::toString));
 
     py::implicitly_convertible<std::list<double>, DVector>();
     py::implicitly_convertible<std::vector<double>, DVector>();
@@ -347,7 +347,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setLayerExternalField", &Reservoir::setLayerExternalField)
         .def("getMagnetisation", &Reservoir::getMagnetisation);
 
-    // generatormodule
+    // generator module
     py::module generator_module = m.def_submodule("noise", "Submodule with noise generation functions");
     py::class_<BufferedAlphaNoise<double>>(generator_module, "BufferedAlphaNoise")
         .def(py::init<unsigned int, double, double, double>(),
@@ -357,4 +357,14 @@ PYBIND11_MODULE(cmtj, m)
             "scale"_a)
         .def("fillBuffer", &BufferedAlphaNoise<double>::fillBuffer)
         .def("tick", &BufferedAlphaNoise<double>::tick);
+    py::class_<VectorAlphaNoise<double>>(generator_module, "VectorAlphaNoise")
+        .def(py::init<unsigned int, double, double, double>(),
+            "bufferSize"_a,
+            "alpha"_a,
+            "std"_a,
+            "scale"_a)
+        .def("tickVector", &VectorAlphaNoise<double>::tickVector)
+        .def("tick", &VectorAlphaNoise<double>::tick)
+        .def("getPrevSample", &VectorAlphaNoise<double>::getPrevSample)
+        .def("getScale", &VectorAlphaNoise<double>::getScale);
 }

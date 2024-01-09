@@ -993,7 +993,7 @@ public:
 
     std::vector<T> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
     std::unordered_map<std::string, std::vector<T>> log;
-    // std::string fileSave;
+
     unsigned int logLength = 0;
     unsigned int layerNo;
     std::string Rtag = "R";
@@ -1036,7 +1036,8 @@ public:
         this->Rap = Rap;
         this->MR_mode = CLASSIC;
         // A string representing the tag for the junction's resistance value.
-        this->Rtag = "R_" + this->layers[0].id + "_" + this->layers[1].id;
+        if (this->layerNo == 2)
+            this->Rtag = "R_" + this->layers[0].id + "_" + this->layers[1].id;
     }
 
     /**
@@ -1517,7 +1518,6 @@ public:
             const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
             const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
             CVector<T> Hfluct_ = (this->layers[i].noiseParams.scaleNoise) ? this->layers[i].bfn->tickVector() : CVector<T>();
-            std::cout << Hfluct_ << std::endl;
             firstApprox[i] = this->layers[i].calculateLLGWithFieldTorque(
                 t, this->layers[i].mag, bottom, top, timeStep, Hfluct_) * timeStep;
         }
@@ -1530,7 +1530,6 @@ public:
             bottom.normalize();
             top.normalize();
             CVector<T> Hfluct_ = (this->layers[i].noiseParams.scaleNoise) ? this->layers[i].bfn->tickVector() : CVector<T>();
-            // std::cout << "Hfluct_2: " << Hfluct_ << std::endl;
             // first approximation is already multiplied by timeStep
             this->layers[i].mag = this->layers[i].mag + 0.5 * (
                 firstApprox[i] + this->layers[i].calculateLLGWithFieldTorque(
