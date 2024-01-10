@@ -827,6 +827,21 @@ public:
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
     }
 
+    /**
+     * @brief Assumes the dW has the scale of sqrt(timeStep).
+     *
+     * @param currentMag
+     * @param dW - stochastic vector already scaled properly
+     * @return CVector<T>
+     */
+    CVector<T> stochastic_torque(const CVector<T>& currentMag, const CVector<T>& dW) {
+
+        const T convTerm = -GYRO / (1 + pow(this->damping, 2));
+        const CVector<T> thcross = c_cross(currentMag, dW);
+        const CVector<T> thcross2 = c_cross(thcross, dW);
+        return (thcross + thcross2 * this->damping) * convTerm;
+    }
+
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep,
         const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
     {
@@ -864,11 +879,21 @@ public:
         return sqrt(mainFactor);
     }
 
-    CVector<T> nonStochasticLangevin(T time, T timeStep)
+    CVector<T> nonStochasticLangevin(const T& time, const T& timeStep)
     {
+        if (!this->temperatureSet)
+            return CVector<T>();
         const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
         const CVector<T> dW = CVector<T>(this->distribution);
         return dW * Hthermal_temp;
+    }
+
+    CVector<T> getOneFVector() {
+        if (this->noiseParams.scaleNoise != 0) {
+            // use buffered noise if available
+            return this->bfn->tickVector();
+        }
+        return CVector<T>();
     }
 
     CVector<T> nonStochasticOneFNoise(T time, T timestep) {
@@ -1499,6 +1524,45 @@ public:
         }
     }
 
+
+    void eulerHeunSolverStep(solverFn& functor, T& t, T& timeStep) {
+        /*
+            Euler Heun method (stochastic heun)
+
+            y_np = x + g(y,t) * dW
+            y_sp = g(y_np,t+1)
+            y(t+1) = y + dt*f(y,t) + .5*dW*(g(y,t)+y_sp)
+
+            with f being the non-stochastic part and g the stochastic part
+        */
+        // draw the noise for each layer, dW
+        std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
+
+        for (unsigned int i = 0; i < this->layerNo; i++) {
+            const CVector<T> dW = this->layers[i].nonStochasticLangevin(t, timeStep) + this->layers[i].getOneFVector();
+            const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
+            const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
+
+            const CVector<T> fnApprox = this->layers[i].calculateLLGWithFieldTorque(
+                t, this->layers[i].mag, bottom, top, timeStep, dW) * timeStep;
+            const CVector<T> gnApprox = this->layers[i].stochastic_torque(this->layers[i].mag, dW) * timeStep;
+
+            // theoretically we have 2 options
+            // 1. calculate only the stochastic part with the second approximation
+            // 2. calculate the second approximation of m with the stochastic and non-stochastic
+            //    part and then use if for torque est.
+            const CVector<T> mNext = this->layers[i].mag + fnApprox;
+            const CVector<T> gnPrimeApprox = this->layers[i].stochastic_torque(mNext, dW) * timeStep;
+            mPrime[i] = this->layers[i].mag + fnApprox + 0.5 * (gnApprox + gnPrimeApprox);
+        }
+
+        for (unsigned int i = 0; i < this->layerNo; i++) {
+            this->layers[i].mag = mPrime[i];
+            this->layers[i].mag.normalize();
+            std::cout << this->layers[i].mag << std::endl;
+        }
+    }
+
     void heunSolverStep(solverFn& functor, T& t, T& timeStep) {
         /*
             Heun method
@@ -1517,7 +1581,7 @@ public:
         {
             const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
             const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
-            CVector<T> Hfluct_ = (this->layers[i].noiseParams.scaleNoise) ? this->layers[i].bfn->tickVector() : CVector<T>();
+            const CVector<T> Hfluct_ = this->layers[i].getOneFVector() + this->layers[i].nonStochasticLangevin(t, timeStep);
             firstApprox[i] = this->layers[i].calculateLLGWithFieldTorque(
                 t, this->layers[i].mag, bottom, top, timeStep, Hfluct_) * timeStep;
         }
@@ -1529,13 +1593,13 @@ public:
             CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : (this->layers[i + 1].mag + firstApprox[i + 1]);
             bottom.normalize();
             top.normalize();
-            CVector<T> Hfluct_ = (this->layers[i].noiseParams.scaleNoise) ? this->layers[i].bfn->tickVector() : CVector<T>();
+            const CVector<T> Hfluct_ = this->layers[i].getOneFVector() + this->layers[i].nonStochasticLangevin(t, timeStep);
             // first approximation is already multiplied by timeStep
             this->layers[i].mag = this->layers[i].mag + 0.5 * (
                 firstApprox[i] + this->layers[i].calculateLLGWithFieldTorque(
                     t + timeStep, this->layers[i].mag + firstApprox[i],
                     bottom,
-                    top, timeStep, Hfluct_)*timeStep
+                    top, timeStep, Hfluct_) * timeStep
                 );
             // normalise
             this->layers[i].mag.normalize();
@@ -1667,8 +1731,6 @@ public:
                     std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
                     localMode = HEUN;
                 }
-
-
                 // create a buffer
                 l.createBufferedAlphaNoise(totalIterations);
             }
@@ -1679,13 +1741,13 @@ public:
         auto runner = &Junction<T>::runMultiLayerSolver;
 
         if (this->layerNo == 1)
-        {
             runner = &Junction<T>::runSingleLayerSolver;
-        }
+
         if (localMode == HEUN)
-        {
             runner = &Junction<T>::heunSolverStep;
-        }
+        else if (localMode == EULER_HEUN)
+            runner = &Junction<T>::eulerHeunSolverStep;
+
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             T t = i * timeStep;
