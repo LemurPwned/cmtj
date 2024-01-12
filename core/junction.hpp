@@ -1551,7 +1551,8 @@ public:
             // 1. calculate only the stochastic part with the second approximation
             // 2. calculate the second approximation of m with the stochastic and non-stochastic
             //    part and then use if for torque est.
-            const CVector<T> mNext = this->layers[i].mag + fnApprox;
+            CVector<T> mNext = this->layers[i].mag + fnApprox;
+            mNext.normalize();
             const CVector<T> gnPrimeApprox = this->layers[i].stochastic_torque(mNext, dW) * timeStep;
             mPrime[i] = this->layers[i].mag + fnApprox + 0.5 * (gnApprox + gnPrimeApprox);
         }
@@ -1559,7 +1560,6 @@ public:
         for (unsigned int i = 0; i < this->layerNo; i++) {
             this->layers[i].mag = mPrime[i];
             this->layers[i].mag.normalize();
-            std::cout << this->layers[i].mag << std::endl;
         }
     }
 
@@ -1591,13 +1591,15 @@ public:
 
             CVector<T> bottom = (i == 0) ? CVector<T>() : (this->layers[i - 1].mag + firstApprox[i - 1]);
             CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : (this->layers[i + 1].mag + firstApprox[i + 1]);
+            CVector<T> mNext = this->layers[i].mag + firstApprox[i];
+            mNext.normalize();
             bottom.normalize();
             top.normalize();
             const CVector<T> Hfluct_ = this->layers[i].getOneFVector() + this->layers[i].nonStochasticLangevin(t, timeStep);
             // first approximation is already multiplied by timeStep
             this->layers[i].mag = this->layers[i].mag + 0.5 * (
                 firstApprox[i] + this->layers[i].calculateLLGWithFieldTorque(
-                    t + timeStep, this->layers[i].mag + firstApprox[i],
+                    t + timeStep, mNext,
                     bottom,
                     top, timeStep, Hfluct_) * timeStep
                 );
