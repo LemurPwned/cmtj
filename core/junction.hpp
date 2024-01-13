@@ -747,6 +747,22 @@ public:
         }
         return dmdt * -GYRO * convTerm;
     }
+
+    /**
+     * @brief Assumes the dW has the scale of sqrt(timeStep).
+     *
+     * @param currentMag
+     * @param dW - stochastic vector already scaled properly
+     * @return CVector<T>
+     */
+    CVector<T> stochasticTorque(const CVector<T>& currentMag, const CVector<T>& dW) {
+
+        const T convTerm = -GYRO / (1. + pow(this->damping, 2));
+        const CVector<T> thcross = c_cross(currentMag, dW);
+        const CVector<T> thcross2 = c_cross(currentMag, thcross);
+        return (thcross + thcross2 * this->damping) * convTerm;
+    }
+
     const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, const CVector<T>& m,
         const CVector<T>& bottom, const CVector<T>& top,
         const CVector<T>& dipole, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
@@ -827,20 +843,6 @@ public:
         return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
     }
 
-    /**
-     * @brief Assumes the dW has the scale of sqrt(timeStep).
-     *
-     * @param currentMag
-     * @param dW - stochastic vector already scaled properly
-     * @return CVector<T>
-     */
-    CVector<T> stochastic_torque(const CVector<T>& currentMag, const CVector<T>& dW) {
-
-        const T convTerm = -GYRO / (1 + pow(this->damping, 2));
-        const CVector<T> thcross = c_cross(currentMag, dW);
-        const CVector<T> thcross2 = c_cross(thcross, dW);
-        return (thcross + thcross2 * this->damping) * convTerm;
-    }
 
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep,
         const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
@@ -1524,37 +1526,35 @@ public:
         }
     }
 
-
     void eulerHeunSolverStep(solverFn& functor, T& t, T& timeStep) {
         /*
             Euler Heun method (stochastic heun)
 
-            y_np = x + g(y,t) * dW
-            y_sp = g(y_np,t+1)
-            y(t+1) = y + dt*f(y,t) + .5*dW*(g(y,t)+y_sp)
+            y_np = y + g(y,t,dW)*dt
+            g_sp = g(y_np,t+1,dW)
+            y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
 
             with f being the non-stochastic part and g the stochastic part
         */
         // draw the noise for each layer, dW
         std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
-
         for (unsigned int i = 0; i < this->layerNo; i++) {
+            // todo: after you're done, double check the thermal magnitude and dt scaling there
             const CVector<T> dW = this->layers[i].nonStochasticLangevin(t, timeStep) + this->layers[i].getOneFVector();
             const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
             const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
 
             const CVector<T> fnApprox = this->layers[i].calculateLLGWithFieldTorque(
-                t, this->layers[i].mag, bottom, top, timeStep, dW) * timeStep;
-            const CVector<T> gnApprox = this->layers[i].stochastic_torque(this->layers[i].mag, dW) * timeStep;
+                t, this->layers[i].mag, bottom, top, timeStep);
+            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, dW);
 
             // theoretically we have 2 options
             // 1. calculate only the stochastic part with the second approximation
             // 2. calculate the second approximation of m with the stochastic and non-stochastic
             //    part and then use if for torque est.
-            CVector<T> mNext = this->layers[i].mag + fnApprox;
-            mNext.normalize();
-            const CVector<T> gnPrimeApprox = this->layers[i].stochastic_torque(mNext, dW) * timeStep;
-            mPrime[i] = this->layers[i].mag + fnApprox + 0.5 * (gnApprox + gnPrimeApprox);
+            const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
+            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, dW);
+            mPrime[i] = this->layers[i].mag + fnApprox * timeStep + 0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
         }
 
         for (unsigned int i = 0; i < this->layerNo; i++) {
@@ -1722,16 +1722,16 @@ public:
                 // if at least one temp. driver is set
                 // then use heun for consistency
                 if (localMode != HEUN && localMode != EULER_HEUN) {
-                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
-                    localMode = HEUN;
+                    std::cout << "[WARNING] Solver automatically changed to Euler Heun for stochastic calculation." << std::endl;
+                    localMode = EULER_HEUN;
                 }
             }
             if (l.noiseParams.scaleNoise != 0) {
                 // if at least one temp. driver is set
                 // then use heun for consistency
                 if (localMode != HEUN && localMode != EULER_HEUN) {
-                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
-                    localMode = HEUN;
+                    std::cout << "[WARNING] Solver automatically changed to Euler Heun for stochastic calculation." << std::endl;
+                    localMode = EULER_HEUN;
                 }
                 // create a buffer
                 l.createBufferedAlphaNoise(totalIterations);
