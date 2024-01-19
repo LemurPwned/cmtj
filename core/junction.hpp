@@ -838,11 +838,6 @@ public:
         this->mag = m_t;
     }
 
-    CVector<T> non_stochastic_llg(const CVector<T>& cm, T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
-    }
-
 
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep,
         const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
@@ -881,7 +876,7 @@ public:
         return sqrt(mainFactor);
     }
 
-    CVector<T> nonStochasticLangevin(const T& time, const T& timeStep)
+    CVector<T> getStochasticLangevinVector(const T& time, const T& timeStep)
     {
         if (!this->temperatureSet)
             return CVector<T>();
@@ -896,107 +891,6 @@ public:
             return this->bfn->tickVector();
         }
         return CVector<T>();
-    }
-
-    CVector<T> nonStochasticOneFNoise(T time, T timestep) {
-        const T pinkNoise = this->ofn->tick();
-        const CVector<T> dW2 = CVector<T>(this->distribution);
-        return dW2 * pinkNoise;
-    }
-
-    /**
-     * @brief Computes a single Euler-Heun step [DEPRECATED].
-     * [DEPRECATED] This is the old Euler-Heun method, Heun is preferred.
-     * Bottom and top are relative to the current layer.
-     * They are used to compute interactions.
-     * @param time: current time of the simulation
-     * @param timeStep: integration time of the solver
-     * @param bottom: bottom layer to the current layer
-     * @param top: top layer to the current layer
-     */
-    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        // we compute the two below in stochastic part, not non stochastic.
-        this->nonStochasticTempSet = false;
-        this->nonStochasticOneFSet = false;
-        // this is Stratonovich integral
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-        // Brownian motion sample
-        // Generate the noise from the Brownian motion
-        // dW2 is used for 1/f noise generation
-        CVector<T> dW = CVector<T>(this->distribution); // * sqrt(timeStep);
-        CVector<T> dW2 = CVector<T>(this->distribution); //* sqrt(timeStep);
-        // squared dW -- just utility
-        dW.normalize();
-        dW2.normalize();
-        // f_n is the vector of non-stochastic part at step n
-        // multiply by timeStep (h) here for convenience
-        const T Honef = this->getStochasticOneFNoise(time);
-        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
-        // g_n is the stochastic part of the LLG at step n
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
-
-        // actual solution
-        // approximate next step ytilde
-        const CVector<T> mapprox = this->mag + g_n;
-        // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
-        // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
-        CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
-        m_t.normalize();
-        this->mag = m_t;
-    }
-
-    /**
-     * @brief Computes a single Heun step.
-     * This method is preferred over Euler-Heun method.
-     * Bottom and top are relative to the current layer.
-     * They are used to compute interactions.
-     * @param time: current time of the simulation
-     * @param timeStep: integration time of the solver
-     * @param bottom: bottom layer to the current layer
-     * @param top: top layer to the current layer
-     */
-    void heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
-        // we compute the two below in stochastic part, not non stochastic.
-        this->nonStochasticTempSet = false;
-        this->nonStochasticOneFSet = false;
-        // this is Stratonovich integral
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-        // Brownian motion sample
-        // Generate the noise from the Brownian motion
-        const T Honef_scale = this->noiseParams.scaleNoise;
-        const T Hthermal_scale = this->getLangevinStochasticStandardDeviation(time, timeStep);
-        const CVector<T> Hlangevin = dWn * Hthermal_scale;
-        const CVector<T> Honef = dWn2 * Honef_scale;
-        const CVector<T> m_t = this->mag;
-        const CVector<T> f_n = this->calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep, Hlangevin + Honef);
-        // immediate m approximation
-        CVector<T> m_approx = m_t + f_n * timeStep;
-        CVector<T> dW = CVector<T>(this->distribution);
-        CVector<T> dW2 = CVector<T>(this->distribution);
-        if (this->noiseParams.scaleNoise != 0)
-        {
-            dW2 = this->bfn->tickVector();
-        }
-        dW.normalize();
-        dW2.normalize();
-        m_approx.normalize();
-        const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
-        const CVector<T> Honef_approx = dW2 * Honef_scale;
-        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep,
-            m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
-        dWn = dW; // replace
-        dWn2 = dW2;
-        CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
-        nm_t.normalize();
-        this->mag = nm_t;
     }
 };
 
@@ -1115,29 +1009,6 @@ public:
         }
         // this->fileSave = std::move(filename);
         this->MR_mode = STRIP;
-    }
-
-    /**
-     * @brief Select a solver for the LLGS/sLLGS solutions
-     * Available: DormandPrice, EulerHeun, RK4
-     * @param solverMode one of EULER_HEUN, DORMAND_PRICE or RK4
-     */
-    const auto selectSolver(SolverMode solverMode)
-    {
-        switch (solverMode)
-        {
-        case EULER_HEUN:
-            return &Layer<T>::euler_heun_step;
-
-        case RK4:
-            return &Layer<T>::rk4_step;
-
-        case HEUN:
-            return &Layer<T>::heun_step;
-
-        default:
-            return &Layer<T>::rk4_step;
-        }
     }
 
     /**
@@ -1540,7 +1411,7 @@ public:
         std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
         for (unsigned int i = 0; i < this->layerNo; i++) {
             // todo: after you're done, double check the thermal magnitude and dt scaling there
-            const CVector<T> dW = this->layers[i].nonStochasticLangevin(t, timeStep) + this->layers[i].getOneFVector();
+            const CVector<T> dW = this->layers[i].getStochasticLangevinVector(t, timeStep) + this->layers[i].getOneFVector();
             const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
             const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
 
@@ -1563,13 +1434,25 @@ public:
         }
     }
 
+
     void heunSolverStep(solverFn& functor, T& t, T& timeStep) {
         /*
             Heun method
             y'(t+1) = y(t) + dy(y, t)
             y(t+1) = y(t) + 0.5 * (dy(y, t) + dy(y'(t+1), t+1))
         */
-        std::vector<CVector<T>> firstApprox(this->layerNo, CVector<T>());
+        /*
+            Stochastic Heun method
+            y_np = y + g(y,t,dW)*dt
+            g_sp = g(y_np,t+1,dW)
+            y' = y_n + f_n * dt + g_n * dt
+            f' = f(y, )
+            y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
+        */
+        std::vector<CVector<T>> fn(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> gn(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> dW(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> mNext(this->layerNo, CVector<T>());
         // first approximation
 
         // make sure that
@@ -1581,28 +1464,28 @@ public:
         {
             const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
             const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
-            const CVector<T> Hfluct_ = this->layers[i].getOneFVector() + this->layers[i].nonStochasticLangevin(t, timeStep);
-            firstApprox[i] = this->layers[i].calculateLLGWithFieldTorque(
-                t, this->layers[i].mag, bottom, top, timeStep, Hfluct_) * timeStep;
+
+            fn[i] = this->layers[i].calculateLLGWithFieldTorque(
+                t, this->layers[i].mag, bottom, top, timeStep);
+
+            // draw the noise for each layer, dW
+            dW[i] = this->layers[i].getStochasticLangevinVector(t, timeStep) + this->layers[i].getOneFVector();
+            gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]);
+
+            mNext[i] = this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep);
         }
         // second approximation
         for (unsigned int i = 0; i < this->layerNo; i++)
         {
-
-            CVector<T> bottom = (i == 0) ? CVector<T>() : (this->layers[i - 1].mag + firstApprox[i - 1]);
-            CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : (this->layers[i + 1].mag + firstApprox[i + 1]);
-            CVector<T> mNext = this->layers[i].mag + firstApprox[i];
-            mNext.normalize();
-            bottom.normalize();
-            top.normalize();
-            const CVector<T> Hfluct_ = this->layers[i].getOneFVector() + this->layers[i].nonStochasticLangevin(t, timeStep);
+            const CVector<T> bottom = (i == 0) ? CVector<T>() : mNext[i - 1];
+            const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : mNext[i + 1];
             // first approximation is already multiplied by timeStep
-            this->layers[i].mag = this->layers[i].mag + 0.5 * (
-                firstApprox[i] + this->layers[i].calculateLLGWithFieldTorque(
-                    t + timeStep, mNext,
+            this->layers[i].mag = this->layers[i].mag + 0.5 * timeStep * (
+                fn[i] + this->layers[i].calculateLLGWithFieldTorque(
+                    t + timeStep, mNext[i],
                     bottom,
-                    top, timeStep, Hfluct_) * timeStep
-                );
+                    top, timeStep)
+                ) + 0.5 * (gn[i] + this->layers[i].stochasticTorque(mNext[i], dW[i])) * sqrt(timeStep);
             // normalise
             this->layers[i].mag.normalize();
         }
@@ -1737,14 +1620,13 @@ public:
                 l.createBufferedAlphaNoise(totalIterations);
             }
         }
-        auto solver = this->selectSolver(localMode);
+        auto solver = &Layer<T>::rk4_step;
 
         // assign a runner function pointer from junction
         auto runner = &Junction<T>::runMultiLayerSolver;
 
         if (this->layerNo == 1)
             runner = &Junction<T>::runSingleLayerSolver;
-
         if (localMode == HEUN)
             runner = &Junction<T>::heunSolverStep;
         else if (localMode == EULER_HEUN)

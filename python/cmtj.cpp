@@ -210,7 +210,9 @@ PYBIND11_MODULE(cmtj, m)
         .def("setAlphaNoise", &DLayer::setAlphaNoise)
         .def("setOneFNoise", &DLayer::setOneFNoise)
         // getters
-        .def("getId", &DLayer::getId);
+        .def("getId", &DLayer::getId)
+        .def("getOneFVector", &DLayer::getOneFVector)
+        .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
 
     py::class_<DJunction>(m, "Junction")
         .def(py::init<std::vector<DLayer>>(),
