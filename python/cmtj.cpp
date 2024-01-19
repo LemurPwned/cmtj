@@ -16,6 +16,8 @@ using namespace pybind11::literals;
 namespace py = pybind11;
 
 using DJunction = Junction<double>;
+using DParallelStack = ParallelStack<double>;
+using DSeriesStack = SeriesStack<double>;
 using DLayer = Layer<double>;
 using DVector = CVector<double>;
 using DScalarDriver = ScalarDriver<double>;
@@ -283,51 +285,45 @@ PYBIND11_MODULE(cmtj, m)
 
     // stack module
     py::module stack_module = m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
-    py::class_<SeriesStack<double>>(stack_module, "SeriesStack")
+    py::class_<DSeriesStack>(stack_module, "SeriesStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
             std::string>(),
             "junctionList"_a,
             "topId_a"_a = "free",
             "bottomId"_a = "bottom")
-        .def("runSimulation", &SeriesStack<double>::runSimulation,
+        .def("runSimulation", &DSeriesStack::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)
-        .def("runSimulationNonDelayed", &SeriesStack<double>::runSimulationNonDelayed,
-            "totalTime"_a,
-            "timeStep"_a = 1e-13,
-            "writeFrequency"_a = 1e-11)
-        .def("setMagnetisation", &SeriesStack<double>::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
-        .def("getMagnetisation", &SeriesStack<double>::getMagnetisation, "junction"_a, "layerId"_a)
-        .def("setCoupledCurrentDriver", &SeriesStack<double>::setCoupledCurrentDriver, "driver"_a)
-        .def("setExternalFieldDriver", &SeriesStack<double>::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", &SeriesStack<double>::setCouplingStrength, "coupling"_a)
+        .def("setMagnetisation", &DSeriesStack::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
+        .def("getMagnetisation", &DSeriesStack::getMagnetisation, "junction"_a, "layerId"_a)
+        .def("setCoupledCurrentDriver", &DSeriesStack::setCoupledCurrentDriver, "driver"_a)
+        .def("setExternalFieldDriver", &DSeriesStack::setExternalFieldDriver, "driver"_a)
+        .def("setCouplingStrength", &DSeriesStack::setCouplingStrength, "coupling"_a)
+        .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
         // logging
-        .def("clearLogs", &SeriesStack<double>::clearLogs)
-        .def("getLog", py::overload_cast<unsigned int>(&SeriesStack<double>::getLog))
-        .def("getLog", py::overload_cast<>(&SeriesStack<double>::getLog));
+        .def("clearLogs", &DSeriesStack::clearLogs)
+        .def("getLog", py::overload_cast<unsigned int>(&DSeriesStack::getLog))
+        .def("getLog", py::overload_cast<>(&DSeriesStack::getLog));
 
-    py::class_<ParallelStack<double>>(stack_module, "ParallelStack")
+    py::class_<DParallelStack>(stack_module, "ParallelStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
             std::string>(),
             "junctionList"_a,
             "topId_a"_a = "free",
             "bottomId"_a = "bottom")
-        .def("runSimulation", &ParallelStack<double>::runSimulation,
+        .def("runSimulation", &DParallelStack::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
             "writeFrequency"_a = 1e-11)
-        .def("runSimulationNonDelayed", &ParallelStack<double>::runSimulationNonDelayed,
-            "totalTime"_a,
-            "timeStep"_a = 1e-13,
-            "writeFrequency"_a = 1e-11)
-        .def("setMagnetisation", &ParallelStack<double>::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
-        .def("getMagnetisation", &ParallelStack<double>::getMagnetisation, "junction"_a, "layerId"_a)
-        .def("setCoupledCurrentDriver", &ParallelStack<double>::setCoupledCurrentDriver, "driver"_a)
-        .def("setExternalFieldDriver", &ParallelStack<double>::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", &ParallelStack<double>::setCouplingStrength, "coupling"_a)
+        .def("setMagnetisation", &DParallelStack::setMagnetisation, "junction"_a, "layerId"_a, "mag"_a)
+        .def("getMagnetisation", &DParallelStack::getMagnetisation, "junction"_a, "layerId"_a)
+        .def("setCoupledCurrentDriver", &DParallelStack::setCoupledCurrentDriver, "driver"_a)
+        .def("setExternalFieldDriver", &DParallelStack::setExternalFieldDriver, "driver"_a)
+        .def("setCouplingStrength", &DParallelStack::setCouplingStrength, "coupling"_a)
+        .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &ParallelStack<double>::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&ParallelStack<double>::getLog))

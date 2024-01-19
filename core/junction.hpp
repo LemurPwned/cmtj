@@ -1354,7 +1354,7 @@ public:
     }
 
     typedef void (Layer<T>::* solverFn)(T t, T timeStep, const CVector<T>& bottom, const CVector<T>& top);
-
+    typedef void (Junction<T>::*runnerFn)(solverFn& functor, T& t, T& timeStep);
     /**
      * @brief Run Euler-Heun or RK4 method for a single layer.
      *
@@ -1574,29 +1574,7 @@ public:
         }
     }
 
-    /**
-     * Main run simulation function. Use it to run the simulation.
-     * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
-     * @param timeStep: the integration step of the RK45 method. Default is 1e-13
-     * @param writeFrequency: how often is the log saved to? Must be no smaller than `timeStep`. Default is 1e-11.
-     * @param persist: whether to save to the filename specified in the Junction constructor. Default is true
-     * @param log: if you want some verbosity like timing the simulation. Default is false
-     * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default is false.
-     * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
-     */
-    void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
-        bool log = false, bool calculateEnergies = false,
-        SolverMode mode = RK4)
-
-    {
-        if (timeStep > writeFrequency)
-        {
-            std::runtime_error("The time step cannot be larger than write frequency!");
-        }
-        const unsigned int totalIterations = (int)(totalTime / timeStep);
-        const unsigned int writeEvery = (int)(writeFrequency / timeStep);
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        // pick a solver based on drivers
+    std::tuple<runnerFn, solverFn, SolverMode> getSolver(SolverMode mode, unsigned int totalIterations) {
         SolverMode localMode = mode;
         for (auto& l : this->layers)
         {
@@ -1624,13 +1602,41 @@ public:
 
         // assign a runner function pointer from junction
         auto runner = &Junction<T>::runMultiLayerSolver;
-
         if (this->layerNo == 1)
             runner = &Junction<T>::runSingleLayerSolver;
         if (localMode == HEUN)
             runner = &Junction<T>::heunSolverStep;
         else if (localMode == EULER_HEUN)
             runner = &Junction<T>::eulerHeunSolverStep;
+
+        return std::make_tuple(runner, solver, localMode);
+    }
+
+
+    /**
+     * Main run simulation function. Use it to run the simulation.
+     * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
+     * @param timeStep: the integration step of the RK45 method. Default is 1e-13
+     * @param writeFrequency: how often is the log saved to? Must be no smaller than `timeStep`. Default is 1e-11.
+     * @param persist: whether to save to the filename specified in the Junction constructor. Default is true
+     * @param log: if you want some verbosity like timing the simulation. Default is false
+     * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log. Default is false.
+     * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
+     */
+    void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
+        bool log = false, bool calculateEnergies = false,
+        SolverMode mode = RK4)
+
+    {
+        if (timeStep > writeFrequency)
+        {
+            std::runtime_error("The time step cannot be larger than write frequency!");
+        }
+        const unsigned int totalIterations = (int)(totalTime / timeStep);
+        const unsigned int writeEvery = (int)(writeFrequency / timeStep);
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        // pick a solver based on drivers
+        auto [runner, solver, _] = getSolver(mode, totalIterations);
 
         for (unsigned int i = 0; i < totalIterations; i++)
         {
