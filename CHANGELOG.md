@@ -1,5 +1,10 @@
 # Changelog
 
+# 1.5.0
+
+- Kasdin 1/f noise generator added to the `noise` module and to the solvers
+- reworking the solvers for better performance and stability
+
 # 1.4.1
 
 - Adding a basic optimisation script in the `optimization` module.
