@@ -93,7 +93,7 @@ class BuildExt(build_ext):
     """
 
     c_opts = {
-        "msvc": ["/EHsc", "/permissive-"],
+        "msvc": ["/EHsc", "/std:c++17"],
         "unix": [],
     }
     l_opts = {
@@ -113,9 +113,10 @@ class BuildExt(build_ext):
         ct = self.compiler.compiler_type
         opts = self.c_opts.get(ct, [])
         link_opts = self.l_opts.get(ct, [])
-        opts.append(cpp_flag(self.compiler))
-        if ct == "unix" and has_flag(self.compiler, "-fvisibility=hidden"):
-            opts.append("-fvisibility=hidden")
+        if ct == "unix":
+            opts.append(cpp_flag(self.compiler))
+            if has_flag(self.compiler, "-fvisibility=hidden"):
+                opts.append("-fvisibility=hidden")
 
         for ext in self.extensions:
             ext.define_macros = [("VERSION_INFO",
