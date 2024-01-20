@@ -1052,7 +1052,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
         }
     }
     void axiallayerSetter(const std::string& layerID, axialDriverSetter functor, AxialDriver<T> driver)
@@ -1068,7 +1068,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
         }
     }
     void setLayerTemperatureDriver(const std::string& layerID, const ScalarDriver<T>& driver)
@@ -1160,7 +1160,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to match the layer order or find layer ids!");
+            throw std::runtime_error("Failed to match the layer order or find layer ids: " + bottomLayer + " and " + topLayer + "!");
         }
     }
 
@@ -1187,7 +1187,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to match the layer order or find layer ids!");
+            throw std::runtime_error("Failed to match the layer order or find layer ids: " + bottomLayer + " and " + topLayer + "!");
         }
     }
 
@@ -1204,7 +1204,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
         }
     }
 
@@ -1253,7 +1253,7 @@ public:
         if (res != this->layers.end()) {
             return *res;
         }
-        throw std::runtime_error("Failed to find a layer with a given id!");
+        throw std::runtime_error("Failed to find a layer with a given id " + layerID + "!");
     }
 
     /**
@@ -1354,7 +1354,7 @@ public:
     }
 
     typedef void (Layer<T>::* solverFn)(T t, T timeStep, const CVector<T>& bottom, const CVector<T>& top);
-    typedef void (Junction<T>::*runnerFn)(solverFn& functor, T& t, T& timeStep);
+    typedef void (Junction<T>::* runnerFn)(solverFn& functor, T& t, T& timeStep);
     /**
      * @brief Run Euler-Heun or RK4 method for a single layer.
      *

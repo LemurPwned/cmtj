@@ -111,7 +111,7 @@ def two_layer_mtj() -> Tuple[Junction, ResistanceParameters]:
     K1 = 1.05e3
     K2 = 50e3
 
-    junction = Junction([l1, l2])
+    junction = Junction([l1, l2], 100, 200)
 
     junction.setLayerAnisotropyDriver("free", ScalarDriver.getConstantDriver(K1))
 

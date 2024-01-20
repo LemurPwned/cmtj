@@ -301,7 +301,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setCoupledCurrentDriver", &DSeriesStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DSeriesStack::setExternalFieldDriver, "driver"_a)
         .def("setCouplingStrength", &DSeriesStack::setCouplingStrength, "coupling"_a)
-        .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
+        .def("setDelayed", &DSeriesStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &DSeriesStack::clearLogs)
         .def("getLog", py::overload_cast<unsigned int>(&DSeriesStack::getLog))

@@ -26,7 +26,7 @@ private:
 protected:
     std::string topId, bottomId; // Ids of the top and bottom junctions
     T couplingStrength = 0;
-    bool delayed = false;
+    bool delayed = true;
     virtual T calculateStackResistance(std::vector<T> resistances) = 0;
     virtual T computeCouplingCurrentDensity(T currentDensity,
         CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
@@ -36,6 +36,9 @@ public:
 
     void setDelayed(bool delay)
     {
+        if (!delay && !this->isTwoLayerMemberStack()){
+            throw std::runtime_error("Non delayed coupling is only supported for 2 layer stacks!");
+        }
         this->delayed = delay;
     }
 
@@ -98,7 +101,8 @@ public:
             this->junctionList.end(),
             [](const Junction<T>& j) { return j.MR_mode != Junction<T>::MRmode::CLASSIC; }))
         {
-            throw std::runtime_error("Junction has a non-classic magnetoresitance mode!");
+            throw std::runtime_error("Junction has a non-classic magnetoresitance mode!"
+                " Define the junction with Rp and Rap resistance values.");
         }
     }
     void
