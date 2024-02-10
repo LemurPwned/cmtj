@@ -357,13 +357,6 @@ public:
     }
 };
 
-enum Axis
-{
-    xaxis,
-    yaxis,
-    zaxis
-};
-
 template <typename T>
 class AxialDriver : public Driver<T>
 {
@@ -450,6 +443,10 @@ public:
             return AxialDriver(NullDriver<T>(), in, NullDriver<T>());
         case zaxis:
             return AxialDriver(NullDriver<T>(), NullDriver<T>(), in);
+        case all:
+            return AxialDriver(in, in, in);
+        case none:
+            return AxialDriver(NullDriver<T>(), NullDriver<T>(), NullDriver<T>());
         }
         return AxialDriver(NullDriver<T>(), NullDriver<T>(), NullDriver<T>());
     }

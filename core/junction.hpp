@@ -221,6 +221,7 @@ public:
         T alphaNoise = 1.0;
         T scaleNoise = 0.0;
         T stdNoise = 0.0;
+        Axis axis = Axis::all;
     };
     BufferedNoiseParameters noiseParams;
     std::shared_ptr<OneFNoise<T>> ofn;
@@ -451,19 +452,24 @@ public:
         this->nonStochasticOneFSet = true;
     }
 
-    void setAlphaNoise(T alpha, T std, T scale) {
+    void setAlphaNoise(T alpha, T std, T scale, Axis axis = Axis::all) {
         if ((alpha < 0) || (alpha > 2))
             throw std::runtime_error("alpha must be between 0 and 2");
         this->noiseParams.alphaNoise = alpha;
         this->noiseParams.stdNoise = std;
         this->noiseParams.scaleNoise = scale;
+        this->noiseParams.axis = axis;
         this->pinkNoiseSet = true;
     }
 
     void createBufferedAlphaNoise(unsigned int bufferSize) {
+        if (this->noiseParams.alphaNoise < 0)
+            throw std::runtime_error("alpha must be set before creating the noise!"
+                " Use setAlphaNoise function to set the alpha parameter.");
+
         this->bfn = std::shared_ptr<VectorAlphaNoise<T>>(new VectorAlphaNoise<T>(bufferSize,
             this->noiseParams.alphaNoise,
-            this->noiseParams.stdNoise, this->noiseParams.scaleNoise));
+            this->noiseParams.stdNoise, this->noiseParams.scaleNoise, this->noiseParams.axis));
     }
 
     void setCurrentDriver(const ScalarDriver<T>& driver)
@@ -1491,7 +1497,6 @@ public:
         }
 
     }
-
 
     /**
      * @brief Calculate strip magnetoresistance for multilayer.

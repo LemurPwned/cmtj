@@ -61,6 +61,15 @@ protected:
 };
 
 
+template<typename T = double>
+class NullTicker {
+public:
+    explicit NullTicker() {}
+    ~NullTicker() {}
+    virtual T tick() {
+        return 0;
+    }
+};
 
 template<typename T = double>
 class OneFNoise {
@@ -124,7 +133,7 @@ public:
 
 std::mt19937 generator(std::random_device{}());
 template<typename T = double>
-class BufferedAlphaNoise {
+class BufferedAlphaNoise : public NullTicker<T> {
 protected:
     std::vector<std::complex<float>> bufferWhite, bufferColoured;
     std::vector<std::complex<float>> bufferWhiteComplex, bufferColouredComplex;
@@ -209,7 +218,8 @@ public:
         return this->result;
     }
 
-    T tick() {
+    // overload from null ticker
+    T tick() override {
         // we measure only up to a buffer size, not 2x buffer size
         if (this->internalCounter == 0) {
             this->fillBuffer();
@@ -225,15 +235,42 @@ template<typename T = double>
 class VectorAlphaNoise {
 private:
     T scale = 1.;
-    // 3 components of type BufferedAlphaNoise
-    std::unique_ptr<BufferedAlphaNoise<T>> components_x, components_y, components_z;
+    // 3 components of type BufferedAlphaNoise, or NullTicker
+    std::unique_ptr<NullTicker<T>> components_x, components_y, components_z;
     CVector<T> prevSample, currentSample;
+    bool normalized = true;
 public:
-    VectorAlphaNoise(unsigned int bufferSize, T alpha, T std, T scale) : scale(scale) {
-        this->components_x = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
-        this->components_y = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
-        this->components_z = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+    VectorAlphaNoise(unsigned int bufferSize, T alpha, T std, T scale, Axis axis = Axis::all) : scale(scale) {
+        // initialize the as null tickers
+        this->components_x = std::unique_ptr<NullTicker<T>>(new NullTicker<T>());
+        this->components_y = std::unique_ptr<NullTicker<T>>(new NullTicker<T>());
+        this->components_z = std::unique_ptr<NullTicker<T>>(new NullTicker<T>());
+
+        switch (axis)
+        {
+        case Axis::all:
+            this->components_x = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+            this->components_y = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+            this->components_z = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+            this->normalized = true;
+            break;
+        case Axis::xaxis:
+            this->components_x = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+            this->normalized = false;
+            break;
+        case Axis::yaxis:
+            this->components_y = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+            this->normalized = false;
+            break;
+        case Axis::zaxis:
+            this->components_z = std::unique_ptr<BufferedAlphaNoise<T>>(new BufferedAlphaNoise<T>(bufferSize, alpha, std, 1.));
+            this->normalized = false;
+            break;
+        default:
+            throw std::runtime_error("Invalid axis specified: " + std::to_string(static_cast<int>(axis)));
+        }
     }
+
     CVector<T> tickVector() {
         // TODO  -- if normalized, generate only 2 values and compute the third from the normalization
         this->prevSample = this->currentSample;
@@ -242,7 +279,8 @@ public:
             this->components_y->tick(),
             this->components_z->tick()
         );
-        this->currentSample.normalize();
+        if (this->normalized)
+            this->currentSample.normalize();
         return this->currentSample * this->scale;
     }
 

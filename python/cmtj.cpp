@@ -66,6 +66,8 @@ PYBIND11_MODULE(cmtj, m)
         .value("xaxis", xaxis)
         .value("yaxis", yaxis)
         .value("zaxis", zaxis)
+        .value("all", all)
+        .value("none", none)
         .export_values();
 
     py::enum_<Reference>(m, "Reference")
@@ -356,11 +358,12 @@ PYBIND11_MODULE(cmtj, m)
         .def("fillBuffer", &BufferedAlphaNoise<double>::fillBuffer)
         .def("tick", &BufferedAlphaNoise<double>::tick);
     py::class_<VectorAlphaNoise<double>>(generator_module, "VectorAlphaNoise")
-        .def(py::init<unsigned int, double, double, double>(),
+        .def(py::init<unsigned int, double, double, double, Axis>(),
             "bufferSize"_a,
             "alpha"_a,
             "std"_a,
-            "scale"_a)
+            "scale"_a,
+            "axis"_a = Axis::all)
         .def("tickVector", &VectorAlphaNoise<double>::tickVector)
         .def("tick", &VectorAlphaNoise<double>::tick)
         .def("getPrevSample", &VectorAlphaNoise<double>::getPrevSample)

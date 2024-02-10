@@ -4,8 +4,19 @@
 #include <functional>               // for function
 #include <iostream>                 // for operator<<, ostream
 #include <stdexcept>                // for runtime_error
-#include <vector>                   // for vector
-#include <sstream>
+#include <vector>                   // for allocator, vector
+#include <sstream>                  // for char_traits, basic_stringstream, basic_os..
+
+/// @brief A simple enum to represent the axis
+enum Axis
+{
+    xaxis,
+    yaxis,
+    zaxis,
+    all,
+    none
+};
+
 template <typename T>
 class CVector
 {
