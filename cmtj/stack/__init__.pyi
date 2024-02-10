@@ -71,6 +71,8 @@ class ParallelStack:
         """
         ...
 
+        def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector: ...
+
 class SeriesStack:
     def __init__(self, junctionList: List[cmtj.Junction]) -> None:
         """
@@ -139,3 +141,4 @@ class SeriesStack:
         :param mag: the magnetisation to be set.
         """
         ...
+    def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector: ...

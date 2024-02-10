@@ -28,6 +28,7 @@ nav:
           - Ensemble models: api/ensemble-reference.md
           - Miscellanous: api/general-reference.md
       - Stack: gen-docs/stack.md
+      - Noise: gen-docs/noise.md
   - Examples:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
       - Advanced experiments: tutorials/examples.ipynb
