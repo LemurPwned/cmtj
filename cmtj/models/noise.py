@@ -22,7 +22,7 @@ def noise_model(
     amplify_no: int = 0,
     dims: int = 1,
     seed: int = 42,
-    offset: int = 1,
+    offset: int = 0,
     save_vectors: bool = False,
     verbose: bool = False,
 ):
@@ -104,8 +104,9 @@ def noise_model(
     triggers = 0
     for i in tqdm(range(offset, steps + offset), total=steps):
         if enable_oscillations:
-            vector_values = amplitudes * np.sin(
-                2 * np.pi * freqs * i * time_scale + phases).reshape(-1, 1)
+            vector_values = amplitudes * np.sin(2 * np.pi * freqs *
+                                                (i - offset) * time_scale +
+                                                phases).reshape(-1, 1)
         freq_mask = i % freqs == 0
         fsum = np.sum(freq_mask)
         f_counts[freq_mask] += 1
@@ -179,27 +180,49 @@ def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
     with plt.style.context(["science", "nature"]):
         w, h = plt.figaspect(1.0 / 4.0)
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, dpi=300, figsize=(w, h))
-        ax1.plot(lag, autocorr)
+        ax1.plot(lag, autocorr, color="royalblue")
         ax1.set_xlabel("Time lag (s)")
         ax1.set_ylabel("Autocorrelation")
         ax2.plot(volumes, freqs, color="crimson")
-        ax2.set_xlabel("Volume")
+        ax2.set_xlabel("Area (a.u.)")
         ax2.set_ylabel("Modulo step activation")
         y = np.fft.fft(m_values, axis=0)
-        y = np.abs(y)
+        y = np.power(np.abs(y), 2)
         y = y[:int(k // 2)]
         x = np.fft.fftfreq(int(k), time_scale)
         x = x[:int(k // 2)]
-        ax3.plot(x, y)
+        ax3.plot(x, y, color='royalblue')
         ax3.set_xscale("log")
         ax3.set_yscale("log")
         ax3.set_xlabel("Frequency (Hz)")
-        ax3.set_ylabel("Power")
-
-        ax4.plot(m_values, color="forestgreen")
+        ax3.set_ylabel("Power (a.u.)")
+        x_base = np.arange(0, k * time_scale, time_scale)
+        ax4.plot(x_base, m_values, color="forestgreen")
         ax4.set_xlabel("Time")
         ax4.set_ylabel("Amplitude")
         fig.subplots_adjust(wspace=0.45)
+
+        # add letters
+        import matplotlib.transforms as mtransforms
+
+        for label, ax in zip("abcd", (ax1, ax2, ax3, ax4)):
+            # label physical distance in and down:
+            trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72,
+                                                  fig.dpi_scale_trans)
+            ax.text(
+                0.0,
+                1.0,
+                f"{label})",
+                transform=ax.transAxes + trans,
+                # fontsize="medium",
+                verticalalignment="top",
+                color="black",
+                bbox=dict(facecolor="none",
+                          alpha=0.4,
+                          edgecolor="none",
+                          pad=3.0),
+            )
+
     return fig
 
 
