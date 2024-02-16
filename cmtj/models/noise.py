@@ -10,7 +10,8 @@ def noise_model(
     N: int,
     steps: int = 3e5,
     thermal_noise_std: float = 1e-3,
-    amplitude: float = 7e-4,
+    background_thermal_noise_std: float = 1e-3,
+    amplitude: float = 1e-3,
     enable_oscillations: bool = False,
     volume_distribution: Literal["pareto", "uniform"] = "pareto",
     volume_distribution_params: dict = None,
@@ -19,12 +20,12 @@ def noise_model(
     frequency_scale: float = 1000,
     time_scale: float = 1e-9,
     phase_std: float = np.pi / 12,
-    amplify_no: int = 0,
     dims: int = 1,
     seed: int = 42,
-    offset: int = 0,
+    offset: int = 1,
     save_vectors: bool = False,
     verbose: bool = False,
+    N_background_scale: int = 10,
 ):
     """
     Generate a basic noise model.
@@ -35,7 +36,7 @@ def noise_model(
     :type steps: int, optional
     :param thermal_noise_std: Standard deviation of the thermal noise, defaults to 1e-3.
     :type thermal_noise_std: float, optional
-    :param amplitude: Amplitude of the selected frequencies, defaults to 7e-4.
+    :param amplitude: Amplitude of the oscillating frequencies, defaults to 1e-3.
     :type amplitude: float, optional
     :param enable_oscillations: Enable oscillations, defaults to False.
     :type enable_oscillations: bool, optional
@@ -61,6 +62,11 @@ def noise_model(
     :type offset: int, optional
     :param save_vectors: Save the stepwise m vectors per each volume, defaults to False.
     :type save_vectors: bool, optional
+    :param verbose: Enable verbose mode, defaults to False.
+    :type verbose: bool, optional
+    :param N_background_scale: Number of background domains for oscillations and
+        background noise, defaults to 10xN.
+    :type N_background_scale: int, optional
     :return: A tuple containing the following elements:
         - m_values (ndarray): Array of shape (steps, dims) representing the simulated values.
         - volumes (ndarray): Array of shape (N, 1) representing the volumes.
@@ -87,48 +93,59 @@ def noise_model(
         freqs = (frequency_scale / volumes.ravel()).astype(int)[::-1] + 1
     elif freq_distribution == "uniform":
         freqs = rng.integers(**freq_distribution_params, size=N)
-    phases = np.zeros(N)
-    if phase_std > 0:
-        phases = rng.random(N) * phase_std
 
-    # amplify selected frequencies
-    amplitudes = np.zeros_like(volumes)
-    indx = np.arange(N)
-    non_zero = rng.choice(indx, amplify_no)
-    amplitudes[non_zero] = amplitude
+    Np = N_background_scale * N
+    freqs_osc = rng.uniform(10, 1e11, Np)
+    phases = np.zeros(Np)
+    if phase_std > 0:
+        phases = rng.random(Np) * phase_std
 
     vector_values = rng.random((N, dims))
     m_values = np.zeros((steps, dims))
     f_counts = np.zeros_like(freqs)
     vectors = []
     triggers = 0
+
+    def _oscillations(i: int):
+        return amplitude * np.sin(2 * np.pi * freqs_osc * i * time_scale +
+                                  phases).reshape(-1, 1)
+
+    def _background_noise(i: int):
+
+        return rng.normal(0, background_thermal_noise_std, dims)
+
+    if enable_oscillations and background_thermal_noise_std > 0:
+        raise ValueError(
+            "Cannot have both oscillations and background thermal noise enabled."
+            " Either set enable oscillations = False or background thermal noise = 0."
+        )
+    if enable_oscillations:
+        osc_fn = _oscillations
+    elif background_thermal_noise_std > 0:
+        osc_fn = _background_noise
     for i in tqdm(range(offset, steps + offset), total=steps):
-        if enable_oscillations:
-            vector_values = amplitudes * np.sin(2 * np.pi * freqs *
-                                                (i - offset) * time_scale +
-                                                phases).reshape(-1, 1)
-        freq_mask = i % freqs == 0
+        osc_vals = osc_fn(i).sum()
+        freq_disturbance = rng.integers(-3, 3, N)
+        freq_mask = i % (freqs + freq_disturbance) == 0
         fsum = np.sum(freq_mask)
         f_counts[freq_mask] += 1
         if fsum > 0:
             triggers += 1
-            if enable_oscillations:
-                vector_values[freq_mask] += rng.normal(0, thermal_noise_std,
-                                                       (fsum, dims))
-            else:
-                vector_values[freq_mask] = rng.normal(0, thermal_noise_std,
-                                                      (fsum, dims))
-            m_values[i - offset] = np.sum(volumes * vector_values, axis=0)
+            vector_values[freq_mask] = rng.normal(0, thermal_noise_std,
+                                                  (fsum, dims))
+            m_values[i - offset] += np.sum(volumes * vector_values,
+                                           axis=0) + osc_vals
         else:
-            m_values[i - offset] = m_values[i - offset - 1]
+            m_values[i - offset] = osc_vals + m_values[i - offset - 1]
+
         if save_vectors:
             vectors.append(vector_values.copy())
 
     if verbose:
         print(f"Triggers {triggers} out of {steps} steps")
     if save_vectors:
-        return m_values, volumes, freqs, time_scale, vectors
-    return m_values, volumes, freqs, time_scale
+        return m_values, volumes, freqs, time_scale, f_counts, vectors
+    return m_values, volumes, freqs, time_scale, f_counts
 
 
 def autocorrelation(x, dT):
@@ -183,15 +200,24 @@ def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
         ax1.plot(lag, autocorr, color="royalblue")
         ax1.set_xlabel("Time lag (s)")
         ax1.set_ylabel("Autocorrelation")
-        ax2.plot(volumes, freqs, color="crimson")
+        ax2.plot(volumes, freqs / 1000, color="crimson")
+        # histogram of volumes
+        ax25 = ax2.twinx()
+        ax25.hist(volumes,
+                  bins=min(100, len(volumes)),
+                  color="navy",
+                  alpha=0.5,
+                  label="Count")
+        ax25.set_ylabel("Count", rotation=-90, labelpad=10)
+        ax25.legend()
         ax2.set_xlabel("Area (a.u.)")
-        ax2.set_ylabel("Modulo step activation")
+        ax2.set_ylabel("Modulo step activation (1000x)")
         y = np.fft.fft(m_values, axis=0)
         y = np.power(np.abs(y), 2)
         y = y[:int(k // 2)]
         x = np.fft.fftfreq(int(k), time_scale)
         x = x[:int(k // 2)]
-        ax3.plot(x, y, color='royalblue')
+        ax3.plot(x, y, color="royalblue")
         ax3.set_xscale("log")
         ax3.set_yscale("log")
         ax3.set_xlabel("Frequency (Hz)")
@@ -200,7 +226,7 @@ def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
         ax4.plot(x_base, m_values, color="forestgreen")
         ax4.set_xlabel("Time")
         ax4.set_ylabel("Amplitude")
-        fig.subplots_adjust(wspace=0.45)
+        fig.subplots_adjust(wspace=0.55)
 
         # add letters
         import matplotlib.transforms as mtransforms
