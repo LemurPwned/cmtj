@@ -36,7 +36,7 @@ public:
 
     void setDelayed(bool delay)
     {
-        if (!delay && !this->isTwoLayerMemberStack()){
+        if (!delay && !this->isTwoLayerMemberStack()) {
             throw std::runtime_error("Non delayed coupling is only supported for 2 layer stacks!");
         }
         this->delayed = delay;
@@ -278,6 +278,9 @@ public:
                     tCurrent = plainCurrent;
                 }
 
+                // set the current -- same for all layers
+                junctionList[j].setLayerCurrentDriver("all", ScalarDriver<T>::getConstantDriver(
+                    tCurrent));
                 (junctionList[j].*localRunner)(solver, t, timeStep);
                 // change the instant value of the current before the
                 // the resistance is calculated
