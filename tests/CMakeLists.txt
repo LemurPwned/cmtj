@@ -46,4 +46,6 @@ endmacro()
 # package_add_test(test_layer test_layer.cpp)
 # package_add_test(test_reservoir test_reservoir.cpp)
 # target_link_libraries(test_reservoir Eigen3::Eigen)
-package_add_test(test_noise test_noise.cpp)
+
+# package_add_test(test_noise test_noise.cpp)
+package_add_test(test_llgb test_llgb.cpp)
