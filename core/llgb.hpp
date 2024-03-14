@@ -6,18 +6,24 @@ template <typename T = double>
 class LLGBLayer
 {
 public:
-    ScalarDriver<T> Ms_driver;
     ScalarDriver<T> temperatureDriver;
     AxialDriver<T> externalFieldDriver;
     T Tc;
-    T susceptibility;
-    T susceptibility_perp;
+    T susceptibility, susceptibility_perp;
     T me;
-    CVector<T> mag;
-    T thickness;
+    T thickness, surface, volume;
     T damping;
     T alpha_perp_log, alpha_par_log;
+    CVector<T> mag;
     std::string id;
+    T Ms;
+
+    // the distribution is binded for faster generation
+    // is also shared between 1/f and Gaussian noise.
+    std::function<T()> distributionA = std::bind(std::normal_distribution<T>(0, 1),
+        std::mt19937(std::random_device{}()));
+    std::function<T()> distributionB = std::bind(std::normal_distribution<T>(0, 1),
+        std::mt19937(std::random_device{}()));
     LLGBLayer(
         const std::string& id,
         CVector<T> mag,
@@ -27,9 +33,18 @@ public:
         T susceptibility_perp,
         T me,
         T thickness,
-        T damping) : id(id), mag(mag), Tc(Tc),
-        susceptibility(susceptibility), susceptibility_perp(susceptibility_perp), me(me), thickness(thickness), damping(damping) {
-        this->Ms_driver = ScalarDriver<T>::getConstantDriver(Ms);
+        T surface,
+        T damping) : id(id), mag(mag), Ms(Ms), Tc(Tc),
+        susceptibility(susceptibility),
+        susceptibility_perp(susceptibility_perp), me(me),
+        thickness(thickness),
+        surface(surface),
+        damping(damping) {
+        this->volume = this->surface * this->thickness;
+        if (this->volume == 0)
+        {
+            throw std::runtime_error("The volume of the LLGB layer cannot be 0!");
+        }
     }
 
     T getAlphaParallel(T& time) {
@@ -46,7 +61,6 @@ public:
         }
         this->alpha_perp_log = this->damping * (1 - ratio / 3.0);
         return this->alpha_perp_log;
-
     }
 
     CVector<T> getLongitudinal(T time, const CVector<T>& m) {
@@ -97,8 +111,41 @@ public:
     CVector<T> getStochasticLangevinVector(T time, T timeStep) {
         return CVector<T>();
     }
-    CVector<T> stochasticTorque(const CVector<T>& m, const CVector<T>& dW) {
-        return CVector<T>();
+
+
+    CVector<T> nonadiabaticThermalField(T time, T timestamp) {
+        const T temp = this->temperatureDriver.getCurrentScalarValue(time);
+        const T alpha_perp2 = pow(this->alpha_perp_log, 2);
+        const T normFactor = this->volume * this->Ms;
+        const T varianceDev = (2 * BOLTZMANN_CONST * temp * (this->getAlphaPerpendicular(time)
+            - this->getAlphaParallel(time))) / (MAGNETIC_PERMEABILITY * GYRO * normFactor * alpha_perp2);
+        return sqrt(varianceDev) * CVector<T>(this->distributionA);
+    }
+
+    CVector<T> adiabaticThermalField(T time, T  timestep) {
+        const T temp = this->temperatureDriver.getCurrentScalarValue(time);
+        const T normFactor = this->volume * this->Ms;
+        const T varianceDev = (2 * BOLTZMANN_CONST * temp * GYRO * this->getAlphaParallel(time)) / normFactor;
+        return sqrt(varianceDev) * CVector<T>(this->distributionB);
+    }
+
+    CVector<T> stochasticTorque(const CVector<T>& m, const CVector<T>& nonAdiabatic,
+        const CVector<T>& adiabatic) {
+        const T inv_mlen = pow(1. / m.length(), 2);
+        const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
+        const CVector<T> nonAdiabaticTerm = c_cross<T>(m, c_cross<T>(m, nonAdiabatic));
+        return -1 * gamma_p * inv_mlen * nonAdiabaticTerm + adiabatic;
+    }
+
+    // setters
+    void setTemperatureDriver(const ScalarDriver<T>& driver)
+    {
+        this->temperatureDriver = driver;
+    }
+
+    void setExternalFieldDriver(const AxialDriver<T>& driver)
+    {
+        this->externalFieldDriver = driver;
     }
 };
 
@@ -117,6 +164,50 @@ public:
         this->layerNo = layers.size();
     }
 
+    typedef void (LLGBLayer<T>::* scalarDriverSetter)(const ScalarDriver<T>& driver);
+    typedef void (LLGBLayer<T>::* axialDriverSetter)(const AxialDriver<T>& driver);
+    void scalarlayerSetter(const std::string& layerID, scalarDriverSetter functor, ScalarDriver<T> driver)
+    {
+        bool found = false;
+        for (auto& l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                (l.*functor)(driver);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
+        }
+    }
+    void axiallayerSetter(const std::string& layerID, axialDriverSetter functor, AxialDriver<T> driver)
+    {
+        bool found = false;
+        for (auto& l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                (l.*functor)(driver);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
+        }
+    }
+    void setLayerTemperatureDriver(const std::string& layerID, const ScalarDriver<T>& driver)
+    {
+        scalarlayerSetter(layerID, &LLGBLayer<T>::setTemperatureDriver, driver);
+    }
+    void setLayerExternalFieldDriver(const std::string& layerID, const AxialDriver<T>& driver)
+    {
+        axiallayerSetter(layerID, &LLGBLayer<T>::setExternalFieldDriver, driver);
+    }
+
+
     void heunSolverStep(const T& t, const T& timeStep) {
         /*
             Heun method
@@ -133,7 +224,8 @@ public:
         */
         std::vector<CVector<T>> fn(this->layerNo, CVector<T>());
         std::vector<CVector<T>> gn(this->layerNo, CVector<T>());
-        std::vector<CVector<T>> dW(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> nonAdiabatic(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> adiabatic(this->layerNo, CVector<T>());
         std::vector<CVector<T>> mNext(this->layerNo, CVector<T>());
         // first approximation
 
@@ -148,8 +240,9 @@ public:
                 t, timeStep, this->layers[i].mag);
 
             // draw the noise for each layer, dW
-            dW[i] = this->layers[i].getStochasticLangevinVector(t, timeStep) + this->layers[i].getOneFVector();
-            gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]);
+            nonAdiabatic[i] = this->layers[i].nonadiabaticThermalField(t, timeStep);
+            adiabatic[i] = this->layers[i].adiabaticThermalField(t, timeStep);
+            gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, nonAdiabatic[i], adiabatic[i]);
 
             mNext[i] = this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep);
         }
@@ -160,9 +253,10 @@ public:
             this->layers[i].mag = this->layers[i].mag + 0.5 * timeStep * (
                 fn[i] + this->layers[i].calculateLLG(
                     t + timeStep, timeStep, mNext[i])
-                ) + 0.5 * (gn[i] + this->layers[i].stochasticTorque(mNext[i], dW[i])) * sqrt(timeStep);
+                ) + 0.5 * (gn[i] + this->layers[i].stochasticTorque(mNext[i],
+                    nonAdiabatic[i], adiabatic[i])) * sqrt(timeStep);
             // normalise only in classical
-            // this->layers[i].mag.normalize();
+            // this->layers[i].mag.normalize(); // LLB doesn't normalise
         }
     }
     void eulerHeunSolverStep(const T& t, const T& timeStep) {
@@ -179,18 +273,19 @@ public:
         std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
         for (unsigned int i = 0; i < this->layerNo; i++) {
             // todo: after you're done, double check the thermal magnitude and dt scaling there
-            const CVector<T> dW = this->layers[i].getStochasticLangevinVector(t, timeStep) + this->layers[i].getOneFVector();
+            const CVector<T> nonAdiabaticTorque = this->layers[i].nonadiabaticThermalField(t, timeStep);
+            const CVector<T> adiabaticTorque = this->layers[i].adiabaticThermalField(t, timeStep);
 
             const CVector<T> fnApprox = this->layers[i].calculateLLG(
                 t, timeStep, this->layers[i].mag);
-            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, dW);
+            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, nonAdiabaticTorque, adiabaticTorque);
 
             // theoretically we have 2 options
             // 1. calculate only the stochastic part with the second approximation
             // 2. calculate the second approximation of m with the stochastic and non-stochastic
             //    part and then use if for torque est.
             const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
-            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, dW);
+            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, nonAdiabaticTorque, adiabaticTorque);
             mPrime[i] = this->layers[i].mag + fnApprox * timeStep + 0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
         }
 
