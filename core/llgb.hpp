@@ -330,7 +330,8 @@ public:
             runner = &LLGBJunction<T>::heunSolverStep;
         else if (mode == EULER_HEUN)
             runner = &LLGBJunction<T>::eulerHeunSolverStep;
-
+        else
+            throw std::runtime_error("The solver mode is not supported!");
         return std::make_tuple(runner, mode);
     }
 
@@ -397,6 +398,11 @@ public:
         this->time = 0;
     }
 
+    std::unordered_map<std::string, std::vector<T>>& getLog()
+    {
+        return this->log;
+    }
+
     /**
      * Main run simulation function. Use it to run the simulation.
      * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
@@ -407,7 +413,7 @@ public:
      */
     void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-13,
         bool log = false,
-        SolverMode mode = RK4)
+        SolverMode mode = HEUN)
 
     {
         if (timeStep > writeFrequency)

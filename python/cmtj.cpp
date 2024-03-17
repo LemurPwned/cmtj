@@ -9,6 +9,7 @@
 #include "../core/drivers.hpp"
 #include "../core/junction.hpp"
 #include "../core/noise.hpp"
+#include "../core/llgb.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -26,6 +27,8 @@ using DNullDriver = NullDriver<double>;
 using DStack = Stack<double>;
 using DLayerMatrix = std::vector<std::vector<DLayer>>;
 using DVectorMatrix = std::vector<std::vector<DVector>>;
+using DLLGBLayer = LLGBLayer<double>;
+using DLLGBJunction = LLGBJunction<double>;
 
 #define USING_PY true
 PYBIND11_MODULE(cmtj, m)
@@ -368,4 +371,50 @@ PYBIND11_MODULE(cmtj, m)
         .def("tick", &VectorAlphaNoise<double>::tick)
         .def("getPrevSample", &VectorAlphaNoise<double>::getPrevSample)
         .def("getScale", &VectorAlphaNoise<double>::getScale);
+
+
+    // LLGB module
+    py::module llgb_module = m.def_submodule("llgb", "A submodule for LLGB junctions");
+    py::class_<DLLGBLayer>(llgb_module, "LLGBLayer")
+        .def(py::init<const std::string&,
+            DVector,
+            DVector,
+            double,
+            double,
+            double,
+            const std::vector<DVector>&,
+            double,
+            double,
+            double,
+            double >(),
+            "id"_a,
+            "mag"_a,
+            "anis"_a,
+            "Ms"_a,
+            "thickness"_a,
+            "cellSurface"_a,
+            "demagTensor"_a,
+            "damping"_a,
+            "Tc"_a,
+            "susceptibility"_a,
+            "me"_a)
+        // setters
+        .def("setTemperatureDriver", &DLLGBLayer::setTemperatureDriver)
+        .def("setExternalFieldDriver", &DLLGBLayer::setExternalFieldDriver)
+        .def("setAnisotropyDriver", &DLLGBLayer::setAnisotropyDriver);
+
+    py::class_<DLLGBJunction>(llgb_module, "LLGBJunction")
+        .def(py::init<std::vector<DLLGBLayer>>(),
+            "layers"_a)
+        .def("runSimulation", &DLLGBJunction::runSimulation,
+            "totalTime"_a,
+            "timeStep"_a = 1e-13,
+            "writeFrequency"_a = 1e-11,
+            "log"_a = false,
+            "solverMode"_a = HEUN)
+        .def("setLayerTemperatureDriver", &DLLGBJunction::setLayerTemperatureDriver)
+        .def("setLayerExternalFieldDriver", &DLLGBJunction::setLayerExternalFieldDriver)
+        .def("saveLogs", &DLLGBJunction::saveLogs)
+        .def("getLog", &DLLGBJunction::getLog)
+        .def("clearLog", &DLLGBJunction::clearLog);
 }
