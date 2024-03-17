@@ -878,6 +878,7 @@ public:
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
+        // TODO: check if mu0 should be pow(MAGNETIC_PERMEABILITY, 2) due to Ms being in T
         const T mainFactor = (2 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume * timeStep);
         return sqrt(mainFactor);
     }

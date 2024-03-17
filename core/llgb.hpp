@@ -57,9 +57,11 @@ public:
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         const T ratio = temp / this->Tc;
         if (temp >= this->Tc) {
-            return this->damping * ratio * (2. / 3.);
+            this->alpha_perp_log = this->damping * ratio * (2. / 3.);
         }
-        this->alpha_perp_log = this->damping * (1 - ratio / 3.0);
+        else {
+            this->alpha_perp_log = this->damping * (1. - ratio / 3.0);
+        }
         return this->alpha_perp_log;
     }
 
@@ -100,23 +102,14 @@ public:
         const T inv_mlen = pow(1. / m.length(), 2);
         const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
         const CVector<T> dmdt = -1 * mxh - getAlphaPerpendicular(time) * mxmxht * inv_mlen + llbTerm * getAlphaParallel(time) * inv_mlen;
-        return GYRO * dmdt;
-    }
-
-
-    // TODO: implement the stochastic part
-    CVector<T> getOneFVector() {
-        return CVector<T>();
-    }
-    CVector<T> getStochasticLangevinVector(T time, T timeStep) {
-        return CVector<T>();
+        return gamma_p * dmdt;
     }
 
 
     CVector<T> nonadiabaticThermalField(T time, T timestamp) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         const T alpha_perp2 = pow(this->alpha_perp_log, 2);
-        const T normFactor = this->volume * this->Ms;
+        const T normFactor = this->volume * this->Ms / MAGNETIC_PERMEABILITY;
         const T varianceDev = (2 * BOLTZMANN_CONST * temp * (this->getAlphaPerpendicular(time)
             - this->getAlphaParallel(time))) / (MAGNETIC_PERMEABILITY * GYRO * normFactor * alpha_perp2);
         return sqrt(varianceDev) * CVector<T>(this->distributionA);
@@ -124,7 +117,7 @@ public:
 
     CVector<T> adiabaticThermalField(T time, T  timestep) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T normFactor = this->volume * this->Ms;
+        const T normFactor = this->volume * this->Ms / MAGNETIC_PERMEABILITY;
         const T varianceDev = (2 * BOLTZMANN_CONST * temp * GYRO * this->getAlphaParallel(time)) / normFactor;
         return sqrt(varianceDev) * CVector<T>(this->distributionB);
     }
@@ -365,6 +358,8 @@ public:
         this->log.clear();
         this->logLength = 0;
     }
+
+
 
     /**
      * Main run simulation function. Use it to run the simulation.
