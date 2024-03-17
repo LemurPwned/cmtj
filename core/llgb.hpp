@@ -5,45 +5,62 @@
 template <typename T = double>
 class LLGBLayer
 {
-public:
+protected:
     ScalarDriver<T> temperatureDriver;
+    ScalarDriver<T> anisotropyDriver;
     AxialDriver<T> externalFieldDriver;
-    T Tc;
-    T susceptibility, susceptibility_perp;
-    T me;
-    T thickness, surface, volume;
-    T damping;
-    T alpha_perp_log, alpha_par_log;
-    CVector<T> mag;
-    std::string id;
-    T Ms;
-
     // the distribution is binded for faster generation
     // is also shared between 1/f and Gaussian noise.
     std::function<T()> distributionA = std::bind(std::normal_distribution<T>(0, 1),
         std::mt19937(std::random_device{}()));
     std::function<T()> distributionB = std::bind(std::normal_distribution<T>(0, 1),
         std::mt19937(std::random_device{}()));
+public:
+    std::string id;
+    CVector<T> mag;
+    CVector<T> anis;
+    T Ms;
+    T thickness, surface, volume;
+    std::vector<CVector<T>> demagTensor;
+    T damping;
+    T Tc;
+    T susceptibility;
+    T me;
+    T alpha_perp_log, alpha_par_log;
+    T K_log, T_log;
+
     LLGBLayer(
         const std::string& id,
-        CVector<T> mag,
+        const CVector<T>& mag,
+        const CVector<T>& anis,
         T Ms,
-        T Tc,
-        T susceptibility,
-        T susceptibility_perp,
-        T me,
         T thickness,
         T surface,
-        T damping) : id(id), mag(mag), Ms(Ms), Tc(Tc),
-        susceptibility(susceptibility),
-        susceptibility_perp(susceptibility_perp), me(me),
+        const std::vector<CVector<T>>& demagTensor,
+        T damping,
+        T Tc,
+        T susceptibility,
+        T me) :
+        id(id), mag(mag), anis(anis),
+        Ms(Ms),
         thickness(thickness),
-        surface(surface),
-        damping(damping) {
+        surface(surface), demagTensor(demagTensor), damping(damping),
+        Tc(Tc),
+        susceptibility(susceptibility),
+        me(me)
+    {
         this->volume = this->surface * this->thickness;
         if (this->volume == 0)
         {
             throw std::runtime_error("The volume of the LLGB layer cannot be 0!");
+        }
+        if (mag.length() == 0)
+        {
+            throw std::runtime_error("Initial magnetisation was set to a zero vector!");
+        }
+        if (anis.length() == 0)
+        {
+            throw std::runtime_error("Anisotropy was set to a zero vector!");
         }
     }
 
@@ -65,29 +82,40 @@ public:
         return this->alpha_perp_log;
     }
 
-    CVector<T> getLongitudinal(T time, const CVector<T>& m) {
+    CVector<T> getLongitudinal(T& time, const CVector<T>& m) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         const T ratio_susc = 1. / (2 * this->susceptibility);
         const T m2 = pow(m.length(), 2);
-        if (temp >= this->Tc) {
+        if (temp <= this->Tc) {
             const T ratio_m = m2 / pow(this->me, 2);
             return ratio_susc * (1 - ratio_m) * m;
         }
-        const T ratio_T = (this->Tc / (temp - this->Tc));
+        const T ratio_T = (this->Tc / (this->Tc - temp));
         const T ratio_T_adj = (3. / 5.) * ratio_T * m2 - 1.;
+        // this is given by some other paper
+        // const T ration_T_alt = (1 + (3. / 5.) * (this->Tc / (temp - this->Tc)) * m2);
+        // return -(1 / this->susceptibility_perp) * ration_T_alt * m;
         return ratio_susc * ratio_T_adj * m;
     }
 
-    CVector<T> getAnisotropyField(T time, const CVector<T>& m) {
-        return (-1 / this->susceptibility_perp) * CVector<T>(m[0], m[1], 0);
+    CVector<T> getAnisotropyField(T& time, const CVector<T>& m) {
+        return (-1. / this->anisotropyDriver.getCurrentScalarValue(time)) * CVector<T>(m[0], m[1], 0);
     }
 
+    CVector<T> calculateAnisotropy(const CVector<T>& stepMag, T& time)
+    {
+        this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
+        const T nom = this->K_log * c_dot<T>(this->anis, stepMag);
+        return this->anis * nom;
+    }
 
     const CVector<T> calculateHeff(T time, const CVector<T>& m) {
-        const CVector<T> anis = this->getAnisotropyField(time, m);
+        // this anisotropy is a bit different than in the LLG
+        // const CVector<T> anis = this->getAnisotropyField(time, m);
+        const CVector<T> anisotropy = this->calculateAnisotropy(m, time);
         const CVector<T> hext = this->externalFieldDriver.getCurrentAxialDrivers(time);
         const CVector<T> temp = this->getLongitudinal(time, m);
-        return anis + hext + temp;
+        return anisotropy + hext + temp;
     }
 
     CVector<T> calculateLLG(const T& time, const T& timeStep, const CVector<T>& m) {
@@ -96,12 +124,13 @@ public:
     }
 
     const CVector<T> solveLLG(T time, T timeStep, const CVector<T>& m, const CVector<T>& heff) {
+        T_log = this->temperatureDriver.getCurrentScalarValue(time);
         const CVector<T> mxh = c_cross<T>(m, heff);
-        const CVector<T> mxmxht = c_cross<T>(m, mxh);
+        const CVector<T> mxmxh = c_cross<T>(m, mxh);
         const CVector<T> llbTerm = c_dot(m, heff) * m;
         const T inv_mlen = pow(1. / m.length(), 2);
         const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
-        const CVector<T> dmdt = -1 * mxh - getAlphaPerpendicular(time) * mxmxht * inv_mlen + llbTerm * getAlphaParallel(time) * inv_mlen;
+        const CVector<T> dmdt = -1 * mxh - getAlphaPerpendicular(time) * mxmxh * inv_mlen + llbTerm * getAlphaParallel(time) * inv_mlen;
         return gamma_p * dmdt;
     }
 
@@ -122,12 +151,12 @@ public:
         return sqrt(varianceDev) * CVector<T>(this->distributionB);
     }
 
-    CVector<T> stochasticTorque(const CVector<T>& m, const CVector<T>& nonAdiabatic,
+    CVector<T> stochasticTorque(const CVector<T>& m, T time, const CVector<T>& nonAdiabatic,
         const CVector<T>& adiabatic) {
         const T inv_mlen = pow(1. / m.length(), 2);
         const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
         const CVector<T> nonAdiabaticTerm = c_cross<T>(m, c_cross<T>(m, nonAdiabatic));
-        return -1 * gamma_p * inv_mlen * nonAdiabaticTerm + adiabatic;
+        return -1 * gamma_p * inv_mlen * getAlphaPerpendicular(time) * nonAdiabaticTerm + adiabatic;
     }
 
     // setters
@@ -140,17 +169,24 @@ public:
     {
         this->externalFieldDriver = driver;
     }
+
+    void setAnisotropyDriver(const ScalarDriver<T>& driver)
+    {
+        this->anisotropyDriver = driver;
+    }
 };
 
 template <typename T = double>
 class LLGBJunction
 {
-    friend class LLGBLayer<T>;
+private:
+    // friend class LLGBLayer<T>;
     const std::vector<std::string> vectorNames = { "x", "y", "z" };
     std::vector<LLGBLayer<T>> layers;
     std::unordered_map<std::string, std::vector<T>> log;
     unsigned int logLength = 0;
     unsigned int layerNo = 0;
+    T time = 0;
 public:
     explicit LLGBJunction(const std::vector<LLGBLayer<T>>& layers) {
         this->layers = layers;
@@ -200,7 +236,6 @@ public:
         axiallayerSetter(layerID, &LLGBLayer<T>::setExternalFieldDriver, driver);
     }
 
-
     void heunSolverStep(const T& t, const T& timeStep) {
         /*
             Heun method
@@ -235,7 +270,7 @@ public:
             // draw the noise for each layer, dW
             nonAdiabatic[i] = this->layers[i].nonadiabaticThermalField(t, timeStep);
             adiabatic[i] = this->layers[i].adiabaticThermalField(t, timeStep);
-            gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, nonAdiabatic[i], adiabatic[i]);
+            gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, t, nonAdiabatic[i], adiabatic[i]);
 
             mNext[i] = this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep);
         }
@@ -246,7 +281,7 @@ public:
             this->layers[i].mag = this->layers[i].mag + 0.5 * timeStep * (
                 fn[i] + this->layers[i].calculateLLG(
                     t + timeStep, timeStep, mNext[i])
-                ) + 0.5 * (gn[i] + this->layers[i].stochasticTorque(mNext[i],
+                ) + 0.5 * (gn[i] + this->layers[i].stochasticTorque(mNext[i], t + timeStep,
                     nonAdiabatic[i], adiabatic[i])) * sqrt(timeStep);
             // normalise only in classical
             // this->layers[i].mag.normalize(); // LLB doesn't normalise
@@ -271,14 +306,14 @@ public:
 
             const CVector<T> fnApprox = this->layers[i].calculateLLG(
                 t, timeStep, this->layers[i].mag);
-            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, nonAdiabaticTorque, adiabaticTorque);
+            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, t, nonAdiabaticTorque, adiabaticTorque);
 
             // theoretically we have 2 options
             // 1. calculate only the stochastic part with the second approximation
             // 2. calculate the second approximation of m with the stochastic and non-stochastic
             //    part and then use if for torque est.
             const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
-            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, nonAdiabaticTorque, adiabaticTorque);
+            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, t + timeStep, nonAdiabaticTorque, adiabaticTorque);
             mPrime[i] = this->layers[i].mag + fnApprox * timeStep + 0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
         }
 
@@ -306,7 +341,7 @@ public:
      * @param timeStep: timeStep of the simulation (unsued for now)
      * @param calculateEnergies: if true, also include fields for energy computation.
      */
-    void logLayerParams(T& t, const T timeStep)
+    void logLayerParams(T t, const T timeStep)
     {
         for (const auto& layer : this->layers)
         {
@@ -316,8 +351,10 @@ public:
             {
                 this->log[lId + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
             }
-            this->log["alpha_parallel"].emplace_back(layer.alpha_par_log);
-            this->log["alpha_perpendicular"].emplace_back(layer.alpha_perp_log);
+            this->log[lId + "_alpha_parallel"].emplace_back(layer.alpha_par_log);
+            this->log[lId + "_alpha_perpendicular"].emplace_back(layer.alpha_perp_log);
+            this->log[lId + "_K"].emplace_back(layer.K_log);
+            this->log[lId + "_T"].emplace_back(layer.T_log);
         }
         this->log["time"].emplace_back(t);
         this->logLength++;
@@ -357,20 +394,18 @@ public:
     {
         this->log.clear();
         this->logLength = 0;
+        this->time = 0;
     }
-
-
 
     /**
      * Main run simulation function. Use it to run the simulation.
      * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
      * @param timeStep: the integration step of the RK45 method. Default is 1e-13
      * @param writeFrequency: how often is the log saved to? Must be no smaller than `timeStep`. Default is 1e-11.
-     * @param persist: whether to save to the filename specified in the Junction constructor. Default is true
      * @param log: if you want some verbosity like timing the simulation. Default is false
      * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
      */
-    void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
+    void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-13,
         bool log = false,
         SolverMode mode = RK4)
 
@@ -387,12 +422,12 @@ public:
 
         for (unsigned int i = 0; i < totalIterations; i++)
         {
-            T t = i * timeStep;
-            (*this.*runner)(t, timeStep);
+            this->time += timeStep;
+            (*this.*runner)(this->time, timeStep);
 
             if (!(i % writeEvery))
             {
-                logLayerParams(t, timeStep);
+                logLayerParams(this->time, timeStep);
             }
         }
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
