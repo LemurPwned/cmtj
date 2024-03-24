@@ -135,30 +135,54 @@ public:
     }
 
 
-    CVector<T> nonadiabaticThermalField(T time, T timestamp) {
+    CVector<T> nonadiabaticThermalField(T time, T timestep) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         const T alpha_perp2 = pow(this->alpha_perp_log, 2);
-        const T normFactor = this->volume * this->Ms / MAGNETIC_PERMEABILITY;
         const T varianceDev = (2 * BOLTZMANN_CONST * temp * (this->getAlphaPerpendicular(time)
-            - this->getAlphaParallel(time))) / (MAGNETIC_PERMEABILITY * GYRO * normFactor * alpha_perp2);
+            - this->getAlphaParallel(time))) / (this->volume * this->Ms * GYRO * alpha_perp2);
         return sqrt(varianceDev) * CVector<T>(this->distributionA);
     }
 
     CVector<T> adiabaticThermalField(T time, T  timestep) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T normFactor = this->volume * this->Ms / MAGNETIC_PERMEABILITY;
-        const T varianceDev = (2 * BOLTZMANN_CONST * temp * GYRO * this->getAlphaParallel(time)) / normFactor;
+        // GYRO multiplies in the stochasticTorque for consistency
+        const T varianceDev = (2 * BOLTZMANN_CONST * temp * this->getAlphaParallel(time)) / (GYRO * this->volume * this->Ms);
         return sqrt(varianceDev) * CVector<T>(this->distributionB);
     }
 
     CVector<T> stochasticTorque(const CVector<T>& m, T time, const CVector<T>& nonAdiabatic,
         const CVector<T>& adiabatic) {
+        /*
+            This formulation follows:
+            Axitia, 2015, Fundamentals and applications of the Landau–Lifshitz–Bloch equation
+            Evans, 2012, Stochastic form of the Landau-Lifshitz-Bloch equation
+            Read Evans to understand the switch.
+
+            This is more correct than stochasticTorqueOld, and used more recently
+        */
         const T inv_mlen = pow(1. / m.length(), 2);
         const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
         const CVector<T> nonAdiabaticTerm = c_cross<T>(m, c_cross<T>(m, nonAdiabatic));
-        return -1 * gamma_p * inv_mlen * getAlphaPerpendicular(time) * nonAdiabaticTerm + adiabatic;
+        return -1 * gamma_p * inv_mlen * getAlphaPerpendicular(time) * nonAdiabaticTerm + GYRO * adiabatic;
     }
 
+    CVector<T> stochasticTorqueOld(const CVector<T>& m, T time, const CVector<T>& nonAdiabatic,
+        const CVector<T>& adiabatic) {
+        /*
+            This formulation follows:
+            Atxitia, 2007, Micromagnetic modeling of laser-induced magnetization dynamics using the Landau-Lifshitz-Bloch equation
+            And classical:
+            Garanin, 2004, Thermal fluctuations and longitudinal relaxation of single-domain magnetic particles at elevated temperatures
+        */
+        const T inv_mlen = pow(1. / m.length(), 2);
+        const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
+        const CVector<T> nonAdiabaticTerm = c_cross<T>(m, c_cross<T>(m, nonAdiabatic));
+        const CVector<T> adiabaticTerm = c_dot(m, adiabatic) * m;
+        return gamma_p * inv_mlen * (
+            adiabaticTerm * getAlphaParallel(time) - nonAdiabaticTerm * getAlphaPerpendicular(time));
+
+
+    }
     // setters
     void setTemperatureDriver(const ScalarDriver<T>& driver)
     {
