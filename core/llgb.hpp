@@ -1,5 +1,4 @@
 #include "junction.hpp"
-// import map
 #include <map>
 
 template <typename T = double>
@@ -11,6 +10,7 @@ protected:
     AxialDriver<T> externalFieldDriver;
     // the distribution is binded for faster generation
     // is also shared between 1/f and Gaussian noise.
+    // we need two distributions for the two types of noise
     std::function<T()> distributionA = std::bind(std::normal_distribution<T>(0, 1),
         std::mt19937(std::random_device{}()));
     std::function<T()> distributionB = std::bind(std::normal_distribution<T>(0, 1),
@@ -27,7 +27,8 @@ public:
     T susceptibility;
     T me;
     T alpha_perp_log, alpha_par_log;
-    T K_log, T_log;
+    T K_log = 0;
+    T T_log = 0;
 
     LLGBLayer(
         const std::string& id,
@@ -77,25 +78,25 @@ public:
             this->alpha_perp_log = this->damping * ratio * (2. / 3.);
         }
         else {
-            this->alpha_perp_log = this->damping * (1. - ratio / 3.0);
+            this->alpha_perp_log = this->damping * (1. - ratio * (1. / 3.0));
         }
         return this->alpha_perp_log;
     }
 
     CVector<T> getLongitudinal(T& time, const CVector<T>& m) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T ratio_susc = 1. / (2 * this->susceptibility);
+        const T ratio_susc = 1. / (2. * this->susceptibility);
         const T m2 = pow(m.length(), 2);
         if (temp <= this->Tc) {
             const T ratio_m = m2 / pow(this->me, 2);
-            return ratio_susc * (1 - ratio_m) * m;
+            return ratio_susc * (1. - ratio_m) * m;
         }
         const T ratio_T = (this->Tc / (this->Tc - temp));
         const T ratio_T_adj = (3. / 5.) * ratio_T * m2 - 1.;
         // this is given by some other paper
-        // const T ration_T_alt = (1 + (3. / 5.) * (this->Tc / (temp - this->Tc)) * m2);
-        // return -(1 / this->susceptibility_perp) * ration_T_alt * m;
-        return ratio_susc * ratio_T_adj * m;
+        const T ration_T_alt = (1. + (3. / 5.) * (this->Tc / (temp - this->Tc)) * m2);
+        return -(1. / this->susceptibility) * ration_T_alt * m;
+        // return ratio_susc * ratio_T_adj * m;
     }
 
     CVector<T> getAnisotropyField(T& time, const CVector<T>& m) {
@@ -114,8 +115,8 @@ public:
         // const CVector<T> anis = this->getAnisotropyField(time, m);
         const CVector<T> anisotropy = this->calculateAnisotropy(m, time);
         const CVector<T> hext = this->externalFieldDriver.getCurrentAxialDrivers(time);
-        const CVector<T> temp = this->getLongitudinal(time, m);
-        return anisotropy + hext + temp;
+        const CVector<T> longField = this->getLongitudinal(time, m);
+        return anisotropy + hext + longField;
     }
 
     CVector<T> calculateLLG(const T& time, const T& timeStep, const CVector<T>& m) {
@@ -130,24 +131,23 @@ public:
         const CVector<T> llbTerm = c_dot(m, heff) * m;
         const T inv_mlen = pow(1. / m.length(), 2);
         const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
-        const CVector<T> dmdt = -1 * mxh - getAlphaPerpendicular(time) * mxmxh * inv_mlen + llbTerm * getAlphaParallel(time) * inv_mlen;
+        const CVector<T> dmdt = -1 * mxh - getAlphaPerpendicular(time) * mxmxh * inv_mlen
+            + llbTerm * getAlphaParallel(time) * inv_mlen;
         return gamma_p * dmdt;
     }
 
-
     CVector<T> nonadiabaticThermalField(T time, T timestep) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T alpha_perp2 = pow(this->alpha_perp_log, 2);
         const T varianceDev = (2 * BOLTZMANN_CONST * temp * (this->getAlphaPerpendicular(time)
-            - this->getAlphaParallel(time))) / (this->volume * this->Ms * GYRO * alpha_perp2);
-        return sqrt(varianceDev) * CVector<T>(this->distributionA);
+            - this->getAlphaParallel(time))) / (this->volume * this->Ms * GYRO * pow(this->getAlphaPerpendicular(time), 2));
+        return 0 * sqrt(varianceDev) * CVector<T>(this->distributionA);
     }
 
     CVector<T> adiabaticThermalField(T time, T  timestep) {
         const T temp = this->temperatureDriver.getCurrentScalarValue(time);
         // GYRO multiplies in the stochasticTorque for consistency
         const T varianceDev = (2 * BOLTZMANN_CONST * temp * this->getAlphaParallel(time)) / (GYRO * this->volume * this->Ms);
-        return sqrt(varianceDev) * CVector<T>(this->distributionB);
+        return 0 * sqrt(varianceDev) * CVector<T>(this->distributionB);
     }
 
     CVector<T> stochasticTorque(const CVector<T>& m, T time, const CVector<T>& nonAdiabatic,
@@ -163,7 +163,7 @@ public:
         const T inv_mlen = pow(1. / m.length(), 2);
         const T gamma_p = GYRO / (1 + pow(this->damping, 2)); // LLGS -> LL form
         const CVector<T> nonAdiabaticTerm = c_cross<T>(m, c_cross<T>(m, nonAdiabatic));
-        return -1 * gamma_p * inv_mlen * getAlphaPerpendicular(time) * nonAdiabaticTerm + GYRO * adiabatic;
+        return -gamma_p * inv_mlen * getAlphaPerpendicular(time) * nonAdiabaticTerm + gamma_p * adiabatic;
     }
 
     CVector<T> stochasticTorqueOld(const CVector<T>& m, T time, const CVector<T>& nonAdiabatic,
@@ -183,7 +183,14 @@ public:
 
 
     }
+
     // setters
+
+    void setEquilibriumMagnetisation(const T& me)
+    {
+        this->me = me;
+    }
+
     void setTemperatureDriver(const ScalarDriver<T>& driver)
     {
         this->temperatureDriver = driver;
@@ -259,6 +266,26 @@ public:
     {
         axiallayerSetter(layerID, &LLGBLayer<T>::setExternalFieldDriver, driver);
     }
+    void setLayerAnisotropyDriver(const std::string& layerID, const ScalarDriver<T>& driver)
+    {
+        scalarlayerSetter(layerID, &LLGBLayer<T>::setAnisotropyDriver, driver);
+    }
+    void setLayerEquilibriumMagnetisation(const std::string& layerID, const T& me)
+    {
+        bool found = false;
+        for (auto& l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                l.setEquilibriumMagnetisation(me);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
+        }
+    }
 
     void heunSolverStep(const T& t, const T& timeStep) {
         /*
@@ -330,20 +357,22 @@ public:
 
             const CVector<T> fnApprox = this->layers[i].calculateLLG(
                 t, timeStep, this->layers[i].mag);
-            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, t, nonAdiabaticTorque, adiabaticTorque);
+            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, t,
+                nonAdiabaticTorque, adiabaticTorque);
 
             // theoretically we have 2 options
             // 1. calculate only the stochastic part with the second approximation
             // 2. calculate the second approximation of m with the stochastic and non-stochastic
             //    part and then use if for torque est.
             const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
-            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, t + timeStep, nonAdiabaticTorque, adiabaticTorque);
+            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, t + timeStep,
+                nonAdiabaticTorque, adiabaticTorque);
             mPrime[i] = this->layers[i].mag + fnApprox * timeStep + 0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
         }
 
         for (unsigned int i = 0; i < this->layerNo; i++) {
             this->layers[i].mag = mPrime[i];
-            // this->layers[i].mag.normalize(); LLGB don't need to be normalised
+            // this->layers[i].mag.normalize(); // LLB doesn't normalise
         }
     }
 
@@ -380,6 +409,7 @@ public:
             this->log[lId + "_alpha_perpendicular"].emplace_back(layer.alpha_perp_log);
             this->log[lId + "_K"].emplace_back(layer.K_log);
             this->log[lId + "_T"].emplace_back(layer.T_log);
+            this->log[lId + "_me"].emplace_back(layer.me);
         }
         this->log["time"].emplace_back(t);
         this->logLength++;
