@@ -5,7 +5,7 @@ import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.4.1"
+__version__ = "1.5.0"
 """
 As per
 https://github.com/pybind/python_example
@@ -74,16 +74,16 @@ def has_flag(compiler, flagname):
 
 def cpp_flag(compiler):
     """
-    Return the -std=c++[11/14/17] compiler flag.
+    Return the -std=c++[11/14/17/20] compiler flag.
     The newer version is prefered over c++11 (when it is available).
     """
-    flags = ["-std=c++17", "-std=c++14", "-std=c++11"]
+    flags = ["-std=c++20", "-std=c++17"]
 
     for flag in flags:
         if has_flag(compiler, flag):
             return flag
 
-    raise RuntimeError("Unsupported compiler -- at least C++11 support "
+    raise RuntimeError("Unsupported compiler -- at least C++17 support "
                        "is needed!")
 
 
@@ -93,7 +93,7 @@ class BuildExt(build_ext):
     """
 
     c_opts = {
-        "msvc": ["/EHsc"],
+        "msvc": ["/EHsc", "/std:c++17"],
         "unix": [],
     }
     l_opts = {

@@ -42,7 +42,6 @@ private:
     const std::string intendedKeys = {
         "m_" };
     std::vector<std::string> logKeys;
-    unsigned int logLength;
     std::unordered_map<std::string, std::vector<double>> reservoirLog;
 
     // reservoir matrices

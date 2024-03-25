@@ -64,6 +64,7 @@ The package requires (if `utils` subpackage is used):
 ```
 
 ## Subpackages
+
 ```mermaid
 graph TD;
 cmtj --> models
@@ -83,7 +84,6 @@ utils --> linear
 utils --> energy
 utils --> filters
 ```
-
 
 ## Read the docs
 
@@ -155,9 +155,18 @@ There are couple of stages to building the documentation
    This is mostly for the C++ documentation. Furture changes may couple C++ and Python docs.
 2. Build stubs
    The stubgen is `pybind11-stubgen` or `mypy stubgen` with the latter being preferred now.
-   E.g. to generate `Stack` module stubs we can go:
+   Before running the stubgen, make sure to install the package with:
+   ```
+   python3 -m pip install .
+   ```
+   avoid using `-e` flag as it may cause issues with the stubgen.
+   Then to generate, for instance, `Stack` module stubs we can do:
    ```
    stubgen -m cmtj.stack -o target-stub-dir/
+   ```
+   or
+   ```
+   python3 -c "import mypy.stubgen; mypy.stubgen.main(['-p', 'cmtj.stack', '-o', 'target-stub-dir/'])"
    ```
    More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.
 3. Parse stubs to Markdown.

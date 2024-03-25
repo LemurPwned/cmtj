@@ -1,5 +1,12 @@
 # Changelog
 
+# 1.5.0
+
+- Kasdin 1/f noise generator added to the `noise` module and to the solvers
+- reworking the solvers for better performance and stability
+- added a simple noise model to the `utils` class. It exists outside standard simulation procedures.
+- added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.
+
 # 1.4.1
 
 - Adding a basic optimisation script in the `optimization` module.
