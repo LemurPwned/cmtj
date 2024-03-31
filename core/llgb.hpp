@@ -1,5 +1,46 @@
 #include "junction.hpp"
 #include <map>
+#include <tuple>
+
+namespace LLGB {
+
+    template<typename T = double>
+    T langevin(T x) {
+        return (1.0 / tanh(x)) - (1.0 / x);
+    }
+
+    template<typename T = double>
+    std::tuple<T, T> MFAWeissCurie(T est, T temp, T J0, T relax = 0.2,
+        T tol = 1e-6, unsigned int maxIter = 1000) {
+        /**
+            This function solves the self-consistent Curie-Weiss equation in MFA
+            The equation is given by:
+            x = L(beta * J0 * x)
+            where beta = 1/(k * T) and J0 is the exchange constant.
+            The function returns the solution and the error.
+            E.g. for FePt ~ 3.051823739e-20 J => Tc ~ 760 K
+
+            @param est: initial guess
+            @param temp: temperature
+            @param J0: exchange constant
+            @param relax: relaxation factor
+            @param tol: tolerance
+            @param maxIter: maximum number of iterations
+        **/
+        T beta = (1.0 / (BOLTZMANN_CONST * temp));
+        T err = 0;
+        for (unsigned int i = 0; i < maxIter; i++) {
+            T xNext = langevin(beta * J0 * est);
+            err = abs(xNext - est);
+            if (err < tol) {
+                return std::make_tuple(xNext, err);
+            }
+            est = relax * xNext + (1 - relax) * est;
+        }
+        return std::make_tuple(est, err);
+    }
+}
+
 
 template <typename T = double>
 class LLGBLayer
@@ -8,9 +49,8 @@ protected:
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> anisotropyDriver;
     AxialDriver<T> externalFieldDriver;
-    // the distribution is binded for faster generation
-    // is also shared between 1/f and Gaussian noise.
-    // we need two distributions for the two types of noise
+    // the distribution is binded (bound?) for faster generation
+    // we need two distributions for the two types of noise in the LLB
     std::function<T()> distributionA = std::bind(std::normal_distribution<T>(0, 1),
         std::mt19937(std::random_device{}()));
     std::function<T()> distributionB = std::bind(std::normal_distribution<T>(0, 1),
@@ -112,7 +152,7 @@ public:
 
     const CVector<T> calculateHeff(T time, const CVector<T>& m) {
         // this anisotropy is a bit different than in the LLG
-        // const CVector<T> anis = this->getAnisotropyField(time, m);
+        // const CVector<T> anisotropy = this->getAnisotropyField(time, m);
         const CVector<T> anisotropy = this->calculateAnisotropy(m, time);
         const CVector<T> hext = this->externalFieldDriver.getCurrentAxialDrivers(time);
         const CVector<T> longField = this->getLongitudinal(time, m);
@@ -189,6 +229,11 @@ public:
     void setEquilibriumMagnetisation(const T& me)
     {
         this->me = me;
+    }
+
+    void setSusceptibility(const T& susceptibility)
+    {
+        this->susceptibility = susceptibility;
     }
 
     void setTemperatureDriver(const ScalarDriver<T>& driver)
@@ -278,6 +323,23 @@ public:
             if (l.id == layerID || layerID == "all")
             {
                 l.setEquilibriumMagnetisation(me);
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
+        }
+    }
+
+    void setLayerSusceptibility(const std::string& layerID, const T& susceptibility)
+    {
+        bool found = false;
+        for (auto& l : this->layers)
+        {
+            if (l.id == layerID || layerID == "all")
+            {
+                l.setSusceptibility(susceptibility);
                 found = true;
             }
         }

@@ -86,6 +86,7 @@ PYBIND11_MODULE(cmtj, m)
         .value("EulerHeun", EULER_HEUN)
         .value("DormandPrice", DORMAND_PRICE)
         .export_values();
+
     // Driver Class
     py::class_<DScalarDriver>(m, "ScalarDriver")
         .def_static("getConstantDriver",
@@ -290,6 +291,7 @@ PYBIND11_MODULE(cmtj, m)
 
     // stack module
     py::module stack_module = m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
+
     py::class_<DSeriesStack>(stack_module, "SeriesStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
@@ -374,7 +376,9 @@ PYBIND11_MODULE(cmtj, m)
 
 
     // LLGB module
-    py::module llgb_module = m.def_submodule("llgb", "A submodule for LLGB junctions");
+    auto llgb_module = m.def_submodule("llgb", "A submodule for LLGB junctions");
+    llgb_module.def("MFAWeissCurie", &LLGB::MFAWeissCurie<double>,
+        "me"_a, "T"_a, "J0"_a, "relax"_a = 0.2, "tolerance"_a = 1e-6, "maxIter"_a = 1000);
     py::class_<DLLGBLayer>(llgb_module, "LLGBLayer")
         .def(py::init<const std::string&,
             DVector,
