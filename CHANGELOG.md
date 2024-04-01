@@ -6,6 +6,7 @@
 - reworking the solvers for better performance and stability
 - added a simple noise model to the `utils` class. It exists outside standard simulation procedures.
 - added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.
+- added aliases for `ScalarDriver` -- instead of calling `ScalarDriver.getConstantDriver`, you can now call `constantDriver` directly to create a constant driver.
 
 # 1.4.1
 
