@@ -37,6 +37,47 @@ PYBIND11_MODULE(cmtj, m)
     m.def("c_dot", &c_dot<double>);
     m.doc() = "Python binding for C++ CMTJ Library.";
 
+    // driver aliases
+    m.def("constantDriver",
+        [](double value) { return DScalarDriver::getConstantDriver(value); },
+        "value"_a);
+    m.def("pulseDriver",
+        [](double constantValue, double amplitude, double period, double cycle) {
+            return DScalarDriver::getPulseDriver(constantValue, amplitude, period, cycle);
+        },
+        "constantValue"_a, "amplitude"_a, "period"_a, "cycle"_a);
+    m.def("sineDriver",
+        [](double constantValue, double amplitude, double frequency, double phase) {
+            return DScalarDriver::getSineDriver(constantValue, amplitude, frequency, phase);
+        },
+        "constantValue"_a, "amplitude"_a, "frequency"_a, "phase"_a);
+    m.def("posSineDriver",
+        [](double constantValue, double amplitude, double frequency, double phase) {
+            return DScalarDriver::getPosSineDriver(constantValue, amplitude, frequency, phase);
+        },
+        "constantValue"_a, "amplitude"_a, "frequency"_a, "phase"_a);
+    m.def("stepDriver",
+        [](double constantValue, double amplitude, double timeStart, double timeStop) {
+            return DScalarDriver::getStepDriver(constantValue, amplitude, timeStart, timeStop);
+        },
+        "constantValue"_a, "amplitude"_a, "timeStart"_a, "timeStop"_a);
+    m.def("trapezoidDriver",
+        [](double constantValue, double amplitude, double timeStart, double edgeTime, double steadyTime) {
+            return DScalarDriver::getTrapezoidDriver(constantValue, amplitude, timeStart, edgeTime, steadyTime);
+        },
+        "constantValue"_a, "amplitude"_a, "timeStart"_a, "edgeTime"_a, "steadyTime"_a);
+    m.def("gaussianImpulseDriver",
+        [](double constantValue, double amplitude, double t0, double sigma) {
+            return DScalarDriver::getGaussianImpulseDriver(constantValue, amplitude, t0, sigma);
+        },
+        "constantValue"_a, "amplitude"_a, "t0"_a, "sigma"_a);
+    m.def("gaussianStepDriver",
+        [](double constantValue, double amplitude, double t0, double sigma) {
+            return DScalarDriver::getGaussianStepDriver(constantValue, amplitude, t0, sigma);
+        },
+        "constantValue"_a, "amplitude"_a, "t0"_a, "sigma"_a);
+
+
     // CVector
     py::class_<DVector>(m, "CVector")
         .def(py::init<
@@ -379,6 +420,9 @@ PYBIND11_MODULE(cmtj, m)
     auto llgb_module = m.def_submodule("llgb", "A submodule for LLGB junctions");
     llgb_module.def("MFAWeissCurie", &LLGB::MFAWeissCurie<double>,
         "me"_a, "T"_a, "J0"_a, "relax"_a = 0.2, "tolerance"_a = 1e-6, "maxIter"_a = 1000);
+    llgb_module.def("langevin", &LLGB::langevin<double>);
+    llgb_module.def("langevinDerivative", &LLGB::langevinDerivative<double>);
+
     py::class_<DLLGBLayer>(llgb_module, "LLGBLayer")
         .def(py::init<const std::string&,
             DVector,

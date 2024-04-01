@@ -10,6 +10,13 @@ namespace LLGB {
     }
 
     template<typename T = double>
+    T langevinDerivative(T x) {
+        return (
+            -1.0 / pow(sinh(x), 2)
+            ) + (1. / pow(x, 2));
+    }
+
+    template<typename T = double>
     std::tuple<T, T> MFAWeissCurie(T est, T temp, T J0, T relax = 0.2,
         T tol = 1e-6, unsigned int maxIter = 1000) {
         /**
@@ -472,6 +479,7 @@ public:
             this->log[lId + "_K"].emplace_back(layer.K_log);
             this->log[lId + "_T"].emplace_back(layer.T_log);
             this->log[lId + "_me"].emplace_back(layer.me);
+            this->log[lId + "_Xpar"].emplace_back(layer.susceptibility);
         }
         this->log["time"].emplace_back(t);
         this->logLength++;
