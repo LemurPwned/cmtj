@@ -90,14 +90,14 @@ The equilibrium magnetisation, $(\theta^*, \phi^*)$, is then used to compute the
 Root finding algorithm is a naive greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).
 
 ## Runnning the model
-
+The same example can be found in the [`Examples` section](../tutorials/SBModel.ipynb), expanded with dynamic spherical approach.
 Below is an example of how the model can be used, based on a system with 2 ferromagnetic layers:
 
 ```python
 import numpy as np
 
 from collections import defaultdict
-from cmtj.models.general_sb import LayerSB, VectorObj, SolverSB
+from cmtj.models import LayerSB, VectorObj, Solver
 from cmtj.utils import mu0
 from tqdm import tqdm
 
@@ -130,7 +130,7 @@ Hspace = np.linspace(-400e3, 400e3, 100)
 result_dictionary = defaultdict(list)
 # we perform a sweep over the field magnitude
 for Hmag in tqdm(Hspace):
-    solver = SolverSB(
+    solver = Solver(
         layers=[layerA, layerB],
         J1=[1e-4],
         J2=[0.],
