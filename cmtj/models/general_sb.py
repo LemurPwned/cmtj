@@ -13,7 +13,7 @@ from tqdm import tqdm
 from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
 from ..utils.solvers import RootFinder
 
-EPS = np.finfo('float64').resolution
+EPS = np.finfo("float64").resolution
 
 
 def real_deocrator(fn):
@@ -47,8 +47,10 @@ def general_hessian_functional(N: int):
         all_symbols.extend(
             (sym.Symbol(r"\theta_" + indx_i), sym.Symbol(r"\phi_" + indx_i)))
     energy_functional_expr = sym.Function("E")(*all_symbols)
-    return get_hessian_from_energy_expr(
-        N, energy_functional_expr), energy_functional_expr
+    return (
+        get_hessian_from_energy_expr(N, energy_functional_expr),
+        energy_functional_expr,
+    )
 
 
 @lru_cache
@@ -67,10 +69,9 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
         indx_i = str(i)
         # z = sym.Symbol("Z")
         # these here must match the Ms symbols!
-        z = sym.Symbol(
-            r"\omega") * sym.Symbol(r"M_{" + indx_i + "}") * sym.sin(
-                sym.Symbol(r"\theta_" + indx_i)) * sym.Symbol(r"t_{" + indx_i +
-                                                              "}")
+        z = (sym.Symbol(r"\omega") * sym.Symbol(r"M_{" + indx_i + "}") *
+             sym.sin(sym.Symbol(r"\theta_" + indx_i)) *
+             sym.Symbol(r"t_{" + indx_i + "}"))
         for j in range(i, N):
             # indx_j = str(j + 1) # for display purposes
             indx_j = str(j)
@@ -127,11 +128,13 @@ def find_analytical_roots(N: int):
 
 def get_all_second_derivatives(energy_functional_expr,
                                energy_expression,
-                               subs={}):
+                               subs=None):
     """Get all second derivatives of the energy expression.
     :param energy_functional_expr: symbolic energy_functional expression
     :param energy_expression: symbolic energy expression (from solver)
     :param subs: substitutions to be made."""
+    if subs is None:
+        subs = {}
     second_derivatives = subs
     symbols = energy_expression.free_symbols
     for i, s1 in enumerate(symbols):
@@ -155,6 +158,7 @@ class LayerSB:
     :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].
     :param Ms: magnetisation saturation value in [A/m].
     """
+
     _id: int
     thickness: float
     Kv: VectorObj
@@ -169,7 +173,7 @@ class LayerSB:
         self.m = sym.ImmutableMatrix([
             sym.sin(self.theta) * sym.cos(self.phi),
             sym.sin(self.theta) * sym.sin(self.phi),
-            sym.cos(self.theta)
+            sym.cos(self.theta),
         ])
 
     def get_coord_sym(self):
@@ -181,9 +185,16 @@ class LayerSB:
         return self.m
 
     @lru_cache(3)
-    def symbolic_layer_energy(self, H: sym.ImmutableMatrix, J1top: float,
-                              J1bottom: float, J2top: float, J2bottom: float,
-                              top_layer: "LayerSB", down_layer: "LayerSB"):
+    def symbolic_layer_energy(
+        self,
+        H: sym.ImmutableMatrix,
+        J1top: float,
+        J1bottom: float,
+        J2top: float,
+        J2bottom: float,
+        top_layer: "LayerSB",
+        down_layer: "LayerSB",
+    ):
         """Returns the symbolic expression for the energy of the layer.
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
@@ -195,12 +206,13 @@ class LayerSB:
 
         if top_layer is not None:
             other_m = top_layer.get_m_sym()
-            top_iec_energy = -(J1top / self.thickness) * m.dot(other_m) - (
-                J2top / self.thickness) * m.dot(other_m)**2
+            top_iec_energy = (-(J1top / self.thickness) * m.dot(other_m) -
+                              (J2top / self.thickness) * m.dot(other_m)**2)
         if down_layer is not None:
             other_m = down_layer.get_m_sym()
-            bottom_iec_energy = -(J1bottom / self.thickness) * m.dot(
-                other_m) - (J2bottom / self.thickness) * m.dot(other_m)**2
+            bottom_iec_energy = (
+                -(J1bottom / self.thickness) * m.dot(other_m) -
+                (J2bottom / self.thickness) * m.dot(other_m)**2)
         return eng_non_interaction + top_iec_energy + bottom_iec_energy
 
     def no_iec_symbolic_layer_energy(self, H: sym.ImmutableMatrix):
@@ -214,45 +226,56 @@ class LayerSB:
 
         field_energy = -mu0 * self.Ms * m.dot(H)
         surface_anistropy = (-self.Ks +
-                             (1. / 2.) * mu0 * self.Ms**2) * (m[-1]**2)
+                             (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1]**2)
         volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
-        return (field_energy + surface_anistropy + volume_anisotropy)
+        return field_energy + surface_anistropy + volume_anisotropy
 
     def sb_correction(self):
-        omega = sym.Symbol(r'\omega')
+        omega = sym.Symbol(r"\omega")
         return (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
 
     def __hash__(self) -> int:
         return hash(str(self))
 
     def __eq__(self, __value: "LayerSB") -> bool:
-        return self._id == __value._id and self.thickness == __value.thickness and self.Kv == __value.Kv and self.Ks == __value.Ks and self.Ms == __value.Ms
+        return (self._id == __value._id and self.thickness == __value.thickness
+                and self.Kv == __value.Kv and self.Ks == __value.Ks
+                and self.Ms == __value.Ms)
 
 
 @dataclass
 class LayerDynamic(LayerSB):
     alpha: float
 
-    def rhs_llg(self, H: sym.Matrix, J1top: float, J1bottom: float,
-                J2top: float, J2bottom: float, top_layer: "LayerSB",
-                down_layer: "LayerSB"):
+    def rhs_llg(
+        self,
+        H: sym.Matrix,
+        J1top: float,
+        J1bottom: float,
+        J2top: float,
+        J2bottom: float,
+        top_layer: "LayerSB",
+        down_layer: "LayerSB",
+    ):
         """Returns the symbolic expression for the RHS of the spherical LLG equation.
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
-        U = self.symbolic_layer_energy(H,
-                                       J1top=J1top,
-                                       J1bottom=J1bottom,
-                                       J2top=J2top,
-                                       J2bottom=J2bottom,
-                                       top_layer=top_layer,
-                                       down_layer=down_layer)
+        U = self.symbolic_layer_energy(
+            H,
+            J1top=J1top,
+            J1bottom=J1bottom,
+            J2top=J2top,
+            J2bottom=J2bottom,
+            top_layer=top_layer,
+            down_layer=down_layer,
+        )
         # sum all components
-        prefac = gamma_rad / (1. + self.alpha)**2
-        inv_sin = 1. / (sym.sin(self.theta) + EPS)
+        prefac = gamma_rad / (1.0 + self.alpha)**2
+        inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
         dUdtheta = sym.diff(U, self.theta)
         dUdphi = sym.diff(U, self.phi)
 
-        dtheta = (-inv_sin * dUdphi - self.alpha * dUdtheta)
-        dphi = (inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin)**2)
+        dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta
+        dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin)**2
         return prefac * sym.ImmutableMatrix([dtheta, dphi]) / self.Ms
 
     def __eq__(self, __value: "LayerDynamic") -> bool:
@@ -264,16 +287,41 @@ class LayerDynamic(LayerSB):
 
 @dataclass
 class Solver:
+    """General solver for the system.
+
+    :param layers: list of layers in the system.
+    :param J1: list of interlayer exchange constants. Goes (i)-(i+1), i = 0, 1, 2, ...
+        with i being the index of the layer.
+    :param J2: list of interlayer exchange constants.
+    :param H: external field.
+    :param Ndipole: list of dipole fields for each layer. Defaults to None.
+        Goes (i)-(i+1), i = 0, 1, 2, ... with i being the index of the layer.
+    """
+
     layers: List[Union[LayerSB, LayerDynamic]]
     J1: List[float]
     J2: List[float]
     H: VectorObj = None
+    Ndipole: List[List[VectorObj]] = None
 
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
             raise ValueError("Number of layers must be 1 more than J1.")
         if len(self.layers) != len(self.J2) + 1:
             raise ValueError("Number of layers must be 1 more than J2.")
+
+        self.dipoleMatrix: list[sym.Matrix] = None
+        if self.Ndipole is not None:
+            if len(self.layers) != len(self.Ndipole) + 1:
+                raise ValueError(
+                    "Number of layers must be 1 more than number of tensors.")
+            if isinstance(self.layers[0], LayerDynamic):
+                raise ValueError(
+                    "Dipole coupling is not yet supported for LayerDynamic.")
+            self.dipoleMatrix = [
+                sym.Matrix([d.get_cartesian() for d in dipole])
+                for dipole in self.Ndipole
+            ]
 
         id_sets = {layer._id for layer in self.layers}
         ideal_set = set(range(len(self.layers)))
@@ -292,10 +340,12 @@ class Solver:
         elif layer_indx == len(self.layers) - 1:
             return self.layers[layer_indx -
                                1], None, interaction_constant[-1], 0
-        return self.layers[layer_indx - 1], self.layers[
-            layer_indx +
-            1], interaction_constant[layer_indx -
-                                     1], interaction_constant[layer_indx]
+        return (
+            self.layers[layer_indx - 1],
+            self.layers[layer_indx + 1],
+            interaction_constant[layer_indx - 1],
+            interaction_constant[layer_indx],
+        )
 
     def compose_llg_jacobian(self, H: VectorObj):
         """Create a symbolic jacobian of the LLG equation in spherical coordinates."""
@@ -344,10 +394,15 @@ class Solver:
                 if bottom_layer:
                     ratio_bottom = bottom_layer.thickness / (
                         layer.thickness + bottom_layer.thickness)
-                energy += layer.symbolic_layer_energy(H, Jtop * ratio_top,
-                                                      Jbottom * ratio_bottom,
-                                                      J2top, J2bottom,
-                                                      top_layer, bottom_layer)
+                energy += layer.symbolic_layer_energy(
+                    H,
+                    Jtop * ratio_top,
+                    Jbottom * ratio_bottom,
+                    J2top,
+                    J2bottom,
+                    top_layer,
+                    bottom_layer,
+                )
         else:
             # surface energy for correct angular gradient
             for layer in self.layers:
@@ -358,10 +413,20 @@ class Solver:
             for i in range(len(self.layers) - 1):
                 l1m = self.layers[i].get_m_sym()
                 l2m = self.layers[i + 1].get_m_sym()
-                ldot = (l1m.dot(l2m))
+                ldot = l1m.dot(l2m)
                 energy -= self.J1[i] * ldot
                 energy -= self.J2[i] * (ldot)**2
 
+                # dipole fields
+                if self.dipoleMatrix is not None:
+                    mat = self.dipoleMatrix[i]
+                    # is positive, just like demag
+                    energy += ((mu0 / 2.0) * l1m.dot(mat * l2m) *
+                               self.layers[i].Ms * self.layers[i + 1].Ms *
+                               self.layers[i].thickness)
+                    energy += ((mu0 / 2.0) * l2m.dot(mat * l1m) *
+                               self.layers[i].Ms * self.layers[i + 1].Ms *
+                               self.layers[i + 1].thickness)
         return energy
 
     def create_energy_hessian(self, equilibrium_position: List[float]):
@@ -415,14 +480,16 @@ class Solver:
             symbols.extend((theta, phi))
         return sym.lambdify(symbols, grad_vector, accel)
 
-    def adam_gradient_descent(self,
-                              init_position: np.ndarray,
-                              max_steps: int,
-                              tol: float = 1e-8,
-                              learning_rate: float = 1e-4,
-                              first_momentum_decay: float = 0.9,
-                              second_momentum_decay: float = 0.999,
-                              perturbation: float = 1e-6):
+    def adam_gradient_descent(
+        self,
+        init_position: np.ndarray,
+        max_steps: int,
+        tol: float = 1e-8,
+        learning_rate: float = 1e-4,
+        first_momentum_decay: float = 0.9,
+        second_momentum_decay: float = 0.999,
+        perturbation: float = 1e-6,
+    ):
         """
         A naive implementation of Adam gradient descent.
         See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015
@@ -444,11 +511,11 @@ class Solver:
         while True:
             step += 1
             grad = np.asarray(gradfn(*current_position))
-            m = first_momentum_decay * m + (1. - first_momentum_decay) * grad
-            v = second_momentum_decay * v + (1. -
+            m = first_momentum_decay * m + (1.0 - first_momentum_decay) * grad
+            v = second_momentum_decay * v + (1.0 -
                                              second_momentum_decay) * grad**2
-            m_hat = m / (1. - first_momentum_decay**step)
-            v_hat = v / (1. - second_momentum_decay**step)
+            m_hat = m / (1.0 - first_momentum_decay**step)
+            v_hat = v / (1.0 - second_momentum_decay**step)
             new_position = current_position - learning_rate * m_hat / (
                 np.sqrt(v_hat) + eps)
             if step > max_steps:
@@ -480,19 +547,22 @@ class Solver:
         fmr = np.sqrt(float(fmr)) * gamma_rad / (2 * np.pi)
         return fmr
 
-    def solve(self,
-              init_position: np.ndarray,
-              max_steps: int = 1e9,
-              learning_rate: float = 1e-4,
-              adam_tol: float = 1e-8,
-              first_momentum_decay: float = 0.9,
-              second_momentum_decay: float = 0.999,
-              perturbation: float = 1e-3,
-              ftol: float = 0.01e9,
-              max_freq: float = 80e9,
-              force_single_layer: bool = False,
-              force_sb: bool = False):
+    def solve(
+        self,
+        init_position: np.ndarray,
+        max_steps: int = 1e9,
+        learning_rate: float = 1e-4,
+        adam_tol: float = 1e-8,
+        first_momentum_decay: float = 0.9,
+        second_momentum_decay: float = 0.999,
+        perturbation: float = 1e-3,
+        ftol: float = 0.01e9,
+        max_freq: float = 80e9,
+        force_single_layer: bool = False,
+        force_sb: bool = False,
+    ):
         """Solves the system.
+        For dynamic LayerDynamic, the return is different, check :return.
         1. Computes the energy functional.
         2. Computes the gradient of the energy functional.
         3. Performs a gradient descent to find the equilibrium position.
@@ -525,7 +595,8 @@ class Solver:
             learning_rate=learning_rate,
             first_momentum_decay=first_momentum_decay,
             second_momentum_decay=second_momentum_decay,
-            perturbation=perturbation)
+            perturbation=perturbation,
+        )
         if not force_sb and isinstance(self.layers[0], LayerDynamic):
             eigenvalues, eigenvectors = self.dynamic_layer_solve(eq)
             return eq, eigenvalues / 1e9, eigenvectors
@@ -561,9 +632,9 @@ class Solver:
         hes = self.create_energy_hessian(eq)
         omega = sym.Symbol(r"\omega")
         if len(self.layers) <= 3:
-            y = real_deocrator(njit(sym.lambdify(omega, hes, 'math')))
+            y = real_deocrator(njit(sym.lambdify(omega, hes, "math")))
         else:
-            y = real_deocrator(sym.lambdify(omega, hes, 'math'))
+            y = real_deocrator(sym.lambdify(omega, hes, "math"))
         r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
         roots = r.find(y)
         # convert to GHz
@@ -625,7 +696,7 @@ class Solver:
         learning_rate: float = 1e-4,
         first_momentum_decay: float = 0.9,
         second_momentum_decay: float = 0.999,
-        disable_tqdm: bool = False
+        disable_tqdm: bool = False,
     ) -> Iterable[Tuple[List[float], List[float], VectorObj]]:
         """Performs a field scan using the analytical solutions.
         :param Hrange: the range of fields to scan.
