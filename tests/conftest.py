@@ -4,7 +4,7 @@ from math import pi
 from cmtj.utils import mu0
 from cmtj import Junction, CVector, Layer, ScalarDriver
 from cmtj.utils.procedures import ResistanceParameters
-from cmtj.models import LayerDynamic, VectorObj
+from cmtj.models import LayerDynamic, VectorObj, LayerSB
 
 rp = ResistanceParameters(
     Rxx0=100, Rxy0=1, Rsmr=-0.46, Rahe=-2.7, Ramr=-0.24, l=30, w=20
@@ -36,6 +36,25 @@ def two_layer_symbolic_dyn() -> Tuple[LayerDynamic]:
         Ks=100,
         Ms=1.2 / mu0,
         alpha=1e-3,
+    )
+    return (layerA, layerB)
+
+
+@pytest.fixture
+def two_layer_symbolic_classic() -> Tuple[LayerSB]:
+    layerA = LayerSB(
+        0,
+        thickness=2.3e-9,
+        Kv=VectorObj(4e3, 0),
+        Ks=100,
+        Ms=1.8 / mu0,
+    )
+    layerB = LayerSB(
+        1,
+        thickness=3.2e-9,
+        Kv=VectorObj(340e3, 0),
+        Ks=100,
+        Ms=1.2 / mu0,
     )
     return (layerA, layerB)
 
