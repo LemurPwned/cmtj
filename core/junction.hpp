@@ -141,15 +141,10 @@ enum SolverMode
     HEUN = 3
 };
 
-// seems to be the faster so far.
-// static std::mt19937 generator((std::random_device{}()));
-
 template <typename T = double>
 class Layer
 {
 private:
-
-    OneFNoise<T>* ofn;
 
     ScalarDriver<T> temperatureDriver;
     ScalarDriver<T> IECDriverTop;
@@ -172,7 +167,7 @@ private:
     Reference referenceType = NONE;
 
     // the distribution is binded for faster generation
-    // is also shared between 1f and Gaussian noise.
+    // is also shared between 1/f and Gaussian noise.
     std::function<T()> distribution = std::bind(std::normal_distribution<T>(0, 1), std::mt19937(std::random_device{}()));
 
     CVector<T> dWn, dWn2; // one for thermal, one for OneF
@@ -216,10 +211,21 @@ private:
         dWn = CVector<T>(this->distribution);
         dWn.normalize();
         this->cellVolume = this->cellSurface * this->thickness;
-        this->ofn = new OneFNoise<T>(0, 0., 0.);
+        this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(0, 0., 0.));
     }
 
 public:
+    struct BufferedNoiseParameters
+    {
+        /* data */
+        T alphaNoise = 1.0;
+        T scaleNoise = 0.0;
+        T stdNoise = 0.0;
+        Axis axis = Axis::all;
+    };
+    BufferedNoiseParameters noiseParams;
+    std::shared_ptr<OneFNoise<T>> ofn;
+    std::shared_ptr<VectorAlphaNoise<T>> bfn;
     bool includeSTT = false;
     bool includeSOT = false;
 
@@ -440,9 +446,30 @@ public:
     }
 
     void setOneFNoise(unsigned int sources, T bias, T scale) {
-        this->ofn = new OneFNoise<T>(sources, bias, scale);
+        this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(sources, bias, scale));
         this->pinkNoiseSet = true;
-        this->nonStochasticOneFSet = true; // by default turn it on, but in the stochastic sims, we will have to turn it off
+        // by default turn it on, but in the stochastic sims, we will have to turn it off
+        this->nonStochasticOneFSet = true;
+    }
+
+    void setAlphaNoise(T alpha, T std, T scale, Axis axis = Axis::all) {
+        if ((alpha < 0) || (alpha > 2))
+            throw std::runtime_error("alpha must be between 0 and 2");
+        this->noiseParams.alphaNoise = alpha;
+        this->noiseParams.stdNoise = std;
+        this->noiseParams.scaleNoise = scale;
+        this->noiseParams.axis = axis;
+        this->pinkNoiseSet = true;
+    }
+
+    void createBufferedAlphaNoise(unsigned int bufferSize) {
+        if (this->noiseParams.alphaNoise < 0)
+            throw std::runtime_error("alpha must be set before creating the noise!"
+                " Use setAlphaNoise function to set the alpha parameter.");
+
+        this->bfn = std::shared_ptr<VectorAlphaNoise<T>>(new VectorAlphaNoise<T>(bufferSize,
+            this->noiseParams.alphaNoise,
+            this->noiseParams.stdNoise, this->noiseParams.scaleNoise, this->noiseParams.axis));
     }
 
     void setCurrentDriver(const ScalarDriver<T>& driver)
@@ -678,6 +705,8 @@ public:
         {
             this->I_log = this->currentDriver.getCurrentScalarValue(time);
             // use standard STT formulation
+            // see that literature reports Ms/MAGNETIC_PERMEABILITY
+            // but then the units don't match, we use Ms [T] which works
             const T aJ = HBAR * this->I_log /
                 (ELECTRON_CHARGE * this->Ms * this->thickness);
             // field like
@@ -724,6 +753,22 @@ public:
         }
         return dmdt * -GYRO * convTerm;
     }
+
+    /**
+     * @brief Assumes the dW has the scale of sqrt(timeStep).
+     *
+     * @param currentMag
+     * @param dW - stochastic vector already scaled properly
+     * @return CVector<T>
+     */
+    CVector<T> stochasticTorque(const CVector<T>& currentMag, const CVector<T>& dW) {
+
+        const T convTerm = -GYRO / (1. + pow(this->damping, 2));
+        const CVector<T> thcross = c_cross(currentMag, dW);
+        const CVector<T> thcross2 = c_cross(currentMag, thcross);
+        return (thcross + thcross2 * this->damping) * convTerm;
+    }
+
     const CVector<T> calculateLLGWithFieldTorqueDipoleInjection(T time, const CVector<T>& m,
         const CVector<T>& bottom, const CVector<T>& top,
         const CVector<T>& dipole, T timeStep, const CVector<T>& Hfluctuation = CVector<T>())
@@ -799,65 +844,6 @@ public:
         this->mag = m_t;
     }
 
-    void dormandPriceStep(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        CVector<T> m_t = this->mag;
-        CVector<T> e_t;
-        std::array<CVector<T>, 7> K;
-        // if (this->hopt < 0)
-        // {
-        // }
-        // this makes the step non-adaptive
-        // we will deal with this problem later, this requires consistency in step
-        // across all the layers
-        this->hopt = timeStep;
-        // define Buchter tableau below
-        // there are redundant zeros, but for clarity, we'll leave them
-        const std::array<double, 7> c = {
-            0., 1. / 5., 3. / 10., 4. / 5., 8. / 9., 1., 1. };
-        const std::array<double, 7> b = {
-            35. / 384., 0, 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0. };
-        const std::array<double, 7> b2 = {
-            5179. / 57600., 0, 7571. / 16695., 393. / 640., -92097. / 339200., 187. / 2100., 1. / 40. };
-        // extra braces are required even though the struct is 2D only
-        const std::array<std::array<double, 7>, 7> aCoefs = { {{0, 0, 0, 0, 0, 0, 0},
-                                                              {1. / 5., 0, 0, 0, 0, 0, 0},
-                                                              {3. / 40., 9. / 40., 0, 0, 0, 0, 0},
-                                                              {44. / 45., -56. / 15., 32. / 9., 0, 0, 0, 0},
-                                                              {19372. / 6561., -25360. / 2187., 64448. / 6561., -212. / 729., 0, 0, 0},
-                                                              {9017. / 3168., -355. / 33., 46732. / 5247., 49. / 176., -5103. / 18656., 0, 0},
-                                                              {35. / 384., 0., 500. / 1113., 125. / 192., -2187. / 6784., 11. / 84., 0.}} };
-        // compute the first
-        K[0] = calculateLLGWithFieldTorque(time, this->mag, bottom, top, this->hopt);
-        m_t = m_t + K[0] * b[0] * this->hopt;
-        for (int i = 1; i < 7; i++)
-        {
-            CVector<T> kS;
-            for (int j = 0; j < i; j++)
-            {
-                kS = kS + K[j] * aCoefs[i][j];
-            }
-            K[i] = calculateLLGWithFieldTorque(time + c[i] * this->hopt, this->mag + kS * this->hopt,
-                bottom, top, this->hopt);
-            m_t = m_t + K[i] * b[i] * this->hopt;           // this is function estimate
-            e_t = e_t + K[i] * (b[i] - b2[i]) * this->hopt; // this is error estimate
-        }
-        // adapt the step size
-        const T eps = 1e-3;
-        const T s = pow((eps * timeStep) / (2 * e_t.length()), 1. / 5.);
-        this->hopt = s * timeStep;
-        m_t.normalize();
-        this->mag = m_t;
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-    }
-
-    CVector<T> non_stochastic_llg(const CVector<T>& cm, T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        return calculateLLGWithFieldTorque(time, cm, bottom, top, timeStep);
-    }
 
     CVector<T> stochastic_llg(const CVector<T>& cm, T time, T timeStep,
         const  CVector<T>& bottom, const CVector<T>& top, const CVector<T>& dW, const CVector<T>& dW2, const T& HoneF)
@@ -880,6 +866,10 @@ public:
     const T getStochasticOneFNoise(T time) {
         if (!this->pinkNoiseSet)
             return 0;
+        else if (this->noiseParams.scaleNoise != 0) {
+            // use buffered noise if available
+            return this->bfn->tick();
+        }
         return this->ofn->tick();
     }
 
@@ -888,112 +878,25 @@ public:
         if (this->cellVolume == 0.0)
             throw std::runtime_error("Cell surface cannot be 0 during temp. calculations!");
         const T currentTemp = this->temperatureDriver.getCurrentScalarValue(time);
-        const T mainFactor = (2 * this->damping * MAGNETIC_PERMEABILITY * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume * timeStep);
+        const T mainFactor = (2 * this->damping * BOLTZMANN_CONST * currentTemp) / (this->Ms * this->cellVolume * GYRO);
         return sqrt(mainFactor);
     }
 
-    CVector<T> nonStochasticLangevin(T time, T timeStep)
+    CVector<T> getStochasticLangevinVector(const T& time, const T& timeStep)
     {
+        if (!this->temperatureSet)
+            return CVector<T>();
         const T Hthermal_temp = this->getLangevinStochasticStandardDeviation(time, timeStep);
         const CVector<T> dW = CVector<T>(this->distribution);
         return dW * Hthermal_temp;
     }
 
-    CVector<T> nonStochasticOneFNoise(T time, T timestep) {
-        const T pinkNoise = this->ofn->tick();
-        const CVector<T> dW2 = CVector<T>(this->distribution);
-        return dW2 * pinkNoise;
-    }
-
-    /**
-     * @brief Computes a single Euler-Heun step [DEPRECATED].
-     * [DEPRECATED] This is the old Euler-Heun method, Heun is preferred.
-     * Bottom and top are relative to the current layer.
-     * They are used to compute interactions.
-     * @param time: current time of the simulation
-     * @param timeStep: integration time of the solver
-     * @param bottom: bottom layer to the current layer
-     * @param top: top layer to the current layer
-     */
-    void euler_heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top)
-    {
-        // we compute the two below in stochastic part, not non stochastic.
-        this->nonStochasticTempSet = false;
-        this->nonStochasticOneFSet = false;
-        // this is Stratonovich integral
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
+    CVector<T> getOneFVector() {
+        if (this->noiseParams.scaleNoise != 0) {
+            // use buffered noise if available
+            return this->bfn->tickVector();
         }
-        // Brownian motion sample
-        // Generate the noise from the Brownian motion
-        // dW2 is used for 1/f noise generation
-        CVector<T> dW = CVector<T>(this->distribution); // * sqrt(timeStep);
-        CVector<T> dW2 = CVector<T>(this->distribution); //* sqrt(timeStep);
-        // squared dW -- just utility
-        dW.normalize();
-        dW2.normalize();
-        // f_n is the vector of non-stochastic part at step n
-        // multiply by timeStep (h) here for convenience
-        const T Honef = this->getStochasticOneFNoise(time);
-        const CVector<T> f_n = non_stochastic_llg(this->mag, time, timeStep, bottom, top) * timeStep;
-        // g_n is the stochastic part of the LLG at step n
-        const CVector<T> g_n = stochastic_llg(this->mag, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
-
-        // actual solution
-        // approximate next step ytilde
-        const CVector<T> mapprox = this->mag + g_n;
-        // calculate the approx g_n
-        const CVector<T> g_n_approx = stochastic_llg(mapprox, time, timeStep, bottom, top, dW, dW2, Honef) * timeStep;
-        // CVector<T> m_t = this->mag + f_n + g_n + (g_n_approx - g_n) * 0.5;
-        CVector<T> m_t = this->mag + f_n + (g_n_approx + g_n) * 0.5;
-        m_t.normalize();
-        this->mag = m_t;
-    }
-
-    /**
-     * @brief Computes a single Heun step.
-     * This method is preferred over Euler-Heun method.
-     * Bottom and top are relative to the current layer.
-     * They are used to compute interactions.
-     * @param time: current time of the simulation
-     * @param timeStep: integration time of the solver
-     * @param bottom: bottom layer to the current layer
-     * @param top: top layer to the current layer
-     */
-    void heun_step(T time, T timeStep, const CVector<T>& bottom, const CVector<T>& top) {
-        // we compute the two below in stochastic part, not non stochastic.
-        this->nonStochasticTempSet = false;
-        this->nonStochasticOneFSet = false;
-        // this is Stratonovich integral
-        if (isnan(this->mag.x))
-        {
-            throw std::runtime_error("NAN magnetisation");
-        }
-        // Brownian motion sample
-        // Generate the noise from the Brownian motion
-        const T Honef_scale = this->getStochasticOneFNoise(time);
-        const T Hthermal_scale = this->getLangevinStochasticStandardDeviation(time, timeStep);
-        const CVector<T> Hlangevin = dWn * Hthermal_scale;
-        const CVector<T> Honef = dWn2 * Honef_scale;
-        const CVector<T> m_t = this->mag;
-        const CVector<T> f_n = this->calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep, Hlangevin + Honef);
-        // immediate m approximation
-        CVector<T> m_approx = m_t + f_n * timeStep;
-        CVector<T> dW = CVector<T>(this->distribution);
-        CVector<T> dW2 = CVector<T>(this->distribution);
-        dW.normalize();
-        dW2.normalize();
-        m_approx.normalize();
-        const CVector<T> Hlangevin_approx = dW * Hthermal_scale;
-        const CVector<T> Honef_approx = dW2 * Honef_scale;
-        const CVector<T> f_approx = this->calculateLLGWithFieldTorque(time + timeStep,
-            m_approx, bottom, top, timeStep, Hlangevin_approx + Honef_approx);
-        dWn = dW; // replace
-        dWn2 = dW2;
-        CVector<T> nm_t = this->mag + (f_n + f_approx) * 0.5 * timeStep;
-        nm_t.normalize();
-        this->mag = nm_t;
+        return CVector<T>();
     }
 };
 
@@ -1017,7 +920,7 @@ public:
 
     std::vector<T> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
     std::unordered_map<std::string, std::vector<T>> log;
-    // std::string fileSave;
+
     unsigned int logLength = 0;
     unsigned int layerNo;
     std::string Rtag = "R";
@@ -1060,7 +963,8 @@ public:
         this->Rap = Rap;
         this->MR_mode = CLASSIC;
         // A string representing the tag for the junction's resistance value.
-        this->Rtag = "R_" + this->layers[0].id + "_" + this->layers[1].id;
+        if (this->layerNo == 2)
+            this->Rtag = "R_" + this->layers[0].id + "_" + this->layers[1].id;
     }
 
     /**
@@ -1114,32 +1018,6 @@ public:
     }
 
     /**
-     * @brief Select a solver for the LLGS/sLLGS solutions
-     * Available: DormandPrice, EulerHeun, RK4
-     * @param solverMode one of EULER_HEUN, DORMAND_PRICE or RK4
-     */
-    const auto selectSolver(SolverMode solverMode)
-    {
-        switch (solverMode)
-        {
-        case EULER_HEUN:
-            return &Layer<T>::euler_heun_step;
-
-        case DORMAND_PRICE:
-            return &Layer<T>::dormandPriceStep;
-
-        case RK4:
-            return &Layer<T>::rk4_step;
-
-        case HEUN:
-            return &Layer<T>::heun_step;
-
-        default:
-            return &Layer<T>::rk4_step;
-        }
-    }
-
-    /**
      * @brief Get Ids of the layers in the junction.
      * @return vector of layer ids.
      */
@@ -1180,7 +1058,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
         }
     }
     void axiallayerSetter(const std::string& layerID, axialDriverSetter functor, AxialDriver<T> driver)
@@ -1196,7 +1074,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
         }
     }
     void setLayerTemperatureDriver(const std::string& layerID, const ScalarDriver<T>& driver)
@@ -1288,7 +1166,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to match the layer order or find layer ids!");
+            throw std::runtime_error("Failed to match the layer order or find layer ids: " + bottomLayer + " and " + topLayer + "!");
         }
     }
 
@@ -1315,7 +1193,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to match the layer order or find layer ids!");
+            throw std::runtime_error("Failed to match the layer order or find layer ids: " + bottomLayer + " and " + topLayer + "!");
         }
     }
 
@@ -1332,7 +1210,7 @@ public:
         }
         if (!found)
         {
-            throw std::runtime_error("Failed to find a layer with a given id!");
+            throw std::runtime_error("Failed to find a layer with a given id: " + layerID + "!");
         }
     }
 
@@ -1381,7 +1259,7 @@ public:
         if (res != this->layers.end()) {
             return *res;
         }
-        throw std::runtime_error("Failed to find a layer with a given id!");
+        throw std::runtime_error("Failed to find a layer with a given id " + layerID + "!");
     }
 
     /**
@@ -1482,7 +1360,7 @@ public:
     }
 
     typedef void (Layer<T>::* solverFn)(T t, T timeStep, const CVector<T>& bottom, const CVector<T>& top);
-
+    typedef void (Junction<T>::* runnerFn)(solverFn& functor, T& t, T& timeStep);
     /**
      * @brief Run Euler-Heun or RK4 method for a single layer.
      *
@@ -1523,6 +1401,101 @@ public:
             (this->layers[i].*functor)(
                 t, timeStep, magCopies[i], magCopies[i + 2]);
         }
+    }
+
+    void eulerHeunSolverStep(solverFn& functor, T& t, T& timeStep) {
+        /*
+            Euler Heun method (stochastic heun)
+
+            y_np = y + g(y,t,dW)*dt
+            g_sp = g(y_np,t+1,dW)
+            y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
+
+            with f being the non-stochastic part and g the stochastic part
+        */
+        // draw the noise for each layer, dW
+        std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
+        for (unsigned int i = 0; i < this->layerNo; i++) {
+            // todo: after you're done, double check the thermal magnitude and dt scaling there
+            const CVector<T> dW = this->layers[i].getStochasticLangevinVector(t, timeStep) + this->layers[i].getOneFVector();
+            const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
+            const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
+
+            const CVector<T> fnApprox = this->layers[i].calculateLLGWithFieldTorque(
+                t, this->layers[i].mag, bottom, top, timeStep);
+            const CVector<T> gnApprox = this->layers[i].stochasticTorque(this->layers[i].mag, dW);
+
+            // theoretically we have 2 options
+            // 1. calculate only the stochastic part with the second approximation
+            // 2. calculate the second approximation of m with the stochastic and non-stochastic
+            //    part and then use if for torque est.
+            const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
+            const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(mNext, dW);
+            mPrime[i] = this->layers[i].mag + fnApprox * timeStep + 0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
+        }
+
+        for (unsigned int i = 0; i < this->layerNo; i++) {
+            this->layers[i].mag = mPrime[i];
+            this->layers[i].mag.normalize();
+        }
+    }
+
+
+    void heunSolverStep(solverFn& functor, T& t, T& timeStep) {
+        /*
+            Heun method
+            y'(t+1) = y(t) + dy(y, t)
+            y(t+1) = y(t) + 0.5 * (dy(y, t) + dy(y'(t+1), t+1))
+        */
+        /*
+            Stochastic Heun method
+            y_np = y + g(y,t,dW)*dt
+            g_sp = g(y_np,t+1,dW)
+            y' = y_n + f_n * dt + g_n * dt
+            f' = f(y, )
+            y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
+        */
+        std::vector<CVector<T>> fn(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> gn(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> dW(this->layerNo, CVector<T>());
+        std::vector<CVector<T>> mNext(this->layerNo, CVector<T>());
+        // first approximation
+
+        // make sure that
+        // 1. Thermal field is added if needed
+        // 2. One/f noise is added if needed
+        // 3. The timestep is correctly multiplied
+
+        for (unsigned int i = 0; i < this->layerNo; i++)
+        {
+            const CVector<T> bottom = (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
+            const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
+
+            fn[i] = this->layers[i].calculateLLGWithFieldTorque(
+                t, this->layers[i].mag, bottom, top, timeStep);
+
+            // draw the noise for each layer, dW
+            dW[i] = this->layers[i].getStochasticLangevinVector(t, timeStep) + this->layers[i].getOneFVector();
+            gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]);
+
+            mNext[i] = this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep);
+        }
+        // second approximation
+        for (unsigned int i = 0; i < this->layerNo; i++)
+        {
+            const CVector<T> bottom = (i == 0) ? CVector<T>() : mNext[i - 1];
+            const CVector<T> top = (i == this->layerNo - 1) ? CVector<T>() : mNext[i + 1];
+            // first approximation is already multiplied by timeStep
+            this->layers[i].mag = this->layers[i].mag + 0.5 * timeStep * (
+                fn[i] + this->layers[i].calculateLLGWithFieldTorque(
+                    t + timeStep, mNext[i],
+                    bottom,
+                    top, timeStep)
+                ) + 0.5 * (gn[i] + this->layers[i].stochasticTorque(mNext[i], dW[i])) * sqrt(timeStep);
+            // normalise
+            this->layers[i].mag.normalize();
+        }
+
     }
 
     /**
@@ -1606,6 +1579,45 @@ public:
         }
     }
 
+    std::tuple<runnerFn, solverFn, SolverMode> getSolver(SolverMode mode, unsigned int totalIterations) {
+        SolverMode localMode = mode;
+        for (auto& l : this->layers)
+        {
+            if (l.hasTemperature())
+            {
+                // if at least one temp. driver is set
+                // then use heun for consistency
+                if (localMode != HEUN && localMode != EULER_HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Euler Heun for stochastic calculation." << std::endl;
+                    localMode = EULER_HEUN;
+                }
+            }
+            if (l.noiseParams.scaleNoise != 0) {
+                // if at least one temp. driver is set
+                // then use heun for consistency
+                if (localMode != HEUN && localMode != EULER_HEUN) {
+                    std::cout << "[WARNING] Solver automatically changed to Euler Heun for stochastic calculation." << std::endl;
+                    localMode = EULER_HEUN;
+                }
+                // create a buffer
+                l.createBufferedAlphaNoise(totalIterations);
+            }
+        }
+        auto solver = &Layer<T>::rk4_step;
+
+        // assign a runner function pointer from junction
+        auto runner = &Junction<T>::runMultiLayerSolver;
+        if (this->layerNo == 1)
+            runner = &Junction<T>::runSingleLayerSolver;
+        if (localMode == HEUN)
+            runner = &Junction<T>::heunSolverStep;
+        else if (localMode == EULER_HEUN)
+            runner = &Junction<T>::eulerHeunSolverStep;
+
+        return std::make_tuple(runner, solver, localMode);
+    }
+
+
     /**
      * Main run simulation function. Use it to run the simulation.
      * @param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
@@ -1628,33 +1640,13 @@ public:
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        auto solver = this->selectSolver(mode);
         // pick a solver based on drivers
-        for (auto& l : this->layers)
-        {
-            if (l.hasTemperature())
-            {
-                if (mode != HEUN && mode != EULER_HEUN) {
-                    std::cout << "[WARNING] Solver automatically changed to Heun for stochastic calculation." << std::endl;
-                }
-                // if at least one temp. driver is set
-                // then use heun for consistency
-                solver = this->selectSolver(HEUN);
-                break;
-            }
-        }
+        auto [runner, solver, _] = getSolver(mode, totalIterations);
 
         for (unsigned int i = 0; i < totalIterations; i++)
         {
             T t = i * timeStep;
-            if (this->layerNo == 1)
-            {
-                runSingleLayerSolver(solver, t, timeStep);
-            }
-            else
-            {
-                runMultiLayerSolver(solver, t, timeStep);
-            }
+            (*this.*runner)(solver, t, timeStep);
 
             if (!(i % writeEvery))
             {

@@ -1,4 +1,4 @@
-<img style="float: right; max-width: 50px;" src="docs/assets/icon.svg">
+<img style="float: right; max-width: 50px;" src="assets/icon.svg">
 
 # CMTJ
 
@@ -9,15 +9,34 @@
 [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](http://cmtj-simulations.streamlit.app/)
 ![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
 
+## Table of contents
+
+- [CMTJ](#cmtj)
+  - [Table of contents](#table-of-contents)
+  - [Short description](#short-description)
+  - [Web GUI](#web-gui)
+  - [Quickstart](#quickstart)
+    - [Installation :rocket:](#installation-rocket)
+    - [Extra dependencies](#extra-dependencies)
+  - [Documentation and examples](#documentation-and-examples)
+  - [Extensions](#extensions)
+  - [Citing](#citing)
+- [Development](#development)
+  - [Acknowledgements](#acknowledgements)
+  - [Contributions](#contributions)
+  - [Docker](#docker)
+  - [Precommit](#precommit)
+  - [Documentation builds](#documentation-builds)
+
 ## Short description
 
 The `cmtj` name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
 
-## Demo
+## Web GUI
 
-Check out the [streamlit hosted demo here](http://cmtj-simulations.streamlit.app/).
+Check out the [streamlit hosted demo here](http://cmtj-simulations.streamlit.app/). You can simulate PIMM spectra and Spin-Diode spectra there. Let us know if you have any issues with the demo.
 
 ## Quickstart
 
@@ -63,31 +82,10 @@ The package requires (if `utils` subpackage is used):
 - matplotlib
 ```
 
-## Subpackages
-```mermaid
-graph TD;
-cmtj --> models
-cmtj --> utils
-models --> domain_dynamics
-models --> drivers
-models --> ensemble
-models --> general_sb
-models --> oersted
-utils --> optimization
-utils --> parallel
-utils --> plotting
-utils --> procedures
-utils --> resistance
-utils --> solvers
-utils --> linear
-utils --> energy
-utils --> filters
-```
-
-
-## Read the docs
+## Documentation and examples
 
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
+There are many examples available, check out the [examples section in the docs](https://lemurpwned.github.io/cmtj/experimental-methods/introduction/)
 
 ## Extensions
 
@@ -155,9 +153,18 @@ There are couple of stages to building the documentation
    This is mostly for the C++ documentation. Furture changes may couple C++ and Python docs.
 2. Build stubs
    The stubgen is `pybind11-stubgen` or `mypy stubgen` with the latter being preferred now.
-   E.g. to generate `Stack` module stubs we can go:
+   Before running the stubgen, make sure to install the package with:
+   ```
+   python3 -m pip install .
+   ```
+   avoid using `-e` flag as it may cause issues with the stubgen.
+   Then to generate, for instance, `Stack` module stubs we can do:
    ```
    stubgen -m cmtj.stack -o target-stub-dir/
+   ```
+   or
+   ```
+   python3 -c "import mypy.stubgen; mypy.stubgen.main(['-p', 'cmtj.stack', '-o', 'target-stub-dir/'])"
    ```
    More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.
 3. Parse stubs to Markdown.

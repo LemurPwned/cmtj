@@ -111,16 +111,59 @@ equation and $g(X_t, t)$ is the stochastic part of the equation.
 $\mathrm{d}W$ is \"derivative-like\" of the Brownian motion. The symbol
 $\circ$ denotes the Stratonovich product which distinguishes it from
 Ito's SDE. By assuming that the effective field contains thermal
-fluctuations
-$\mathbf{H}_{\mathrm{eff}} \rightarrow \mathbf{H}_{\mathrm{eff}} + \mathbf{H}_{\mathrm{T}}$
+fluctuations $\mathbf{H}_{\mathrm{eff}} \rightarrow \mathbf{H}_{\mathrm{eff}} + \mathbf{H}_{\mathrm{T}}$
 we transform the standard LLGS equation into the form that fits
-Stratonovich SDE. The
-thermal fluctuations have zero mean and a preset standard deviation:
+Stratonovich SDE. The thermal fluctuations have zero mean and a preset standard deviation:
 
-$$\sigma(t) = \sqrt{\frac{4\alpha k_bT(t)}{M_sV\gamma_0}}$$
+$$\sigma(t) = \sqrt{\frac{4\alpha k_bT(t)}{\mu_0 M_s V\gamma_0}}    \quad (1)$$
 
 where $V$ is the volume of the cell (layer), and $k_bT(t)$ is the thermal energy of the system. As a
-result, $\sigma(t)$ should be dimensionless. Finally, we set
+result, $\sigma(t)$ should be dimensionless.
+
+To convince ourselves that this is the correct form, one can take a look at the units.
+In the standard LLG, let's take a term $\frac{dm}{dt} = -\gamma\mathbf{m}\times\mathbf{H}_{\mathrm{eff}}$.
+We take $\mathbf{m}$ to be unit and $\mathbf{H}_{\mathrm{eff}}$ to be in units of A/m. Then, we have"
+
+$$
+\left[\frac{1}{s}\right] = \left[\frac{m}{As}\right]\left[\frac{A}{m}\right]
+$$
+
+and thus we multiply by the time step $\Delta t$ to get the unit again.
+
+We now take a look at the equation $(1)$. We have (we take the sqrt off for now):
+
+$$
+    \frac{
+        \left[J\right]
+    }{
+        \left[\frac{N}{A^2}\right] \left[\frac{A}{m}\right] \left[m^3\right] \left[\frac{m}{A s}\right]
+    } =
+        \frac{
+        \left[Nm\right]
+    }{
+        \left[\frac{N}{A^2}\right] \left[m^2\right] \left[\frac{1}{s}\right]
+    } =
+    \frac{
+        \left[A^2\right]
+    }{
+        \left[m^2\right] \left[\frac{1}{s}\right]
+    }  =
+    \frac{
+        \left[A^2 s\right]
+    }{
+        \left[m^2\right]
+    }
+$$
+
+So, instead of $\frac{A}{m}$ we get $\frac{A s^{1/2}}{m}$ after taking the square root. But, in the end for stochastic torque we have:
+
+$$
+    RHS = \left[\frac{m}{As}\right]\left[\frac{A}{m}\right]\left[\sqrt{s}\right] = \left[\frac{\sqrt{s}}{s}\right]
+$$
+
+but we multiply the RHS by $\sqrt{\Delta t}$ to get the unit back $\rightarrow \left[\frac{\sqrt{s}}{s}\right] [\sqrt{s}] = 1$.
+
+Finally, we set
 $\mathbf{f}(\mathbf{m}_t, t)$ to LL form where $\mathbf{H}_{\mathrm{eff}}$ contains no
 stochastic (thermal) parts and the $g$, the stochastic part, to the
 following:

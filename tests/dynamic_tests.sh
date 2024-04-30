@@ -1,2 +1,2 @@
 #!/bin/bash
-find *.cpp | entr sh -c "./build_script.sh"
+find {../core,.}/*{.cpp,.hpp} CMakeLists.txt  | entr sh -c "./build_script.sh"

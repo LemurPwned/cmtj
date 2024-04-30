@@ -1,4 +1,5 @@
-from cmtj import AxialDriver, CVector
+from cmtj import AxialDriver, CVector, Junction, Layer
+from cmtj import constantDriver, sineDriver
 
 
 def test_cvector_operators():
@@ -37,3 +38,31 @@ def test_axial_definitions():
     assert d1.getCurrentAxialDrivers(0.0) == cvec
     d1 = AxialDriver(cvec)
     assert d1.getCurrentAxialDrivers(0.0) == cvec
+
+
+def test_aliases():
+    d1 = AxialDriver(constantDriver(1.0), constantDriver(2.0), constantDriver(3.0))
+    assert d1.getCurrentAxialDrivers(0.0) == CVector(1.0, 2.0, 3.0)
+
+
+def test_junction_with_driver():
+    Kdir = CVector(1, 0, 0)
+    l1 = Layer(
+        "free",
+        mag=CVector(0, 0, 1),
+        anis=Kdir,
+        Ms=1.65,
+        thickness=3e-9,
+        cellSurface=100,
+        demagTensor=[CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)],
+        damping=0.1,
+    )
+    K1 = 1.05e3
+    l1.setReferenceLayer(CVector(1, 0, 0))
+    junction = Junction([l1], 100, 200)
+    junction.setLayerAnisotropyDriver("free", constantDriver(K1))
+    junction.setLayerExternalFieldDriver(
+        "all",
+        AxialDriver(constantDriver(0), constantDriver(0), sineDriver(0, 1e3, 7e9, 0)),
+    )
+    junction.runSimulation(10e-9, 1e-13, 1e-13)

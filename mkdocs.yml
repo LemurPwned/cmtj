@@ -1,14 +1,30 @@
 site_name: CMTJ
+site_url: https://lemurpwned.github.io/cmtj/
+site_author: LemurPwned
+
 repo_url: https://github.com/LemurPwned/cmtj
 repo_name: LemurPwned/cmtj
+
+edit_uri: ""
+
+hooks:
+  - scripts/readme_copy.py
+
 nav:
   - Home: index.md
   - Overview: overview.md
+  - Changelog: changelog.md
   - Tips & Tricks: tipsandtricks.md
   - Theory:
       - Macromagnetic contributions: physics/contributions.md
       - LLG Equation & solvers: physics/macromagnetic_models.md
       - Static Smit-Beljers model: physics/sb-model.md
+  - Experimental:
+      - Introduction: experimental-methods/introduction.md
+      - CIMS: experimental-methods/CIMS.ipynb
+      - Harmonic Hall: experimental-methods/HarmonicsFits.ipynb
+      - Misc experiments: experimental-methods/examples.ipynb
+      - Spin Diode experiments: experimental-methods/VoltageSpinDiodeFits.ipynb
   - Parallelism: physics/paralellism.md
   - API:
       - Core: gen-docs/cmtj.md
@@ -28,10 +44,11 @@ nav:
           - Ensemble models: api/ensemble-reference.md
           - Miscellanous: api/general-reference.md
       - Stack: gen-docs/stack.md
+      - Noise: gen-docs/noise.md
   - Examples:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
-      - Advanced experiments: tutorials/examples.ipynb
       - Trajectories: tutorials/trajectory.ipynb
+      - Smit-Beljers: tutorials/SBModel.ipynb
 
 theme:
   icon:
@@ -75,3 +92,7 @@ extra_javascript:
   - javascripts/config.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  version:
+    provider: mike

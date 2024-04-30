@@ -1,5 +1,4 @@
 import math
-from abc import ABC
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, List, Literal
