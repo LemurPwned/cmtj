@@ -1,11 +1,12 @@
 import contextlib
 import os
+import sys
 
 import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.5.0"
+__version__ = "1.5.1"
 """
 As per
 https://github.com/pybind/python_example
@@ -24,6 +25,7 @@ class get_pybind_include(object):
     until it is actually installed, so that the ``get_include()``
     method can be invoked.
     """
+
     def __str__(self):
         import pybind11
 
@@ -83,8 +85,7 @@ def cpp_flag(compiler):
         if has_flag(compiler, flag):
             return flag
 
-    raise RuntimeError("Unsupported compiler -- at least C++17 support "
-                       "is needed!")
+    raise RuntimeError("Unsupported compiler -- at least C++17 support " "is needed!")
 
 
 class BuildExt(build_ext):
@@ -119,8 +120,9 @@ class BuildExt(build_ext):
                 opts.append("-fvisibility=hidden")
 
         for ext in self.extensions:
-            ext.define_macros = [("VERSION_INFO",
-                                  f'"{self.distribution.get_version()}"')]
+            ext.define_macros = [
+                ("VERSION_INFO", f'"{self.distribution.get_version()}"')
+            ]
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts
         build_ext.build_extensions(self)
@@ -139,6 +141,17 @@ setup(
     namespace_packages=["cmtj"],
     packages=find_namespace_packages(include=["cmtj.*"]),
     package_data={"cmtj": ["py.typed", "*.pyi"]},
+    data_files=[
+        ("shared/typehints/python{}.{}/cmtj").format(
+            *sys.version_info[:2], "cmtj/__init__.pyi"
+        ),
+        ("shared/typehints/python{}.{}/cmtj/stack").format(
+            *sys.version_info[:2], "cmtj/stack/__init__.pyi"
+        ),
+        ("shared/typehints/python{}.{}/cmtj/noise").format(
+            *sys.version_info[:2], "cmtj/noise/__init__.pyi"
+        ),
+    ],
     setup_requires=["pybind11>=2.6.1"],
     cmdclass={"build_ext": BuildExt},
     zip_safe=False,
