@@ -1,12 +1,12 @@
 import contextlib
 import os
-import sys
+from pathlib import Path
 
 import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.5.1"
+__version__ = "1.5.2"
 """
 As per
 https://github.com/pybind/python_example
@@ -128,6 +128,10 @@ class BuildExt(build_ext):
         build_ext.build_extensions(self)
 
 
+def find_stubs(path: Path):
+    return [str(pyi.relative_to(path)) for pyi in path.rglob("*.pyi")]
+
+
 setup(
     name="cmtj",
     version=__version__,
@@ -140,18 +144,7 @@ setup(
     include_package_data=True,
     namespace_packages=["cmtj"],
     packages=find_namespace_packages(include=["cmtj.*"]),
-    package_data={"cmtj": ["py.typed", "*.pyi"]},
-    data_files=[
-        ("shared/typehints/python{}.{}/cmtj").format(
-            *sys.version_info[:2], "cmtj/__init__.pyi"
-        ),
-        ("shared/typehints/python{}.{}/cmtj/stack").format(
-            *sys.version_info[:2], "cmtj/stack/__init__.pyi"
-        ),
-        ("shared/typehints/python{}.{}/cmtj/noise").format(
-            *sys.version_info[:2], "cmtj/noise/__init__.pyi"
-        ),
-    ],
+    package_data={"cmtj": [*find_stubs(path=Path("cmtj"))]},
     setup_requires=["pybind11>=2.6.1"],
     cmdclass={"build_ext": BuildExt},
     zip_safe=False,
