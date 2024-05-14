@@ -16,6 +16,7 @@ class VectorObj:
     :param phi: positive x-axis (in xy plane) angle in radians
     :param mag: magnitude of the vector, if not set defaults to 1 *unit vector*
     """
+
     theta: float  # in radians
     phi: float  # rad
     mag: float = 1
@@ -41,7 +42,8 @@ class VectorObj:
         return hash(str(self))
 
     def __eq__(self, __value: "VectorObj") -> bool:
-        return self.theta == __value.theta and self.phi == __value.phi and self.mag == __value.mag
+        return (self.theta == __value.theta and self.phi == __value.phi
+                and self.mag == __value.mag)
 
     def _componentwise_mul(self, other):
         coors = self.get_cartesian()
@@ -61,13 +63,16 @@ class VectorObj:
         """Creates a Cartesian vector from spherical components"""
         return [
             mag * math.sin(theta) * math.cos(phi),
-            mag * math.sin(theta) * math.sin(phi), mag * math.cos(theta)
+            mag * math.sin(theta) * math.sin(phi),
+            mag * math.cos(theta),
         ]
 
     @staticmethod
     def from_cartesian(x: float, y: float, z: float):
         """Creates a spherical vector from Cartesian components"""
         mag = math.sqrt(x**2 + y**2 + z**2)
+        if mag == 0:
+            return VectorObj(0, 0, 0)
         theta = math.acos(z / mag)
         phi = math.atan2(y, x)
         return VectorObj(theta, phi, mag)
@@ -76,6 +81,8 @@ class VectorObj:
     def from_cvector(cvector: CVector):
         """Creates a spherical vector from Cartesian components"""
         mag = cvector.length()
+        if mag == 0:
+            return VectorObj(0, 0, 0)
         theta = math.acos(cvector.z / mag)
         phi = math.atan2(cvector.y, cvector.x)
         return VectorObj(theta, phi, mag)

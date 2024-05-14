@@ -9,6 +9,7 @@ edit_uri: ""
 
 hooks:
   - scripts/readme_copy.py
+  - docs/docgen.py
 
 nav:
   - Home: index.md
@@ -45,6 +46,7 @@ nav:
           - Miscellanous: api/general-reference.md
       - Stack: gen-docs/stack.md
       - Noise: gen-docs/noise.md
+      - LLGB: gen-docs/llgb.md
   - Examples:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
       - Trajectories: tutorials/trajectory.ipynb

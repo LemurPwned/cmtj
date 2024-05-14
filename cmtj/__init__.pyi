@@ -216,20 +216,17 @@ class Junction:
         :param SMR_Y: Spin magnetoresistance transverse
         :param AHE: Anomalous Hall effect resistance offset (transverse only)
         """
+        ...
 
     @overload
     def __init__(*args, **kwargs) -> Any: ...
     def clearLog(self) -> Dict[str, Any]:
-        """
-        Reset current simulation state`
-        """
+        """Reset current simulation state."""
         ...
 
     def getLayerMagnetisation(self, layer_id: str) -> CVector: ...
     def getLog(self) -> Dict[str, List[float]]:
-        """
-        Retrieve the simulation log [data].
-        """
+        """Retrieve the simulation log [data]."""
         ...
 
     def getMagnetoresistance(self) -> List[float]: ...
@@ -329,7 +326,7 @@ class Layer:
         demagTensor: List[CVector],
         temperature: float = ...,
         damping: float = ...,
-    ) -> None:
+    ) -> Layer:
         """
         The basic structure is a magnetic layer.
         Its parameters are defined by the constructor and may be altered
@@ -342,7 +339,6 @@ class Layer:
         :param Ms: magnetisation saturation. Unit: Tesla [T].
         :param thickness: thickness of the layer. Unit: meter [m].
         :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
-        :param dipoleTensor: dipole tensor of the layer.
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless
         """
         ...
@@ -359,7 +355,7 @@ class Layer:
         damping: float = 0.11,
         fieldLikeTorque: float = 0,
         dampingLikeTorque: float = 0,
-    ) -> "Layer":
+    ) -> Layer:
         """
         Create SOT layer -- including damping and field-like torques that are
         calculated based on the effective Spin Hall angles.
@@ -369,7 +365,6 @@ class Layer:
         :param Ms: magnetisation saturation. Unit: Tesla [T].
         :param thickness: thickness of the layer. Unit: meter [m].
         :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
-        :param dipoleTensor: dipole tensor of the layer.
         :param temperature: resting temperature of the layer. Unit: Kelvin [K].
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
         """
@@ -388,7 +383,7 @@ class Layer:
         SlonczewskiSpacerLayerParameter: float = 1.0,
         beta: float = 0.0,
         spinPolarisation: float = 0.0,
-    ) -> "Layer":
+    ) -> Layer:
         """
         Create STT layer -- with the standard Slomczewski formulation.
         :param id: identifiable name for a layer -- e.g. "bottom" or "free".
@@ -397,7 +392,6 @@ class Layer:
         :param Ms: magnetisation saturation. Unit: Tesla [T].
         :param thickness: thickness of the layer. Unit: meter [m].
         :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
-        :param dipoleTensor: dipole tensor of the layer.
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
         :param SlonczewskiSpacerLayerParameter: Slomczewski parameter. Often marked as lambda.
         :param beta: beta parameter that scales FL/DL ratio.
@@ -469,7 +463,6 @@ class ScalarDriver:
         """
         Constant driver produces a constant signal of a fixed amplitude.
         :param constantValue: constant value of the driver (constant offset/amplitude)
-
         """
         ...
 
@@ -497,7 +490,6 @@ class ScalarDriver:
         :param amplitude: amplitude of the sine wave
         :param frequency: frequency of the sine
         :param phase: phase of the sine in radians.
-
         """
         ...
 
