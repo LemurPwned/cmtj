@@ -6,21 +6,12 @@ name: Test Python bindings
 on:
   push:
     branches: [ "master" ]
-    paths-ignore:
-      - '**.yaml'
-      - '**.md'
-      - 'docs/**'
-      - 'examples/**'
-      - LICENSE
-      - mkdocs.yml
-      - setup.*
-      - docker/*
-    
     paths:
       - core/
       - python/
       - cmtj/**/*.py
       - 'requirements.txt'
+      - tests/*.py
 
   pull_request:
     branches: [ "master" ]
