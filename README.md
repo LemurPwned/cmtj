@@ -62,7 +62,7 @@ python3 -m pip install cmtj
 3. Straight from source:
 
 ```bash
-python3 -m pip install https://github.com/LemurPwned/cmtj.git
+python3 -m pip install git+https://github.com/LemurPwned/cmtj.git
 ```
 
 4. Clone the repository:
@@ -84,7 +84,7 @@ The package requires (if `utils` subpackage is used):
 
 ## Documentation and examples
 
-Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
+Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj).
 There are many examples available, check out the [examples section in the docs](https://lemurpwned.github.io/cmtj/experimental-methods/introduction/)
 
 ## Extensions
