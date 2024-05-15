@@ -1,2 +1,2 @@
-include cmtj/__init__.pyi
+include cmtj/**/*.pyi
 include cmtj/py.typed

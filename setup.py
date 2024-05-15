@@ -6,7 +6,7 @@ import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.5.3"
+__version__ = "1.5.4"
 """
 As per
 https://github.com/pybind/python_example
@@ -144,9 +144,10 @@ setup(
     ext_modules=ext_modules,
     include_package_data=True,
     namespace_packages=["cmtj"],
-    packages=find_namespace_packages(include=["cmtj.*"]),
+    packages=find_namespace_packages(include=["cmtj", "cmtj.*"]),
     package_data={
         "cmtj": [
+            "py.typed",
             *find_stubs(path=Path("cmtj")),
         ]
     },

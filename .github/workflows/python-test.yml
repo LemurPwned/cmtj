@@ -13,6 +13,15 @@ on:
       - 'examples/**'
       - LICENSE
       - mkdocs.yml
+      - setup.*
+      - docker/*
+    
+    paths:
+      - core/
+      - python/
+      - cmtj/**/*.py
+      - 'requirements.txt'
+
   pull_request:
     branches: [ "master" ]
     paths-ignore:
