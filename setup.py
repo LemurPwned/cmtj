@@ -6,7 +6,7 @@ import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.5.2"
+__version__ = "1.5.3"
 """
 As per
 https://github.com/pybind/python_example
@@ -129,6 +129,7 @@ class BuildExt(build_ext):
 
 
 def find_stubs(path: Path):
+    """Actually only MANIFEST.in is needed for this. Leaving JIC."""
     return [str(pyi.relative_to(path)) for pyi in path.rglob("*.pyi")]
 
 
@@ -144,7 +145,11 @@ setup(
     include_package_data=True,
     namespace_packages=["cmtj"],
     packages=find_namespace_packages(include=["cmtj.*"]),
-    package_data={"cmtj": [*find_stubs(path=Path("cmtj"))]},
+    package_data={
+        "cmtj": [
+            *find_stubs(path=Path("cmtj")),
+        ]
+    },
     setup_requires=["pybind11>=2.6.1"],
     cmdclass={"build_ext": BuildExt},
     zip_safe=False,
