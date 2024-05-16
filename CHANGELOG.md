@@ -1,6 +1,6 @@
 # Changelog
 
-# 1.5.0 (WIP)
+# 1.5.0-1.5.4
 
 - Dipole interaction added to the `SB Model`
 - Kasdin 1/f noise generator added to the `noise` module and to the solvers
@@ -8,6 +8,7 @@
 - added a simple noise model to the `utils` class. It exists outside standard simulation procedures.
 - added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.
 - added aliases for `ScalarDriver` -- for example, instead of calling `ScalarDriver.getConstantDriver`, you can now call `constantDriver` directly to create a constant driver.
+- improve stub detection across editors and IDEs
 
 # 1.4.1
 
