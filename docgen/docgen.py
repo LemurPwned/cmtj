@@ -1,12 +1,17 @@
 import glob
+import logging
 import os
 import re
 from dataclasses import dataclass
 
+log = logging.getLogger("mkdocs")
+
 py_signature = r"(def (.+?) -> ([\'\[\]\,\sA-z]+)\:)"
 c_py_signature = re.compile(py_signature)
 
-joint_py = r"(?s)(def (.+?) -> ([\'\[\]\,\sA-z]+)\:)\n{0,}\s{8}(\"{3}(.+?)\"{3})"
+# old regex that does not allow for optional docstrings and quoted rtype
+# joint_py = r"(?s)(def (.+?) -> ([\"\'\[\]\,\sA-z]+)\:)\n{0,}\s{8}(\"{3}(.+?)\"{3})"
+joint_py = r"(?s)(def (.+?) -> ([\"\'\[\]\,\sA-z]+)\:)(?:\n\s*(\"{3}(.+?)\"{3}))?"
 c_joint_py = re.compile(joint_py)
 
 pydoc_regex = r"(?s)(\"{3}(.+?)\"{3})"
@@ -81,6 +86,7 @@ class PythonDocstring:
 
 def extract_python_docs(file_text):
     for captured in c_joint_py.findall(file_text):
+        print(captured)
         if captured:
             yield PythonDocstring(
                 signature=captured[1].strip().replace("\n", ""),
@@ -109,10 +115,15 @@ def create_api_markdown_file(src_filename):
 
         class_docs = ftext.split("class")[1:]
         for i, doc_ in enumerate(class_docs):
+            doc_ = (
+                doc_.strip()
+                .replace("@staticmethod", "")
+                .replace("@classmethod", "")
+                .replace("@overload", "")
+            )
             class_name = doc_.partition("\n")[0].replace(":", "").strip()
-            print(i, class_name)
             md_fn += f"## `{class_name}`"
-            for g in extract_python_docs(doc_):
+            for g in extract_python_docs(doc_.replace("...", "...\n")):
                 sig = g.py_signature_to_markdown()
                 md_fn += f"\n{sig}\n"
             md_fn += "  \n"
@@ -123,10 +134,14 @@ def create_api_markdown_file(src_filename):
         f.write(md_fn)
 
 
-if __name__ == "__main__":
+def on_startup(command, dirty, **kwargs):
     fn_lists = [
         *glob.glob(os.path.join(os.path.dirname(__file__), "..", "cmtj/*/*.pyi")),
         *glob.glob(os.path.join(os.path.dirname(__file__), "..", "cmtj/*.pyi")),
     ]
     for fn in fn_lists:
         create_api_markdown_file(fn)
+
+
+if __name__ == "__main__":
+    on_startup()

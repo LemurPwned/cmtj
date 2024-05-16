@@ -1028,6 +1028,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gen-docs/llgb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLGB
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2223,11 +2243,13 @@ Licensed under the Apache License, Version 2.0.
             </clipboard-copy>
         </div>
             <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 </pre></div>
 <div id="cell-1" class="clipboard-copy-txt">import glob
+import logging
 import os
 import re
 from dataclasses import dataclass</div>
@@ -2260,11 +2282,9 @@ from dataclasses import dataclass</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">py_signature</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(def (.+?) -&gt; ([\&#39;\[\]\,\sA-z]+)\:)&quot;</span>
-<span class="n">c_py_signature</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">py_signature</span><span class="p">)</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mkdocs&quot;</span><span class="p">)</span>
 </pre></div>
-<div id="cell-2" class="clipboard-copy-txt">py_signature = r"(def (.+?) -> ([\'\[\]\,\sA-z]+)\:)"
-c_py_signature = re.compile(py_signature)</div>
+<div id="cell-2" class="clipboard-copy-txt">log = logging.getLogger("mkdocs")</div>
     
         </div>
     </div>
@@ -2294,11 +2314,11 @@ c_py_signature = re.compile(py_signature)</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">joint_py</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)(def (.+?) -&gt; ([\&#39;\[\]\,\sA-z]+)\:)\n{0,}\s</span><span class="si">{8}</span><span class="s2">(</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">(.+?)</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">)&quot;</span>
-<span class="n">c_joint_py</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">joint_py</span><span class="p">)</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">py_signature</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(def (.+?) -&gt; ([\&#39;\[\]\,\sA-z]+)\:)&quot;</span>
+<span class="n">c_py_signature</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">py_signature</span><span class="p">)</span>
 </pre></div>
-<div id="cell-3" class="clipboard-copy-txt">joint_py = r"(?s)(def (.+?) -> ([\'\[\]\,\sA-z]+)\:)\n{0,}\s{8}(\"{3}(.+?)\"{3})"
-c_joint_py = re.compile(joint_py)</div>
+<div id="cell-3" class="clipboard-copy-txt">py_signature = r"(def (.+?) -> ([\'\[\]\,\sA-z]+)\:)"
+c_py_signature = re.compile(py_signature)</div>
     
         </div>
     </div>
@@ -2328,15 +2348,15 @@ c_joint_py = re.compile(joint_py)</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">pydoc_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)(</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">(.+?)</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">)&quot;</span>
-<span class="n">c_pydoc_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pydoc_regex</span><span class="p">)</span>
-<span class="n">arg_pydoc</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\:param ([A-z0-9]+)\:(.+)\n)&quot;</span>
-<span class="n">py_arg_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">arg_pydoc</span><span class="p">)</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1"># old regex that does not allow for optional docstrings and quoted rtype</span>
+<span class="c1"># joint_py = r&quot;(?s)(def (.+?) -&gt; ([\&quot;\&#39;\[\]\,\sA-z]+)\:)\n{0,}\s{8}(\&quot;{3}(.+?)\&quot;{3})&quot;</span>
+<span class="n">joint_py</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)(def (.+?) -&gt; ([</span><span class="se">\&quot;</span><span class="s2">\&#39;\[\]\,\sA-z]+)\:)(?:\n\s*(</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">(.+?)</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">))?&quot;</span>
+<span class="n">c_joint_py</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">joint_py</span><span class="p">)</span>
 </pre></div>
-<div id="cell-4" class="clipboard-copy-txt">pydoc_regex = r"(?s)(\"{3}(.+?)\"{3})"
-c_pydoc_rgx = re.compile(pydoc_regex)
-arg_pydoc = r"(\:param ([A-z0-9]+)\:(.+)\n)"
-py_arg_rgx = re.compile(arg_pydoc)</div>
+<div id="cell-4" class="clipboard-copy-txt"># old regex that does not allow for optional docstrings and quoted rtype
+# joint_py = r"(?s)(def (.+?) -> ([\"\'\[\]\,\sA-z]+)\:)\n{0,}\s{8}(\"{3}(.+?)\"{3})"
+joint_py = r"(?s)(def (.+?) -> ([\"\'\[\]\,\sA-z]+)\:)(?:\n\s*(\"{3}(.+?)\"{3}))?"
+c_joint_py = re.compile(joint_py)</div>
     
         </div>
     </div>
@@ -2366,15 +2386,15 @@ py_arg_rgx = re.compile(arg_pydoc)</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">cdoc_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)(\/\*</span><span class="si">{2}</span><span class="s2">(.+?)\*\/</span><span class="si">{1}</span><span class="s2">)&quot;</span>  <span class="c1"># ?s is an inline DOTALL flag</span>
-<span class="n">arg_cdoc</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\@param ([A-z0-9]+)\:(.+)\n)&quot;</span>
-<span class="n">c_cdoc_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">cdoc_regex</span><span class="p">)</span>
-<span class="n">c_arg_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">arg_cdoc</span><span class="p">)</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">pydoc_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)(</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">(.+?)</span><span class="se">\&quot;</span><span class="si">{3}</span><span class="s2">)&quot;</span>
+<span class="n">c_pydoc_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pydoc_regex</span><span class="p">)</span>
+<span class="n">arg_pydoc</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\:param ([A-z0-9]+)\:(.+)\n)&quot;</span>
+<span class="n">py_arg_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">arg_pydoc</span><span class="p">)</span>
 </pre></div>
-<div id="cell-5" class="clipboard-copy-txt">cdoc_regex = r"(?s)(\/\*{2}(.+?)\*\/{1})"  # ?s is an inline DOTALL flag
-arg_cdoc = r"(\@param ([A-z0-9]+)\:(.+)\n)"
-c_cdoc_rgx = re.compile(cdoc_regex)
-c_arg_rgx = re.compile(arg_cdoc)</div>
+<div id="cell-5" class="clipboard-copy-txt">pydoc_regex = r"(?s)(\"{3}(.+?)\"{3})"
+c_pydoc_rgx = re.compile(pydoc_regex)
+arg_pydoc = r"(\:param ([A-z0-9]+)\:(.+)\n)"
+py_arg_rgx = re.compile(arg_pydoc)</div>
     
         </div>
     </div>
@@ -2404,9 +2424,15 @@ c_arg_rgx = re.compile(arg_cdoc)</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">GEN_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;gen-docs&quot;</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">cdoc_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?s)(\/\*</span><span class="si">{2}</span><span class="s2">(.+?)\*\/</span><span class="si">{1}</span><span class="s2">)&quot;</span>  <span class="c1"># ?s is an inline DOTALL flag</span>
+<span class="n">arg_cdoc</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\@param ([A-z0-9]+)\:(.+)\n)&quot;</span>
+<span class="n">c_cdoc_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">cdoc_regex</span><span class="p">)</span>
+<span class="n">c_arg_rgx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">arg_cdoc</span><span class="p">)</span>
 </pre></div>
-<div id="cell-6" class="clipboard-copy-txt">GEN_FOLDER = "gen-docs"</div>
+<div id="cell-6" class="clipboard-copy-txt">cdoc_regex = r"(?s)(\/\*{2}(.+?)\*\/{1})"  # ?s is an inline DOTALL flag
+arg_cdoc = r"(\@param ([A-z0-9]+)\:(.+)\n)"
+c_cdoc_rgx = re.compile(cdoc_regex)
+c_arg_rgx = re.compile(arg_cdoc)</div>
     
         </div>
     </div>
@@ -2427,6 +2453,38 @@ c_arg_rgx = re.compile(arg_cdoc)</div>
         <div class="CodeMirror cm-s-jupyter">
         <div class="zeroclipboard-container">
             <clipboard-copy for="cell-7">
+            <div>
+                <span class="notice" hidden>Copied!</span>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16" version="1.1"  data-view-component="true" class="clipboard-copy-icon">
+                    <path fill="currentColor" fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                    <path fill="currentColor" fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                </svg>
+                </div>
+            </clipboard-copy>
+        </div>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="n">GEN_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;gen-docs&quot;</span>
+</pre></div>
+<div id="cell-7" class="clipboard-copy-txt">GEN_FOLDER = "gen-docs"</div>
+    
+        </div>
+    </div>
+
+</div>
+</div>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+        
+        
+        <div class="CodeMirror cm-s-jupyter">
+        <div class="zeroclipboard-container">
+            <clipboard-copy for="cell-8">
             <div>
                 <span class="notice" hidden>Copied!</span>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16" version="1.1"  data-view-component="true" class="clipboard-copy-icon">
@@ -2492,7 +2550,7 @@ c_arg_rgx = re.compile(arg_cdoc)</div>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;### `</span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="s2">`</span><span class="se">\n\n</span><span class="si">{</span><span class="n">fnsignature</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;### `</span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="s2">`</span><span class="se">\n\n</span><span class="si">{</span><span class="n">fnsignature</span><span class="si">}</span><span class="se">\n\n\n</span><span class="s2">&quot;</span>
 </pre></div>
-<div id="cell-7" class="clipboard-copy-txt">@dataclass
+<div id="cell-8" class="clipboard-copy-txt">@dataclass
 class PythonDocstring:
     signature: str
     rtype: str
@@ -2566,7 +2624,7 @@ class PythonDocstring:
         
         <div class="CodeMirror cm-s-jupyter">
         <div class="zeroclipboard-container">
-            <clipboard-copy for="cell-8">
+            <clipboard-copy for="cell-9">
             <div>
                 <span class="notice" hidden>Copied!</span>
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16" version="1.1"  data-view-component="true" class="clipboard-copy-icon">
@@ -2578,6 +2636,7 @@ class PythonDocstring:
         </div>
             <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">extract_python_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">captured</span> <span class="ow">in</span> <span class="n">c_joint_py</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">captured</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">captured</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">PythonDocstring</span><span class="p">(</span>
                 <span class="n">signature</span><span class="o">=</span><span class="n">captured</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
@@ -2585,52 +2644,15 @@ class PythonDocstring:
                 <span class="n">docstring</span><span class="o">=</span><span class="n">captured</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
             <span class="p">)</span>
 </pre></div>
-<div id="cell-8" class="clipboard-copy-txt">def extract_python_docs(file_text):
+<div id="cell-9" class="clipboard-copy-txt">def extract_python_docs(file_text):
     for captured in c_joint_py.findall(file_text):
+        print(captured)
         if captured:
             yield PythonDocstring(
                 signature=captured[1].strip().replace("\n", ""),
                 rtype=captured[2].strip().replace("\n", ""),
                 docstring=captured[-1].strip(),
             )</div>
-    
-        </div>
-    </div>
-
-</div>
-</div>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-        
-        
-        <div class="CodeMirror cm-s-jupyter">
-        <div class="zeroclipboard-container">
-            <clipboard-copy for="cell-9">
-            <div>
-                <span class="notice" hidden>Copied!</span>
-                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16" version="1.1"  data-view-component="true" class="clipboard-copy-icon">
-                    <path fill="currentColor" fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
-                    <path fill="currentColor" fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
-                </svg>
-                </div>
-            </clipboard-copy>
-        </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">extract_cpp_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">captured</span> <span class="ow">in</span> <span class="n">c_cdoc_rgx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">captured</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">captured</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</pre></div>
-<div id="cell-9" class="clipboard-copy-txt">def extract_cpp_docs(file_text):
-    for captured in c_cdoc_rgx.findall(file_text):
-        if captured:
-            yield captured[1].strip()</div>
     
         </div>
     </div>
@@ -2660,59 +2682,15 @@ class PythonDocstring:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">create_api_markdown_file</span><span class="p">(</span><span class="n">src_filename</span><span class="p">):</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">src_filename</span><span class="p">)</span>
-    <span class="n">target_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src_filename</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-        <span class="n">file_extension</span><span class="p">,</span> <span class="s2">&quot;.md&quot;</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">target_filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.md&quot;</span><span class="p">):</span>
-        <span class="n">target_filename</span> <span class="o">+=</span> <span class="s2">&quot;.md&quot;</span>
-
-    <span class="n">md_fn</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">src_filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">ftext</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-        <span class="n">class_docs</span> <span class="o">=</span> <span class="n">ftext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">doc_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_docs</span><span class="p">):</span>
-            <span class="n">class_name</span> <span class="o">=</span> <span class="n">doc_</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-            <span class="n">md_fn</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;## `</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">`&quot;</span>
-            <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">extract_python_docs</span><span class="p">(</span><span class="n">doc_</span><span class="p">):</span>
-                <span class="n">sig</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">py_signature_to_markdown</span><span class="p">()</span>
-                <span class="n">md_fn</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="n">md_fn</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="se">\n</span><span class="s2">&quot;</span>
-
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="n">GEN_FOLDER</span><span class="p">,</span> <span class="n">target_filename</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span>
-    <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">md_fn</span><span class="p">)</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">extract_cpp_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">captured</span> <span class="ow">in</span> <span class="n">c_cdoc_rgx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">captured</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">captured</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 </pre></div>
-<div id="cell-10" class="clipboard-copy-txt">def create_api_markdown_file(src_filename):
-    _, file_extension = os.path.splitext(src_filename)
-    target_filename = os.path.basename(os.path.dirname(src_filename)).replace(
-        file_extension, ".md"
-    )
-    if not target_filename.endswith(".md"):
-        target_filename += ".md"
-
-    md_fn = ""
-    with open(src_filename, "r") as f:
-        ftext = f.read()
-
-        class_docs = ftext.split("class")[1:]
-        for i, doc_ in enumerate(class_docs):
-            class_name = doc_.partition("\n")[0].replace(":", "").strip()
-            print(i, class_name)
-            md_fn += f"## `{class_name}`"
-            for g in extract_python_docs(doc_):
-                sig = g.py_signature_to_markdown()
-                md_fn += f"\n{sig}\n"
-            md_fn += "  \n"
-
-    with open(
-        os.path.join(os.path.dirname(__file__), GEN_FOLDER, target_filename), "w"
-    ) as f:
-        f.write(md_fn)</div>
+<div id="cell-10" class="clipboard-copy-txt">def extract_cpp_docs(file_text):
+    for captured in c_cdoc_rgx.findall(file_text):
+        if captured:
+            yield captured[1].strip()</div>
     
         </div>
     </div>
@@ -2742,7 +2720,99 @@ class PythonDocstring:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">create_api_markdown_file</span><span class="p">(</span><span class="n">src_filename</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">src_filename</span><span class="p">)</span>
+    <span class="n">target_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src_filename</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="n">file_extension</span><span class="p">,</span> <span class="s2">&quot;.md&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">target_filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.md&quot;</span><span class="p">):</span>
+        <span class="n">target_filename</span> <span class="o">+=</span> <span class="s2">&quot;.md&quot;</span>
+
+    <span class="n">md_fn</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">src_filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">ftext</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">class_docs</span> <span class="o">=</span> <span class="n">ftext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;class&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">doc_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">class_docs</span><span class="p">):</span>
+            <span class="n">doc_</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">doc_</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@staticmethod&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@classmethod&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@overload&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">class_name</span> <span class="o">=</span> <span class="n">doc_</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">md_fn</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;## `</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">`&quot;</span>
+            <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">extract_python_docs</span><span class="p">(</span><span class="n">doc_</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="s2">&quot;...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)):</span>
+                <span class="n">sig</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">py_signature_to_markdown</span><span class="p">()</span>
+                <span class="n">md_fn</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">sig</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">md_fn</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="n">GEN_FOLDER</span><span class="p">,</span> <span class="n">target_filename</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">md_fn</span><span class="p">)</span>
+</pre></div>
+<div id="cell-11" class="clipboard-copy-txt">def create_api_markdown_file(src_filename):
+    _, file_extension = os.path.splitext(src_filename)
+    target_filename = os.path.basename(os.path.dirname(src_filename)).replace(
+        file_extension, ".md"
+    )
+    if not target_filename.endswith(".md"):
+        target_filename += ".md"
+
+    md_fn = ""
+    with open(src_filename, "r") as f:
+        ftext = f.read()
+
+        class_docs = ftext.split("class")[1:]
+        for i, doc_ in enumerate(class_docs):
+            doc_ = (
+                doc_.strip()
+                .replace("@staticmethod", "")
+                .replace("@classmethod", "")
+                .replace("@overload", "")
+            )
+            class_name = doc_.partition("\n")[0].replace(":", "").strip()
+            md_fn += f"## `{class_name}`"
+            for g in extract_python_docs(doc_.replace("...", "...\n")):
+                sig = g.py_signature_to_markdown()
+                md_fn += f"\n{sig}\n"
+            md_fn += "  \n"
+
+    with open(
+        os.path.join(os.path.dirname(__file__), GEN_FOLDER, target_filename), "w"
+    ) as f:
+        f.write(md_fn)</div>
+    
+        </div>
+    </div>
+
+</div>
+</div>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+        
+        
+        <div class="CodeMirror cm-s-jupyter">
+        <div class="zeroclipboard-container">
+            <clipboard-copy for="cell-12">
+            <div>
+                <span class="notice" hidden>Copied!</span>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16" version="1.1"  data-view-component="true" class="clipboard-copy-icon">
+                    <path fill="currentColor" fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                    <path fill="currentColor" fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                </svg>
+                </div>
+            </clipboard-copy>
+        </div>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">on_startup</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">dirty</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">fn_lists</span> <span class="o">=</span> <span class="p">[</span>
         <span class="o">*</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;cmtj/*/*.pyi&quot;</span><span class="p">)),</span>
         <span class="o">*</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;cmtj/*.pyi&quot;</span><span class="p">)),</span>
@@ -2750,13 +2820,47 @@ class PythonDocstring:
     <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fn_lists</span><span class="p">:</span>
         <span class="n">create_api_markdown_file</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
 </pre></div>
-<div id="cell-11" class="clipboard-copy-txt">if __name__ == "__main__":
+<div id="cell-12" class="clipboard-copy-txt">def on_startup(command, dirty, **kwargs):
     fn_lists = [
         *glob.glob(os.path.join(os.path.dirname(__file__), "..", "cmtj/*/*.pyi")),
         *glob.glob(os.path.join(os.path.dirname(__file__), "..", "cmtj/*.pyi")),
     ]
     for fn in fn_lists:
         create_api_markdown_file(fn)</div>
+    
+        </div>
+    </div>
+
+</div>
+</div>
+
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+        
+        
+        <div class="CodeMirror cm-s-jupyter">
+        <div class="zeroclipboard-container">
+            <clipboard-copy for="cell-13">
+            <div>
+                <span class="notice" hidden>Copied!</span>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 16 16" version="1.1"  data-view-component="true" class="clipboard-copy-icon">
+                    <path fill="currentColor" fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                    <path fill="currentColor" fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                </svg>
+                </div>
+            </clipboard-copy>
+        </div>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">on_startup</span><span class="p">()</span>
+</pre></div>
+<div id="cell-13" class="clipboard-copy-txt">if __name__ == "__main__":
+    on_startup()</div>
     
         </div>
     </div>

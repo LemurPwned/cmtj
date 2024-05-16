@@ -30,7 +30,7 @@
 
 ## Short description
 
-A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
+The `cmtj` name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
 
@@ -42,8 +42,8 @@ Check out the [streamlit hosted demo here](http://cmtj-simulations.streamlit.app
 
 #### Installation :rocket:
 
+The recommended way is to use the `pip` package manager and virtualenv (or conda).
 Installation is as easy as doing:
-A recommended way is to use the `pip` package manager and virtualenv (or conda).
 
 1. With `virtualenv` (recommended):
 
@@ -62,7 +62,7 @@ python3 -m pip install cmtj
 3. Straight from source:
 
 ```bash
-python3 -m pip install https://github.com/LemurPwned/cmtj.git
+python3 -m pip install git+https://github.com/LemurPwned/cmtj.git
 ```
 
 4. Clone the repository:
@@ -84,7 +84,7 @@ The package requires (if `utils` subpackage is used):
 
 ## Documentation and examples
 
-Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
+Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj).
 There are many examples available, check out the [examples section in the docs](https://lemurpwned.github.io/cmtj/experimental-methods/introduction/)
 
 ## Extensions

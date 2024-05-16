@@ -16,7 +16,7 @@
         <link rel="prev" href="../stack/">
       
       
-        <link rel="next" href="../../tutorials/CMTJBindingsTutorial/">
+        <link rel="next" href="../llgb/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -1077,9 +1077,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#__init__self-buffersize-int-alpha-float-std-float-scale-float-none-def-fillbufferself" class="md-nav__link">
+  <a href="#__init__self-buffersize-int-alpha-float-std-float-scale-float" class="md-nav__link">
     <span class="md-ellipsis">
-      __init__(self, bufferSize: int, alpha: float, std: float, scale: float) -&gt; None: ...def fillBuffer(self)
+      __init__(self, bufferSize: int, alpha: float, std: float, scale: float)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fillbufferself" class="md-nav__link">
+    <span class="md-ellipsis">
+      fillBuffer(self)
     </span>
   </a>
   
@@ -1110,9 +1119,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#__init__selfbuffersize-intalpha-floatstd-floatscale-floataxis-cmtjaxis-cmtjaxisall-none-def-getprevsampleself-cmtjcvectorget-the-previous-sample-of-the-noise-in-a-vector-formdef-getscaleself" class="md-nav__link">
+  <a href="#__init__selfbuffersize-intalpha-floatstd-floatscale-floataxis-cmtjaxis-cmtjaxisall" class="md-nav__link">
     <span class="md-ellipsis">
-      __init__(self,bufferSize: int,alpha: float,std: float,scale: float,axis: cmtj.Axis = cmtj.Axis.all,) -&gt; None: ...def getPrevSample(self) -&gt; cmtj.CVector:"""Get the previous sample of the noise in a vector form."""...def getScale(self)
+      __init__(self,bufferSize: int,alpha: float,std: float,scale: float,axis: cmtj.Axis = cmtj.Axis.all,)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getprevsampleself-cmtjcvectorget-the-previous-sample-of-the-noise-in-a-vector-formdef-getscaleself" class="md-nav__link">
+    <span class="md-ellipsis">
+      getPrevSample(self) -&gt; cmtj.CVector:"""Get the previous sample of the noise in a vector form."""...def getScale(self)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tickself_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      tick(self)
     </span>
   </a>
   
@@ -1127,6 +1154,26 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llgb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLGB
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1277,9 +1324,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#__init__self-buffersize-int-alpha-float-std-float-scale-float-none-def-fillbufferself" class="md-nav__link">
+  <a href="#__init__self-buffersize-int-alpha-float-std-float-scale-float" class="md-nav__link">
     <span class="md-ellipsis">
-      __init__(self, bufferSize: int, alpha: float, std: float, scale: float) -&gt; None: ...def fillBuffer(self)
+      __init__(self, bufferSize: int, alpha: float, std: float, scale: float)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fillbufferself" class="md-nav__link">
+    <span class="md-ellipsis">
+      fillBuffer(self)
     </span>
   </a>
   
@@ -1310,9 +1366,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#__init__selfbuffersize-intalpha-floatstd-floatscale-floataxis-cmtjaxis-cmtjaxisall-none-def-getprevsampleself-cmtjcvectorget-the-previous-sample-of-the-noise-in-a-vector-formdef-getscaleself" class="md-nav__link">
+  <a href="#__init__selfbuffersize-intalpha-floatstd-floatscale-floataxis-cmtjaxis-cmtjaxisall" class="md-nav__link">
     <span class="md-ellipsis">
-      __init__(self,bufferSize: int,alpha: float,std: float,scale: float,axis: cmtj.Axis = cmtj.Axis.all,) -&gt; None: ...def getPrevSample(self) -&gt; cmtj.CVector:"""Get the previous sample of the noise in a vector form."""...def getScale(self)
+      __init__(self,bufferSize: int,alpha: float,std: float,scale: float,axis: cmtj.Axis = cmtj.Axis.all,)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getprevsampleself-cmtjcvectorget-the-previous-sample-of-the-noise-in-a-vector-formdef-getscaleself" class="md-nav__link">
+    <span class="md-ellipsis">
+      getPrevSample(self) -&gt; cmtj.CVector:"""Get the previous sample of the noise in a vector form."""...def getScale(self)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tickself_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      tick(self)
     </span>
   </a>
   
@@ -1341,13 +1415,16 @@
   <h1>Noise</h1>
 
 <h2 id="bufferedalphanoise"><code>BufferedAlphaNoise</code></h2>
-<h3 id="__init__self-buffersize-int-alpha-float-std-float-scale-float-none-def-fillbufferself"><code>__init__(self, bufferSize: int, alpha: float, std: float, scale: float) -&gt; None: ...def fillBuffer(self)</code></h3>
+<h3 id="__init__self-buffersize-int-alpha-float-std-float-scale-float"><code>__init__(self, bufferSize: int, alpha: float, std: float, scale: float)</code></h3>
+<h3 id="fillbufferself"><code>fillBuffer(self)</code></h3>
 <p>Fill the buffer with the noise. This method is called only once.</p>
 <h3 id="tickself"><code>tick(self)</code></h3>
 <p>Produce the next sample of the noise.</p>
 <h2 id="vectoralphanoise"><code>VectorAlphaNoise</code></h2>
-<h3 id="__init__selfbuffersize-intalpha-floatstd-floatscale-floataxis-cmtjaxis-cmtjaxisall-none-def-getprevsampleself-cmtjcvectorget-the-previous-sample-of-the-noise-in-a-vector-formdef-getscaleself"><code>__init__(self,bufferSize: int,alpha: float,std: float,scale: float,axis: cmtj.Axis = cmtj.Axis.all,) -&gt; None: ...def getPrevSample(self) -&gt; cmtj.CVector:"""Get the previous sample of the noise in a vector form."""...def getScale(self)</code></h3>
+<h3 id="__init__selfbuffersize-intalpha-floatstd-floatscale-floataxis-cmtjaxis-cmtjaxisall"><code>__init__(self,bufferSize: int,alpha: float,std: float,scale: float,axis: cmtj.Axis = cmtj.Axis.all,)</code></h3>
+<h3 id="getprevsampleself-cmtjcvectorget-the-previous-sample-of-the-noise-in-a-vector-formdef-getscaleself"><code>getPrevSample(self) -&gt; cmtj.CVector:"""Get the previous sample of the noise in a vector form."""...def getScale(self)</code></h3>
 <p>Get the scale of the noise.</p>
+<h3 id="tickself_1"><code>tick(self)</code></h3>
 
 
 

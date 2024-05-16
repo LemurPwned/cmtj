@@ -90,6 +90,7 @@ The equilibrium magnetisation, $(\theta^*, \phi^*)$, is then used to compute the
 Root finding algorithm is a naive greedy search, but for GHz or MHz frequencies it's pretty fast and precise enough (you can set the tolerance in the parameters).
 
 ## Runnning the model
+
 The same example can be found in the [`Examples` section](../tutorials/SBModel.ipynb), expanded with dynamic spherical approach.
 Below is an example of how the model can be used, based on a system with 2 ferromagnetic layers:
 

@@ -1162,6 +1162,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gen-docs/llgb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLGB
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1430,15 +1450,15 @@
 <li><a href="#documentation-builds">Documentation builds</a></li>
 </ul>
 <h2 id="short-description">Short description</h2>
-<p>A name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
+<p>The <code>cmtj</code> name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.</p>
 <h2 id="web-gui">Web GUI</h2>
 <p>Check out the <a href="http://cmtj-simulations.streamlit.app/">streamlit hosted demo here</a>. You can simulate PIMM spectra and Spin-Diode spectra there. Let us know if you have any issues with the demo.</p>
 <h2 id="quickstart">Quickstart</h2>
 <h4 id="installation-rocket">Installation :rocket:</h4>
-<p>Installation is as easy as doing:
-A recommended way is to use the <code>pip</code> package manager and virtualenv (or conda).</p>
+<p>The recommended way is to use the <code>pip</code> package manager and virtualenv (or conda).
+Installation is as easy as doing:</p>
 <ol>
 <li>With <code>virtualenv</code> (recommended):</li>
 </ol>
@@ -1454,7 +1474,7 @@ A recommended way is to use the <code>pip</code> package manager and virtualenv 
 <ol>
 <li>Straight from source:</li>
 </ol>
-<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>https://github.com/LemurPwned/cmtj.git
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/LemurPwned/cmtj.git
 </code></pre></div>
 <ol>
 <li>Clone the repository:</li>
@@ -1469,7 +1489,7 @@ python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </s
 - matplotlib
 </code></pre></div>
 <h2 id="documentation-and-examples">Documentation and examples</h2>
-<p>Documentation: <a href="https://lemurpwned.github.io/cmtj">https://lemurpwned.github.io/cmtj</a>
+<p>Documentation: <a href="https://lemurpwned.github.io/cmtj">https://lemurpwned.github.io/cmtj</a>.
 There are many examples available, check out the <a href="https://lemurpwned.github.io/cmtj/experimental-methods/introduction/">examples section in the docs</a></p>
 <h2 id="extensions">Extensions</h2>
 <p>There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the <em>PyMag</em> project. It uses CMTJ as a backend for fast computation.</p>
