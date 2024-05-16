@@ -1,0 +1,5547 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="LemurPwned">
+      
+      
+        <link rel="canonical" href="https://lemurpwned.github.io/cmtj/api/core/">
+      
+      
+        <link rel="prev" href="../../physics/paralellism/">
+      
+      
+        <link rel="next" href="../models/sb-general-reference/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.10">
+    
+    
+      
+        <title>Core - CMTJ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cmtj" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CMTJ" class="md-header__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CMTJ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Core
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CMTJ" class="md-nav__button md-logo" aria-label="CMTJ" data-md-component="logo">
+      
+  <img src="../../assets/icon.svg" alt="logo">
+
+    </a>
+    CMTJ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/LemurPwned/cmtj" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tipsandtricks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tips & Tricks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Theory
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Theory
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../physics/contributions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Macromagnetic contributions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../physics/macromagnetic_models/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLG Equation & solvers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../physics/sb-model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Static Smit-Beljers model
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Experimental
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Experimental
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimental-methods/introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimental-methods/CIMS/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CIMS Tutorial
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimental-methods/HarmonicsFits/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Harmonic Fits
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimental-methods/examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../experimental-methods/VoltageSpinDiodeFits/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Voltage Spin Diode
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../physics/paralellism/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parallelism
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Core
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Core
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj" class="md-nav__link">
+    <span class="md-ellipsis">
+      cmtj
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.AxialDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      AxialDriver
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.CVector" class="md-nav__link">
+    <span class="md-ellipsis">
+      CVector
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CVector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.length" class="md-nav__link">
+    <span class="md-ellipsis">
+      length()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.normalize" class="md-nav__link">
+    <span class="md-ellipsis">
+      normalize()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.tolist" class="md-nav__link">
+    <span class="md-ellipsis">
+      tolist()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.Junction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Junction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Junction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.clearLog" class="md-nav__link">
+    <span class="md-ellipsis">
+      clearLog()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.getLayerMagnetisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      getLayerMagnetisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.getLog" class="md-nav__link">
+    <span class="md-ellipsis">
+      getLog()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.runSimulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      runSimulation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setIECDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setIECDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerAnisotropyDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerAnisotropyDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerCurrentDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerCurrentDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerDampingLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerDampingLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerExternalFieldDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerExternalFieldDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerFieldLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerFieldLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerMagnetisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerMagnetisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerOneFNoise" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerOneFNoise()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerTemperatureDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerTemperatureDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setQuadIECDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setQuadIECDriver()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.Layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layer
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.createSOTLayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      createSOTLayer()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.createSTTLayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      createSTTLayer()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.getId" class="md-nav__link">
+    <span class="md-ellipsis">
+      getId()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setAlternativeSTT" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAlternativeSTT()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setAnisotropyDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAnisotropyDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setBottomDipoleTensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      setBottomDipoleTensor()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setDampingLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setDampingLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setFieldLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setFieldLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setKappa" class="md-nav__link">
+    <span class="md-ellipsis">
+      setKappa()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setMagnetisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      setMagnetisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setOerstedFieldDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setOerstedFieldDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setReferenceLayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      setReferenceLayer()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setTemperatureDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setTemperatureDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setTopDipoleTensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      setTopDipoleTensor()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.NullDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      NullDriver
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NullDriver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.NullDriver.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.Reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      ScalarDriver
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ScalarDriver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getConstantDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getConstantDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getGaussianImpulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGaussianImpulseDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getGaussianStepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGaussianStepDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getPosSineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getPosSineDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getPulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getPulseDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getSineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getSineDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getStepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getStepDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getTrapezoidDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getTrapezoidDriver()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.SolverMode" class="md-nav__link">
+    <span class="md-ellipsis">
+      SolverMode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.c_dot" class="md-nav__link">
+    <span class="md-ellipsis">
+      c_dot()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.constantDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      constantDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.gaussianImpulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      gaussianImpulseDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.gaussianStepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      gaussianStepDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.posSineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      posSineDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.pulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      pulseDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.sineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      sineDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.stepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      stepDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.trapezoidDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      trapezoidDriver()
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Models
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/sb-general-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Smit-Beljers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/dw-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Domain wall
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Utils
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            Utils
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../resistance-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resistance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../linear-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Linear
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../filters-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Filters
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energy-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Energy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plotting-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Plotting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../procedures-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Procedures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parallel-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parallel
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimization-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Optimization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ensemble-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Ensemble models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../general-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Miscellanous
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Stack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../noise/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Noise
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llgb/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLGB
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/CMTJBindingsTutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Library introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/trajectory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Generating trajectories
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/SBModel/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Smit-Beljers model for ferromagnetic resonance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj" class="md-nav__link">
+    <span class="md-ellipsis">
+      cmtj
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.AxialDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      AxialDriver
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.CVector" class="md-nav__link">
+    <span class="md-ellipsis">
+      CVector
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CVector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.length" class="md-nav__link">
+    <span class="md-ellipsis">
+      length()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.normalize" class="md-nav__link">
+    <span class="md-ellipsis">
+      normalize()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.CVector.tolist" class="md-nav__link">
+    <span class="md-ellipsis">
+      tolist()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.Junction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Junction
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Junction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.clearLog" class="md-nav__link">
+    <span class="md-ellipsis">
+      clearLog()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.getLayerMagnetisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      getLayerMagnetisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.getLog" class="md-nav__link">
+    <span class="md-ellipsis">
+      getLog()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.runSimulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      runSimulation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setIECDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setIECDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerAnisotropyDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerAnisotropyDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerCurrentDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerCurrentDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerDampingLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerDampingLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerExternalFieldDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerExternalFieldDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerFieldLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerFieldLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerMagnetisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerMagnetisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerOneFNoise" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerOneFNoise()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setLayerTemperatureDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setLayerTemperatureDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Junction.setQuadIECDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setQuadIECDriver()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.Layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Layer
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.createSOTLayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      createSOTLayer()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.createSTTLayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      createSTTLayer()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.getId" class="md-nav__link">
+    <span class="md-ellipsis">
+      getId()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setAlternativeSTT" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAlternativeSTT()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setAnisotropyDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAnisotropyDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setBottomDipoleTensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      setBottomDipoleTensor()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setDampingLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setDampingLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setFieldLikeTorqueDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setFieldLikeTorqueDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setKappa" class="md-nav__link">
+    <span class="md-ellipsis">
+      setKappa()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setMagnetisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      setMagnetisation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setOerstedFieldDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setOerstedFieldDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setReferenceLayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      setReferenceLayer()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setTemperatureDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      setTemperatureDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.Layer.setTopDipoleTensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      setTopDipoleTensor()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.NullDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      NullDriver
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NullDriver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.NullDriver.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init__()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.Reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      ScalarDriver
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ScalarDriver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getConstantDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getConstantDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getGaussianImpulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGaussianImpulseDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getGaussianStepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGaussianStepDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getPosSineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getPosSineDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getPulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getPulseDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getSineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getSineDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getStepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getStepDriver()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmtj.ScalarDriver.getTrapezoidDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      getTrapezoidDriver()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.SolverMode" class="md-nav__link">
+    <span class="md-ellipsis">
+      SolverMode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.c_dot" class="md-nav__link">
+    <span class="md-ellipsis">
+      c_dot()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.constantDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      constantDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.gaussianImpulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      gaussianImpulseDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.gaussianStepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      gaussianStepDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.posSineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      posSineDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.pulseDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      pulseDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.sineDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      sineDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.stepDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      stepDriver()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmtj.trapezoidDriver" class="md-nav__link">
+    <span class="md-ellipsis">
+      trapezoidDriver()
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  <h1>Core</h1>
+
+<div class="doc doc-object doc-module">
+
+
+<a id="cmtj"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.AxialDriver" class="doc doc-heading">
+        <code>AxialDriver</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Axial driver class.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.CVector" class="doc doc-heading">
+        <code>CVector</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>CVector class. Represents a 3D vector.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.CVector.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Initialises a 3D vector.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>x</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>x component of the vector</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>y component of the vector</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>z</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>z component of the vector</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.CVector.length" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">length</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the length of the vector.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.CVector.normalize" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">normalize</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Normalizes the vector.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.CVector.tolist" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">tolist</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Converts the vector to a list.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.Junction" class="doc doc-heading">
+        <code>Junction</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.clearLog" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">clearLog</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Reset current simulation state.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.getLayerMagnetisation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getLayerMagnetisation</span><span class="p">(</span><span class="n">layer_id</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get the magnetisation of a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.getLog" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getLog</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Retrieve the simulation log [data].</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.runSimulation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">runSimulation</span><span class="p">(</span><span class="n">totalTime</span><span class="p">,</span> <span class="n">timeStep</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">calculateEnergies</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Main run simulation function.
+Use it to run the simulation.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>totalTime</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>total time of a simulation, give it in seconds. Typical length is in ~couple ns.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStep</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the integration step of the RK45 method. Default is 1e-13</p></td>
+          <td>
+                <code>Ellipsis</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>writeFrequency</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>how often is the log saved to? Must be no smaller than <code>timeStep</code>. Default is 1e-11.</p></td>
+          <td>
+                <code>Ellipsis</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>persist</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>whether to save to the filename specified in the Junction constructor. Default is true</p></td>
+          <td>
+                <code>Ellipsis</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>log</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>if you want some verbosity like timing the simulation. Default is false</p></td>
+          <td>
+                <code>Ellipsis</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>calculateEnergies</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>[WORK IN PROGRESS] log energy values to the log. Default is false.</p></td>
+          <td>
+                <code>Ellipsis</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setIECDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setIECDriver</span><span class="p">(</span><span class="n">bottomLayer</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set IEC interaction between two layers.
+The names of the params are only for convention. The IEC will be set
+between bottomLyaer or topLayer, order is irrelevant.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>bottomLayer</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the first layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>topLayer</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the second layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerAnisotropyDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerAnisotropyDriver</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set anisotropy driver for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the id of the layer.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the anisotropy driver to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerCurrentDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerCurrentDriver</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a current driver for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the driver</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerDampingLikeTorqueDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerDampingLikeTorqueDriver</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set the damping like torque driver for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the driver</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerExternalFieldDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerExternalFieldDriver</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set an external field driver for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the id of the layer.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.AxialDriver" href="#cmtj.AxialDriver">AxialDriver</a></code>
+          </td>
+          <td><p>the field driver to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerFieldLikeTorqueDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerFieldLikeTorqueDriver</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set the field like torque driver for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the driver</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerMagnetisation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerMagnetisation</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">mag</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set the magnetisation of a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>mag</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>the magnetisation</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerOneFNoise" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerOneFNoise</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set 1/f noise for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sources</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td><p>the number of generation sources (the more the slower, but more acc.)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>bias</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the bias of the noise (p in the Multinomial distribution)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scale</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the scale of the noise, additional scaling factor</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setLayerTemperatureDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setLayerTemperatureDriver</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a temperature driver for a layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>layer_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the id of the layer.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the temperature driver to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Junction.setQuadIECDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setQuadIECDriver</span><span class="p">(</span><span class="n">bottomLayer</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set secondary (biquadratic term) IEC interaction between two layers.
+The names of the params are only for convention. The IEC will be set
+between bottomLyaer or topLayer, order is irrelevant.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>bottomLayer</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the first layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>topLayer</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>the second layer id</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.Layer" class="doc doc-heading">
+        <code>Layer</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">anis</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">cellSurface</span><span class="p">,</span> <span class="n">demagTensor</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>The basic structure is a magnetic layer.
+Its parameters are defined by the constructor and may be altered
+by the drivers during the simulation time.
+If you want STT, remember to set the reference vector for the polarisation of the layer.
+Use <code>setReferenceLayer</code> function to do that.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>identifiable name for a layer -- e.g. "bottom" or "free".</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>mag</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>anis</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>anisotropy of the layer. A normalised vector</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Ms</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>magnetisation saturation. Unit: Tesla [T].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>thickness</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>thickness of the layer. Unit: meter [m].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cellSurface</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>surface of the layer, for volume calculation. Unit: meter^2 [m^2].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>damping</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless</p></td>
+          <td>
+                <code>Ellipsis</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.createSOTLayer" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">createSOTLayer</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">anis</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">cellSurface</span><span class="p">,</span> <span class="n">demagTensor</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">0.11</span><span class="p">,</span> <span class="n">fieldLikeTorque</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dampingLikeTorque</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create SOT layer -- including damping and field-like torques that are
+calculated based on the effective Spin Hall angles.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>identifiable name for a layer -- e.g. "bottom" or "free".</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>mag</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>anis</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>anisotropy of the layer. A normalised vector</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Ms</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>magnetisation saturation. Unit: Tesla [T].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>thickness</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>thickness of the layer. Unit: meter [m].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cellSurface</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>surface of the layer, for volume calculation. Unit: meter^2 [m^2].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>damping</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.</p></td>
+          <td>
+                <code>0.11</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.createSTTLayer" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">createSTTLayer</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">mag</span><span class="p">,</span> <span class="n">anis</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">cellSurface</span><span class="p">,</span> <span class="n">demagTensor</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">0.011</span><span class="p">,</span> <span class="n">SlonczewskiSpacerLayerParameter</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">spinPolarisation</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create STT layer -- with the standard Slomczewski formulation.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td><p>identifiable name for a layer -- e.g. "bottom" or "free".</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>mag</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>initial magnetisation. Must be normalised (norm of 1). Used for quicker convergence.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>anis</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>anisotropy of the layer. A normalised vector</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>Ms</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>magnetisation saturation. Unit: Tesla [T].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>thickness</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>thickness of the layer. Unit: meter [m].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cellSurface</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>surface of the layer, for volume calculation. Unit: meter^2 [m^2].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>damping</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.</p></td>
+          <td>
+                <code>0.011</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>SlonczewskiSpacerLayerParameter</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>Slomczewski parameter. Often marked as lambda.</p></td>
+          <td>
+                <code>1.0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>beta</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>beta parameter that scales FL/DL ratio.</p></td>
+          <td>
+                <code>0.0</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>spinPolarisation</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the spin effectiveness.</p></td>
+          <td>
+                <code>0.0</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.getId" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getId</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get Id of the layer</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setAlternativeSTT" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setAlternativeSTT</span><span class="p">(</span><span class="n">setAlternative</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Switch to an alternative STT forumulation (Taniguchi et al.)
+https://iopscience.iop.org/article/10.7567/APEX.11.013005</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>setAlternative</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td><p>whether to set the alternative STT formulation</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setAnisotropyDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setAnisotropyDriver</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set anisotropy driver for the layer.
+It's scalar. The axis is determined in the layer constructor</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setBottomDipoleTensor" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setBottomDipoleTensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a dipole tensor from the bottom layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>tensor</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[<a title="cmtj.CVector" href="#cmtj.CVector">CVector</a>]</code>
+          </td>
+          <td><p>the dipole tensor to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setDampingLikeTorqueDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setDampingLikeTorqueDriver</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a driver for the damping like torque of the layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the driver to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setFieldLikeTorqueDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setFieldLikeTorqueDriver</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a driver for the field like torque of the layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>the driver to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setKappa" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setKappa</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set the kappa parameter for the layer -- determines SOT mixing
+    Hdl * kappa + Hfl
+Allows you to turn off Hdl. Turning Hfl is via beta parameter.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>kappa</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>the kappa parameter</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setMagnetisation" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setMagnetisation</span><span class="p">(</span><span class="n">mag</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set the magnetisation of the layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>mag</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>the magnetisation to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setOerstedFieldDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setOerstedFieldDriver</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set an Oersted field driver for the layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>driver</code></td>
+          <td>
+                <code><a title="cmtj.AxialDriver" href="#cmtj.AxialDriver">AxialDriver</a></code>
+          </td>
+          <td><p>the field driver to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setReferenceLayer" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setReferenceLayer</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a reference layer for the STT.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>ref</code></td>
+          <td>
+                <code><a title="cmtj.CVector" href="#cmtj.CVector">CVector</a></code>
+          </td>
+          <td><p>the reference layer vector.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setTemperatureDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setTemperatureDriver</span><span class="p">(</span><span class="n">driver</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a driver for the temperature of the layer.
+Automatically changes the solver to Euler-Heun.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.Layer.setTopDipoleTensor" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">setTopDipoleTensor</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Set a dipole tensor from the top layer.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>tensor</code></td>
+          <td>
+                <code><span title="typing.List">List</span>[<a title="cmtj.CVector" href="#cmtj.CVector">CVector</a>]</code>
+          </td>
+          <td><p>the dipole tensor to be set.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.NullDriver" class="doc doc-heading">
+        <code>NullDriver</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+      <p class="doc doc-class-bases">
+        Bases: <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code></p>
+
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.NullDriver.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>An empty driver that does nothing. Use in Axial Driver when
+the axis is to be id.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.Reference" class="doc doc-heading">
+        <code>Reference</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Reference layer indicator.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.ScalarDriver" class="doc doc-heading">
+        <code>ScalarDriver</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getConstantDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getConstantDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Constant driver produces a constant signal of a fixed amplitude.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>constant value of the driver (constant offset/amplitude)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getGaussianImpulseDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getGaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.</p>
+<p>Formula:
+A * exp(-((t - t0) <strong> 2) / (2 * sigma </strong> 2))</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>t0</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sigma</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>fall-off of the Gaussian pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getGaussianStepDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getGaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.</p>
+<p>Formula:
+f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>t0</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sigma</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>fall-off of the Gaussian pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getPosSineDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getPosSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>vertical offset. The sine will oscillate around this value.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude of the sine wave</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>frequency</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>frequency of the sine</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>phase</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>phase of the sine in radians.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getPulseDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getPulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces a square pulse of certain period and cycle</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset (vertical) of the pulse. The pulse amplitude will be added to this.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude of the pulse signal</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>period</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>period of the signal in seconds</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cycle</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>duty cycle of the signal -- a fraction between [0 and 1].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getSineDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>vertical offset. The sine will oscillate around this value.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code><a title="cmtj.ScalarDriver" href="#cmtj.ScalarDriver">ScalarDriver</a></code>
+          </td>
+          <td><p>amplitude of the sine wave</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>frequency</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>frequency of the sine</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>phase</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>phase of the sine in radians.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getStepDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStart</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStop</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>when the pulse ends</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="cmtj.ScalarDriver.getTrapezoidDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">getTrapezoidDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">,</span> <span class="n">edgeTime</span><span class="p">,</span> <span class="n">steadyTime</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create Trapezoid driver. Has a rising and a falling edge.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStart</code></td>
+          <td>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>edgeTime</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>time it takes to reach the maximum amplitude</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>steadyTime</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>time it spends in a steady state</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="cmtj.SolverMode" class="doc doc-heading">
+        <code>SolverMode</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>SolverMode Indicator</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.c_dot" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">c_dot</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="n">arg1</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Compute dot (scalar) product of two CVectors.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.constantDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">constantDriver</span><span class="p">(</span><span class="n">constant</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Constant driver produces a constant signal of a fixed amplitude.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constant</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>constant value of the driver (constant offset/amplitude)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.gaussianImpulseDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">gaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.</p>
+<p>Formula:
+A * exp(-((t - t0) <strong> 2) / (2 * sigma </strong> 2))</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>t0</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sigma</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>fall-off of the Gaussian pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.gaussianStepDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">gaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.</p>
+<p>Formula:
+f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>t0</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>sigma</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>fall-off of the Gaussian pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.posSineDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">posSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>vertical offset. The sine will oscillate around this value.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude of the sine wave</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>frequency</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>frequency of the sine</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>phase</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>phase of the sine in radians.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.pulseDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">pulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces a square pulse of certain period and cycle</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset (vertical) of the pulse. The pulse amplitude will be added to this.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude of the pulse signal</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>period</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>period of the signal in seconds</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>cycle</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>duty cycle of the signal -- a fraction between [0 and 1].</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.sineDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>vertical offset. The sine will oscillate around this value.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude of the sine wave</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>frequency</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>frequency of the sine</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>phase</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>phase of the sine in radians.</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.stepDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">stepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStart</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStop</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>when the pulse ends</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="cmtj.trapezoidDriver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">trapezoidDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">,</span> <span class="n">edgeTime</span><span class="p">,</span> <span class="n">steadyTime</span><span class="p">)</span></code>
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create Trapezoid driver. Has a rising and a falling edge.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>constantValue</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>offset of the pulse (vertical)</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>amplitude</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>amplitude that is added on top of the constantValue</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>timeStart</code></td>
+          <td>
+          </td>
+          <td><p>start of the pulse</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>edgeTime</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>time it takes to reach the maximum amplitude</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>steadyTime</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td><p>time it spends in a steady state</p></td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+        <script src="../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

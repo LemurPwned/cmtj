@@ -26,6 +26,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://lemurpwned.github.io/cmtj/api/core/</loc>
+         <lastmod>2024-05-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://lemurpwned.github.io/cmtj/api/energy-reference/</loc>
          <lastmod>2024-05-16</lastmod>
          <changefreq>daily</changefreq>
@@ -51,6 +56,16 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://lemurpwned.github.io/cmtj/api/llgb/</loc>
+         <lastmod>2024-05-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://lemurpwned.github.io/cmtj/api/noise/</loc>
+         <lastmod>2024-05-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://lemurpwned.github.io/cmtj/api/optimization-reference/</loc>
          <lastmod>2024-05-16</lastmod>
          <changefreq>daily</changefreq>
@@ -72,6 +87,11 @@
     </url>
     <url>
          <loc>https://lemurpwned.github.io/cmtj/api/resistance-reference/</loc>
+         <lastmod>2024-05-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://lemurpwned.github.io/cmtj/api/stack/</loc>
          <lastmod>2024-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -107,31 +127,6 @@
     </url>
     <url>
          <loc>https://lemurpwned.github.io/cmtj/experimental-methods/introduction/</loc>
-         <lastmod>2024-05-16</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://lemurpwned.github.io/cmtj/gen-docs/cmtj/</loc>
-         <lastmod>2024-05-16</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://lemurpwned.github.io/cmtj/gen-docs/drivers/</loc>
-         <lastmod>2024-05-16</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://lemurpwned.github.io/cmtj/gen-docs/llgb/</loc>
-         <lastmod>2024-05-16</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://lemurpwned.github.io/cmtj/gen-docs/noise/</loc>
-         <lastmod>2024-05-16</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://lemurpwned.github.io/cmtj/gen-docs/stack/</loc>
          <lastmod>2024-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
