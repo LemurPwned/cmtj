@@ -157,7 +157,7 @@ private:
     ScalarDriver<T> fieldLikeTorqueDriver;
     ScalarDriver<T> dampingLikeTorqueDriver;
     AxialDriver<T> externalFieldDriver;
-    AxialDriver<T> HoeDriver;
+    AxialDriver<T> HoeDriver, HdmiDriver;
 
     bool nonStochasticTempSet = false;
     bool nonStochasticOneFSet = true;
@@ -237,7 +237,7 @@ public:
     T cellVolume = 0.0, cellSurface = 0.0;
 
     CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
-    CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation;
+    CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation, Hdmi;
 
     CVector<T> Hfl_v, Hdl_v;
 
@@ -407,8 +407,7 @@ public:
      *
      * @return const std::string
      */
-    const std::string getId() const { return id; }
-
+    const std::string& getId() const { return id; }
     /**
      * @brief Set the Alternative STT formulation
      *
@@ -541,6 +540,11 @@ public:
         this->IECQuadDriverBottom = driver;
     }
 
+    void setHdmiDriver(const AxialDriver<T>& driver)
+    {
+        this->HdmiDriver = driver;
+    }
+
     /**
      * @brief Sets reference layer with a custom vector
      * Set reference layer parameter. This is for calculating the spin current
@@ -606,10 +610,12 @@ public:
         this->Hdemag = calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
         this->HIEC = calculateIEC(time, stepMag, bottom, top);
         this->HAnis = calculateAnisotropy(stepMag, time);
+        this->Hdmi = calculateHdmiField(time);
         const CVector<T> Heff = this->Hext    // external
             + this->HAnis // anistotropy
             + this->HIEC  // IEC
             + this->Hoe   // Oersted field
+            + this->Hdmi
             + Hfluctuation
             // demag -- negative contribution
             - this->Hdemag
@@ -622,6 +628,11 @@ public:
     {
         this->Hoe_log = this->HoeDriver.getCurrentAxialDrivers(time);
         return this->Hoe_log;
+    }
+
+    CVector<T> calculateHdmiField(const T& time)
+    {
+        return this->HdmiDriver.getCurrentAxialDrivers(time);
     }
 
     CVector<T> calculateExternalField(const T& time)
@@ -1110,6 +1121,11 @@ public:
         scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorqueDriver, driver);
     }
 
+    void setLayerHdmiDriver(const std::string& layerID, const AxialDriver<T>& driver)
+    {
+        axiallayerSetter(layerID, &Layer<T>::setHdmiDriver, driver);
+    }
+
     void setLayerAlternativeSTT(const std::string& layerID, const bool alternative)
     {
         if (layerID == "all")
@@ -1334,7 +1350,7 @@ public:
     }
 
     void
-        saveLogs(std::string filename)
+        saveLogs(const std::string& filename)
     {
         if (filename == "")
         {
@@ -1635,7 +1651,7 @@ public:
     {
         if (timeStep > writeFrequency)
         {
-            std::runtime_error("The time step cannot be larger than write frequency!");
+            throw std::runtime_error("The time step cannot be larger than write frequency!");
         }
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);

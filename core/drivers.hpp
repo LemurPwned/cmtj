@@ -369,7 +369,7 @@ public:
         return AxialDriver(CVector<T>(x, y, z));
     }
 
-    void applyMask(std::vector<unsigned int> mask)
+    void applyMask(const std::vector<unsigned int>& mask)
     {
         assert(mask.size() == 3);
         for (int i = 0; i < 3; i++)
@@ -487,14 +487,6 @@ class NullAxialDriver : public AxialDriver<T>
 {
 public:
     NullAxialDriver() = default;
-    CVector<T> getCurrentAxialDrivers([[maybe_unused]] T time)
-    {
-        return CVector<T>(0., 0., 0.);
-    }
-    CVector<T> getConstantValues()
-    {
-        return CVector<T>(0., 0., 0.);
-    }
 };
 
 #endif

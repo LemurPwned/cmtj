@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 exclude: "^\
-  (third-party/.*)|\
+  (third_party/.*)|\
   (build/.*)|\
   (.github/.*)|\
   (.vscode/.*)|\
@@ -46,10 +46,14 @@ repos:
         args: [--in-place, --recursive]
 
   - repo: https://github.com/pocc/pre-commit-hooks
-    rev: v1.3.5
+    rev: master
     hooks:
+      - id: cpplint
       - id: cppcheck
+        args: [--check-level=exhaustive]
+        exclude: third_party/.*
       # - id: clang-format
       # - id: oclint
       # - id: uncrustify
       - id: include-what-you-use
+        exclude: ^third_party

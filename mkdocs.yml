@@ -28,7 +28,6 @@ nav:
   - Parallelism: physics/paralellism.md
   - API:
       - Core: api/core.md
-      # - Drivers: api/drivers.md
       - Models:
           - Smit-Beljers: api/models/sb-general-reference.md
           - Domain wall: api/models/dw-reference.md
