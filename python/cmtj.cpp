@@ -132,8 +132,6 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<DScalarDriver>(m, "ScalarDriver")
         .def(py::self + double())
         .def(py::self += double())
-        .def(py::self - double())
-        .def(py::self -= double())
         .def(py::self * double())
         .def(py::self *= double())
         .def_static("getConstantDriver",
@@ -194,8 +192,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getVectorAxialDriver", &DAxialDriver::getVectorAxialDriver)
         .def("getCurrentAxialDrivers",
             &DAxialDriver::getCurrentAxialDrivers)
-        .def("applyMask", py::overload_cast<DVector>(&DAxialDriver::applyMask))
-        .def("applyMask", py::overload_cast<std::vector<unsigned int>>(&DAxialDriver::applyMask));
+        .def("applyMask", py::overload_cast<const DVector&>(&DAxialDriver::applyMask))
+        .def("applyMask", py::overload_cast<const std::vector<unsigned int>&>(&DAxialDriver::applyMask));
 
     py::class_<DLayer>(m, "Layer")
         .def(py::init<
@@ -356,8 +354,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getMagnetisation", &DSeriesStack::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &DSeriesStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DSeriesStack::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", py::overload_cast<double>(&DSeriesStack::setCouplingStrength), "coupling"_a)
-        .def("setCouplingStrength", py::overload_cast<std::vector<double>>(&DSeriesStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const double&>(&DSeriesStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const std::vector<double>&>(&DSeriesStack::setCouplingStrength), "coupling"_a)
         .def("setDelayed", &DSeriesStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &DSeriesStack::clearLogs)
@@ -379,8 +377,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getMagnetisation", &DParallelStack::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &DParallelStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DParallelStack::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", py::overload_cast<double>(&DParallelStack::setCouplingStrength), "coupling"_a)
-        .def("setCouplingStrength", py::overload_cast<std::vector<double>>(&DParallelStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const double&>(&DParallelStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const std::vector<double>&>(&DParallelStack::setCouplingStrength), "coupling"_a)
         .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &ParallelStack<double>::clearLogs)

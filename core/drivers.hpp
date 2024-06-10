@@ -82,52 +82,6 @@ public:
     {
         this->phase += phase;
     }
-
-    // override multiplication operator
-    Driver operator*(const T& val)
-    {
-        this->constantValue *= val;
-        this->amplitude *= val;
-        return *this;
-    }
-
-    // override *= operator
-    Driver operator*=(const T& val)
-    {
-        this->constantValue *= val;
-        this->amplitude *= val;
-        return *this;
-    }
-
-    // override addition operator
-    Driver operator+(const T& val)
-    {
-        this->constantValue += val;
-        this->amplitude += val;
-        return *this;
-    }
-
-    Driver operator+=(const T& val)
-    {
-        this->constantValue += val;
-        this->amplitude += val;
-        return *this;
-    }
-
-    // override subtraction operator
-    Driver operator-(const T& val)
-    {
-        this->constantValue -= val;
-        this->amplitude -= val;
-        return *this;
-    }
-
-    Driver operator-=(const T& val)
-    {
-        this->constantValue -= val;
-        this->amplitude -= val;
-        return *this;
-    }
 };
 
 template <typename T>
@@ -395,6 +349,54 @@ public:
         return returnValue;
     }
 
+    // override multiplication operator
+    ScalarDriver<T> operator*(const T& val)
+    {
+        this->constantValue *= val;
+        this->amplitude *= val;
+        return *this;
+    }
+
+    ScalarDriver<T> operator*(const T& val) const {
+        return (*this) * val;
+    }
+
+    // override *= operator
+    ScalarDriver<T> operator*=(const T& val)
+    {
+        this->constantValue *= val;
+        this->amplitude *= val;
+        return *this;
+    }
+
+    ScalarDriver<T> operator*=(const T& val) const {
+        return (*this) * val;
+    }
+
+    // override addition operator
+    ScalarDriver<T> operator+(const T& val)
+    {
+        this->constantValue += val;
+        this->amplitude += val;
+        return *this;
+    }
+    ScalarDriver operator+(const T& v) const
+    {
+        // Use non-const operator+ here
+        return (*this) + v;
+    };
+    ScalarDriver<T> operator+=(const T& val)
+    {
+        this->constantValue += val;
+        this->amplitude += val;
+        return *this;
+    }
+    ScalarDriver operator+=(const T& v) const
+    {
+        // Use non-const operator+ here
+        return (*this) + v;
+    };
+
 };
 
 
@@ -439,7 +441,7 @@ public:
         }
     }
 
-    void applyMask(CVector<T> mask)
+    void applyMask(const CVector<T>& mask)
     {
         this->applyMask(std::vector<unsigned int>{(unsigned int)(mask[0]),
             (unsigned int)(mask[1]),

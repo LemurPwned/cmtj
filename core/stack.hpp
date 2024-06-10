@@ -279,7 +279,6 @@ public:
                 }
             }
             const T plainCurrent = this->currentDriver.getCurrentScalarValue(t);
-            T coupledCurrent = plainCurrent;
             T effectiveCoupling = 1;
             for (std::size_t j = 0; j < junctionList.size(); ++j)
             {
@@ -351,7 +350,7 @@ class SeriesStack : public Stack<T>
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);
-        return this->getCoupling() * (m1Comp + m2Comp);
+        return this->getCoupling(order) * (m1Comp + m2Comp);
     }
 
     T getPhaseOffset(const unsigned int& order) const override
