@@ -60,7 +60,7 @@ public:
         stackSize = this->junctionList.size();
     }
 
-    T getCoupling(const& order) const {
+    T getCoupling(const unsigned int& order) const {
         if (this->couplingStrength.empty())
         {
             throw std::runtime_error("Coupling strength is not set!");

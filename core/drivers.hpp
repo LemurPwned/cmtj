@@ -84,7 +84,7 @@ public:
     }
 
     // override multiplication operator
-    ScalarDriver operator*(const T& val)
+    Driver operator*(const T& val)
     {
         this->constantValue *= val;
         this->amplitude *= val;
@@ -92,7 +92,7 @@ public:
     }
 
     // override *= operator
-    ScalarDriver operator*=(const T& val)
+    Driver operator*=(const T& val)
     {
         this->constantValue *= val;
         this->amplitude *= val;
@@ -100,14 +100,14 @@ public:
     }
 
     // override addition operator
-    ScalarDriver operator+(const T& val)
+    Driver operator+(const T& val)
     {
         this->constantValue += val;
         this->amplitude += val;
         return *this;
     }
 
-    ScalarDriver operator+=(const T& val)
+    Driver operator+=(const T& val)
     {
         this->constantValue += val;
         this->amplitude += val;
@@ -115,14 +115,14 @@ public:
     }
 
     // override subtraction operator
-    ScalarDriver operator-(const T& val)
+    Driver operator-(const T& val)
     {
         this->constantValue -= val;
         this->amplitude -= val;
         return *this;
     }
 
-    ScalarDriver operator-=(const T& val)
+    Driver operator-=(const T& val)
     {
         this->constantValue -= val;
         this->amplitude -= val;
