@@ -130,6 +130,12 @@ PYBIND11_MODULE(cmtj, m)
 
     // Driver Class
     py::class_<DScalarDriver>(m, "ScalarDriver")
+        .def(py::self + double())
+        .def(py::self += double())
+        .def(py::self - double())
+        .def(py::self -= double())
+        .def(py::self * double())
+        .def(py::self *= double())
         .def_static("getConstantDriver",
             &DScalarDriver::getConstantDriver,
             "constantValue"_a)
@@ -350,7 +356,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getMagnetisation", &DSeriesStack::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &DSeriesStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DSeriesStack::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", &DSeriesStack::setCouplingStrength, "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<double>(&DParallelStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<std::vector<double>>(&DParallelStack::setCouplingStrength), "coupling"_a)
         .def("setDelayed", &DSeriesStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &DSeriesStack::clearLogs)
@@ -372,7 +379,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getMagnetisation", &DParallelStack::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &DParallelStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DParallelStack::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", &DParallelStack::setCouplingStrength, "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<double>(&DParallelStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<std::vector<double>>(&DParallelStack::setCouplingStrength), "coupling"_a)
         .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &ParallelStack<double>::clearLogs)

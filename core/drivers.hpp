@@ -12,7 +12,7 @@
 #include <stdexcept>    // for runtime_error
 #include <vector>       // for vector
 #include "cvector.hpp"  // for CVector
-
+#include <utility>      // for move
 enum UpdateType
 {
     constant,
@@ -72,6 +72,62 @@ public:
         return 0;
     };
     virtual ~Driver() = default;
+
+    void setConstantValue(const T& val)
+    {
+        this->constantValue = val;
+    }
+
+    void phaseShift(const T& phase)
+    {
+        this->phase += phase;
+    }
+
+    // override multiplication operator
+    ScalarDriver operator*(const T& val)
+    {
+        this->constantValue *= val;
+        this->amplitude *= val;
+        return *this;
+    }
+
+    // override *= operator
+    ScalarDriver operator*=(const T& val)
+    {
+        this->constantValue *= val;
+        this->amplitude *= val;
+        return *this;
+    }
+
+    // override addition operator
+    ScalarDriver operator+(const T& val)
+    {
+        this->constantValue += val;
+        this->amplitude += val;
+        return *this;
+    }
+
+    ScalarDriver operator+=(const T& val)
+    {
+        this->constantValue += val;
+        this->amplitude += val;
+        return *this;
+    }
+
+    // override subtraction operator
+    ScalarDriver operator-(const T& val)
+    {
+        this->constantValue -= val;
+        this->amplitude -= val;
+        return *this;
+    }
+
+    ScalarDriver operator-=(const T& val)
+    {
+        this->constantValue -= val;
+        this->amplitude -= val;
+        return *this;
+    }
 };
 
 template <typename T>
@@ -338,10 +394,7 @@ public:
         }
         return returnValue;
     }
-    void setConstantValue(const T& val)
-    {
-        this->constantValue = val;
-    }
+
 };
 
 

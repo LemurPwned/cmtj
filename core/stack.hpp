@@ -24,15 +24,53 @@ private:
     bool currentDriverSet = false;
 
 protected:
+    unsigned int stackSize;
     std::string topId, bottomId; // Ids of the top and bottom junctions
-    T couplingStrength = 0;
+    std::vector<T> couplingStrength = { 0 };
     bool delayed = true;
+    T phaseOffset = 0;
     virtual T calculateStackResistance(std::vector<T> resistances) = 0;
-    virtual T computeCouplingCurrentDensity(T currentDensity,
-        CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
+    virtual T getPhaseOffset(const unsigned  int& order) const = 0;
+    virtual T getEffectiveCouplingStrength(CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
+    T computeCouplingCurrentDensity(T currentDensity,
+        CVector<T> m1, CVector<T> m2, CVector<T> p) {
+        const T coupledI = currentDensity * this->getEffectiveCouplingStrength(m1, m2, p);
+        return coupledI;
 
+    }
 public:
     std::vector<Junction<T>> junctionList;
+
+    Stack(std::vector<Junction<T>> inputStack,
+        const std::string& topId,
+        const std::string& bottomId, const T phaseOffset = 0) : topId(topId),
+        bottomId(bottomId), phaseOffset(phaseOffset)
+    {
+        if (inputStack.size() < 2)
+        {
+            throw std::runtime_error("Stack must have at least 2 junctions!");
+        }
+        this->junctionList = std::move(inputStack);
+        if (std::any_of(this->junctionList.begin(),
+            this->junctionList.end(),
+            [](const Junction<T>& j) { return j.MR_mode != Junction<T>::MRmode::CLASSIC; }))
+        {
+            throw std::runtime_error("Junction has a non-classic magnetoresitance mode!"
+                " Define the junction with Rp and Rap resistance values.");
+        }
+        stackSize = this->junctionList.size();
+    }
+
+    T getCoupling(const& order) const {
+        if (this->couplingStrength.empty())
+        {
+            throw std::runtime_error("Coupling strength is not set!");
+        }
+        if (this->couplingStrength.size() == 1) {
+            return this->couplingStrength[0];
+        }
+        return this->couplingStrength[order];
+    }
 
     void setDelayed(bool delay)
     {
@@ -88,25 +126,7 @@ public:
         this->currentDriverSet = true;
     }
 
-    Stack(std::vector<Junction<T>> inputStack,
-        const std::string& topId,
-        const std::string& bottomId) : topId(topId), bottomId(bottomId)
-    {
-        if (inputStack.size() < 2)
-        {
-            throw std::runtime_error("Stack must have at least 2 junctions!");
-        }
-        this->junctionList = std::move(inputStack);
-        if (std::any_of(this->junctionList.begin(),
-            this->junctionList.end(),
-            [](const Junction<T>& j) { return j.MR_mode != Junction<T>::MRmode::CLASSIC; }))
-        {
-            throw std::runtime_error("Junction has a non-classic magnetoresitance mode!"
-                " Define the junction with Rp and Rap resistance values.");
-        }
-    }
-    void
-        saveLogs(std::string fileSave)
+    void saveLogs(const std::string& fileSave)
     {
         if (fileSave == "")
         {
@@ -132,8 +152,17 @@ public:
         logFile.close();
     }
 
-    void setCouplingStrength(T coupling)
+    void setCouplingStrength(const T& coupling)
     {
+        this->couplingStrength = { coupling };
+    }
+
+    void setCouplingStrength(const std::vector<T> &coupling)
+    {
+        if (coupling.size() != this->stackSize - 1)
+        {
+            throw std::runtime_error("Coupling strength vector must have size of stack size - 1!");
+        }
         this->couplingStrength = coupling;
     }
 
@@ -208,7 +237,7 @@ public:
 
         if (timeStep > writeFrequency)
         {
-            std::runtime_error("The time step cannot be larger than write frequency!");
+            throw std::runtime_error("The time step cannot be larger than write frequency!");
         }
 
         // pick a solver based on drivers
@@ -230,8 +259,6 @@ public:
                 " Do not mix stochastic and deterministic solvers!");
         }
 
-
-        T tCurrent;
         std::vector<T> timeResistances(junctionList.size());
         std::vector<T> timeCurrents(junctionList.size());
         std::vector<CVector<T>> frozenMags(junctionList.size());
@@ -254,40 +281,50 @@ public:
             }
             const T plainCurrent = this->currentDriver.getCurrentScalarValue(t);
             T coupledCurrent = plainCurrent;
+            T effectiveCoupling = 1;
             for (std::size_t j = 0; j < junctionList.size(); ++j)
             {
-                // skip first junction
-                // modify the standing layer constant current
+
+                /**
+                 * Coupling
+                 * Ik = Ik-1 + x* Ik-1 = (1+x)Ik-1
+                 * Ik+1 = Ik + x* Ik = (1+x)Ik = (1+x)(1+x)Ik-1
+                 * technically we could do (1+x)^n * I0 but
+                 * we want to expand to non-symmetric coupling x1, x2, ...
+                 */
+
+                 // skip first junction
+                 // modify the standing layer constant current
                 if (j > 0) {
                     if (this->delayed) {
                         // accumulate coupling
-                        coupledCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
-                            // j -> k, j-1 -> k'
-                            coupledCurrent, frozenMags[j], frozenMags[j - 1], frozenPols[j]);
+                        effectiveCoupling *= (1 + this->getEffectiveCouplingStrength(
+                            j - 1,
+                            frozenMags[j], frozenMags[j - 1], frozenPols[j]));
+
                     }
                     else {
-                        coupledCurrent = coupledCurrent + this->computeCouplingCurrentDensity(
-                            // j -> k, j-1 -> k'
-                            coupledCurrent, junctionList[j].getLayerMagnetisation(this->topId),
+                        effectiveCoupling *= (1 + this->getEffectiveCouplingStrength(
+                            j - 1,
+                            junctionList[j].getLayerMagnetisation(this->topId),
                             junctionList[j - 1].getLayerMagnetisation(this->topId),
-                            junctionList[j].getLayerMagnetisation(this->bottomId));
+                            junctionList[j].getLayerMagnetisation(this->bottomId)));
                     }
-                    tCurrent = coupledCurrent;
-                }
-                else {
-                    tCurrent = plainCurrent;
                 }
 
                 // set the current -- same for all layers
-                junctionList[j].setLayerCurrentDriver("all", ScalarDriver<T>::getConstantDriver(
-                    tCurrent));
+                // copy the driver and set the current value
+                ScalarDriver<T> localDriver = this->currentDriver * effectiveCoupling;
+                localDriver.phaseShift(this->getPhaseOffset(j));
+
+                junctionList[j].setLayerCurrentDriver("all", localDriver);
                 (junctionList[j].*localRunner)(solver, t, timeStep);
                 // change the instant value of the current before the
                 // the resistance is calculated
                 // compute the next j+1 input to the current.
                 const auto resistance = junctionList[j].getMagnetoresistance();
                 timeResistances[j] = resistance[0];
-                timeCurrents[j] = tCurrent;
+                timeCurrents[j] = localDriver.getCurrentScalarValue(t);
             }
             if (!(i % writeEvery))
             {
@@ -310,18 +347,22 @@ class SeriesStack : public Stack<T>
         return resSum;
     }
 
-    T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) override
+    T getEffectiveCouplingStrength(const unsigned int& order, CVector<T> m1, CVector<T> m2, CVector<T> p) override
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);
-        const T coupledI = currentDensity * this->couplingStrength * (m1Comp + m2Comp);
-        return coupledI;
+        return this->getCoupling() * (m1Comp + m2Comp);
+    }
+
+    T getPhaseOffset(const unsigned int& order) const override
+    {
+        return this->phaseOffset * order;
     }
 
 public:
     explicit SeriesStack(const std::vector<Junction<T>>& jL,
         const std::string& topId = "free",
-        const std::string& bottomId = "bottom") : Stack<T>(jL, topId, bottomId) {}
+        const std::string& bottomId = "bottom", const T phaseOffset = 0) : Stack<T>(jL, topId, bottomId, phaseOffset) {}
 };
 template <typename T>
 class ParallelStack : public Stack<T>
@@ -334,17 +375,21 @@ class ParallelStack : public Stack<T>
         return 1. / invSum;
     }
 
-    T computeCouplingCurrentDensity(T currentDensity, CVector<T> m1, CVector<T> m2, CVector<T> p) override
+    T getEffectiveCouplingStrength(const unsigned int& order, CVector<T> m1, CVector<T> m2, CVector<T> p) override
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);
-        const T coupledI = currentDensity * this->couplingStrength * (m1Comp - m2Comp);
-        return coupledI;
+        return this->getCoupling(order) * (m1Comp - m2Comp);
+    }
+
+    T getPhaseOffset(const unsigned int& order) const override
+    {
+        return this->phaseOffset;
     }
 
 public:
     explicit ParallelStack(const std::vector<Junction<T>>& jL,
         const std::string& topId = "free",
-        const std::string& bottomId = "bottom") : Stack<T>(jL, topId, bottomId) {}
+        const std::string& bottomId = "bottom", const T phaseOffset = 0) : Stack<T>(jL, topId, bottomId, phaseOffset) {}
 };
 #endif // CORE_STACK_HPP_
