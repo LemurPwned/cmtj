@@ -30,13 +30,12 @@ protected:
     bool delayed = true;
     T phaseOffset = 0;
     virtual T calculateStackResistance(std::vector<T> resistances) = 0;
-    virtual T getPhaseOffset(const unsigned  int& order) const = 0;
-    virtual T getEffectiveCouplingStrength(CVector<T> m1, CVector<T> m2, CVector<T> p) = 0;
+    virtual T getPhaseOffset(const unsigned int& order) const = 0;
+    virtual T getEffectiveCouplingStrength(const unsigned int& order,
+        const CVector<T>& m1, const CVector<T>& m2, const CVector<T>& p) = 0;
     T computeCouplingCurrentDensity(T currentDensity,
-        CVector<T> m1, CVector<T> m2, CVector<T> p) {
-        const T coupledI = currentDensity * this->getEffectiveCouplingStrength(m1, m2, p);
-        return coupledI;
-
+        const CVector<T>& m1, const CVector<T>& m2, const CVector<T>& p) {
+        return currentDensity * this->getEffectiveCouplingStrength(m1, m2, p);
     }
 public:
     std::vector<Junction<T>> junctionList;
@@ -157,7 +156,7 @@ public:
         this->couplingStrength = { coupling };
     }
 
-    void setCouplingStrength(const std::vector<T> &coupling)
+    void setCouplingStrength(const std::vector<T>& coupling)
     {
         if (coupling.size() != this->stackSize - 1)
         {
@@ -347,7 +346,8 @@ class SeriesStack : public Stack<T>
         return resSum;
     }
 
-    T getEffectiveCouplingStrength(const unsigned int& order, CVector<T> m1, CVector<T> m2, CVector<T> p) override
+    T getEffectiveCouplingStrength(const unsigned int& order,
+        const CVector<T>& m1, const CVector<T>& m2, const CVector<T>& p) override
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);
@@ -364,6 +364,7 @@ public:
         const std::string& topId = "free",
         const std::string& bottomId = "bottom", const T phaseOffset = 0) : Stack<T>(jL, topId, bottomId, phaseOffset) {}
 };
+
 template <typename T>
 class ParallelStack : public Stack<T>
 {
@@ -375,7 +376,8 @@ class ParallelStack : public Stack<T>
         return 1. / invSum;
     }
 
-    T getEffectiveCouplingStrength(const unsigned int& order, CVector<T> m1, CVector<T> m2, CVector<T> p) override
+    T getEffectiveCouplingStrength(const unsigned int& order,
+        const CVector<T>& m1, const CVector<T>& m2, const CVector<T>& p) override
     {
         const T m1Comp = c_dot(m1, p);
         const T m2Comp = c_dot(m2, p);
