@@ -352,13 +352,33 @@ public:
     // override multiplication operator
     ScalarDriver<T> operator*(const T& val)
     {
-        this->constantValue *= val;
-        this->amplitude *= val;
-        return *this;
+        return ScalarDriver<T>(
+            this->update,
+            this->constantValue * val,
+            this->amplitude * val,
+            this->frequency,
+            this->phase,
+            this->period,
+            this->cycle,
+            this->timeStart,
+            this->timeStop,
+            this->edgeTime,
+            this->steadyTime);
     }
 
     ScalarDriver<T> operator*(const T& val) const {
-        return (*this) * val;
+        return ScalarDriver<T>(
+            this->update,
+            this->constantValue * val,
+            this->amplitude * val,
+            this->frequency,
+            this->phase,
+            this->period,
+            this->cycle,
+            this->timeStart,
+            this->timeStop,
+            this->edgeTime,
+            this->steadyTime);
     }
 
     // override *= operator
@@ -376,14 +396,35 @@ public:
     // override addition operator
     ScalarDriver<T> operator+(const T& val)
     {
-        this->constantValue += val;
-        this->amplitude += val;
-        return *this;
+        return ScalarDriver<T>(
+            this->update,
+            this->constantValue + val,
+            this->amplitude + val,
+            this->frequency,
+            this->phase,
+            this->period,
+            this->cycle,
+            this->timeStart,
+            this->timeStop,
+            this->edgeTime,
+            this->steadyTime);
     }
+
     ScalarDriver operator+(const T& v) const
     {
         // Use non-const operator+ here
-        return (*this) + v;
+        return ScalarDriver<T>(
+            this->update,
+            this->constantValue + v,
+            this->amplitude + v,
+            this->frequency,
+            this->phase,
+            this->period,
+            this->cycle,
+            this->timeStart,
+            this->timeStop,
+            this->edgeTime,
+            this->steadyTime);
     };
     ScalarDriver<T> operator+=(const T& val)
     {

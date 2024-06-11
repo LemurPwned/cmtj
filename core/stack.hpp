@@ -278,7 +278,6 @@ public:
                     frozenPols[j] = this->getPolarisationVector();
                 }
             }
-            const T plainCurrent = this->currentDriver.getCurrentScalarValue(t);
             T effectiveCoupling = 1;
             for (std::size_t j = 0; j < junctionList.size(); ++j)
             {

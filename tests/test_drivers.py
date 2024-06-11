@@ -45,6 +45,25 @@ def test_aliases():
     assert d1.getCurrentAxialDrivers(0.0) == CVector(1.0, 2.0, 3.0)
 
 
+def test_driver_ops():
+    import math
+
+    driver = sineDriver(10, 20, 1, 0)
+    assert driver.getCurrentScalarValue(1 / 4) == 30
+    driver *= 2
+    assert driver.getCurrentScalarValue(1 / 4) == 60
+
+    driver = sineDriver(10, 20, 1, 0)
+    driver += 2
+    assert driver.getCurrentScalarValue(1 / 4) == 34
+
+    driver = sineDriver(10, 20, 1, 0) * 2
+    assert driver.getCurrentScalarValue(1 / 4) == 60
+
+    driver = sineDriver(10, 20, 1, 0) + 2
+    assert driver.getCurrentScalarValue(1 / 4) == 34
+
+
 def test_junction_with_driver():
     Kdir = CVector(1, 0, 0)
     l1 = Layer(

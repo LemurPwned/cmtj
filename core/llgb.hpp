@@ -487,7 +487,7 @@ public:
 
 
     void
-        saveLogs(std::string filename)
+        saveLogs(const std::string& filename)
     {
         if (filename == "")
         {
@@ -542,7 +542,7 @@ public:
     {
         if (timeStep > writeFrequency)
         {
-            std::runtime_error("The time step cannot be larger than write frequency!");
+            throw std::runtime_error("The time step cannot be larger than write frequency!");
         }
         const unsigned int totalIterations = (int)(totalTime / timeStep);
         const unsigned int writeEvery = (int)(writeFrequency / timeStep);

@@ -134,6 +134,7 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::self += double())
         .def(py::self * double())
         .def(py::self *= double())
+        .def("getCurrentScalarValue", &DScalarDriver::getCurrentScalarValue, "time"_a)
         .def_static("getConstantDriver",
             &DScalarDriver::getConstantDriver,
             "constantValue"_a)
@@ -182,7 +183,8 @@ PYBIND11_MODULE(cmtj, m)
             "sigma"_a);
 
     py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
-        .def(py::init<>());
+        .def(py::init<>())
+        .def("getCurrentScalarValue", &DScalarDriver::getCurrentScalarValue, "time"_a);
 
     py::class_<DAxialDriver>(m, "AxialDriver")
         .def(py::init<DScalarDriver, DScalarDriver, DScalarDriver>())
@@ -191,7 +193,7 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<DVector>())
         .def("getVectorAxialDriver", &DAxialDriver::getVectorAxialDriver)
         .def("getCurrentAxialDrivers",
-            &DAxialDriver::getCurrentAxialDrivers)
+            &DAxialDriver::getCurrentAxialDrivers, "time"_a)
         .def("applyMask", py::overload_cast<const DVector&>(&DAxialDriver::applyMask))
         .def("applyMask", py::overload_cast<const std::vector<unsigned int>&>(&DAxialDriver::applyMask));
 
