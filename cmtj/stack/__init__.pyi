@@ -3,10 +3,20 @@ from typing import Dict, List, overload
 import cmtj
 
 class ParallelStack:
-    def __init__(self, junctionList: List[cmtj.Junction]) -> None:
+    def __init__(
+        self,
+        junctionList: List[cmtj.Junction],
+        topId: str = "free",
+        bottomId: str = "bottom",
+        phaseOffset: float = 0,
+    ) -> None:
         """
         Initialises a parallel connection of junctions.
+        Layer ids are used to identify the layers in the junctions and for resistance calculations.
         :param junctionList: list of junctions to be connected in parallel.
+        :param topId: the string id of the top layer in the stack. Default is "free".
+        :param bottomId: the string id of the bottom layer in the stack. Default is "bottom".
+        :param phaseOffset: the phase offset between the junctions. Default is 0.
         """
         ...
 
@@ -68,7 +78,7 @@ class ParallelStack:
         """
         ...
 
-    def setMagnetistation(
+    def setMagnetisation(
         self, junctionId: int, layerId: str, mag: cmtj.CVector
     ) -> None:
         """
@@ -82,10 +92,20 @@ class ParallelStack:
         def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector: ...
 
 class SeriesStack:
-    def __init__(self, junctionList: List[cmtj.Junction]) -> None:
+    def __init__(
+        self,
+        junctionList: List[cmtj.Junction],
+        topId: str = "free",
+        bottomId: str = "bottom",
+        phaseOffset: float = 0,
+    ) -> None:
         """
         Initialises a series connection of junctions.
+        Layer ids are used to identify the layers in the junctions and for resistance calculations.
         :param junctionList: list of junctions to be connected in series.
+        :param topId: the string id of the top layer in the stack. Default is "free".
+        :param bottomId: the string id of the bottom layer in the stack. Default is "bottom".
+        :param phaseOffset: the phase offset between the junctions. Default is 0.
         """
         ...
 
@@ -132,11 +152,22 @@ class SeriesStack:
         """
         ...
 
+    @overload
     def setCouplingStrength(self, coupling: float) -> None:
         """
         Coupling constant that represents the energy losses as the current
         passes through the stack.
         :param coupling: the coupling strength (or the losses)
+        """
+        ...
+
+    @overload
+    def setCouplingStrength(self, coupling: List[float]) -> None:
+        """
+        Coupling constant that represents the energy losses as the current
+        passes through the stack.
+        :param coupling: the coupling strength (or the losses) for each junction.
+            Must be the one less than length of the junction vector, i.e. len(junctionList)-1 .
         """
         ...
 
@@ -147,7 +178,7 @@ class SeriesStack:
         """
         ...
 
-    def setMagnetistation(
+    def setMagnetisation(
         self, junctionId: int, layerId: str, mag: cmtj.CVector
     ) -> None:
         """

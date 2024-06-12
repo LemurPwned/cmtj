@@ -344,10 +344,11 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<DSeriesStack>(stack_module, "SeriesStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
-            std::string>(),
+            std::string, double>(),
             "junctionList"_a,
             "topId_a"_a = "free",
-            "bottomId"_a = "bottom")
+            "bottomId"_a = "bottom",
+            "phaseOffset"_a = 0.0)
         .def("runSimulation", &DSeriesStack::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
@@ -367,10 +368,11 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<DParallelStack>(stack_module, "ParallelStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
-            std::string>(),
+            std::string, double>(),
             "junctionList"_a,
             "topId_a"_a = "free",
-            "bottomId"_a = "bottom")
+            "bottomId"_a = "bottom",
+            "phaseOffset"_a = 0.0)
         .def("runSimulation", &DParallelStack::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,

@@ -578,6 +578,13 @@ class NullDriver(ScalarDriver):
 
 class ScalarDriver:
     def __init__(self, *args, **kwargs) -> None: ...
+    def getCurrentScalarValue(self, time: float) -> float:
+        """
+        :param time: time in seconds
+        :return: the scalar value of the driver at time.
+        """
+        ...
+
     @staticmethod
     def getConstantDriver(constantValue: float) -> "ScalarDriver":
         """
