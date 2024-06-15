@@ -48,12 +48,12 @@ repos:
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: master
     hooks:
-      - id: cpplint
       - id: cppcheck
-        args: [--check-level=exhaustive]
+        args: ["--check-level=exhaustive"]
         exclude: third_party/.*
-      # - id: clang-format
-      # - id: oclint
-      # - id: uncrustify
-      - id: include-what-you-use
-        exclude: ^third_party
+      - id: clang-format
+        args: [-i]
+      - id: clang-tidy
+        args: [-checks=*]
+      # - id: include-what-you-use
+      #   exclude: ^third_party

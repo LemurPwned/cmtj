@@ -127,7 +127,7 @@ class AxialDriver:
     @overload
     def __init__(self, axialDrivers: List[ScalarDriver]) -> None:
         """Create an axial driver with a list of scalar drivers.
-        :param arg0: list of scalar drivers
+        :param axialDrivers: list of scalar drivers
         """
         ...
 
@@ -285,9 +285,9 @@ class Junction:
         """Reset current simulation state."""
         ...
 
-    def getLayerMagnetisation(self, layer_id: str) -> CVector:
+    def getLayerMagnetisation(self, layerId: str) -> CVector:
         """Get the magnetisation of a layer.
-        :param layer_id: the layer id"""
+        :param layerId: the layer id"""
         ...
 
     def getLog(self) -> Dict[str, List[float]]:
@@ -337,72 +337,72 @@ class Junction:
         """
         ...
 
-    def setLayerTemperatureDriver(self, layer_id: str, driver: ScalarDriver) -> None:
+    def setLayerTemperatureDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set a temperature driver for a layer.
-        :param layer_id: the id of the layer.
+        :param layerId: the id of the layer.
         :param driver: the temperature driver to be set.
         """
         ...
 
-    def setLayerAnisotropyDriver(self, layer_id: str, driver: ScalarDriver) -> None:
+    def setLayerAnisotropyDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set anisotropy driver for a layer.
-        :param layer_id: the id of the layer.
+        :param layerId: the id of the layer.
         :param driver: the anisotropy driver to be set.
         """
         ...
 
-    def setLayerCurrentDriver(self, layer_id: str, driver: ScalarDriver) -> None:
+    def setLayerCurrentDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set a current driver for a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param driver: the driver
         """
         ...
 
-    def setLayerExternalFieldDriver(self, layer_id: str, driver: AxialDriver) -> None:
+    def setLayerExternalFieldDriver(self, layerId: str, driver: AxialDriver) -> None:
         """Set an external field driver for a layer.
-        :param layer_id: the id of the layer.
+        :param layerId: the id of the layer.
         :param driver: the field driver to be set.
         """
         ...
 
-    def setLayerMagnetisation(self, layer_id: str, mag: CVector) -> None:
+    def setLayerMagnetisation(self, layerId: str, mag: CVector) -> None:
         """Set the magnetisation of a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param mag: the magnetisation
         """
         ...
 
     @overload
-    def setLayerOerstedFieldDriver(self, layer_id: str, driver: AxialDriver) -> None:
+    def setLayerOerstedFieldDriver(self, layerId: str, driver: AxialDriver) -> None:
         """Set an Oersted field driver for a layer.
-        :param layer_id: the id of the layer.
+        :param layerId: the id of the layer.
         :param driver: the field driver to be set.
         """
         ...
 
     def setLayerDampingLikeTorqueDriver(
-        self, layer_id: str, driver: ScalarDriver
+        self, layerId: str, driver: ScalarDriver
     ) -> None:
         """Set the damping like torque driver for a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param driver: the driver
         """
         ...
 
     def setLayerFieldLikeTorqueDriver(
-        self, layer_id: str, driver: ScalarDriver
+        self, layerId: str, driver: ScalarDriver
     ) -> None:
         """Set the field like torque driver for a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param driver: the driver
         """
         ...
 
     def setLayerOneFNoise(
-        self, layer_id: str, sources: int, bias: float, scale: float
+        self, layerId: str, sources: int, bias: float, scale: float
     ) -> None:
         """Set 1/f noise for a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param sources: the number of generation sources (the more the slower, but more acc.)
         :param bias: the bias of the noise (p in the Multinomial distribution)
         :param scale: the scale of the noise, additional scaling factor
