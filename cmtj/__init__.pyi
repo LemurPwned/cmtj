@@ -143,7 +143,7 @@ class AxialDriver:
     @overload
     def __init__(self, xyz: CVector) -> None:
         """Create an axial driver with a vector.
-        :param xyz: CVector with components of x, y, z axis
+        :param xyz: CVector object with x, y, z components
         """
         ...
 
@@ -247,7 +247,7 @@ class Junction:
         """Creates a junction with a magnetoresistance.
         :param layers: list of layers
 
-        :param Rp: Magnetoresistance parallel state
+        :param Rp: Parallel magnetoresistance
         :param Rap: Magnetoresistance anti-parallel state
         """
         ...

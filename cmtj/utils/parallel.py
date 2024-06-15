@@ -17,7 +17,9 @@ def distribute(simulation_fn: Callable,
     :param simulation_fn: function to be distributed
     :param spaces: list of lists of parameters
     :param n_cores: number of cores to use.
-    :returns: (index, simulation_fn output)
+    :returns: tuple
+        index (int): Index of the parameters in the spaces list, multiple dims.
+        simulation_fn output (any): The output of the simulation function.
         index - index of the parameters in the spaces list, multiple dims.
     """
     spaces = [np.asarray(space) for space in spaces]

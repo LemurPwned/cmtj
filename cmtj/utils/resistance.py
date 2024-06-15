@@ -29,7 +29,8 @@ def compute_resistance(
     w: List[float],
 ):
     """Computes the resistance of the system.
-    If you want to compute the resistance for an entire time series, pass m as a 3D array.
+    If you want to compute the resistance for an entire time series, pass m as a 3D array
+    with shape [number_of_layers, 3, T], where T is the time component.
     [number_of_layers, 3, T] where T is the time component.
     """
     number_of_layers = len(Rx0)

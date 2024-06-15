@@ -46,6 +46,10 @@ def test_aliases():
 
 
 def test_driver_ops():
+    import math
+    assert d1.getCurrentAxialDrivers(-1.0) == CVector(-1.0, -2.0, -3.0)
+    assert d1.getCurrentAxialDrivers(0.0) == CVector(0.0, 0.0, 0.0)
+    assert d1.getCurrentAxialDrivers(1e6) == CVector(1e6, 2e6, 3e6)
     driver = sineDriver(10, 20, 1, 0)
     assert driver.getCurrentScalarValue(1 / 4) == 30
     driver *= 2
