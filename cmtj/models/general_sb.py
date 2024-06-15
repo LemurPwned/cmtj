@@ -1,7 +1,7 @@
 import math
 import time
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Iterable, List, Tuple, Union
 
@@ -157,6 +157,7 @@ class LayerSB:
     :param Kv: volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].
     :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].
     :param Ms: magnetisation saturation value in [A/m].
+    :param Hdmi: DMI field in the layer. Defaults to [0, 0, 0].
     """
 
     _id: int
@@ -164,10 +165,17 @@ class LayerSB:
     Kv: VectorObj
     Ks: float
     Ms: float
+    Hdmi: VectorObj = (
+        None  # TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))
+    )
 
     def __post_init__(self):
         if self._id > 9:
             raise ValueError("Only up to 10 layers supported.")
+        if self.Hdmi is None:
+            self.Hdmi = sym.Matrix([0, 0, 0])
+        else:
+            self.Hdmi = sym.ImmutableMatrix(self.Hdmi.get_cartesian())
         self.theta = sym.Symbol(r"\theta_" + str(self._id))
         self.phi = sym.Symbol(r"\phi_" + str(self._id))
         self.m = sym.ImmutableMatrix([
@@ -225,10 +233,11 @@ class LayerSB:
              sym.sin(self.Kv.phi), 0])
 
         field_energy = -mu0 * self.Ms * m.dot(H)
+        hdmi_energy = -mu0 * self.Ms * m.dot(self.Hdmi)
         surface_anistropy = (-self.Ks +
                              (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1]**2)
         volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
-        return field_energy + surface_anistropy + volume_anisotropy
+        return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy
 
     def sb_correction(self):
         omega = sym.Symbol(r"\omega")
@@ -245,7 +254,7 @@ class LayerSB:
 
 @dataclass
 class LayerDynamic(LayerSB):
-    alpha: float
+    alpha: float = 0.01
 
     def rhs_llg(
         self,

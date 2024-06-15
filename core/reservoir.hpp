@@ -140,7 +140,7 @@ public:
     unsigned int rows, cols;
     unsigned int noElements;
 
-    Reservoir(std::vector<std::vector<DVector>> coordinateMatrix, std::vector<std::vector<Layer<double>>> layerMatrix): coordinateMatrix(std::move(coordinateMatrix)),
+    Reservoir(std::vector<std::vector<DVector>> coordinateMatrix, std::vector<std::vector<Layer<double>>> layerMatrix) : coordinateMatrix(std::move(coordinateMatrix)),
         layerMatrix(std::move(layerMatrix))
     {
         this->rows = this->coordinateMatrix.size();
@@ -241,7 +241,7 @@ public:
     }
 
     void
-        saveLogs(std::string fileSave)
+        saveLogs(const std::string& fileSave)
     {
         if (fileSave == "")
         {

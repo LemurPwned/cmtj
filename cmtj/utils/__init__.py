@@ -14,15 +14,21 @@ echarge = -1.602e-19
 mu0 = 12.566e-7
 hplanck = 6.6260e-34
 hbar = hplanck / (2 * math.pi)
-gyromagnetic_ratio = 2.211e5
-gamma = 28024e6
-gamma_rad = 1.76e11
+gyromagnetic_ratio = 2.211e5  # m/As
+gamma = 28024e6  # Hz/T
+gamma_rad = 1.76e11  # rad / (s * T)
 me = 9.109e-31
 bohr_magneton = echarge * hbar / (2 * me)
 
 __all__ = [
-    "Filters", "FieldScan", "compute_sd", "compute_resistance",
-    "calculate_magnetoresistance", "calculate_resistance_series",
-    "calculate_resistance_parallel", "VectorObj", "box_muller_random",
-    "perturb_position"
+    "Filters",
+    "FieldScan",
+    "compute_sd",
+    "compute_resistance",
+    "calculate_magnetoresistance",
+    "calculate_resistance_series",
+    "calculate_resistance_parallel",
+    "VectorObj",
+    "box_muller_random",
+    "perturb_position",
 ]

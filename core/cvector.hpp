@@ -30,7 +30,7 @@ public:
         this->z = 0.0;
     }
 
-    explicit CVector(std::vector<T> vec)
+    explicit CVector(const std::vector<T>& vec)
     {
         if (vec.size() != 3)
         {

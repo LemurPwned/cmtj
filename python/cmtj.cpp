@@ -130,6 +130,11 @@ PYBIND11_MODULE(cmtj, m)
 
     // Driver Class
     py::class_<DScalarDriver>(m, "ScalarDriver")
+        .def(py::self + double())
+        .def(py::self += double())
+        .def(py::self * double())
+        .def(py::self *= double())
+        .def("getCurrentScalarValue", &DScalarDriver::getCurrentScalarValue, "time"_a)
         .def_static("getConstantDriver",
             &DScalarDriver::getConstantDriver,
             "constantValue"_a)
@@ -178,7 +183,8 @@ PYBIND11_MODULE(cmtj, m)
             "sigma"_a);
 
     py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
-        .def(py::init<>());
+        .def(py::init<>())
+        .def("getCurrentScalarValue", &DScalarDriver::getCurrentScalarValue, "time"_a);
 
     py::class_<DAxialDriver>(m, "AxialDriver")
         .def(py::init<DScalarDriver, DScalarDriver, DScalarDriver>())
@@ -187,9 +193,9 @@ PYBIND11_MODULE(cmtj, m)
         .def(py::init<DVector>())
         .def("getVectorAxialDriver", &DAxialDriver::getVectorAxialDriver)
         .def("getCurrentAxialDrivers",
-            &DAxialDriver::getCurrentAxialDrivers)
-        .def("applyMask", py::overload_cast<DVector>(&DAxialDriver::applyMask))
-        .def("applyMask", py::overload_cast<std::vector<unsigned int>>(&DAxialDriver::applyMask));
+            &DAxialDriver::getCurrentAxialDrivers, "time"_a)
+        .def("applyMask", py::overload_cast<const DVector&>(&DAxialDriver::applyMask))
+        .def("applyMask", py::overload_cast<const std::vector<unsigned int>&>(&DAxialDriver::applyMask));
 
     py::class_<DLayer>(m, "Layer")
         .def(py::init<
@@ -237,6 +243,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
         .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
         .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
+        .def("setHdmiDriver", &DLayer::setHdmiDriver)
         // reference layers
         .def("setReferenceLayer", py::overload_cast<const DVector&>(&DLayer::setReferenceLayer))
         .def("setReferenceLayer", py::overload_cast<Reference>(&DLayer::setReferenceLayer))
@@ -310,6 +317,7 @@ PYBIND11_MODULE(cmtj, m)
         .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
         .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
         .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
+        .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
         // noise
         .def("setLayerTemperatureDriver", &DJunction::setLayerTemperatureDriver)
         .def("setLayerNonStochasticLangevinDriver", &DJunction::setLayerNonStochasticLangevinDriver)
@@ -336,10 +344,11 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<DSeriesStack>(stack_module, "SeriesStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
-            std::string>(),
+            std::string, double>(),
             "junctionList"_a,
             "topId_a"_a = "free",
-            "bottomId"_a = "bottom")
+            "bottomId"_a = "bottom",
+            "phaseOffset"_a = 0.0)
         .def("runSimulation", &DSeriesStack::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
@@ -348,7 +357,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getMagnetisation", &DSeriesStack::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &DSeriesStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DSeriesStack::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", &DSeriesStack::setCouplingStrength, "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const double&>(&DSeriesStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const std::vector<double>&>(&DSeriesStack::setCouplingStrength), "coupling"_a)
         .def("setDelayed", &DSeriesStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &DSeriesStack::clearLogs)
@@ -358,10 +368,11 @@ PYBIND11_MODULE(cmtj, m)
     py::class_<DParallelStack>(stack_module, "ParallelStack")
         .def(py::init<std::vector<DJunction>,
             std::string,
-            std::string>(),
+            std::string, double>(),
             "junctionList"_a,
             "topId_a"_a = "free",
-            "bottomId"_a = "bottom")
+            "bottomId"_a = "bottom",
+            "phaseOffset"_a = 0.0)
         .def("runSimulation", &DParallelStack::runSimulation,
             "totalTime"_a,
             "timeStep"_a = 1e-13,
@@ -370,7 +381,8 @@ PYBIND11_MODULE(cmtj, m)
         .def("getMagnetisation", &DParallelStack::getMagnetisation, "junction"_a, "layerId"_a)
         .def("setCoupledCurrentDriver", &DParallelStack::setCoupledCurrentDriver, "driver"_a)
         .def("setExternalFieldDriver", &DParallelStack::setExternalFieldDriver, "driver"_a)
-        .def("setCouplingStrength", &DParallelStack::setCouplingStrength, "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const double&>(&DParallelStack::setCouplingStrength), "coupling"_a)
+        .def("setCouplingStrength", py::overload_cast<const std::vector<double>&>(&DParallelStack::setCouplingStrength), "coupling"_a)
         .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
         // logging
         .def("clearLogs", &ParallelStack<double>::clearLogs)

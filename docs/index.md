@@ -62,7 +62,7 @@ python3 -m pip install cmtj
 3. Straight from source:
 
 ```bash
-python3 -m pip install https://github.com/LemurPwned/cmtj.git
+python3 -m pip install git+https://github.com/LemurPwned/cmtj.git
 ```
 
 4. Clone the repository:
