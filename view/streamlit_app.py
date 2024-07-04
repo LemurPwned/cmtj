@@ -102,7 +102,9 @@ with st.sidebar:
     st.markdown("-----\n")
     st.markdown("## Control parameters")
     st.markdown("### External field")
-    st.selectbox("H axis", options=["x", "y", "z"], key="H_axis", index=0)
+    st.selectbox(
+        "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0
+    )
     st.number_input(
         "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
     )
@@ -227,7 +229,7 @@ with vsd_tab:
         step=0.1,
     )
     st.number_input(
-        "Excitation (kA/m)", min_value=0.5, max_value=50.0, value=5.0, key="Hoex_mag"
+        "Excitation (A/m)", min_value=1e-5, max_value=1e5, value=500.0, key="Hoex_mag"
     )
     st.selectbox(
         "Resistance type",

@@ -48,6 +48,12 @@ def get_axis_cvector(axis: str):
         return CVector(0, 1, 0)
     elif axis == "z":
         return CVector(0, 0, 1)
+    elif axis == 'xy':
+        return CVector(1, 1, 0)
+    elif axis == 'xz':
+        return CVector(1, 0, 1)
+    elif axis == 'yz':
+        return CVector(0, 1, 1)
     else:
         raise ValueError(f"Invalid axis {axis}")
 
@@ -71,6 +77,12 @@ def get_axis_angles(axis: str):
         return 90, 90
     elif axis == "z":
         return 0, 0
+    elif axis == 'xy':
+        return 90, 45
+    elif axis == 'xz':
+        return 45, 0
+    elif axis == 'yz':
+        return 45, 90
     else:
         raise ValueError(f"Invalid axis {axis}")
 
