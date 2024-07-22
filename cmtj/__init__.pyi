@@ -34,10 +34,11 @@ def gaussianImpulseDriver(
     constantValue: float, amplitude: float, t0: float, sigma: float
 ) -> ScalarDriver:
     """
-    Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.
+    Gaussian impulse driver. It starts with an max amplitude at t0 and falls off with sigma.
 
     Formula:
-    A * exp(-((t - t0) ** 2) / (2 * sigma ** 2))
+
+    $A * \exp(-(t - t_0)^2 / (2\sigma^2))$
 
     :param constantValue: offset of the pulse (vertical)
     :param amplitude: amplitude that is added on top of the constantValue
@@ -49,10 +50,11 @@ def gaussianImpulseDriver(
 def gaussianStepDriver(
     constantValue: float, amplitude: float, t0: float, sigma: float
 ) -> ScalarDriver:
-    """Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.
+    """Gaussian step driver (erf function). It starts at t0 and falls off with sigma.
 
     Formula:
-    f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))
+
+    $f(t) = c + A + A\mathrm{erf}((t - t_0) / (\sigma \sqrt(2)))$
 
     :param constantValue: offset of the pulse (vertical)
     :param amplitude: amplitude that is added on top of the constantValue
@@ -389,9 +391,7 @@ class Junction:
         """
         ...
 
-    def setLayerFieldLikeTorqueDriver(
-        self, layerId: str, driver: ScalarDriver
-    ) -> None:
+    def setLayerFieldLikeTorqueDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set the field like torque driver for a layer.
         :param layerId: the layer id
         :param driver: the driver
