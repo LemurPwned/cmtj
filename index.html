@@ -779,6 +779,26 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="api/drivers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Drivers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
     
     
     
@@ -789,10 +809,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
         
           
-          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -803,8 +823,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
             <span class="md-nav__icon md-icon"></span>
             Models
           </label>
@@ -873,10 +893,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" >
         
           
-          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_4" id="__nav_8_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -887,8 +907,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4">
             <span class="md-nav__icon md-icon"></span>
             Utils
           </label>
@@ -1506,12 +1526,14 @@ This may be run with:</p>
 <div class="highlight"><pre><span></span><code>pre-commit run -a (or --files core/* cmtj/*)
 </code></pre></div>
 <h2 id="documentation-builds">Documentation builds</h2>
-<p>There are couple of stages to building the documentation</p>
+<p><strong>Note</strong><br />
+For stub generation add <code>__init__.py</code> to the <code>cmtj</code> directory.</p>
+<p>There are a couple of stages to building the documentation</p>
 <ol>
 <li>Build Doxygen documentation
    <div class="highlight"><pre><span></span><code>doxygen Doxyfile
 </code></pre></div>
-   This is mostly for the C++ documentation. Furture changes may couple C++ and Python docs.</li>
+   This is mostly for the C++ documentation. Future changes may couple C++ and Python docs.</li>
 <li>Build stubs
    The stubgen is <code>pybind11-stubgen</code> or <code>mypy stubgen</code> with the latter being preferred now.
    Before running the stubgen, make sure to install the package with:
@@ -1526,8 +1548,7 @@ This may be run with:</p>
 </code></pre></div>
    More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.</li>
 <li>Parse stubs to Markdown.
-   This stage is done by running:
-   <code>python3 docs/docgen.py</code>
+   This stage is done by running: <code>python3 docs/docgen.py</code>
    The deployment of the documentation is done via:
    <div class="highlight"><pre><span></span><code>mkdocs<span class="w"> </span>gh-deploy
 </code></pre></div>

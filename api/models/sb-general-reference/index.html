@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://lemurpwned.github.io/cmtj/api/models/sb-general-reference/">
       
       
-        <link rel="prev" href="../../core/">
+        <link rel="prev" href="../../drivers/">
       
       
         <link rel="next" href="../dw-reference/">
@@ -655,6 +655,26 @@
                 
   
   
+  
+    <li class="md-nav__item">
+      <a href="../../drivers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Drivers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -668,10 +688,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -682,8 +702,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_8_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8_3">
             <span class="md-nav__icon md-icon"></span>
             Models
           </label>
@@ -1067,10 +1087,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" >
         
           
-          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_4" id="__nav_8_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -1081,8 +1101,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4">
             <span class="md-nav__icon md-icon"></span>
             Utils
           </label>
@@ -1832,16 +1852,7 @@ Rodríguez-Suárez et al.,
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">255</span>
 <span class="normal">256</span>
 <span class="normal">257</span>
 <span class="normal">258</span>
@@ -1871,9 +1882,18 @@ Rodríguez-Suárez et al.,
 <span class="normal">282</span>
 <span class="normal">283</span>
 <span class="normal">284</span>
-<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">LayerDynamic</span><span class="p">(</span><span class="n">LayerSB</span><span class="p">):</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>
 
     <span class="k">def</span> <span class="nf">rhs_llg</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1943,16 +1963,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">259</span>
 <span class="normal">260</span>
 <span class="normal">261</span>
 <span class="normal">262</span>
@@ -1972,7 +1983,16 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">276</span>
 <span class="normal">277</span>
 <span class="normal">278</span>
-<span class="normal">279</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">rhs_llg</span><span class="p">(</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">rhs_llg</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">,</span>
     <span class="n">J1top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2087,6 +2107,16 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
               <em>required</em>
           </td>
         </tr>
+        <tr>
+          <td><code>Hdmi</code></td>
+          <td>
+                <code><a title="cmtj.utils.VectorObj" href="../../../../../general-reference/#cmtj.utils.general.VectorObj">VectorObj</a></code>
+          </td>
+          <td><p>DMI field in the layer. Defaults to [0, 0, 0].</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
     </tbody>
   </table>
 
@@ -2183,13 +2213,23 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">240</span>
 <span class="normal">241</span>
 <span class="normal">242</span>
-<span class="normal">243</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">LayerSB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic Layer for Smit-Beljers model.</span>
 <span class="sd">    :param thickness: thickness of the FM layer (effective).</span>
 <span class="sd">    :param Kv: volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].</span>
 <span class="sd">    :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].</span>
 <span class="sd">    :param Ms: magnetisation saturation value in [A/m].</span>
+<span class="sd">    :param Hdmi: DMI field in the layer. Defaults to [0, 0, 0].</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_id</span><span class="p">:</span> <span class="nb">int</span>
@@ -2197,10 +2237,17 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
     <span class="n">Kv</span><span class="p">:</span> <span class="n">VectorObj</span>
     <span class="n">Ks</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">Ms</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Hdmi</span><span class="p">:</span> <span class="n">VectorObj</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>  <span class="c1"># TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))</span>
+    <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only up to 10 layers supported.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\theta_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\phi_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">([</span>
@@ -2258,10 +2305,11 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
              <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
 
         <span class="n">field_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+        <span class="n">hdmi_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">)</span>
         <span class="n">surface_anistropy</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span> <span class="o">+</span>
                              <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">volume_anisotropy</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">mag</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span>
+        <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span> <span class="o">+</span> <span class="n">hdmi_energy</span>
 
     <span class="k">def</span> <span class="nf">sb_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">omega</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\omega&quot;</span><span class="p">)</span>
@@ -2305,9 +2353,9 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the symbolic coordinates of the layer.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
 </code></pre></div></td></tr></table></div>
@@ -2332,9 +2380,9 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the magnetisation vector.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
 </code></pre></div></td></tr></table></div>
@@ -2360,20 +2408,21 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
 <span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
-<span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">no_iec_symbolic_layer_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">):</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">no_iec_symbolic_layer_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the symbolic expression for the energy of the layer.</span>
 <span class="sd">    Coupling contribution comes only from the bottom layer (top-down crawl)&quot;&quot;&quot;</span>
     <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
@@ -2383,10 +2432,11 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
          <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">phi</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
 
     <span class="n">field_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">hdmi_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span><span class="p">)</span>
     <span class="n">surface_anistropy</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Ks</span> <span class="o">+</span>
                          <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">volume_anisotropy</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">Kv</span><span class="o">.</span><span class="n">mag</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span>
+    <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span> <span class="o">+</span> <span class="n">hdmi_energy</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -2414,15 +2464,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
@@ -2443,7 +2485,15 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
-<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">symbolic_layer_energy</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">,</span>
@@ -2574,16 +2624,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span>
 <span class="normal">300</span>
@@ -3033,7 +3074,16 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">744</span>
 <span class="normal">745</span>
 <span class="normal">746</span>
-<span class="normal">747</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Solver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;General solver for the system.</span>
 
@@ -3589,16 +3639,7 @@ See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span>
-<span class="normal">490</span>
-<span class="normal">491</span>
-<span class="normal">492</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">492</span>
 <span class="normal">493</span>
 <span class="normal">494</span>
 <span class="normal">495</span>
@@ -3634,7 +3675,16 @@ See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</p>
 <span class="normal">525</span>
 <span class="normal">526</span>
 <span class="normal">527</span>
-<span class="normal">528</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">adam_gradient_descent</span><span class="p">(</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">adam_gradient_descent</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -3804,16 +3854,7 @@ See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">691</span>
-<span class="normal">692</span>
-<span class="normal">693</span>
-<span class="normal">694</span>
-<span class="normal">695</span>
-<span class="normal">696</span>
-<span class="normal">697</span>
-<span class="normal">698</span>
-<span class="normal">699</span>
-<span class="normal">700</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">700</span>
 <span class="normal">701</span>
 <span class="normal">702</span>
 <span class="normal">703</span>
@@ -3860,7 +3901,16 @@ See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</p>
 <span class="normal">744</span>
 <span class="normal">745</span>
 <span class="normal">746</span>
-<span class="normal">747</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">analytical_field_scan</span><span class="p">(</span>
+<span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">analytical_field_scan</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">Hrange</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">],</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3941,16 +3991,7 @@ Ineffecient for more than 2 layers (can try though).</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">646</span>
-<span class="normal">647</span>
-<span class="normal">648</span>
-<span class="normal">649</span>
-<span class="normal">650</span>
-<span class="normal">651</span>
-<span class="normal">652</span>
-<span class="normal">653</span>
-<span class="normal">654</span>
-<span class="normal">655</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">655</span>
 <span class="normal">656</span>
 <span class="normal">657</span>
 <span class="normal">658</span>
@@ -3962,7 +4003,16 @@ Ineffecient for more than 2 layers (can try though).</p>
 <span class="normal">664</span>
 <span class="normal">665</span>
 <span class="normal">666</span>
-<span class="normal">667</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">analytical_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">analytical_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find &amp; cache the analytical roots of the system.</span>
 <span class="sd">    Returns a list of solutions.</span>
 <span class="sd">    Ineffecient for more than 2 layers (can try though).</span>
@@ -4006,23 +4056,23 @@ Ineffecient for more than 2 layers (can try though).</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">350</span>
-<span class="normal">351</span>
-<span class="normal">352</span>
-<span class="normal">353</span>
-<span class="normal">354</span>
-<span class="normal">355</span>
-<span class="normal">356</span>
-<span class="normal">357</span>
-<span class="normal">358</span>
-<span class="normal">359</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">359</span>
 <span class="normal">360</span>
 <span class="normal">361</span>
 <span class="normal">362</span>
 <span class="normal">363</span>
 <span class="normal">364</span>
 <span class="normal">365</span>
-<span class="normal">366</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compose_llg_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compose_llg_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a symbolic jacobian of the LLG equation in spherical coordinates.&quot;&quot;&quot;</span>
     <span class="c1"># has order theta0, phi0, theta1, phi1, ...</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">):</span>
@@ -4067,16 +4117,7 @@ and included in every layer's energy, correcting FMR automatically.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span>
-<span class="normal">371</span>
-<span class="normal">372</span>
-<span class="normal">373</span>
-<span class="normal">374</span>
-<span class="normal">375</span>
-<span class="normal">376</span>
-<span class="normal">377</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">377</span>
 <span class="normal">378</span>
 <span class="normal">379</span>
 <span class="normal">380</span>
@@ -4129,7 +4170,16 @@ and included in every layer's energy, correcting FMR automatically.</p>
 <span class="normal">427</span>
 <span class="normal">428</span>
 <span class="normal">429</span>
-<span class="normal">430</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                   <span class="n">H</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">,</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                   <span class="n">volumetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates the symbolic energy expression.</span>
@@ -4214,16 +4264,7 @@ and included in every layer's energy, correcting FMR automatically.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">432</span>
-<span class="normal">433</span>
-<span class="normal">434</span>
-<span class="normal">435</span>
-<span class="normal">436</span>
-<span class="normal">437</span>
-<span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
-<span class="normal">441</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">441</span>
 <span class="normal">442</span>
 <span class="normal">443</span>
 <span class="normal">444</span>
@@ -4251,7 +4292,16 @@ and included in every layer's energy, correcting FMR automatically.</p>
 <span class="normal">466</span>
 <span class="normal">467</span>
 <span class="normal">468</span>
-<span class="normal">469</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates the symbolic hessian of the energy expression.&quot;&quot;&quot;</span>
     <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subs</span><span class="p">(</span><span class="n">equilibrium_position</span><span class="p">)</span>
@@ -4353,19 +4403,19 @@ dynamic RHS model</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span>
-<span class="normal">620</span>
-<span class="normal">621</span>
-<span class="normal">622</span>
-<span class="normal">623</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">623</span>
 <span class="normal">624</span>
 <span class="normal">625</span>
-<span class="normal">626</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">dynamic_layer_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">dynamic_layer_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the FMR frequencies and modes for N layers using the</span>
 <span class="sd">    dynamic RHS model</span>
 <span class="sd">    :param eq: the equilibrium position of the system.</span>
@@ -4400,17 +4450,17 @@ dynamic RHS model</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">471</span>
-<span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
-<span class="normal">481</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;math&quot;</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;math&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the symbolic gradient of the energy expression.&quot;&quot;&quot;</span>
     <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">grad_vector</span> <span class="o">=</span> <span class="p">[]</span>
@@ -4444,23 +4494,23 @@ with index layer_indx.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">332</span>
-<span class="normal">333</span>
-<span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
-<span class="normal">338</span>
-<span class="normal">339</span>
-<span class="normal">340</span>
-<span class="normal">341</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">341</span>
 <span class="normal">342</span>
 <span class="normal">343</span>
 <span class="normal">344</span>
 <span class="normal">345</span>
 <span class="normal">346</span>
 <span class="normal">347</span>
-<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_layer_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">,</span> <span class="n">interaction_constant</span><span class="p">):</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_layer_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">,</span> <span class="n">interaction_constant</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the references to the layers above and below the layer</span>
 <span class="sd">    with index layer_indx.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -4499,14 +4549,14 @@ with index layer_indx.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">678</span>
-<span class="normal">679</span>
-<span class="normal">680</span>
-<span class="normal">681</span>
-<span class="normal">682</span>
-<span class="normal">683</span>
-<span class="normal">684</span>
-<span class="normal">685</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_ms_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_ms_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dictionary of substitutions for the Ms symbols.&quot;&quot;&quot;</span>
     <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="sa">r</span><span class="s2">&quot;M_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">}</span>
     <span class="n">b</span> <span class="o">=</span> <span class="p">{</span>
@@ -4536,14 +4586,14 @@ with index layer_indx.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">669</span>
-<span class="normal">670</span>
-<span class="normal">671</span>
-<span class="normal">672</span>
-<span class="normal">673</span>
-<span class="normal">674</span>
-<span class="normal">675</span>
-<span class="normal">676</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the substitution dictionary for the energy expression.&quot;&quot;&quot;</span>
     <span class="n">subs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)):</span>
@@ -4573,9 +4623,9 @@ with index layer_indx.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">687</span>
-<span class="normal">688</span>
-<span class="normal">689</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">set_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">set_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets the external field.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">H</span> <span class="o">=</span> <span class="n">H</span>
 </code></pre></div></td></tr></table></div>
@@ -4634,16 +4684,7 @@ with index layer_indx.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span>
-<span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">539</span>
 <span class="normal">540</span>
 <span class="normal">541</span>
 <span class="normal">542</span>
@@ -4652,7 +4693,16 @@ with index layer_indx.</p>
 <span class="normal">545</span>
 <span class="normal">546</span>
 <span class="normal">547</span>
-<span class="normal">548</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">single_layer_resonance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">single_layer_resonance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;We can compute the equilibrium position of a single layer directly.</span>
 <span class="sd">    :param layer_indx: the index of the layer to compute the equilibrium</span>
 <span class="sd">    :param eq_position: the equilibrium position vector&quot;&quot;&quot;</span>
@@ -4841,16 +4891,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">550</span>
-<span class="normal">551</span>
-<span class="normal">552</span>
-<span class="normal">553</span>
-<span class="normal">554</span>
-<span class="normal">555</span>
-<span class="normal">556</span>
-<span class="normal">557</span>
-<span class="normal">558</span>
-<span class="normal">559</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">559</span>
 <span class="normal">560</span>
 <span class="normal">561</span>
 <span class="normal">562</span>
@@ -4903,7 +4944,16 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">609</span>
 <span class="normal">610</span>
 <span class="normal">611</span>
-<span class="normal">612</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>

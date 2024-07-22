@@ -664,6 +664,26 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../api/drivers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Drivers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
     
     
     
@@ -674,10 +694,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
         
           
-          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -688,8 +708,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
             <span class="md-nav__icon md-icon"></span>
             Models
           </label>
@@ -758,10 +778,10 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" >
         
           
-          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_4" id="__nav_8_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -772,8 +792,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4">
             <span class="md-nav__icon md-icon"></span>
             Utils
           </label>
@@ -1191,15 +1211,21 @@
 
 
 <h1 id="changelog">Changelog</h1>
+<h1 id="155">1.5.5</h1>
+<ul>
+<li>Extended the <code>Stack</code> models allowing for non-symmetric coupling between devices.</li>
+<li><code>Stack</code> current drivers can now be of any type are adequately scaled.</li>
+<li>Custom definition of the <code>ScalarDriver</code> is now possible and documented.</li>
+</ul>
 <h1 id="150-154">1.5.0-1.5.4</h1>
 <ul>
 <li>Dipole interaction added to the <code>SB Model</code></li>
 <li>Kasdin 1/f noise generator added to the <code>noise</code> module and to the solvers</li>
-<li>reworking the solvers for better performance and stability</li>
-<li>added a simple noise model to the <code>utils</code> class. It exists outside standard simulation procedures.</li>
-<li>added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.</li>
-<li>added aliases for <code>ScalarDriver</code> -- for example, instead of calling <code>ScalarDriver.getConstantDriver</code>, you can now call <code>constantDriver</code> directly to create a constant driver.</li>
-<li>improve stub detection across editors and IDEs</li>
+<li>Reworking the solvers for better performance and stability</li>
+<li>Added a simple noise model to the <code>utils</code> class. It exists outside standard simulation procedures.</li>
+<li>Added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.</li>
+<li>Added aliases for <code>ScalarDriver</code> -- for example, instead of calling <code>ScalarDriver.getConstantDriver</code>, you can now call <code>constantDriver</code> directly to create a constant driver.</li>
+<li>Improve stub detection across editors and IDEs</li>
 </ul>
 <h1 id="141">1.4.1</h1>
 <ul>
@@ -1232,12 +1258,12 @@
 <li>Adding DW dynamics 1D model with dynamic drivers. (Numba optimised)</li>
 <li>Adding SB model for energy-based FMR computation. Gradient computed using Adam optimiser.</li>
 <li>Moving resistance functions from <code>utils</code> to <code>resistance</code></li>
-<li>Introducting docs updates for tutorial notebook (dark/light toggle works now).</li>
+<li>Introducing docs updates for tutorial notebook (dark/light toggle works now).</li>
 <li>Reservoir computing is now exposed in Python in the <code>reservoir</code> computing module.</li>
 </ul>
 <h2 id="120">1.2.0</h2>
 <ul>
-<li>Oersted field computation helper class in <a href="cmtj/models/oersted.py">cmtj/models/oersted.py</a>. Basic functionality is there, but needs to be futher tested and documented. Next release potentially will move the computation to C++ for speed.</li>
+<li>Oersted field computation helper class in <a href="cmtj/models/oersted.py">cmtj/models/oersted.py</a>. Basic functionality is there, but needs to be further tested and documented. Next release potentially will move the computation to C++ for speed.</li>
 <li>Added Heun (2nd order) solver and made it default for thermal computation. This is a more stable solver than the Euler solver, but is slower. The Euler solver is still available as an option.</li>
 <li>Stack class now supports arbitrary layer ids to be coupled.</li>
 <li>Extended the plotting capabilities of the Stack class. Now supports plotting of the magnetic field and the current density.</li>
