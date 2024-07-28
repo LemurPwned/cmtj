@@ -34,10 +34,11 @@ def gaussianImpulseDriver(
     constantValue: float, amplitude: float, t0: float, sigma: float
 ) -> ScalarDriver:
     """
-    Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.
+    Gaussian impulse driver. It starts with an max amplitude at t0 and falls off with sigma.
 
     Formula:
-    A * exp(-((t - t0) ** 2) / (2 * sigma ** 2))
+
+    $A \exp(-(t - t_0)^2 / (2\sigma^2))$
 
     :param constantValue: offset of the pulse (vertical)
     :param amplitude: amplitude that is added on top of the constantValue
@@ -49,10 +50,11 @@ def gaussianImpulseDriver(
 def gaussianStepDriver(
     constantValue: float, amplitude: float, t0: float, sigma: float
 ) -> ScalarDriver:
-    """Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.
+    """Gaussian step driver (erf function). It starts at t0 and falls off with sigma.
 
     Formula:
-    f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))
+
+    $f(t) = c + A + A\mathrm{erf}((t - t_0) / (\sigma \sqrt(2)))$
 
     :param constantValue: offset of the pulse (vertical)
     :param amplitude: amplitude that is added on top of the constantValue
@@ -113,18 +115,54 @@ def trapezoidDriver(
     ...
 
 class AxialDriver:
+    """Axial driver class."""
+
     @overload
-    def __init__(
-        self, x_driver: ScalarDriver, y_driver: ScalarDriver, z_driver: ScalarDriver
-    ) -> None: ...
+    def __init__(self, x: ScalarDriver, y: ScalarDriver, z: ScalarDriver) -> None:
+        """Create an axial driver with three scalar drivers for each axis.
+        :param x: driver for the x axis
+        :param y: driver for the y axis
+        :param z: driver for the z axis
+        """
+        ...
+
     @overload
-    def __init__(self, arg0: List[ScalarDriver]) -> None: ...
+    def __init__(self, axialDrivers: List[ScalarDriver]) -> None:
+        """Create an axial driver with a list of scalar drivers.
+        :param axialDrivers: list of scalar drivers
+        """
+        ...
+
+    @overload
+    def __init__(self, x: float, y: float, z: float) -> None:
+        """Create an axial driver with a list of floats.
+        :param x: constant float for the x axis
+        :param y: constant float for the y axis
+        :param z: constant float for the z axis
+        """
+        ...
+
+    @overload
+    def __init__(self, xyz: CVector) -> None:
+        """Create an axial driver with a vector.
+        :param xyz: CVector object with x, y, z components
+        """
+        ...
+
     @overload
     def __init__(*args, **kwargs) -> Any: ...
     @overload
-    def applyMask(self, arg0: CVector) -> None: ...
+    def applyMask(self, mask: CVector) -> None:
+        """Apply mask to the driver.
+        :param mask: mask to be applied"""
+        ...
+
     @overload
-    def applyMask(self, arg0: List[int]) -> None: ...
+    def applyMask(self, mask: List[int]) -> None:
+        """Apply mask to the driver.
+        :param mask: mask to be applied"""
+        ...
+
     @overload
     def applyMask(*args, **kwargs) -> Any: ...
     def getCurrentAxialDrivers(self, arg0: float) -> CVector: ...
@@ -154,10 +192,27 @@ class Axis:
     def __members__(self) -> Any: ...
 
 class CVector:
-    def __init__(self, x: float, y: float, z: float) -> None: ...
-    def length(self) -> float: ...
-    def normalize(self) -> None: ...
-    def tolist(self) -> List[float]: ...
+    """CVector class. Represents a 3D vector."""
+
+    def __init__(self, x: float, y: float, z: float) -> None:
+        """Initialises a 3D vector.
+        :param x: x component of the vector
+        :param y: y component of the vector
+        :param z: z component of the vector"""
+        ...
+
+    def length(self) -> float:
+        """Returns the length of the vector."""
+        ...
+
+    def normalize(self) -> None:
+        """Normalizes the vector."""
+        ...
+
+    def tolist(self) -> List[float]:
+        """Converts the vector to a list."""
+        ...
+
     def __add__(self, arg0: CVector) -> CVector: ...
     def __eq__(self, arg0: CVector) -> bool: ...
     def __getitem__(self, arg0: int) -> float: ...
@@ -185,16 +240,24 @@ class CVector:
 
 class Junction:
     @overload
-    def __init__(self, layers: List[Layer], filename: str = ...) -> None: ...
+    def __init__(self, layers: List[Layer]) -> None:
+        """"""
+        ...
+
     @overload
-    def __init__(
-        self, layers: List[Layer], filename: str, Rp: float = ..., Rap: float = ...
-    ) -> None: ...
+    def __init__(self, layers: List[Layer], Rp: float = ..., Rap: float = ...) -> None:
+        """Creates a junction with a magnetoresistance.
+        :param layers: list of layers
+
+        :param Rp: Parallel magnetoresistance
+        :param Rap: Magnetoresistance anti-parallel state
+        """
+        ...
+
     @overload
     def __init__(
         self,
         layers: List[Layer],
-        filename: str,
         Rx0: List[float],
         Ry0: List[float],
         AMR_X: List[float],
@@ -224,7 +287,11 @@ class Junction:
         """Reset current simulation state."""
         ...
 
-    def getLayerMagnetisation(self, layer_id: str) -> CVector: ...
+    def getLayerMagnetisation(self, layerId: str) -> CVector:
+        """Get the magnetisation of a layer.
+        :param layerId: the layer id"""
+        ...
+
     def getLog(self) -> Dict[str, List[float]]:
         """Retrieve the simulation log [data]."""
         ...
@@ -251,7 +318,7 @@ class Junction:
         ...
 
     def setIECDriver(
-        self, bottom_layer: str, top_layer: str, driver: ScalarDriver
+        self, bottomLayer: str, topLayer: str, driver: ScalarDriver
     ) -> None:
         """Set IEC interaction between two layers.
         The names of the params are only for convention. The IEC will be set
@@ -262,7 +329,7 @@ class Junction:
         ...
 
     def setQuadIECDriver(
-        self, bottom_layer: str, top_layer: str, driver: ScalarDriver
+        self, bottomLayer: str, topLayer: str, driver: ScalarDriver
     ) -> None:
         """Set secondary (biquadratic term) IEC interaction between two layers.
         The names of the params are only for convention. The IEC will be set
@@ -272,42 +339,70 @@ class Junction:
         """
         ...
 
-    def setLayerTemperatureDriver(
-        self, layer_id: str, driver: ScalarDriver
-    ) -> None: ...
-    def setLayerAnisotropyDriver(self, layer_id: str, driver: ScalarDriver) -> None: ...
-    def setLayerCurrentDriver(self, layer_id: str, driver: ScalarDriver) -> None: ...
-    def setLayerExternalFieldDriver(
-        self, layer_id: str, driver: AxialDriver
-    ) -> None: ...
-    def setLayerMagnetisation(self, layer_id: str, mag: CVector) -> None: ...
-    @overload
-    def setLayerOerstedFieldDriver(
-        self, layer_id: str, driver: AxialDriver
-    ) -> None: ...
-    def setLayerDampingLikeTorqueDriver(
-        self, layer_id: str, driver: ScalarDriver
-    ) -> None:
-        """Set the damping like torque driver for a layer.
-        :param layer_id: the layer id
+    def setLayerTemperatureDriver(self, layerId: str, driver: ScalarDriver) -> None:
+        """Set a temperature driver for a layer.
+        :param layerId: the id of the layer.
+        :param driver: the temperature driver to be set.
+        """
+        ...
+
+    def setLayerAnisotropyDriver(self, layerId: str, driver: ScalarDriver) -> None:
+        """Set anisotropy driver for a layer.
+        :param layerId: the id of the layer.
+        :param driver: the anisotropy driver to be set.
+        """
+        ...
+
+    def setLayerCurrentDriver(self, layerId: str, driver: ScalarDriver) -> None:
+        """Set a current driver for a layer.
+        :param layerId: the layer id
         :param driver: the driver
         """
         ...
 
-    def setLayerFieldLikeTorqueDriver(
-        self, layer_id: str, driver: ScalarDriver
+    def setLayerExternalFieldDriver(self, layerId: str, driver: AxialDriver) -> None:
+        """Set an external field driver for a layer.
+        :param layerId: the id of the layer.
+        :param driver: the field driver to be set.
+        """
+        ...
+
+    def setLayerMagnetisation(self, layerId: str, mag: CVector) -> None:
+        """Set the magnetisation of a layer.
+        :param layerId: the layer id
+        :param mag: the magnetisation
+        """
+        ...
+
+    @overload
+    def setLayerOerstedFieldDriver(self, layerId: str, driver: AxialDriver) -> None:
+        """Set an Oersted field driver for a layer.
+        :param layerId: the id of the layer.
+        :param driver: the field driver to be set.
+        """
+        ...
+
+    def setLayerDampingLikeTorqueDriver(
+        self, layerId: str, driver: ScalarDriver
     ) -> None:
+        """Set the damping like torque driver for a layer.
+        :param layerId: the layer id
+        :param driver: the driver
+        """
+        ...
+
+    def setLayerFieldLikeTorqueDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set the field like torque driver for a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param driver: the driver
         """
         ...
 
     def setLayerOneFNoise(
-        self, layer_id: str, sources: int, bias: float, scale: float
+        self, layerId: str, sources: int, bias: float, scale: float
     ) -> None:
         """Set 1/f noise for a layer.
-        :param layer_id: the layer id
+        :param layerId: the layer id
         :param sources: the number of generation sources (the more the slower, but more acc.)
         :param bias: the bias of the noise (p in the Multinomial distribution)
         :param scale: the scale of the noise, additional scaling factor
@@ -365,7 +460,6 @@ class Layer:
         :param Ms: magnetisation saturation. Unit: Tesla [T].
         :param thickness: thickness of the layer. Unit: meter [m].
         :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
-        :param temperature: resting temperature of the layer. Unit: Kelvin [K].
         :param damping: often marked as alpha in the LLG equation. Damping of the layer. Default 0.011. Dimensionless.
         """
         ...
@@ -410,25 +504,49 @@ class Layer:
         ...
 
     def setExternalFieldDriver(self, driver: AxialDriver) -> None: ...
-    def setMagnetisation(self, mag: CVector) -> None: ...
-    def setOerstedFieldDriver(self, driver: AxialDriver) -> None: ...
+    def setMagnetisation(self, mag: CVector) -> None:
+        """Set the magnetisation of the layer.
+        :param mag: the magnetisation to be set."""
+        ...
+
+    def setOerstedFieldDriver(self, driver: AxialDriver) -> None:
+        """Set an Oersted field driver for the layer.
+        :param driver: the field driver to be set."""
+        ...
+
     def setDampingLikeTorqueDriver(self, driver: ScalarDriver) -> None:
-        """Set a driver for the damping like torque of the layer."""
+        """Set a driver for the damping like torque of the layer.
+        :param driver: the driver to be set."""
         ...
 
     def setFieldLikeTorqueDriver(self, driver: ScalarDriver) -> None:
-        """Set a driver for the field like torque of the layer."""
+        """Set a driver for the field like torque of the layer.
+        :param driver: the driver to be set."""
         ...
 
-    def setReferenceLayer(self, ref: CVector) -> None: ...
+    def setReferenceLayer(self, ref: CVector) -> None:
+        """Set a reference layer for the STT.
+        :param ref: the reference layer vector."""
+        ...
+
     @overload
-    def setReferenceLayer(self, ref: "Reference") -> None: ...
+    def setReferenceLayer(self, ref: "Reference") -> None:
+        """Set a reference layer for the STT. The reference can be
+        FIXED, BOTTOM or TOP. YOu can use another layer as reference
+        to this one.
+        :param ref: the reference layer vector."""
+        ...
+
     def setTopDipoleTensor(self, tensor: List[CVector]) -> None:
-        """Set a dipole tensor from the top layer."""
+        """Set a dipole tensor from the top layer.
+        :param tensor: the dipole tensor to be set.
+        """
         ...
 
     def setBottomDipoleTensor(self, tensor: List[CVector]) -> None:
-        """Set a dipole tensor from the bottom layer."""
+        """Set a dipole tensor from the bottom layer.
+        :param tensor: the dipole tensor to be set.
+        """
         ...
 
     def getId(self) -> str:
@@ -438,6 +556,7 @@ class Layer:
     def setAlternativeSTT(self, setAlternative: bool) -> None:
         """Switch to an alternative STT forumulation (Taniguchi et al.)
         https://iopscience.iop.org/article/10.7567/APEX.11.013005
+        :param setAlternative: whether to set the alternative STT formulation
         """
         ...
 
@@ -445,6 +564,7 @@ class Layer:
         """Set the kappa parameter for the layer -- determines SOT mixing
             Hdl * kappa + Hfl
         Allows you to turn off Hdl. Turning Hfl is via beta parameter.
+        :param kappa: the kappa parameter
         """
         ...
 
@@ -458,6 +578,13 @@ class NullDriver(ScalarDriver):
 
 class ScalarDriver:
     def __init__(self, *args, **kwargs) -> None: ...
+    def getCurrentScalarValue(self, time: float) -> float:
+        """
+        :param time: time in seconds
+        :return: the scalar value of the driver at time.
+        """
+        ...
+
     @staticmethod
     def getConstantDriver(constantValue: float) -> "ScalarDriver":
         """

@@ -62,7 +62,7 @@ python3 -m pip install cmtj
 3. Straight from source:
 
 ```bash
-python3 -m pip install https://github.com/LemurPwned/cmtj.git
+python3 -m pip install git+https://github.com/LemurPwned/cmtj.git
 ```
 
 4. Clone the repository:
@@ -84,7 +84,7 @@ The package requires (if `utils` subpackage is used):
 
 ## Documentation and examples
 
-Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj)
+Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj).
 There are many examples available, check out the [examples section in the docs](https://lemurpwned.github.io/cmtj/experimental-methods/introduction/)
 
 ## Extensions
@@ -144,13 +144,16 @@ pre-commit run -a (or --files core/* cmtj/*)
 
 ## Documentation builds
 
-There are couple of stages to building the documentation
+**Note**
+For stub generation add `__init__.py` to the `cmtj` directory.
+
+There are a couple of stages to building the documentation
 
 1. Build Doxygen documentation
    ```
    doxygen Doxyfile
    ```
-   This is mostly for the C++ documentation. Furture changes may couple C++ and Python docs.
+   This is mostly for the C++ documentation. Future changes may couple C++ and Python docs.
 2. Build stubs
    The stubgen is `pybind11-stubgen` or `mypy stubgen` with the latter being preferred now.
    Before running the stubgen, make sure to install the package with:
@@ -168,8 +171,7 @@ There are couple of stages to building the documentation
    ```
    More info here: https://mypy.readthedocs.io/en/stable/stubgen.html.
 3. Parse stubs to Markdown.
-   This stage is done by running:
-   `python3 docs/docgen.py `
+   This stage is done by running: `python3 docs/docgen.py `
    The deployment of the documentation is done via:
    ```bash
    mkdocs gh-deploy

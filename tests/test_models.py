@@ -15,10 +15,10 @@ def test_sb_dynamic(two_layer_symbolic_dyn: Tuple[LayerDynamic]):
         )
         # set perturbation to 0 to avoid numerical errors
         eq_sb, f_sb = solver_dyn.solve(
-            init_position=pos, perturbation=0, max_steps=1e8, force_sb=True
+            init_position=pos, perturbation=0, max_steps=1e6, force_sb=True
         )
         eq_dyn, f_dyn, _ = solver_dyn.solve(
-            init_position=pos, max_steps=1e8, perturbation=0
+            init_position=pos, max_steps=1e6, perturbation=0
         )
         f_sb.sort()
         f_dyn.sort()
@@ -45,7 +45,7 @@ def test_sb_classic_dipole(two_layer_symbolic_classic: Tuple[LayerSB]):
         )
         # set perturbation to 0 to avoid numerical errors
         eq_sb, f_sb = solver_dyn.solve(
-            init_position=pos, perturbation=0, max_steps=1e8, force_sb=True
+            init_position=pos, perturbation=0, max_steps=1e6, force_sb=True
         )
         f_sb.sort()
         pos = eq_sb
