@@ -38,7 +38,7 @@ def gaussianImpulseDriver(
 
     Formula:
 
-    $A * \exp(-(t - t_0)^2 / (2\sigma^2))$
+    $A \exp(-(t - t_0)^2 / (2\sigma^2))$
 
     :param constantValue: offset of the pulse (vertical)
     :param amplitude: amplitude that is added on top of the constantValue

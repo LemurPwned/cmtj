@@ -265,16 +265,17 @@ public:
           if (this->delayed) {
             // accumulate coupling
             effectiveCoupling *= (1 + this->getEffectiveCouplingStrength(
-                                          j - 1, frozenMags[j],
-                                          frozenMags[j - 1], frozenPols[j]));
+                                          j - 1, frozenMags[j - 1],
+                                          frozenMags[j], frozenPols[j - 1]));
 
           } else {
             effectiveCoupling *=
-                (1 +
-                 this->getEffectiveCouplingStrength(
-                     j - 1, junctionList[j].getLayerMagnetisation(this->topId),
-                     junctionList[j - 1].getLayerMagnetisation(this->topId),
-                     junctionList[j].getLayerMagnetisation(this->bottomId)));
+                (1 + this->getEffectiveCouplingStrength(
+                         j - 1,
+                         junctionList[j - 1].getLayerMagnetisation(this->topId),
+                         junctionList[j].getLayerMagnetisation(this->topId),
+                         junctionList[j - 1].getLayerMagnetisation(
+                             this->bottomId)));
           }
         }
 
