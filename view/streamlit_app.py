@@ -11,9 +11,7 @@ apptitle = "CMTJ simulator"
 st.title(apptitle)
 
 container = st.container()
-N = container.number_input(
-    "Number of layers", min_value=1, max_value=10, value=1, key="N", format="%d"
-)
+
 container.markdown(
     """
     ## Data Upload
@@ -31,112 +29,112 @@ container.file_uploader(
 )
 
 with st.sidebar:
-    st.markdown("## Simulation parameters")
-    st.markdown("### Layer parameters")
-    for i in range(N):
-        st.markdown(f"#### Layer {i+1}")
-        st.slider(
-            f"Ms ({i+1}) ({GENERIC_UNITS['Ms']})",
-            min_value=GENERIC_BOUNDS["Ms"][0],
-            max_value=GENERIC_BOUNDS["Ms"][1],
-            value=0.52,
-            step=0.01,
-            key=f"Ms{i}",
-        )
-        st.number_input(
-            f"K ({i+1}) ({GENERIC_UNITS['K']})",
-            min_value=GENERIC_BOUNDS["K"][0],
-            max_value=GENERIC_BOUNDS["K"][1],
-            value=150.0,
-            step=10.0,
-            key=f"K{i}",
-        )
-        st.number_input(
-            f"alpha ({i+1})",
-            min_value=1e-3,
-            max_value=0.1,
-            value=1e-3,
-            key=f"alpha{i}",
-            format="%.3f",
-        )
-        st.number_input(
-            f"thickness ({i+1}) (nm)",
-            min_value=1.0,
-            max_value=10.0,
-            value=1.0,
-            key=f"thickness{i}",
-        )
-        st.number_input(
-            f"width ({i+1}) (um)",
-            min_value=1.0,
-            max_value=500.0,
-            value=10.0,
-            key=f"width{i}",
-        )
-        st.number_input(
-            f"length ({i+1}) (um)",
-            min_value=1.0,
-            max_value=500.0,
-            value=10.0,
-            key=f"length{i}",
-        )
-        st.radio(
-            f"anisotropy axis ({i+1})",
-            options=["x", "y", "z"],
-            key=f"anisotropy_axis{i}",
-            index=2,
-        )
-        st.markdown("-----\n")
+    N = st.number_input(
+        "Number of layers", min_value=1, max_value=10, value=1, key="N", format="%d"
+    )
+    with st.expander("Layer parameters", expanded=True):
+        for i in range(N):
+            st.markdown(f"#### Layer {i+1}")
+            st.slider(
+                f"Ms ({i+1}) ({GENERIC_UNITS['Ms']})",
+                min_value=GENERIC_BOUNDS["Ms"][0],
+                max_value=GENERIC_BOUNDS["Ms"][1],
+                value=0.52,
+                step=0.01,
+                key=f"Ms{i}",
+            )
+            st.number_input(
+                f"K ({i+1}) ({GENERIC_UNITS['K']})",
+                min_value=GENERIC_BOUNDS["K"][0],
+                max_value=GENERIC_BOUNDS["K"][1],
+                value=150.0,
+                step=10.0,
+                key=f"K{i}",
+            )
+            st.number_input(
+                f"alpha ({i+1})",
+                min_value=1e-3,
+                max_value=0.1,
+                value=1e-3,
+                key=f"alpha{i}",
+                format="%.3f",
+            )
+            st.number_input(
+                f"thickness ({i+1}) (nm)",
+                min_value=1.0,
+                max_value=10.0,
+                value=1.0,
+                key=f"thickness{i}",
+            )
+            st.number_input(
+                f"width ({i+1}) (um)",
+                min_value=1.0,
+                max_value=500.0,
+                value=10.0,
+                key=f"width{i}",
+            )
+            st.number_input(
+                f"length ({i+1}) (um)",
+                min_value=1.0,
+                max_value=500.0,
+                value=10.0,
+                key=f"length{i}",
+            )
+            st.radio(
+                f"anisotropy axis ({i+1})",
+                options=["x", "y", "z"],
+                key=f"anisotropy_axis{i}",
+                index=2,
+            )
+            st.markdown("-----\n")
 
-    st.markdown("### Interlayer parameters")
-    for j in range(N - 1):
-        st.number_input(
-            f"J ({j+1}<-->{j+2}) (uJ/m^2)",
-            min_value=GENERIC_BOUNDS["J"][0],
-            max_value=GENERIC_BOUNDS["J"][1],
-            value=0.0,
-            key=f"J{j}",
-            format="%.3f",
+    with st.expander("Interlayer parameters"):
+        for j in range(N - 1):
+            st.number_input(
+                f"J ({j+1}<-->{j+2}) (uJ/m^2)",
+                min_value=GENERIC_BOUNDS["J"][0],
+                max_value=GENERIC_BOUNDS["J"][1],
+                value=0.0,
+                key=f"J{j}",
+                format="%.3f",
+            )
+    with st.expander("Simulation & control parameters"):
+        st.selectbox(
+            "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0
         )
-    st.markdown("-----\n")
-    st.markdown("## Control parameters")
-    st.markdown("### External field")
-    st.selectbox(
-        "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0
-    )
-    st.number_input(
-        "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
-    )
-    st.number_input(
-        "Hmax (kA/m)", min_value=0.0, max_value=1000.0, value=400.0, key="Hmax"
-    )
-    st.number_input(
-        "H steps", min_value=1, max_value=1000, value=50, key="Hsteps", format="%d"
-    )
-    st.number_input(
-        "int_step",
-        min_value=1e-14,
-        max_value=1e-12,
-        value=1e-12,
-        key="int_step",
-        format="%.1e",
-    )
-    st.number_input(
-        "sim_time (ns)",
-        min_value=1,
-        max_value=500,
-        value=16,
-        key="sim_time",
-        format="%d",
-    )
-    st.number_input(
-        "max_freq (GHz)",
-        min_value=1,
-        max_value=100,
-        value=50,
-        key="max_freq",
-        format="%d",
-    )
+        st.number_input(
+            "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
+        )
+        st.number_input(
+            "Hmax (kA/m)", min_value=0.0, max_value=1000.0, value=400.0, key="Hmax"
+        )
+        st.number_input(
+            "H steps", min_value=1, max_value=1000, value=50, key="Hsteps", format="%d"
+        )
+        st.number_input(
+            "int_step",
+            min_value=1e-14,
+            max_value=1e-12,
+            value=1e-12,
+            key="int_step",
+            format="%.1e",
+        )
+        st.number_input(
+            "sim_time (ns)",
+            min_value=1,
+            max_value=500,
+            value=16,
+            key="sim_time",
+            format="%d",
+        )
+        st.number_input(
+            "max_freq (GHz)",
+            min_value=1,
+            max_value=100,
+            value=50,
+            key="max_freq",
+            format="%d",
+        )
 
 
 pimm_tab, vsd_tab, opt_tab = st.tabs(["PIMM", "VSD", "Optimization"])
