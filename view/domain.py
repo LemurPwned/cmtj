@@ -15,7 +15,12 @@ _lock = RLock()
 with st.container():
     st.write("# Domain fitting")
 
-    st.write("Fit M(H) to multidomain model")
+    st.write(
+        "Fit M(H) to multidomain model. "
+        "Upload your file with experimental data: with columns H, mx, my, mz.\n"
+        "First column is always H in A/m, the rest are the components of the magnetisation in range (-1, 1)."
+        "If you upload just two columns, the script will assume that the data is in the form H, mx."
+    )
 
     progress_bar = st.progress(0)
 
@@ -182,7 +187,6 @@ def render(Hscan, Mmixed):
                 fields, mh = read_mh_data()
                 render_from_exp(ax, fields=fields, mh=mh)
             render_from_sim(ax, Hscan, Mmixed)
-
 
             st.pyplot(fig)
 
