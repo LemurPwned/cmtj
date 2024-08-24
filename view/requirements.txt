@@ -1,5 +1,5 @@
 git+https://github.com/huawei-noah/HEBO.git#subdirectory=HEBO
-git+https://github.com/lemurpwned/cmtj.git@cmtj-updates
+git+https://github.com/lemurpwned/cmtj.git@streamlit/ui
 matplotlib
 networkx
 numba
