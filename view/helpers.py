@@ -6,6 +6,20 @@ from simulation_fns import get_pimm_data, get_vsd_data
 from cmtj.utils import Filters
 
 
+def read_mh_data():
+    filedata = st.session_state.upload.read().decode("utf-8")
+    lines = filedata.split("\n")
+    fields, mag = [], []
+    for line in lines[1:]:
+        if line.startswith("#"):
+            continue
+        vals = line.split()
+        if len(vals):
+            fields.append(float(vals[0]))
+            mag.append([float(val) for val in vals[1:]])
+    return fields, mag
+
+
 def read_data():
     filedata = st.session_state.upload.read().decode("utf-8")
     lines = filedata.split("\n")
