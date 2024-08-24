@@ -8,7 +8,6 @@ from utils import GENERIC_BOUNDS, GENERIC_UNITS
 
 apptitle = "CMTJ simulator"
 
-st.set_page_config(page_title=apptitle, page_icon=":rocket:")
 st.title(apptitle)
 
 container = st.container()

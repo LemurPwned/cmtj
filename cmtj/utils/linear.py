@@ -81,10 +81,9 @@ class FieldScan:
         Hz = ct * Hspan
         if back:
             forward = np.vstack((Hx, Hy, Hz)).T
-            back = forward[::-1]
-            return np.concatenate((Hspan, Hspan[::-1]),
-                                  axis=0), np.concatenate((forward, back),
-                                                          axis=0)
+            return np.concatenate((Hspan[:-1], Hspan[::-1]),
+                                  axis=0), np.concatenate(
+                                      (forward[:-1], forward[::-1]), axis=0)
         return Hspan, np.vstack((Hx, Hy, Hz)).T
 
     @staticmethod

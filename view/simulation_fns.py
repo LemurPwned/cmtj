@@ -12,6 +12,25 @@ from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
                                    VSD_procedure)
 
 
+def create_single_domain(id_: str) -> Layer:
+    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
+    layer = Layer(
+        id=f"domain_{id_}",
+        mag=Kdir1,
+        anis=Kdir1,
+        Ms=st.session_state["Ms_shared"],
+        thickness=st.session_state["thickness_shared"] * 1e-9,
+        cellSurface=1e-16,
+        demagTensor=demag,
+        damping=st.session_state["alpha_shared"],
+    )
+    layer.setAnisotropyDriver(
+        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"] * 1e3)
+    )
+    return layer
+
+
 def create_single_layer(id_: str) -> tuple:
     """Do not forget to rescale the units!"""
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
@@ -48,11 +67,11 @@ def get_axis_cvector(axis: str):
         return CVector(0, 1, 0)
     elif axis == "z":
         return CVector(0, 0, 1)
-    elif axis == 'xy':
+    elif axis == "xy":
         return CVector(1, 1, 0)
-    elif axis == 'xz':
+    elif axis == "xz":
         return CVector(1, 0, 1)
-    elif axis == 'yz':
+    elif axis == "yz":
         return CVector(0, 1, 1)
     else:
         raise ValueError(f"Invalid axis {axis}")
@@ -77,11 +96,11 @@ def get_axis_angles(axis: str):
         return 90, 90
     elif axis == "z":
         return 0, 0
-    elif axis == 'xy':
+    elif axis == "xy":
         return 90, 45
-    elif axis == 'xz':
+    elif axis == "xz":
         return 45, 0
-    elif axis == 'yz':
+    elif axis == "yz":
         return 45, 90
     else:
         raise ValueError(f"Invalid axis {axis}")
