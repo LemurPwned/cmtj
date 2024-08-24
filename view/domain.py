@@ -178,7 +178,7 @@ def render(Hscan, Mmixed):
     if len(Hscan) <= 0 or len(Mmixed) <= 0:
         return
     with _lock:
-        with plt.style.context(["science", "nature"]):
+        with plt.style.context(["dark_background"]):
             w, h = plt.figaspect(1 / 3)
             fig, ax = plt.subplots(
                 1, 3, dpi=400, figsize=(w, h), sharex=True, sharey=True
