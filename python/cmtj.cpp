@@ -272,11 +272,13 @@ PYBIND11_MODULE(cmtj, m) {
            &DJunction::setLayerExternalFieldDriver)
       .def("setLayerCurrentDriver", &DJunction::setLayerCurrentDriver)
       .def("setLayerAnisotropyDriver", &DJunction::setLayerAnisotropyDriver)
-      .def("setIECDriver", &DJunction::setIECDriver)
-      .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
       .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
       .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
       .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
+      // interaction setters
+      .def("setIECDriver", &DJunction::setIECDriver)
+      .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
+      .def("setIDMIDriver", &DJunction::setIDMIDriver)
       // noise
       .def("setLayerTemperatureDriver", &DJunction::setLayerTemperatureDriver)
       .def("setLayerNonStochasticLangevinDriver",

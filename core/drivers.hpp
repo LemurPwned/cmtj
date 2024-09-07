@@ -277,6 +277,11 @@ public:
     return returnValue;
   }
 
+  CVector<T> getUnitAxis() {
+    return CVector<T>(1 ? this->constantValue : 0, 1 ? this->constantValue : 0,
+                      1 ? this->constantValue : 0);
+  }
+
   // override multiplication operator
   ScalarDriver<T> operator*(const T &val) {
     return ScalarDriver<T>(this->update, this->constantValue * val,

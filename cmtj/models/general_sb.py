@@ -1,9 +1,9 @@
 import math
 import time
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import lru_cache
-from typing import Iterable, List, Tuple, Union
+from typing import Iterable, List, Literal, Tuple, Union
 
 import numpy as np
 import sympy as sym
@@ -302,6 +302,8 @@ class Solver:
     :param J1: list of interlayer exchange constants. Goes (i)-(i+1), i = 0, 1, 2, ...
         with i being the index of the layer.
     :param J2: list of interlayer exchange constants.
+    :param ilD: list of interlayer DMI vectors, e.g. (0, 0, D).,
+        ilD * (m1 x m2)
     :param H: external field.
     :param Ndipole: list of dipole fields for each layer. Defaults to None.
         Goes (i)-(i+1), i = 0, 1, 2, ... with i being the index of the layer.
@@ -311,6 +313,7 @@ class Solver:
     J1: List[float]
     J2: List[float]
     H: VectorObj = None
+    ilD: List[VectorObj] = None
     Ndipole: List[List[VectorObj]] = None
 
     def __post_init__(self):
@@ -318,7 +321,17 @@ class Solver:
             raise ValueError("Number of layers must be 1 more than J1.")
         if len(self.layers) != len(self.J2) + 1:
             raise ValueError("Number of layers must be 1 more than J2.")
+        if self.ilD is None:
+            # this is optional, if not provided, we assume zero DMI
+            self.ilD = [
+                VectorObj(0, 0, 0) for _ in range(len(self.layers) - 1)
+            ]
+        if len(self.layers) != len(self.ilD) + 1:
+            raise ValueError("Number of layers must be 1 more than ilD.")
+        if not all(isinstance(d, VectorObj) for d in self.ilD):
+            raise ValueError("ilD must be a list of VectorObj.")
 
+        self.ilD = [sym.ImmutableMatrix(d.get_cartesian()) for d in self.ilD]
         self.dipoleMatrix: list[sym.Matrix] = None
         if self.Ndipole is not None:
             if len(self.layers) != len(self.Ndipole) + 1:
@@ -422,9 +435,15 @@ class Solver:
             for i in range(len(self.layers) - 1):
                 l1m = self.layers[i].get_m_sym()
                 l2m = self.layers[i + 1].get_m_sym()
+
+                # IEC
                 ldot = l1m.dot(l2m)
                 energy -= self.J1[i] * ldot
                 energy -= self.J2[i] * (ldot)**2
+
+                # IDMI, sign is the same J1
+                lcross = l1m.cross(l2m)
+                energy -= self.ilD[i].dot(lcross)
 
                 # dipole fields
                 if self.dipoleMatrix is not None:
@@ -700,7 +719,7 @@ class Solver:
     def analytical_field_scan(
         self,
         Hrange: List[VectorObj],
-        init_position: List[float] = None,
+        init_position: Union[List[float], None] = None,
         max_steps: int = 1e9,
         learning_rate: float = 1e-4,
         first_momentum_decay: float = 0.9,

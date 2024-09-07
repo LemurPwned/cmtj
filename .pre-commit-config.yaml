@@ -53,7 +53,7 @@ repos:
         exclude: third_party/.*
       - id: clang-format
         args: [-i]
-      - id: clang-tidy
-        args: [-checks=*]
+      # - id: clang-tidy
+      #   args: [-checks=*]
       # - id: include-what-you-use
       #   exclude: ^third_party
