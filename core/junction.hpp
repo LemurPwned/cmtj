@@ -584,7 +584,8 @@ public:
                             const CVector<T> &coupledMag) {
     const CVector<T> Dunit(1 ? Dvalue.x : 0, 1 ? Dvalue.y : 0,
                            1 ? Dvalue.z : 0);
-    return Dunit * c_dot(Dvalue, c_cross<T>(CVector<T>(1., 1., 1.), stepMag));
+    return Dunit * c_dot(Dvalue, c_cross<T>(CVector<T>(1., 1., 1.), stepMag)) /
+           (this->Ms * this->thickness);
   }
 
   CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
