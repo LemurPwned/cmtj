@@ -11,7 +11,7 @@ def get_sphere():
     pi = np.pi
     cos = np.cos
     sin = np.sin
-    phi, theta = np.mgrid[0.0:pi:100j, 0.0:2.0 * pi:100j]
+    phi, theta = np.mgrid[0.0:pi:100j, 0.0 : 2.0 * pi : 100j]
     xs = r * sin(phi) * cos(theta)
     ys = r * sin(phi) * sin(theta)
     zs = r * cos(phi)
@@ -52,14 +52,7 @@ def plot_trajectory_sphere(x, y, z, color="blue", alpha=1, ax=None):
     else:
         ax.plot3D(m[0], m[1], m[2], color=color, alpha=alpha)
         ax.set_axis_off()
-        ax.plot_surface(xs,
-                        ys,
-                        zs,
-                        rstride=2,
-                        cstride=2,
-                        color="azure",
-                        alpha=0.1,
-                        linewidth=0.1)
+        ax.plot_surface(xs, ys, zs, rstride=2, cstride=2, color="azure", alpha=0.1, linewidth=0.1)
         ax.scatter([0], [0], [1], color="crimson", alpha=1.0)
 
 
@@ -99,14 +92,7 @@ def plot_coloured_trajectory(x, y, z, colormap="plasma", ax=None):
             ax.add_collection(Line3DCollection(segs, colors=colors, alpha=1))
     else:
         ax.set_axis_off()
-        ax.plot_surface(xs,
-                        ys,
-                        zs,
-                        rstride=2,
-                        cstride=2,
-                        color="azure",
-                        alpha=0.1,
-                        linewidth=0.1)
+        ax.plot_surface(xs, ys, zs, rstride=2, cstride=2, color="azure", alpha=0.1, linewidth=0.1)
         ax.add_collection(Line3DCollection(segs, colors=colors, alpha=1))
 
 
@@ -130,11 +116,7 @@ def unpack_ndim_map(map, axes):
     return ax_lists, value_list
 
 
-def create_coordinates_plot(axes,
-                            ax_names,
-                            result_map,
-                            sample=0,
-                            alpha_black=0.01):
+def create_coordinates_plot(axes, ax_names, result_map, sample=0, alpha_black=0.01):
     """Create parallel coordinates plot for multidimensional parameter space.
     Modified from:
     https://stackoverflow.com/questions/8230638/parallel-coordinates-plot-in-matplotlib
@@ -153,9 +135,7 @@ def create_coordinates_plot(axes,
         fig, host = plt.subplots(dpi=400)
         ax_lists, value_list = unpack_ndim_map(result_map, axes)
 
-        norm = matplotlib.colors.Normalize(vmin=min(value_list),
-                                           vmax=max(value_list),
-                                           clip=True)
+        norm = matplotlib.colors.Normalize(vmin=min(value_list), vmax=max(value_list), clip=True)
         mapper = cm.ScalarMappable(norm=norm, cmap=cm.magma)
 
         # organize the data
@@ -185,8 +165,7 @@ def create_coordinates_plot(axes,
             if ax != host:
                 ax.spines["left"].set_visible(False)
                 ax.yaxis.set_ticks_position("right")
-                ax.spines["right"].set_position(
-                    ("axes", i / (ys.shape[1] - 1)))
+                ax.spines["right"].set_position(("axes", i / (ys.shape[1] - 1)))
 
         host.set_xlim(0, ys.shape[1] - 1)
         host.set_xticks(range(ys.shape[1]))
@@ -204,16 +183,12 @@ def create_coordinates_plot(axes,
             # y-coordinate: repeat every point three times, except the first and last only twice
             verts = list(
                 zip(
-                    list(
-                        np.linspace(0,
-                                    len(ys) - 1,
-                                    len(ys) * 3 - 2,
-                                    endpoint=True)),
+                    list(np.linspace(0, len(ys) - 1, len(ys) * 3 - 2, endpoint=True)),
                     np.repeat(zs[j, :], 3)[1:-1],
-                ))
+                )
+            )
             # for x,y in verts: host.plot(x, y, 'go') # to show the control points of the beziers
-            codes = [Path.MOVETO
-                     ] + [Path.CURVE4 for _ in range(len(verts) - 1)]
+            codes = [Path.MOVETO] + [Path.CURVE4 for _ in range(len(verts) - 1)]
             path = Path(verts, codes)
             alpha = alpha_black if ys[j, -1] == 0 else 0.8
             patch = patches.PathPatch(
@@ -227,8 +202,7 @@ def create_coordinates_plot(axes,
 
 
 def rotation_matrix(theta):
-    return np.array([[np.cos(theta), -np.sin(theta)],
-                     [np.sin(theta), np.cos(theta)]])
+    return np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
 
 
 def create_stack(
@@ -271,15 +245,8 @@ def create_stack(
         colors = colors[::-1]
         angles = angles[::-1]
         labels = labels[::-1]
-    for i, (height, angle, color,
-            label) in enumerate(zip(heights, angles, colors, labels)):
-        ax.add_patch(
-            patches.Rectangle((offset_x, offset_y),
-                              width,
-                              height,
-                              fill=True,
-                              color=color,
-                              zorder=10))
+    for _i, (height, angle, color, label) in enumerate(zip(heights, angles, colors, labels)):
+        ax.add_patch(patches.Rectangle((offset_x, offset_y), width, height, fill=True, color=color, zorder=10))
         ax.text(
             offset_x - labelpad_left,
             offset_y + height / 2,
@@ -303,7 +270,8 @@ def create_stack(
                     lw=lw_arrow,
                     color="black",
                     zorder=10,
-                ))
+                )
+            )
         offset_y += height
     ax.set_ylim([first_offset - max(heights) / 2, offset_y + max(heights) / 2])
     ax.set_xlim([offset_x - width / 2, offset_x + width + width / 2])

@@ -1,9 +1,10 @@
 import math
 import time
 import warnings
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Iterable, List, Literal, Tuple, Union
+from typing import Union
 
 import numpy as np
 import sympy as sym
@@ -44,8 +45,7 @@ def general_hessian_functional(N: int):
     for i in range(N):
         # indx_i = str(i + 1) # for display purposes
         indx_i = str(i)
-        all_symbols.extend(
-            (sym.Symbol(r"\theta_" + indx_i), sym.Symbol(r"\phi_" + indx_i)))
+        all_symbols.extend((sym.Symbol(r"\theta_" + indx_i), sym.Symbol(r"\phi_" + indx_i)))
     energy_functional_expr = sym.Function("E")(*all_symbols)
     return (
         get_hessian_from_energy_expr(N, energy_functional_expr),
@@ -69,9 +69,12 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
         indx_i = str(i)
         # z = sym.Symbol("Z")
         # these here must match the Ms symbols!
-        z = (sym.Symbol(r"\omega") * sym.Symbol(r"M_{" + indx_i + "}") *
-             sym.sin(sym.Symbol(r"\theta_" + indx_i)) *
-             sym.Symbol(r"t_{" + indx_i + "}"))
+        z = (
+            sym.Symbol(r"\omega")
+            * sym.Symbol(r"M_{" + indx_i + "}")
+            * sym.sin(sym.Symbol(r"\theta_" + indx_i))
+            * sym.Symbol(r"t_{" + indx_i + "}")
+        )
         for j in range(i, N):
             # indx_j = str(j + 1) # for display purposes
             indx_j = str(j)
@@ -105,7 +108,7 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
     return sym.Matrix(hessian)
 
 
-@lru_cache()
+@lru_cache
 def solve_for_determinant(N: int):
     """Solve for the determinant of the hessian functional.
     :param N: number of layers.
@@ -126,9 +129,7 @@ def find_analytical_roots(N: int):
     return solutions, energy_functional_expr
 
 
-def get_all_second_derivatives(energy_functional_expr,
-                               energy_expression,
-                               subs=None):
+def get_all_second_derivatives(energy_functional_expr, energy_expression, subs=None):
     """Get all second derivatives of the energy expression.
     :param energy_functional_expr: symbolic energy_functional expression
     :param energy_expression: symbolic energy expression (from solver)
@@ -142,11 +143,9 @@ def get_all_second_derivatives(energy_functional_expr,
             if i <= j:
                 org_diff = sym.diff(energy_functional_expr, s1, s2)
                 if subs is not None:
-                    second_derivatives[org_diff] = sym.diff(
-                        energy_expression, s1, s2).subs(subs)
+                    second_derivatives[org_diff] = sym.diff(energy_expression, s1, s2).subs(subs)
                 else:
-                    second_derivatives[org_diff] = sym.diff(
-                        energy_expression, s1, s2)
+                    second_derivatives[org_diff] = sym.diff(energy_expression, s1, s2)
     return second_derivatives
 
 
@@ -165,9 +164,7 @@ class LayerSB:
     Kv: VectorObj
     Ks: float
     Ms: float
-    Hdmi: VectorObj = (
-        None  # TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))
-    )
+    Hdmi: VectorObj = None  # TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))
 
     def __post_init__(self):
         if self._id > 9:
@@ -178,11 +175,13 @@ class LayerSB:
             self.Hdmi = sym.ImmutableMatrix(self.Hdmi.get_cartesian())
         self.theta = sym.Symbol(r"\theta_" + str(self._id))
         self.phi = sym.Symbol(r"\phi_" + str(self._id))
-        self.m = sym.ImmutableMatrix([
-            sym.sin(self.theta) * sym.cos(self.phi),
-            sym.sin(self.theta) * sym.sin(self.phi),
-            sym.cos(self.theta),
-        ])
+        self.m = sym.ImmutableMatrix(
+            [
+                sym.sin(self.theta) * sym.cos(self.phi),
+                sym.sin(self.theta) * sym.sin(self.phi),
+                sym.cos(self.theta),
+            ]
+        )
 
     def get_coord_sym(self):
         """Returns the symbolic coordinates of the layer."""
@@ -192,7 +191,7 @@ class LayerSB:
         """Returns the magnetisation vector."""
         return self.m
 
-    @lru_cache(3)
+    @lru_cache(3)  # noqa: B019
     def symbolic_layer_energy(
         self,
         H: sym.ImmutableMatrix,
@@ -214,13 +213,12 @@ class LayerSB:
 
         if top_layer is not None:
             other_m = top_layer.get_m_sym()
-            top_iec_energy = (-(J1top / self.thickness) * m.dot(other_m) -
-                              (J2top / self.thickness) * m.dot(other_m)**2)
+            top_iec_energy = -(J1top / self.thickness) * m.dot(other_m) - (J2top / self.thickness) * m.dot(other_m) ** 2
         if down_layer is not None:
             other_m = down_layer.get_m_sym()
             bottom_iec_energy = (
-                -(J1bottom / self.thickness) * m.dot(other_m) -
-                (J2bottom / self.thickness) * m.dot(other_m)**2)
+                -(J1bottom / self.thickness) * m.dot(other_m) - (J2bottom / self.thickness) * m.dot(other_m) ** 2
+            )
         return eng_non_interaction + top_iec_energy + bottom_iec_energy
 
     def no_iec_symbolic_layer_energy(self, H: sym.ImmutableMatrix):
@@ -228,15 +226,12 @@ class LayerSB:
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
 
-        alpha = sym.ImmutableMatrix(
-            [sym.cos(self.Kv.phi),
-             sym.sin(self.Kv.phi), 0])
+        alpha = sym.ImmutableMatrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
 
         field_energy = -mu0 * self.Ms * m.dot(H)
         hdmi_energy = -mu0 * self.Ms * m.dot(self.Hdmi)
-        surface_anistropy = (-self.Ks +
-                             (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1]**2)
-        volume_anisotropy = -self.Kv.mag * (m.dot(alpha)**2)
+        surface_anistropy = (-self.Ks + (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1] ** 2)
+        volume_anisotropy = -self.Kv.mag * (m.dot(alpha) ** 2)
         return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy
 
     def sb_correction(self):
@@ -247,9 +242,13 @@ class LayerSB:
         return hash(str(self))
 
     def __eq__(self, __value: "LayerSB") -> bool:
-        return (self._id == __value._id and self.thickness == __value.thickness
-                and self.Kv == __value.Kv and self.Ks == __value.Ks
-                and self.Ms == __value.Ms)
+        return (
+            self._id == __value._id
+            and self.thickness == __value.thickness
+            and self.Kv == __value.Kv
+            and self.Ks == __value.Ks
+            and self.Ms == __value.Ms
+        )
 
 
 @dataclass
@@ -278,13 +277,13 @@ class LayerDynamic(LayerSB):
             down_layer=down_layer,
         )
         # sum all components
-        prefac = gamma_rad / (1.0 + self.alpha)**2
+        prefac = gamma_rad / (1.0 + self.alpha) ** 2
         inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
         dUdtheta = sym.diff(U, self.theta)
         dUdphi = sym.diff(U, self.phi)
 
         dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta
-        dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin)**2
+        dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin) ** 2
         return prefac * sym.ImmutableMatrix([dtheta, dphi]) / self.Ms
 
     def __eq__(self, __value: "LayerDynamic") -> bool:
@@ -309,12 +308,12 @@ class Solver:
         Goes (i)-(i+1), i = 0, 1, 2, ... with i being the index of the layer.
     """
 
-    layers: List[Union[LayerSB, LayerDynamic]]
-    J1: List[float]
-    J2: List[float]
+    layers: list[Union[LayerSB, LayerDynamic]]
+    J1: list[float]
+    J2: list[float]
     H: VectorObj = None
-    ilD: List[VectorObj] = None
-    Ndipole: List[List[VectorObj]] = None
+    ilD: list[VectorObj] = None
+    Ndipole: list[list[VectorObj]] = None
 
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
@@ -323,9 +322,7 @@ class Solver:
             raise ValueError("Number of layers must be 1 more than J2.")
         if self.ilD is None:
             # this is optional, if not provided, we assume zero DMI
-            self.ilD = [
-                VectorObj(0, 0, 0) for _ in range(len(self.layers) - 1)
-            ]
+            self.ilD = [VectorObj(0, 0, 0) for _ in range(len(self.layers) - 1)]
         if len(self.layers) != len(self.ilD) + 1:
             raise ValueError("Number of layers must be 1 more than ilD.")
         if not all(isinstance(d, VectorObj) for d in self.ilD):
@@ -335,21 +332,15 @@ class Solver:
         self.dipoleMatrix: list[sym.Matrix] = None
         if self.Ndipole is not None:
             if len(self.layers) != len(self.Ndipole) + 1:
-                raise ValueError(
-                    "Number of layers must be 1 more than number of tensors.")
+                raise ValueError("Number of layers must be 1 more than number of tensors.")
             if isinstance(self.layers[0], LayerDynamic):
-                raise ValueError(
-                    "Dipole coupling is not yet supported for LayerDynamic.")
-            self.dipoleMatrix = [
-                sym.Matrix([d.get_cartesian() for d in dipole])
-                for dipole in self.Ndipole
-            ]
+                raise ValueError("Dipole coupling is not yet supported for LayerDynamic.")
+            self.dipoleMatrix = [sym.Matrix([d.get_cartesian() for d in dipole]) for dipole in self.Ndipole]
 
         id_sets = {layer._id for layer in self.layers}
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
-            raise ValueError("Layer ids must be 0, 1, 2, ... and unique."
-                             "Ids must start from 0.")
+            raise ValueError("Layer ids must be 0, 1, 2, ... and unique." "Ids must start from 0.")
 
     def get_layer_references(self, layer_indx, interaction_constant):
         """Returns the references to the layers above and below the layer
@@ -357,11 +348,9 @@ class Solver:
         if len(self.layers) == 1:
             return None, None, 0, 0
         if layer_indx == 0:
-            return None, self.layers[layer_indx +
-                                     1], 0, interaction_constant[0]
+            return None, self.layers[layer_indx + 1], 0, interaction_constant[0]
         elif layer_indx == len(self.layers) - 1:
-            return self.layers[layer_indx -
-                               1], None, interaction_constant[-1], 0
+            return self.layers[layer_indx - 1], None, interaction_constant[-1], 0
         return (
             self.layers[layer_indx - 1],
             self.layers[layer_indx + 1],
@@ -378,18 +367,13 @@ class Solver:
         symbols, fns = [], []
         for i, layer in enumerate(self.layers):
             symbols.extend((layer.theta, layer.phi))
-            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
-                i, self.J1)
+            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
             _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
-            fns.append(
-                layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer,
-                              bottom_layer))
+            fns.append(layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer, bottom_layer))
         jac = sym.ImmutableMatrix(fns).jacobian(symbols)
         return jac, symbols
 
-    def create_energy(self,
-                      H: Union[VectorObj, sym.ImmutableMatrix] = None,
-                      volumetric: bool = False):
+    def create_energy(self, H: Union[VectorObj, sym.ImmutableMatrix] = None, volumetric: bool = False):
         """Creates the symbolic energy expression.
 
         Due to problematic nature of coupling, there is an issue of
@@ -406,16 +390,13 @@ class Solver:
         if volumetric:
             # volumetric energy -- DO NOT USE IN GENERAL
             for i, layer in enumerate(self.layers):
-                top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(
-                    i, self.J1)
+                top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
                 _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
                 ratio_top, ratio_bottom = 0, 0
                 if top_layer:
-                    ratio_top = top_layer.thickness / (top_layer.thickness +
-                                                       layer.thickness)
+                    ratio_top = top_layer.thickness / (top_layer.thickness + layer.thickness)
                 if bottom_layer:
-                    ratio_bottom = bottom_layer.thickness / (
-                        layer.thickness + bottom_layer.thickness)
+                    ratio_bottom = bottom_layer.thickness / (layer.thickness + bottom_layer.thickness)
                 energy += layer.symbolic_layer_energy(
                     H,
                     Jtop * ratio_top,
@@ -429,8 +410,7 @@ class Solver:
             # surface energy for correct angular gradient
             for layer in self.layers:
                 # to avoid dividing J by thickness
-                energy += layer.no_iec_symbolic_layer_energy(
-                    H) * layer.thickness
+                energy += layer.no_iec_symbolic_layer_energy(H) * layer.thickness
 
             for i in range(len(self.layers) - 1):
                 l1m = self.layers[i].get_m_sym()
@@ -439,7 +419,7 @@ class Solver:
                 # IEC
                 ldot = l1m.dot(l2m)
                 energy -= self.J1[i] * ldot
-                energy -= self.J2[i] * (ldot)**2
+                energy -= self.J2[i] * (ldot) ** 2
 
                 # IDMI, sign is the same J1
                 lcross = l1m.cross(l2m)
@@ -449,15 +429,23 @@ class Solver:
                 if self.dipoleMatrix is not None:
                     mat = self.dipoleMatrix[i]
                     # is positive, just like demag
-                    energy += ((mu0 / 2.0) * l1m.dot(mat * l2m) *
-                               self.layers[i].Ms * self.layers[i + 1].Ms *
-                               self.layers[i].thickness)
-                    energy += ((mu0 / 2.0) * l2m.dot(mat * l1m) *
-                               self.layers[i].Ms * self.layers[i + 1].Ms *
-                               self.layers[i + 1].thickness)
+                    energy += (
+                        (mu0 / 2.0)
+                        * l1m.dot(mat * l2m)
+                        * self.layers[i].Ms
+                        * self.layers[i + 1].Ms
+                        * self.layers[i].thickness
+                    )
+                    energy += (
+                        (mu0 / 2.0)
+                        * l2m.dot(mat * l1m)
+                        * self.layers[i].Ms
+                        * self.layers[i + 1].Ms
+                        * self.layers[i + 1].thickness
+                    )
         return energy
 
-    def create_energy_hessian(self, equilibrium_position: List[float]):
+    def create_energy_hessian(self, equilibrium_position: list[float]):
         """Creates the symbolic hessian of the energy expression."""
         energy = self.create_energy(volumetric=False)
         subs = self.get_subs(equilibrium_position)
@@ -503,8 +491,7 @@ class Solver:
         symbols = []
         for layer in self.layers:
             (theta, phi) = layer.get_coord_sym()
-            grad_vector.extend((sym.diff(energy, theta), sym.diff(energy,
-                                                                  phi)))
+            grad_vector.extend((sym.diff(energy, theta), sym.diff(energy, phi)))
             symbols.extend((theta, phi))
         return sym.lambdify(symbols, grad_vector, accel)
 
@@ -540,12 +527,10 @@ class Solver:
             step += 1
             grad = np.asarray(gradfn(*current_position))
             m = first_momentum_decay * m + (1.0 - first_momentum_decay) * grad
-            v = second_momentum_decay * v + (1.0 -
-                                             second_momentum_decay) * grad**2
+            v = second_momentum_decay * v + (1.0 - second_momentum_decay) * grad**2
             m_hat = m / (1.0 - first_momentum_decay**step)
             v_hat = v / (1.0 - second_momentum_decay**step)
-            new_position = current_position - learning_rate * m_hat / (
-                np.sqrt(v_hat) + eps)
+            new_position = current_position - learning_rate * m_hat / (np.sqrt(v_hat) + eps)
             if step > max_steps:
                 break
             if fast_norm(current_position - new_position) < tol:
@@ -570,8 +555,7 @@ class Solver:
         d2Edthetaphi = sym.diff(sym.diff(energy, theta), phi).subs(subs)
         vareps = 1e-18
 
-        fmr = (d2Edtheta2 * d2Edphi2 - d2Edthetaphi**2) / np.power(
-            np.sin(theta_eq + vareps) * layer.Ms, 2)
+        fmr = (d2Edtheta2 * d2Edphi2 - d2Edthetaphi**2) / np.power(np.sin(theta_eq + vareps) * layer.Ms, 2)
         fmr = np.sqrt(float(fmr)) * gamma_rad / (2 * np.pi)
         return fmr
 
@@ -614,8 +598,7 @@ class Solver:
         :return: equilibrium position and frequencies in [GHz] (and eigenvectors if LayerDynamic instead of LayerSB).
         """
         if self.H is None:
-            raise ValueError(
-                "H must be set before solving the system numerically.")
+            raise ValueError("H must be set before solving the system numerically.")
         eq = self.adam_gradient_descent(
             init_position=init_position,
             max_steps=max_steps,
@@ -639,7 +622,7 @@ class Solver:
             return eq, frequencies
         return self.num_solve(eq, ftol=ftol, max_freq=max_freq)
 
-    def dynamic_layer_solve(self, eq: List[float]):
+    def dynamic_layer_solve(self, eq: list[float]):
         """Return the FMR frequencies and modes for N layers using the
         dynamic RHS model
         :param eq: the equilibrium position of the system.
@@ -653,10 +636,7 @@ class Solver:
         indx = np.argwhere(eigvals_im > 0).ravel()
         return eigvals_im[indx], eigvecs[indx]
 
-    def num_solve(self,
-                  eq: List[float],
-                  ftol: float = 0.01e9,
-                  max_freq: float = 80e9):
+    def num_solve(self, eq: list[float], ftol: float = 0.01e9, max_freq: float = 80e9):
         hes = self.create_energy_hessian(eq)
         omega = sym.Symbol(r"\omega")
         if len(self.layers) <= 3:
@@ -676,25 +656,26 @@ class Solver:
         Returns a list of solutions.
         Ineffecient for more than 2 layers (can try though).
         """
-        Hsym = sym.Matrix([
-            sym.Symbol(r"H_{x}"),
-            sym.Symbol(r"H_{y}"),
-            sym.Symbol(r"H_{z}"),
-        ])
+        Hsym = sym.Matrix(
+            [
+                sym.Symbol(r"H_{x}"),
+                sym.Symbol(r"H_{y}"),
+                sym.Symbol(r"H_{z}"),
+            ]
+        )
         N = len(self.layers)
         if N > 2:
             warnings.warn(
-                "Analytical solutions for over 2 layers may be computationally expensive."
+                "Analytical solutions for over 2 layers may be computationally expensive.",
+                stacklevel=2,
             )
         system_energy = self.create_energy(H=Hsym, volumetric=False)
         root_expr, energy_functional_expr = find_analytical_roots(N)
-        subs = get_all_second_derivatives(energy_functional_expr,
-                                          energy_expression=system_energy,
-                                          subs={})
+        subs = get_all_second_derivatives(energy_functional_expr, energy_expression=system_energy, subs={})
         subs.update(self.get_ms_subs())
         return [s.subs(subs) for s in root_expr]
 
-    def get_subs(self, equilibrium_position: List[float]):
+    def get_subs(self, equilibrium_position: list[float]):
         """Returns the substitution dictionary for the energy expression."""
         subs = {}
         for i in range(len(self.layers)):
@@ -706,10 +687,7 @@ class Solver:
     def get_ms_subs(self):
         """Returns a dictionary of substitutions for the Ms symbols."""
         a = {r"M_{" + str(layer._id) + "}": layer.Ms for layer in self.layers}
-        b = {
-            r"t_{" + str(layer._id) + r"}": layer.thickness
-            for layer in self.layers
-        }
+        b = {r"t_{" + str(layer._id) + r"}": layer.thickness for layer in self.layers}
         return a | b
 
     def set_H(self, H: VectorObj):
@@ -718,14 +696,14 @@ class Solver:
 
     def analytical_field_scan(
         self,
-        Hrange: List[VectorObj],
-        init_position: Union[List[float], None] = None,
+        Hrange: list[VectorObj],
+        init_position: Union[list[float], None] = None,
         max_steps: int = 1e9,
         learning_rate: float = 1e-4,
         first_momentum_decay: float = 0.9,
         second_momentum_decay: float = 0.999,
         disable_tqdm: bool = False,
-    ) -> Iterable[Tuple[List[float], List[float], VectorObj]]:
+    ) -> Iterable[tuple[list[float], list[float], VectorObj]]:
         """Performs a field scan using the analytical solutions.
         :param Hrange: the range of fields to scan.
         :param init_position: the initial position for the gradient descent.
@@ -749,11 +727,13 @@ class Solver:
             # align with the first field
             for _ in self.layers:
                 init_position.extend([start.theta, start.phi])
-        Hsym = sym.Matrix([
-            sym.Symbol(r"H_{x}"),
-            sym.Symbol(r"H_{y}"),
-            sym.Symbol(r"H_{z}"),
-        ])
+        Hsym = sym.Matrix(
+            [
+                sym.Symbol(r"H_{x}"),
+                sym.Symbol(r"H_{y}"),
+                sym.Symbol(r"H_{z}"),
+            ]
+        )
         current_position = init_position
         for Hvalue in tqdm(Hrange, disable=disable_tqdm):
             self.set_H(Hvalue)

@@ -34,18 +34,18 @@ repos:
         files: \.(html|json|markdown|md|yaml|yml)$
         exclude: (^docs/api/.*)
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.6.4
     hooks:
-      - id: isort
-        name: isort (python)
-
-  - repo: https://github.com/pre-commit/mirrors-yapf
-    rev: v0.32.0
-    hooks:
-      - id: yapf
-        files: "^cmtj"
-        args: [--in-place, --recursive]
+      # Run the linter.
+      - id: ruff
+        files: ^cmtj
+        types_or: [python, pyi]
+      # Run the formatter.
+      - id: ruff-format
+        files: ^cmtj
+        types_or: [python, pyi]
 
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5

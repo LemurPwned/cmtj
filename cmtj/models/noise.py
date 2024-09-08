@@ -107,11 +107,9 @@ def noise_model(
     triggers = 0
 
     def _oscillations(i: int):
-        return amplitude * np.sin(2 * np.pi * freqs_osc * i * time_scale +
-                                  phases).reshape(-1, 1)
+        return amplitude * np.sin(2 * np.pi * freqs_osc * i * time_scale + phases).reshape(-1, 1)
 
     def _background_noise(i: int):
-
         return rng.normal(0, background_thermal_noise_std, dims)
 
     if enable_oscillations and background_thermal_noise_std > 0:
@@ -131,10 +129,8 @@ def noise_model(
         f_counts[freq_mask] += 1
         if fsum > 0:
             triggers += 1
-            vector_values[freq_mask] = rng.normal(0, thermal_noise_std,
-                                                  (fsum, dims))
-            m_values[i - offset] += np.sum(volumes * vector_values,
-                                           axis=0) + osc_vals
+            vector_values[freq_mask] = rng.normal(0, thermal_noise_std, (fsum, dims))
+            m_values[i - offset] += np.sum(volumes * vector_values, axis=0) + osc_vals
         else:
             m_values[i - offset] = osc_vals + m_values[i - offset - 1]
 
@@ -159,9 +155,9 @@ def autocorrelation(x, dT):
     """
     xp = x - np.mean(x)
     f = np.fft.fft(xp)
-    p = np.abs(f)**2
+    p = np.abs(f) ** 2
     pi = np.fft.ifft(p)
-    autocorr = np.real(pi)[:x.size // 2] / np.sum(xp**2)
+    autocorr = np.real(pi)[: x.size // 2] / np.sum(xp**2)
 
     # Create a lag array
     lag = np.arange(0, len(autocorr)) * dT
@@ -169,8 +165,7 @@ def autocorrelation(x, dT):
     return lag, autocorr
 
 
-def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
-                    freqs: np.ndarray, time_scale: float):
+def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray, freqs: np.ndarray, time_scale: float):
     """
     Plot noise data:
     - Autocorrelation
@@ -203,20 +198,16 @@ def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
         ax2.plot(volumes, freqs / 1000, color="crimson")
         # histogram of volumes
         ax25 = ax2.twinx()
-        ax25.hist(volumes,
-                  bins=min(100, len(volumes)),
-                  color="navy",
-                  alpha=0.5,
-                  label="Count")
+        ax25.hist(volumes, bins=min(100, len(volumes)), color="navy", alpha=0.5, label="Count")
         ax25.set_ylabel("Count", rotation=-90, labelpad=10)
         ax25.legend()
         ax2.set_xlabel("Area (a.u.)")
         ax2.set_ylabel("Modulo step activation (1000x)")
         y = np.fft.fft(m_values, axis=0)
         y = np.power(np.abs(y), 2)
-        y = y[:int(k // 2)]
+        y = y[: int(k // 2)]
         x = np.fft.fftfreq(int(k), time_scale)
-        x = x[:int(k // 2)]
+        x = x[: int(k // 2)]
         ax3.plot(x, y, color="royalblue")
         ax3.set_xscale("log")
         ax3.set_yscale("log")
@@ -233,8 +224,7 @@ def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
 
         for label, ax in zip("abcd", (ax1, ax2, ax3, ax4)):
             # label physical distance in and down:
-            trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72,
-                                                  fig.dpi_scale_trans)
+            trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, fig.dpi_scale_trans)
             ax.text(
                 0.0,
                 1.0,
@@ -243,10 +233,7 @@ def plot_noise_data(m_values: np.ndarray, volumes: np.ndarray,
                 # fontsize="medium",
                 verticalalignment="top",
                 color="black",
-                bbox=dict(facecolor="none",
-                          alpha=0.4,
-                          edgecolor="none",
-                          pad=3.0),
+                bbox=dict(facecolor="none", alpha=0.4, edgecolor="none", pad=3.0),
             )
 
     return fig
@@ -274,7 +261,6 @@ def create_noise_animation(
 
     rng = np.random.default_rng(seed=42)
     vector_values = np.asarray(vector_values).squeeze()
-    vector_values.shape
     v = volumes.ravel()
     v = v / v.sum()
     n = 1000
@@ -283,8 +269,8 @@ def create_noise_animation(
     volume_masks = []
     for i, volume in enumerate(v):
         x0, y0 = rng.integers(0, n, 2)
-        shape = (xx - x0)**2 + (yy - y0)**2
-        mask = shape <= (volume / np.pi) * ((n / 2)**2)
+        shape = (xx - x0) ** 2 + (yy - y0) ** 2
+        mask = shape <= (volume / np.pi) * ((n / 2) ** 2)
         values[mask] = vector_values[105, i]
         volume_masks.append(mask)
 

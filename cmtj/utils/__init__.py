@@ -3,7 +3,13 @@ import math
 from .filters import Filters
 from .general import VectorObj, box_muller_random, perturb_position
 from .linear import FieldScan
-from .resistance import *
+from .resistance import (
+    calculate_magnetoresistance,
+    calculate_resistance_parallel,
+    calculate_resistance_series,
+    compute_resistance,
+    compute_sd,
+)
 
 # constants
 OetoAm = 79.57747

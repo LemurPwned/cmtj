@@ -1,5 +1,5 @@
 import typing
-from typing import Any, ClassVar, Dict, List, overload
+from typing import Any, ClassVar, overload
 
 xaxis: Axis
 yaxis: Axis
@@ -18,9 +18,7 @@ def constantDriver(constant: float) -> ScalarDriver:
     """
     ...
 
-def sineDriver(
-    constantValue: float, amplitude: float, frequency: float, phase: float
-) -> ScalarDriver:
+def sineDriver(constantValue: float, amplitude: float, frequency: float, phase: float) -> ScalarDriver:
     """
     Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
     :param constantValue: vertical offset. The sine will oscillate around this value.
@@ -30,9 +28,7 @@ def sineDriver(
     """
     ...
 
-def gaussianImpulseDriver(
-    constantValue: float, amplitude: float, t0: float, sigma: float
-) -> ScalarDriver:
+def gaussianImpulseDriver(constantValue: float, amplitude: float, t0: float, sigma: float) -> ScalarDriver:
     """
     Gaussian impulse driver. It starts with an max amplitude at t0 and falls off with sigma.
 
@@ -47,9 +43,7 @@ def gaussianImpulseDriver(
     """
     ...
 
-def gaussianStepDriver(
-    constantValue: float, amplitude: float, t0: float, sigma: float
-) -> ScalarDriver:
+def gaussianStepDriver(constantValue: float, amplitude: float, t0: float, sigma: float) -> ScalarDriver:
     """Gaussian step driver (erf function). It starts at t0 and falls off with sigma.
 
     Formula:
@@ -63,9 +57,7 @@ def gaussianStepDriver(
     """
     ...
 
-def posSineDriver(
-    constantValue: float, amplitude: float, frequency: float, phase: float
-) -> ScalarDriver:
+def posSineDriver(constantValue: float, amplitude: float, frequency: float, phase: float) -> ScalarDriver:
     """Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
     :param constantValue: vertical offset. The sine will oscillate around this value.
     :param amplitude: amplitude of the sine wave
@@ -74,9 +66,7 @@ def posSineDriver(
     """
     ...
 
-def pulseDriver(
-    constantValue: float, amplitude: float, period: float, cycle: float
-) -> ScalarDriver:
+def pulseDriver(constantValue: float, amplitude: float, period: float, cycle: float) -> ScalarDriver:
     """
     Produces a square pulse of certain period and cycle
     :param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.
@@ -86,9 +76,7 @@ def pulseDriver(
     """
     ...
 
-def stepDriver(
-    constantValue: float, amplitude: float, timeStart: float, timeStop: float
-) -> ScalarDriver:
+def stepDriver(constantValue: float, amplitude: float, timeStart: float, timeStop: float) -> ScalarDriver:
     """
     Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
     :param constantValue: offset of the pulse (vertical)
@@ -127,7 +115,7 @@ class AxialDriver:
         ...
 
     @overload
-    def __init__(self, axialDrivers: List[ScalarDriver]) -> None:
+    def __init__(self, axialDrivers: list[ScalarDriver]) -> None:
         """Create an axial driver with a list of scalar drivers.
         :param axialDrivers: list of scalar drivers
         """
@@ -158,7 +146,7 @@ class AxialDriver:
         ...
 
     @overload
-    def applyMask(self, mask: List[int]) -> None:
+    def applyMask(self, mask: list[int]) -> None:
         """Apply mask to the driver.
         :param mask: mask to be applied"""
         ...
@@ -209,7 +197,7 @@ class CVector:
         """Normalizes the vector."""
         ...
 
-    def tolist(self) -> List[float]:
+    def tolist(self) -> list[float]:
         """Converts the vector to a list."""
         ...
 
@@ -240,12 +228,12 @@ class CVector:
 
 class Junction:
     @overload
-    def __init__(self, layers: List[Layer]) -> None:
+    def __init__(self, layers: list[Layer]) -> None:
         """"""
         ...
 
     @overload
-    def __init__(self, layers: List[Layer], Rp: float = ..., Rap: float = ...) -> None:
+    def __init__(self, layers: list[Layer], Rp: float = ..., Rap: float = ...) -> None:
         """Creates a junction with a magnetoresistance.
         :param layers: list of layers
 
@@ -257,14 +245,14 @@ class Junction:
     @overload
     def __init__(
         self,
-        layers: List[Layer],
-        Rx0: List[float],
-        Ry0: List[float],
-        AMR_X: List[float],
-        AMR_Y: List[float],
-        SMR_X: List[float],
-        SMR_Y: List[float],
-        AHE: List[float],
+        layers: list[Layer],
+        Rx0: list[float],
+        Ry0: list[float],
+        AMR_X: list[float],
+        AMR_Y: list[float],
+        SMR_X: list[float],
+        SMR_Y: list[float],
+        AHE: list[float],
     ) -> None:
         """Creates a junction with a STRIP magnetoresistance.
         Each of the Rx0, Ry, AMR, AMR and SMR is list matching the
@@ -283,7 +271,7 @@ class Junction:
 
     @overload
     def __init__(*args, **kwargs) -> Any: ...
-    def clearLog(self) -> Dict[str, Any]:
+    def clearLog(self) -> dict[str, Any]:
         """Reset current simulation state."""
         ...
 
@@ -292,11 +280,11 @@ class Junction:
         :param layerId: the layer id"""
         ...
 
-    def getLog(self) -> Dict[str, List[float]]:
+    def getLog(self) -> dict[str, list[float]]:
         """Retrieve the simulation log [data]."""
         ...
 
-    def getMagnetoresistance(self) -> List[float]: ...
+    def getMagnetoresistance(self) -> list[float]: ...
     def runSimulation(
         self,
         totalTime: float,
@@ -317,9 +305,7 @@ class Junction:
         """
         ...
 
-    def setIECDriver(
-        self, bottomLayer: str, topLayer: str, driver: ScalarDriver
-    ) -> None:
+    def setIECDriver(self, bottomLayer: str, topLayer: str, driver: ScalarDriver) -> None:
         """Set IEC interaction between two layers.
         The names of the params are only for convention. The IEC will be set
         between bottomLyaer or topLayer, order is irrelevant.
@@ -328,9 +314,7 @@ class Junction:
         """
         ...
 
-    def setQuadIECDriver(
-        self, bottomLayer: str, topLayer: str, driver: ScalarDriver
-    ) -> None:
+    def setQuadIECDriver(self, bottomLayer: str, topLayer: str, driver: ScalarDriver) -> None:
         """Set secondary (biquadratic term) IEC interaction between two layers.
         The names of the params are only for convention. The IEC will be set
         between bottomLyaer or topLayer, order is irrelevant.
@@ -382,9 +366,7 @@ class Junction:
         """
         ...
 
-    def setLayerDampingLikeTorqueDriver(
-        self, layerId: str, driver: ScalarDriver
-    ) -> None:
+    def setLayerDampingLikeTorqueDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set the damping like torque driver for a layer.
         :param layerId: the layer id
         :param driver: the driver
@@ -398,9 +380,7 @@ class Junction:
         """
         ...
 
-    def setLayerOneFNoise(
-        self, layerId: str, sources: int, bias: float, scale: float
-    ) -> None:
+    def setLayerOneFNoise(self, layerId: str, sources: int, bias: float, scale: float) -> None:
         """Set 1/f noise for a layer.
         :param layerId: the layer id
         :param sources: the number of generation sources (the more the slower, but more acc.)
@@ -424,7 +404,7 @@ class Layer:
         Ms: float,
         thickness: float,
         cellSurface: float,
-        demagTensor: List[CVector],
+        demagTensor: list[CVector],
         temperature: float = ...,
         damping: float = ...,
     ) -> Layer:
@@ -452,7 +432,7 @@ class Layer:
         Ms: float,
         thickness: float,
         cellSurface: float,
-        demagTensor: List[CVector],
+        demagTensor: list[CVector],
         damping: float = 0.11,
         fieldLikeTorque: float = 0,
         dampingLikeTorque: float = 0,
@@ -478,7 +458,7 @@ class Layer:
         Ms: float,
         thickness: float,
         cellSurface: float,
-        demagTensor: List[CVector],
+        demagTensor: list[CVector],
         damping: float = 0.011,
         SlonczewskiSpacerLayerParameter: float = 1.0,
         beta: float = 0.0,
@@ -536,20 +516,20 @@ class Layer:
         ...
 
     @overload
-    def setReferenceLayer(self, ref: "Reference") -> None:
+    def setReferenceLayer(self, ref: Reference) -> None:  # noqa: F811
         """Set a reference layer for the STT. The reference can be
         FIXED, BOTTOM or TOP. YOu can use another layer as reference
         to this one.
         :param ref: the reference layer vector."""
         ...
 
-    def setTopDipoleTensor(self, tensor: List[CVector]) -> None:
+    def setTopDipoleTensor(self, tensor: list[CVector]) -> None:
         """Set a dipole tensor from the top layer.
         :param tensor: the dipole tensor to be set.
         """
         ...
 
-    def setBottomDipoleTensor(self, tensor: List[CVector]) -> None:
+    def setBottomDipoleTensor(self, tensor: list[CVector]) -> None:
         """Set a dipole tensor from the bottom layer.
         :param tensor: the dipole tensor to be set.
         """
@@ -592,7 +572,7 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getConstantDriver(constantValue: float) -> "ScalarDriver":
+    def getConstantDriver(constantValue: float) -> ScalarDriver:
         """
         Constant driver produces a constant signal of a fixed amplitude.
         :param constantValue: constant value of the driver (constant offset/amplitude)
@@ -600,23 +580,18 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getPulseDriver(
-        constantValue: float, amplitude: "ScalarDriver", period: float, cycle: float
-    ) -> Any:
+    def getPulseDriver(constantValue: float, amplitude: float, period: float, cycle: float) -> ScalarDriver:
         """
         Produces a square pulse of certain period and cycle
         :param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.
         :param amplitude: amplitude of the pulse signal
         :param period: period of the signal in seconds
         :param cycle: duty cycle of the signal -- a fraction between [0 and 1].
-
         """
         ...
 
     @staticmethod
-    def getSineDriver(
-        constantValue: float, amplitude: "ScalarDriver", frequency: float, phase: float
-    ) -> Any:
+    def getSineDriver(constantValue: float, amplitude: ScalarDriver, frequency: float, phase: float) -> Any:
         """
         Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
         :param constantValue: vertical offset. The sine will oscillate around this value.
@@ -627,9 +602,7 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getStepDriver(
-        constantValue: float, amplitude: float, timeStart: float, timeStop: float
-    ) -> ScalarDriver:
+    def getStepDriver(constantValue: float, amplitude: float, timeStart: float, timeStop: float) -> ScalarDriver:
         """
         Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere
         :param constantValue: offset of the pulse (vertical)
@@ -657,9 +630,7 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getGaussianImpulseDriver(
-        constantValue: float, amplitude: float, t0: float, sigma: float
-    ) -> ScalarDriver:
+    def getGaussianImpulseDriver(constantValue: float, amplitude: float, t0: float, sigma: float) -> ScalarDriver:
         """Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.
 
         Formula:
@@ -673,9 +644,7 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getGaussianStepDriver(
-        constantValue: float, amplitude: float, t0: float, sigma: float
-    ) -> ScalarDriver:
+    def getGaussianStepDriver(constantValue: float, amplitude: float, t0: float, sigma: float) -> ScalarDriver:
         """Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.
 
         Formula:
@@ -689,27 +658,12 @@ class ScalarDriver:
         ...
 
     @staticmethod
-    def getPosSineDriver(
-        constantValue: float, amplitude: float, frequency: float, phase: float
-    ) -> ScalarDriver:
+    def getPosSineDriver(constantValue: float, amplitude: float, frequency: float, phase: float) -> ScalarDriver:
         """Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.
         :param constantValue: vertical offset. The sine will oscillate around this value.
         :param amplitude: amplitude of the sine wave
         :param frequency: frequency of the sine
         :param phase: phase of the sine in radians.
-        """
-        ...
-
-    @staticmethod
-    def getPulseDriver(
-        constantValue: float, amplitude: float, period: float, cycle: float
-    ) -> ScalarDriver:
-        """
-        Produces a square pulse of certain period and cycle
-        :param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.
-        :param amplitude: amplitude of the pulse signal
-        :param period: period of the signal in seconds
-        :param cycle: duty cycle of the signal -- a fraction between [0 and 1].
         """
         ...
 
