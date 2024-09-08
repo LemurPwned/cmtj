@@ -2,17 +2,19 @@
 # See https://pre-commit.com/hooks.html for more hooks
 
 exclude: "^\
-  (third_party/.*)|\
+  (third_party/kissfft)|\
   (build/.*)|\
   (.github/.*)|\
   (.vscode/.*)|\
   (^tests)|\
-  (docs/api/.*)
+  (docs/api/.*)|\
+  (core/compute.hpp)|\
+  (defaults.cfg)
   "
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files # prevents giant files from being committed.
       - id: check-case-conflict # checks for files that would conflict in case-insensitive filesystems.
@@ -26,14 +28,14 @@ repos:
       - id: trailing-whitespace # trims trailing whitespace.
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         files: \.(html|json|markdown|md|yaml|yml)$
         exclude: (^docs/api/.*)
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    rev: 5.13.2
     hooks:
       - id: isort
         name: isort (python)
@@ -46,15 +48,17 @@ repos:
         args: [--in-place, --recursive]
 
   - repo: https://github.com/pocc/pre-commit-hooks
-    rev: master
+    rev: v1.3.5
     hooks:
       - id: cppcheck
         args: ["--check-level=exhaustive"]
-        files: core/.*\.(cpp|hpp)$
+        files: ^(cmtj|core)/.*\.(cpp|hpp)$
+        exclude: ^third_party/ | ^core/compute.hpp
       - id: clang-format
         args: [-i]
-        exclude: ^third_party/
-      # - id: clang-tidy
-      #   args: [-checks=*]
-      # - id: include-what-you-use
-      #   exclude: ^third_party
+        files: ^(cmtj|core)/.*\.(cpp|hpp)$
+        exclude: ^third_party/ | ^core/compute.hpp
+      - id: clang-tidy
+        args: [-checks=*]
+        files: ^(cmtj|core)/.*\.(cpp|hpp)$
+        exclude: ^third_party/ | ^core/compute.hpp
