@@ -90,6 +90,16 @@ public:
     return this->junctionList[junctionId].getLayerMagnetisation(layerId);
   }
 
+  Junction<T> &getJunction(unsigned int junctionId) {
+    return this->junctionList.at(junctionId);
+  }
+
+  void setJunctionAnisotropyDriver(unsigned int junctionId,
+                                   const std::string &layerId,
+                                   const ScalarDriver<T> &k) {
+    this->junctionList[junctionId].setLayerAnisotropyDriver(layerId, k);
+  }
+
   void setOerstedFieldDriver(const AxialDriver<T> &oDriver) {
     for (auto &j : this->junctionList) {
       j.setLayerOerstedFieldDriver("all", oDriver);

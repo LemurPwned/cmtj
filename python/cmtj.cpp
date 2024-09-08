@@ -329,6 +329,11 @@ PYBIND11_MODULE(cmtj, m) {
                &DSeriesStack::setCouplingStrength),
            "coupling"_a)
       .def("setDelayed", &DSeriesStack::setDelayed, "delayed"_a)
+      .def("getJunction", &DParallelStack::getJunction, "junctionId"_a,
+           py::return_value_policy::reference)
+      .def("setJunctionAnisotropyDriver",
+           &DSeriesStack::setJunctionAnisotropyDriver, "junctionId"_a,
+           "layerId"_a, "k"_a)
       // logging
       .def("clearLogs", &DSeriesStack::clearLogs)
       .def("getLog", py::overload_cast<unsigned int>(&DSeriesStack::getLog))
@@ -357,6 +362,11 @@ PYBIND11_MODULE(cmtj, m) {
                &DParallelStack::setCouplingStrength),
            "coupling"_a)
       .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
+      .def("getJunction", &DParallelStack::getJunction, "junctionId"_a,
+           py::return_value_policy::reference)
+      .def("setJunctionAnisotropyDriver",
+           &DSeriesStack::setJunctionAnisotropyDriver, "junctionId"_a,
+           "layerId"_a, "k"_a)
       // logging
       .def("clearLogs", &ParallelStack<double>::clearLogs)
       .def("getLog",

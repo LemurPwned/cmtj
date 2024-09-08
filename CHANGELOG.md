@@ -5,6 +5,8 @@
 - Extended the `Stack` models allowing for non-symmetric coupling between devices.
 - `Stack` current drivers can now be of any type are adequately scaled.
 - Custom definition of the `ScalarDriver` is now possible and documented.
+- Fixed a bug in the `Stack` class which inverted the connection order of in-series connections.
+- Exposed IDMI interaction to Layer and Junction classes.
 
 # 1.5.0-1.5.4
 
