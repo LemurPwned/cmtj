@@ -299,6 +299,8 @@ PYBIND11_MODULE(cmtj, m) {
       .def("getMagnetoresistance", &DJunction::getMagnetoresistance)
       // getters
       .def("getLayerIds", &DJunction::getLayerIds)
+      .def("getLayer", &DJunction::getLayer, "layerId"_a,
+           py::return_value_policy::reference)
       // readonly props
       .def_readonly("layers", &DJunction::layers);
 

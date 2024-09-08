@@ -50,9 +50,10 @@ repos:
     hooks:
       - id: cppcheck
         args: ["--check-level=exhaustive"]
-        exclude: third_party/.*
+        files: cmtj/.*\.(cpp|hpp)$
       - id: clang-format
         args: [-i]
+        exclude: ^third_party/
       # - id: clang-tidy
       #   args: [-checks=*]
       # - id: include-what-you-use

@@ -89,7 +89,17 @@ class ParallelStack:
         """
         ...
 
-        def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector: ...
+    def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector:
+        """Get the magnetisation of a specific layer in a specific junction.
+        :param junction: the id of the junction (int) as passed in the init.
+        :param layerId: the string id of the layer in the junction."""
+        ...
+
+    def getJunction(self, junctionId: int) -> cmtj.Junction:
+        """Get a specific junction from the stack. Returns a reference.
+        :param junctionId: the id of the junction (int) as passed in the init.
+        """
+        ...
 
 class SeriesStack:
     def __init__(
@@ -193,4 +203,10 @@ class SeriesStack:
         """Get the magnetisation of a specific layer in a specific junction.
         :param junction: the id of the junction (int) as passed in the init.
         :param layerId: the string id of the layer in the junction."""
+        ...
+
+    def getJunction(self, junctionId: int) -> cmtj.Junction:
+        """Get a specific junction from the stack. Returns a reference.
+        :param junctionId: the id of the junction (int) as passed in the init.
+        """
         ...

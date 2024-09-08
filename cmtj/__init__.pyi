@@ -409,6 +409,12 @@ class Junction:
         """
         ...
 
+    def getLayer(self, layerId: str) -> Layer:
+        """Get a specific layer from the junction. Returns a reference.
+        :param layerId: the id of the layer (string) as passed in the init.
+        """
+        ...
+
 class Layer:
     def __init__(
         self,

@@ -7,6 +7,7 @@
 - Custom definition of the `ScalarDriver` is now possible and documented.
 - Fixed a bug in the `Stack` class which inverted the connection order of in-series connections.
 - Exposed IDMI interaction to Layer and Junction classes.
+- Added `getLayer` method to the `Junction` class and `getJunction` method to the `Stack` class that return a reference to the object.
 
 # 1.5.0-1.5.4
 

@@ -1246,7 +1246,7 @@ public:
   Layer<T> &getLayer(const std::string &layerID) {
     const auto res = std::find_if(
         this->layers.begin(), this->layers.end(),
-        [layerID](const auto &l) -> bool { return (l.id == layerID); });
+        [&layerID](const auto &l) -> bool { return (l.id == layerID); });
     if (res != this->layers.end()) {
       return *res;
     }
