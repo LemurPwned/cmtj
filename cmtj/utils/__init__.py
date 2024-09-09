@@ -7,6 +7,7 @@ from .resistance import (
     calculate_magnetoresistance,
     calculate_resistance_parallel,
     calculate_resistance_series,
+    compute_gmr,
     compute_resistance,
     compute_sd,
 )
@@ -37,4 +38,5 @@ __all__ = [
     "VectorObj",
     "box_muller_random",
     "perturb_position",
+    "compute_gmr",
 ]

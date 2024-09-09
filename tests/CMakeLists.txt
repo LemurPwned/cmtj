@@ -48,4 +48,6 @@ endmacro()
 # target_link_libraries(test_reservoir Eigen3::Eigen)
 
 # package_add_test(test_noise test_noise.cpp)
-package_add_test(test_llgb test_llgb.cpp)
+# package_add_test(test_llgb test_llgb.cpp)
+# package_add_test(test_interaction test_interaction.cpp)
+package_add_test(test_junction test_junction.cpp)

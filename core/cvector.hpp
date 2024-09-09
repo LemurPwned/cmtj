@@ -143,6 +143,17 @@ public:
   }
 
   CVector operator/(T val) {
+    if (val == 0) {
+      throw std::runtime_error("Failed to divide vector by zero!");
+    }
+    CVector res(x / val, y / val, z / val);
+    return res;
+  };
+
+  CVector operator/(T val) const {
+    if (val == 0) {
+      throw std::runtime_error("Failed to divide vector by zero!");
+    }
     CVector res(x / val, y / val, z / val);
     return res;
   };

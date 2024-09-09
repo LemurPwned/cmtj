@@ -191,7 +191,8 @@ public:
   T cellVolume = 0.0, cellSurface = 0.0;
 
   CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
-  CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation, Hdmi;
+  CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation, Hdmi,
+      Hidmi;
 
   CVector<T> Hfl_v, Hdl_v;
 
@@ -520,15 +521,16 @@ public:
     this->Hdemag =
         calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
     this->HIEC = calculateIEC(time, stepMag, bottom, top);
-    this->Hdmi = calculateIDMI(time, stepMag, bottom, top);
+    this->Hidmi = calculateIDMI(time, stepMag, bottom, top);
     this->HAnis = calculateAnisotropy(stepMag, time);
     this->Hdmi = calculateHdmiField(time);
-    const CVector<T> Heff = this->Hext    // external
-                            + this->HAnis // anistotropy
-                            + this->HIEC  // IEC
-                            + this->Hoe   // Oersted field
-                            + this->Hdmi +
-                            Hfluctuation
+    const CVector<T> Heff = this->Hext     // external
+                            + this->HAnis  // anistotropy
+                            + this->HIEC   // IEC
+                            + this->Hidmi  // IDMI
+                            + this->Hoe    // Oersted field
+                            + this->Hdmi   // regular DMI
+                            + Hfluctuation // fluctuations
                             // demag -- negative contribution
                             - this->Hdemag
                             // dipole -- negative contribution
@@ -580,12 +582,18 @@ public:
            calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
   }
 
-  CVector<T> calculateIDMI_(const CVector<T> &Dvalue, const CVector<T> &stepMag,
+  CVector<T> calculateIDMI_(const CVector<T> &Dvector,
+                            const CVector<T> &stepMag,
                             const CVector<T> &coupledMag) {
-    const CVector<T> Dunit(1 ? Dvalue.x : 0, 1 ? Dvalue.y : 0,
-                           1 ? Dvalue.z : 0);
-    return Dunit * c_dot(Dvalue, c_cross<T>(CVector<T>(1., 1., 1.), stepMag)) /
-           (this->Ms * this->thickness);
+    // D * [(dm1/dm1x x m2) + (m1 x dm2/dm2x)]
+    // dm1/dm1x x m2 = (0, -mz, my)
+    // dm1/dm1y x m2 = (mz, 0, -mx)
+    // dm1/dm1z x m2 = (-my, mx, 0)
+    const CVector<T> dm1crossm2(
+        c_dot(Dvector, CVector<T>(0, -coupledMag.z, coupledMag.y)),
+        c_dot(Dvector, CVector<T>(coupledMag.z, 0, -coupledMag.x)),
+        c_dot(Dvector, CVector<T>(-coupledMag.y, coupledMag.x, 0)));
+    return dm1crossm2 / (this->Ms * this->thickness);
   }
 
   CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
