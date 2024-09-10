@@ -3,6 +3,22 @@ import numpy as np
 import streamlit as st
 from simulation_fns import get_pimm_data, get_vsd_data
 
+from cmtj.utils import Filters
+
+
+def read_mh_data():
+    filedata = st.session_state.upload.read().decode("utf-8")
+    lines = filedata.split("\n")
+    fields, mag = [], []
+    for line in lines[1:]:
+        if line.startswith("#"):
+            continue
+        vals = line.split()
+        if len(vals):
+            fields.append(float(vals[0]))
+            mag.append([float(val) for val in vals[1:]])
+    return fields, mag
+
 
 def read_data():
     filedata = st.session_state.upload.read().decode("utf-8")
@@ -104,8 +120,9 @@ def simulate_vsd():
             fstep=st.session_state.fstep * 1e9,
             Rtype=st.session_state.res_type,
             sim_time=st.session_state.sim_time * 1e-9,
-            Hoex_mag=st.session_state.Hoex_mag * 1e3,
+            Hoex_mag=st.session_state.Hoex_mag,
         )
+        spec = Filters.detrend_axis(spec, axis=0)
     plot_data(Hscan, freqs, spec, title="VSD spectrum")
 
 

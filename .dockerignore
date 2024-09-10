@@ -13,7 +13,8 @@ __pycache__/
 .ipynb_checkpoints/
 .vscode/
 .idea/
-assets/
 articles/
 examples/
 docs/
+!assets/icon-larger.png
+!view/assets/icon-larger.png
