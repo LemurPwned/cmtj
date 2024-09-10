@@ -1,11 +1,9 @@
-from typing import Dict, List, Tuple
-
 import cmtj
 
 class LLGBJunction:
     """LLGB Junction class."""
 
-    def __init__(self, layers: List[LLGBLayer]) -> None:
+    def __init__(self, layers: list[LLGBLayer]) -> None:
         """Initialises a LLGB junction with layers.
         :param layers: list of LLGB layers."""
         ...
@@ -14,7 +12,7 @@ class LLGBJunction:
         """Clears the simulation log of the junction."""
         ...
 
-    def getLog(self) -> Dict[str, List[float]]:
+    def getLog(self) -> dict[str, list[float]]:
         """Returns the simulation log of the junction."""
         ...
 
@@ -40,17 +38,13 @@ class LLGBJunction:
         :param arg0: file path."""
         ...
 
-    def setLayerExternalFieldDriver(
-        self, layerId: str, driver: cmtj.AxialDriver
-    ) -> None:
+    def setLayerExternalFieldDriver(self, layerId: str, driver: cmtj.AxialDriver) -> None:
         """Set an external field driver for a layer.
         :param layerId: the id of the layer.
         :param driver: the field driver to be set."""
         ...
 
-    def setLayerTemperatureDriver(
-        self, layerId: str, driver: cmtj.ScalarDriver
-    ) -> None:
+    def setLayerTemperatureDriver(self, layerId: str, driver: cmtj.ScalarDriver) -> None:
         """Set a temperature driver for a layer.
         :param layerId: the id of the layer.
         :param driver: the temperature driver to be set.
@@ -68,7 +62,7 @@ class LLGBLayer:
         Ms: float,
         thickness: float,
         cellSurface: float,
-        demagTensor: List[cmtj.CVector],
+        demagTensor: list[cmtj.CVector],
         damping: float,
         Tc: float,
         susceptibility: float,
@@ -111,7 +105,7 @@ def MFAWeissCurie(
     relax: float = ...,
     tolerance: float = ...,
     maxIter: int = ...,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Mean Field Approximation for Weiss Curie temperature.
     :param me: equilibrium magnetisation.
     :param T: temperature.

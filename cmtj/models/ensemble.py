@@ -23,7 +23,7 @@ def symmetric_lorentz(H, dH, Hr, Vs):
     :param Hr: resonance field in A/m
     """
     dH2 = dH**2
-    return Vs * dH2 / ((H - Hr)**2 + dH2)
+    return Vs * dH2 / ((H - Hr) ** 2 + dH2)
 
 
 def antisymmetric_lorentz(H, dH, Hr, Vas):
@@ -47,5 +47,4 @@ def mixed_lorentz(H, dH, Hr, Va, Vas):
     :param Va: amplitude of symmetric Lorentzian
     :param Vas: amplitude of antisymmetric Lorentzian
     """
-    return symmetric_lorentz(H, dH, Hr, Va) + antisymmetric_lorentz(
-        H, dH, Hr, Vas)
+    return symmetric_lorentz(H, dH, Hr, Va) + antisymmetric_lorentz(H, dH, Hr, Vas)

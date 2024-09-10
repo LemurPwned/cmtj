@@ -1,7 +1,7 @@
 import math
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Callable, List, Literal
+from typing import Callable, Literal
 
 from numba import njit
 from scipy.integrate import RK45
@@ -10,15 +10,16 @@ from ..utils import bohr_magneton, echarge, gyromagnetic_ratio, hbar, mu0
 from ..utils.general import VectorObj
 
 gyro = gyromagnetic_ratio
-pi2 = math.pi / 2.
+pi2 = math.pi / 2.0
 
 
 class DW:
     """Initial conditions for the phi of DW equation."""
+
     NEEL_RIGHT = 0
     NEEL_LEFT = math.pi
-    BLOCH_UP = math.pi / 2.
-    BLOCH_DOWN = 3. * math.pi / 2.
+    BLOCH_UP = math.pi / 2.0
+    BLOCH_DOWN = 3.0 * math.pi / 2.0
 
 
 class DWRelax:
@@ -32,7 +33,7 @@ def get_pinning_field(X, Ms, pinning, Ly, Lz, V0_pin):
     arg = X * math.pi / pinning
     dVdx = 2 * math.pi * V0_pin * math.sin(arg) * math.cos(arg)
     denom = 2 * mu0 * Ms * Lz * Ly
-    return -(1. / denom) * dVdx
+    return -(1.0 / denom) * dVdx
 
 
 @njit
@@ -40,65 +41,77 @@ def get_edge_field(X, Lx, V0_edge):
     c = Lx / 2
     arg = (X - (Lx / 2)) / c
     p = 6
-    return -p * V0_edge * (math.sinh(arg) * math.cosh(arg)**(p - 1) / c)
+    return -p * V0_edge * (math.sinh(arg) * math.cosh(arg) ** (p - 1) / c)
 
 
 @njit
-def get_field_contribution(X, phi, hx, hy, hz, alpha, dw, Ms, V0_pin, pinning,
-                           Ly, Lz):
-
-    pinning = get_pinning_field(X,
-                                Ms=Ms,
-                                pinning=pinning,
-                                Ly=Ly,
-                                Lz=Lz,
-                                V0_pin=V0_pin)
-    dxdt = alpha * gyro * dw * (hz + pinning) + gyro * dw * pi2 * (
-        -hy * math.cos(phi) + hx * math.sin(phi))
-    dphidt = gyro * (hz + pinning) + alpha * gyro * pi2 * (hy * math.cos(phi) -
-                                                           hx * math.sin(phi))
+def get_field_contribution(X, phi, hx, hy, hz, alpha, dw, Ms, V0_pin, pinning, Ly, Lz):
+    pinning = get_pinning_field(X, Ms=Ms, pinning=pinning, Ly=Ly, Lz=Lz, V0_pin=V0_pin)
+    dxdt = alpha * gyro * dw * (hz + pinning) + gyro * dw * pi2 * (-hy * math.cos(phi) + hx * math.sin(phi))
+    dphidt = gyro * (hz + pinning) + alpha * gyro * pi2 * (hy * math.cos(phi) - hx * math.sin(phi))
     return dxdt, dphidt
 
 
 @njit
 def compute_gamma_a(X, phi, Q, dw, hk, hx, hy, hdmi, bj, IECterm):
-    pi2 = math.pi / 2.
-    fact_gamma = -0.5 * hk * math.sin(
-        2 * phi) - pi2 * hy * math.cos(phi) + pi2 * hx * math.sin(
-            phi) + Q * pi2 * hdmi * math.sin(phi) + IECterm
+    pi2 = math.pi / 2.0
+    fact_gamma = (
+        -0.5 * hk * math.sin(2 * phi)
+        - pi2 * hy * math.cos(phi)
+        + pi2 * hx * math.sin(phi)
+        + Q * pi2 * hdmi * math.sin(phi)
+        + IECterm
+    )
     fact_stt = bj / dw
     return gyro * fact_gamma + fact_stt
 
 
 @njit
-def compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Lx, Ly, Lz,
-                    V0_pin, V0_edge, pinning):
+def compute_gamma_b(X, phi, Q, dw, hshe, hz, hr, beta, bj, Ms, Lx, Ly, Lz, V0_pin, V0_edge, pinning):
     pi2 = math.pi / 2
-    hp = get_pinning_field(X,
-                           Ms=Ms,
-                           pinning=pinning,
-                           Ly=Ly,
-                           Lz=Lz,
-                           V0_pin=V0_pin)
+    hp = get_pinning_field(X, Ms=Ms, pinning=pinning, Ly=Ly, Lz=Lz, V0_pin=V0_pin)
     he = get_edge_field(X, Lx, V0_edge)
-    fact_gamma = Q * (he + hz + hp + pi2 * hshe *
-                      math.cos(phi)) - beta * pi2 * hr * math.cos(phi)
+    fact_gamma = Q * (he + hz + hp + pi2 * hshe * math.cos(phi)) - beta * pi2 * hr * math.cos(phi)
     fact_stt = beta * bj / dw
     return gyro * fact_gamma + fact_stt
 
 
 @njit
-def compute_dynamics(X, phi, delta, alpha, Q, hx, hy, hz, hk, hdmi, hr, hshe,
-                     beta, bj, Ms, Lx, Ly, Lz, V0_pin, V0_edge, pinning,
-                     IECterm, thickness, A, Ku, Kp):
+def compute_dynamics(
+    X,
+    phi,
+    delta,
+    alpha,
+    Q,
+    hx,
+    hy,
+    hz,
+    hk,
+    hdmi,
+    hr,
+    hshe,
+    beta,
+    bj,
+    Ms,
+    Lx,
+    Ly,
+    Lz,
+    V0_pin,
+    V0_edge,
+    pinning,
+    IECterm,
+    thickness,
+    A,
+    Ku,
+    Kp,
+):
     gamma_a = compute_gamma_a(X, phi, Q, delta, hk, hx, hy, hdmi, bj, IECterm)
-    gamma_b = compute_gamma_b(X, phi, Q, delta, hshe, hz, hr, beta, bj, Ms, Lx,
-                              Ly, Lz, V0_pin, V0_edge, pinning)
+    gamma_b = compute_gamma_b(X, phi, Q, delta, hshe, hz, hr, beta, bj, Ms, Lx, Ly, Lz, V0_pin, V0_edge, pinning)
     dXdt = delta * (gamma_a + alpha * gamma_b)
     dPhidt = -alpha * gamma_a + gamma_b
     pref = gyro / (alpha * mu0 * Ms * thickness)
     # domain width relaxation from Thiaville
-    dDeltadt = pref * (A / delta - delta * (Ku + Kp * math.sin(phi)**2))
+    dDeltadt = pref * (A / delta - delta * (Ku + Kp * math.sin(phi) ** 2))
     # dDeltadt  = 0
     return dXdt, dPhidt, dDeltadt
 
@@ -130,6 +143,7 @@ class DomainWallDynamics:
     For classical formulation see:
     Current-driven dynamics of chiral ferromagnetic domain walls, Emori et al, 2013
     """
+
     H: VectorObj
     alpha: float
     Ms: float
@@ -157,7 +171,7 @@ class DomainWallDynamics:
         # in post init we already have p
         self.bj = bohr_magneton * self.p / (echarge * self.Ms)
         self.je_driver = lambda t: 0
-        denom = (2 * self.Ms * mu0 * echarge * self.thickness)
+        denom = 2 * self.Ms * mu0 * echarge * self.thickness
         self.Hshe = hbar * self.SHE_angle / denom
         self.hx, self.hy, self.hz = self.H.get_cartesian()
         self.dw0 = self.get_unrelaxed_domain_width()
@@ -195,7 +209,7 @@ class DomainWallDynamics:
 
 @dataclass
 class MultilayerWallDynamics:
-    layers: List[DomainWallDynamics]
+    layers: list[DomainWallDynamics]
     J: float = 0
     vector_size: int = 3  # 3 for X, phi, delta
 
@@ -214,7 +228,7 @@ class MultilayerWallDynamics:
         new_vec = []
         for i, layer in enumerate(self.layers):
             je_at_t = layer.je_driver(t=t)
-            reduced_alpha = (1. + layer.alpha**2)
+            reduced_alpha = 1.0 + layer.alpha**2
             lx = vec[self.vector_size * i]
             lphi = vec[(self.vector_size * i) + 1]
             ldomain_width = vec[(self.vector_size * i) + 2]
@@ -252,7 +266,8 @@ class MultilayerWallDynamics:
                 A=layer.A,
                 Ku=layer.Ku,
                 Kp=layer.Kp,
-                thickness=layer.thickness)
+                thickness=layer.thickness,
+            )
             dXdt = dXdt / reduced_alpha
             dPhidt = dPhidt / reduced_alpha
             if layer.relax_dw != DWRelax.DYNAMIC:
@@ -260,45 +275,46 @@ class MultilayerWallDynamics:
             new_vec.extend([dXdt, dPhidt, dDeltadt])
         return new_vec
 
-    def run(self,
-            sim_time: float,
-            starting_conditions: List[float],
-            max_step: float = 1e-10):
+    def run(self, sim_time: float, starting_conditions: list[float], max_step: float = 1e-10):
         """Run simulation of DW dynamics.
         :param sim_time: total simulation time (simulation units).
         :param starting_conditions: starting position and angle of the DW.
         :param max_step: maximum allowed step of the RK45 method.
         """
-        integrator = RK45(fun=self.multilayer_dw_llg,
-                          t0=0.,
-                          first_step=1e-16,
-                          max_step=max_step,
-                          y0=starting_conditions,
-                          rtol=1e-12,
-                          t_bound=sim_time)
+        integrator = RK45(
+            fun=self.multilayer_dw_llg,
+            t0=0.0,
+            first_step=1e-16,
+            max_step=max_step,
+            y0=starting_conditions,
+            rtol=1e-12,
+            t_bound=sim_time,
+        )
         result = defaultdict(list)
         while True:
             integrator.step()
-            if integrator.status == 'failed':
+            if integrator.status == "failed":
                 print("Failed to converge")
                 break
             layer_vecs = integrator.y
-            result['t'].append(integrator.t)
+            result["t"].append(integrator.t)
             for i, layer in enumerate(self.layers):
-                x, phi, dw = layer_vecs[self.vector_size * i], layer_vecs[
-                    self.vector_size * i +
-                    1], layer_vecs[self.vector_size * i + 2]
+                x, phi, dw = (
+                    layer_vecs[self.vector_size * i],
+                    layer_vecs[self.vector_size * i + 1],
+                    layer_vecs[self.vector_size * i + 2],
+                )
                 # static relaxation Thiaville
                 if layer.relax_dw == DWRelax.STATIC:
                     ratio = layer.Kp / layer.Ku
-                    dw = layer.dw0 / math.sqrt(1 + ratio * math.sin(phi)**2)
+                    dw = layer.dw0 / math.sqrt(1 + ratio * math.sin(phi) ** 2)
                 vel = (x - integrator.y_old[2 * i]) / integrator.step_size
-                result[f'dw_{i}'].append(dw)
-                result[f'v_{i}'].append(vel)
-                result[f'x_{i}'].append(x)
-                result[f'phi_{i}'].append(phi)
-                result[f'je_{i}'].append(layer.je_driver(t=integrator.t))
-            if integrator.status == 'finished':
+                result[f"dw_{i}"].append(dw)
+                result[f"v_{i}"].append(vel)
+                result[f"x_{i}"].append(x)
+                result[f"phi_{i}"].append(phi)
+                result[f"je_{i}"].append(layer.je_driver(t=integrator.t))
+            if integrator.status == "finished":
                 break
 
         return result

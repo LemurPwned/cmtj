@@ -272,11 +272,13 @@ PYBIND11_MODULE(cmtj, m) {
            &DJunction::setLayerExternalFieldDriver)
       .def("setLayerCurrentDriver", &DJunction::setLayerCurrentDriver)
       .def("setLayerAnisotropyDriver", &DJunction::setLayerAnisotropyDriver)
-      .def("setIECDriver", &DJunction::setIECDriver)
-      .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
       .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
       .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
       .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
+      // interaction setters
+      .def("setIECDriver", &DJunction::setIECDriver)
+      .def("setQuadIECDriver", &DJunction::setQuadIECDriver)
+      .def("setIDMIDriver", &DJunction::setIDMIDriver)
       // noise
       .def("setLayerTemperatureDriver", &DJunction::setLayerTemperatureDriver)
       .def("setLayerNonStochasticLangevinDriver",
@@ -297,6 +299,8 @@ PYBIND11_MODULE(cmtj, m) {
       .def("getMagnetoresistance", &DJunction::getMagnetoresistance)
       // getters
       .def("getLayerIds", &DJunction::getLayerIds)
+      .def("getLayer", &DJunction::getLayer, "layerId"_a,
+           py::return_value_policy::reference)
       // readonly props
       .def_readonly("layers", &DJunction::layers);
 
@@ -327,6 +331,11 @@ PYBIND11_MODULE(cmtj, m) {
                &DSeriesStack::setCouplingStrength),
            "coupling"_a)
       .def("setDelayed", &DSeriesStack::setDelayed, "delayed"_a)
+      .def("getJunction", &DParallelStack::getJunction, "junctionId"_a,
+           py::return_value_policy::reference)
+      .def("setJunctionAnisotropyDriver",
+           &DSeriesStack::setJunctionAnisotropyDriver, "junctionId"_a,
+           "layerId"_a, "k"_a)
       // logging
       .def("clearLogs", &DSeriesStack::clearLogs)
       .def("getLog", py::overload_cast<unsigned int>(&DSeriesStack::getLog))
@@ -355,6 +364,11 @@ PYBIND11_MODULE(cmtj, m) {
                &DParallelStack::setCouplingStrength),
            "coupling"_a)
       .def("setDelayed", &DParallelStack::setDelayed, "delayed"_a)
+      .def("getJunction", &DParallelStack::getJunction, "junctionId"_a,
+           py::return_value_policy::reference)
+      .def("setJunctionAnisotropyDriver",
+           &DSeriesStack::setJunctionAnisotropyDriver, "junctionId"_a,
+           "layerId"_a, "k"_a)
       // logging
       .def("clearLogs", &ParallelStack<double>::clearLogs)
       .def("getLog",

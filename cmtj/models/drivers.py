@@ -19,4 +19,4 @@ def decay_driver(t, amp, tau):
 
 @njit
 def gaussian_driver(t, amp, sigma):
-    return amp * math.exp(-t**2 / sigma**2)
+    return amp * math.exp(-(t**2) / sigma**2)

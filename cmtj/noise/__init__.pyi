@@ -3,9 +3,7 @@ import cmtj
 class BufferedAlphaNoise:
     """Create a buffer of alpha noise generator. Alpha can be in [0, 2]."""
 
-    def __init__(
-        self, bufferSize: int, alpha: float, std: float, scale: float
-    ) -> None: ...
+    def __init__(self, bufferSize: int, alpha: float, std: float, scale: float) -> None: ...
     def fillBuffer(self) -> None:
         """Fill the buffer with the noise. This method is called only once."""
         ...

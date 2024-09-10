@@ -1,11 +1,11 @@
-from typing import Dict, List, overload
+from typing import overload
 
 import cmtj
 
 class ParallelStack:
     def __init__(
         self,
-        junctionList: List[cmtj.Junction],
+        junctionList: list[cmtj.Junction],
         topId: str = "free",
         bottomId: str = "bottom",
         phaseOffset: float = 0,
@@ -28,7 +28,7 @@ class ParallelStack:
         ...
 
     @overload
-    def getLog(self, junctionId: int) -> Dict[str, List[float]]:
+    def getLog(self, junctionId: int) -> dict[str, list[float]]:
         """
         Get the logs of a specific junction -- integer id
         from the `junctionList`.
@@ -37,15 +37,13 @@ class ParallelStack:
         ...
 
     @overload
-    def getLog(self) -> Dict[str, List[float]]:
+    def getLog(self) -> dict[str, list[float]]:
         """
         Get the logs of the stack
         """
         ...
 
-    def runSimulation(
-        self, totalTime: float, timeStep: float = ..., writeFrequency: float = ...
-    ) -> None:
+    def runSimulation(self, totalTime: float, timeStep: float = ..., writeFrequency: float = ...) -> None:
         """
         Run the simulation of the stack.
         :param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
@@ -78,9 +76,7 @@ class ParallelStack:
         """
         ...
 
-    def setMagnetisation(
-        self, junctionId: int, layerId: str, mag: cmtj.CVector
-    ) -> None:
+    def setMagnetisation(self, junctionId: int, layerId: str, mag: cmtj.CVector) -> None:
         """
         Set magnetisation on a specific layer in a specific junction.
         :param junctionId: the id of the junction (int) as passed in the init.
@@ -89,12 +85,22 @@ class ParallelStack:
         """
         ...
 
-        def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector: ...
+    def getMagnetisation(self, junction: int, layerId: str) -> cmtj.CVector:
+        """Get the magnetisation of a specific layer in a specific junction.
+        :param junction: the id of the junction (int) as passed in the init.
+        :param layerId: the string id of the layer in the junction."""
+        ...
+
+    def getJunction(self, junctionId: int) -> cmtj.Junction:
+        """Get a specific junction from the stack. Returns a reference.
+        :param junctionId: the id of the junction (int) as passed in the init.
+        """
+        ...
 
 class SeriesStack:
     def __init__(
         self,
-        junctionList: List[cmtj.Junction],
+        junctionList: list[cmtj.Junction],
         topId: str = "free",
         bottomId: str = "bottom",
         phaseOffset: float = 0,
@@ -117,7 +123,7 @@ class SeriesStack:
         ...
 
     @overload
-    def getLog(self, junctionId: int) -> Dict[str, List[float]]:
+    def getLog(self, junctionId: int) -> dict[str, list[float]]:
         """
         Get the logs of a specific junction -- integer id
         from the `junctionList`.
@@ -126,15 +132,13 @@ class SeriesStack:
         ...
 
     @overload
-    def getLog(self) -> Dict[str, List[float]]:
+    def getLog(self) -> dict[str, list[float]]:
         """
         Get the logs of the stack
         """
         ...
 
-    def runSimulation(
-        self, totalTime: float, timeStep: float = ..., writeFrequency: float = ...
-    ) -> None:
+    def runSimulation(self, totalTime: float, timeStep: float = ..., writeFrequency: float = ...) -> None:
         """
         Run the simulation of the stack.
         :param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.
@@ -162,7 +166,7 @@ class SeriesStack:
         ...
 
     @overload
-    def setCouplingStrength(self, coupling: List[float]) -> None:
+    def setCouplingStrength(self, coupling: list[float]) -> None:
         """
         Coupling constant that represents the energy losses as the current
         passes through the stack.
@@ -178,9 +182,7 @@ class SeriesStack:
         """
         ...
 
-    def setMagnetisation(
-        self, junctionId: int, layerId: str, mag: cmtj.CVector
-    ) -> None:
+    def setMagnetisation(self, junctionId: int, layerId: str, mag: cmtj.CVector) -> None:
         """
         Set magnetisation on a specific layer in a specific junction.
         :param junctionId: the id of the junction (int) as passed in the init.
@@ -193,4 +195,10 @@ class SeriesStack:
         """Get the magnetisation of a specific layer in a specific junction.
         :param junction: the id of the junction (int) as passed in the init.
         :param layerId: the string id of the layer in the junction."""
+        ...
+
+    def getJunction(self, junctionId: int) -> cmtj.Junction:
+        """Get a specific junction from the stack. Returns a reference.
+        :param junctionId: the id of the junction (int) as passed in the init.
+        """
         ...

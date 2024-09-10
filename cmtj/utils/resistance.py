@@ -1,12 +1,11 @@
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 
 from .filters import Filters
 
 
-def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray,
-               integration_step: float) -> np.ndarray:
+def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray, integration_step: float) -> np.ndarray:
     """Computes the SD voltage.
     :param dynamic_r: magnetoresistance from log
     :param dynamic_i: excitation current
@@ -19,14 +18,14 @@ def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray,
 
 
 def compute_resistance(
-    Rx0: List[float],
-    Ry0: List[float],
-    AMR: List[float],
-    AHE: List[float],
-    SMR: List[float],
-    m: Union[List[float], np.ndarray],
-    l: List[float],
-    w: List[float],
+    Rx0: list[float],
+    Ry0: list[float],
+    AMR: list[float],
+    AHE: list[float],
+    SMR: list[float],
+    m: Union[list[float], np.ndarray],
+    l: list[float],
+    w: list[float],
 ):
     """Computes the resistance of the system.
     If you want to compute the resistance for an entire time series, pass m as a 3D array
@@ -37,8 +36,8 @@ def compute_resistance(
     if not isinstance(m, np.ndarray):
         m = np.asarray(m)
     if m.ndim == 2:
-        SxAll = np.zeros((number_of_layers, ))
-        SyAll = np.zeros((number_of_layers, ))
+        SxAll = np.zeros((number_of_layers,))
+        SyAll = np.zeros((number_of_layers,))
 
     elif m.ndim == 3:
         SxAll = np.zeros((number_of_layers, m.shape[2]))
@@ -46,9 +45,8 @@ def compute_resistance(
 
     for i in range(number_of_layers):
         w_l = w[i] / l[i]
-        SxAll[i] = Rx0[i] + (AMR[i] * m[i, 0]**2 + SMR[i] * m[i, 1]**2)
-        SyAll[i] = (Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) *
-                    (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1])
+        SxAll[i] = Rx0[i] + (AMR[i] * m[i, 0] ** 2 + SMR[i] * m[i, 1] ** 2)
+        SyAll[i] = Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) * (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1]
     return SxAll, SyAll
 
 
@@ -70,21 +68,19 @@ def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray):
     if not isinstance(m, np.ndarray):
         m = np.asarray(m)
     if m.shape[0] != 2:
-        raise ValueError(
-            "The magnetoresistance can only be computed for 2 layers"
-            f". Current shape {m.shape}")
+        raise ValueError("The magnetoresistance can only be computed for 2 layers" f". Current shape {m.shape}")
     return Rp + 0.5 * (Rap - Rp) * np.sum(m[0] * m[1], axis=0)
 
 
 def calculate_resistance_parallel(
-    Rx0: List[float],
-    Ry0: List[float],
-    AMR: List[float],
-    AHE: List[float],
-    SMR: List[float],
-    m: List[float],
-    l: List[float],
-    w: List[float],
+    Rx0: list[float],
+    Ry0: list[float],
+    AMR: list[float],
+    AHE: list[float],
+    SMR: list[float],
+    m: list[float],
+    l: list[float],
+    w: list[float],
 ):
     """Calculates the resistance of the system in parallel.
     If you want to compute the resistance for an entire time series, pass m as a 3D array.
@@ -108,14 +104,14 @@ def calculate_resistance_parallel(
 
 
 def calculate_resistance_series(
-    Rx0: List[float],
-    Ry0: List[float],
-    AMR: List[float],
-    AHE: List[float],
-    SMR: List[float],
-    m: List[float],
-    l: List[float],
-    w: List[float],
+    Rx0: list[float],
+    Ry0: list[float],
+    AMR: list[float],
+    AHE: list[float],
+    SMR: list[float],
+    m: list[float],
+    l: list[float],
+    w: list[float],
 ):
     """Calculates the resistance of the system in series.
     If you want to compute the resistance for an entire time series, pass m as a 3D array.
