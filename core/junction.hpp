@@ -1520,8 +1520,8 @@ public:
     T Ry_acc = 0.0;
 
     for (unsigned int i = 0; i < this->layers.size(); i++) {
-      const T Rx = Rx0[i] + AMR_X[i] * pow(this->layers[i].mag.x, 2) +
-                   SMR_X[i] * pow(this->layers[i].mag.y, 2);
+      const T Rx = Rx0[i] + AMR_X[i] * (this->layers[i].mag.x * this->layers[i].mag.x) +
+                   SMR_X[i] * (this->layers[i].mag.y * this->layers[i].mag.y);
       const T Ry =
           Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
           (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
