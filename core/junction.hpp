@@ -1629,8 +1629,8 @@ public:
       throw std::runtime_error(
           "The time step cannot be larger than write frequency!");
     }
-    const unsigned int totalIterations = (int)(totalTime / timeStep);
-    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
+    const unsigned int totalIterations = static_cast<unsigned int>(totalTime / timeStep);
+    const unsigned int writeEvery = static_cast<unsigned int>(writeFrequency / timeStep);
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
     // pick a solver based on drivers
