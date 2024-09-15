@@ -6,7 +6,7 @@
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
 [![Version](https://img.shields.io/pypi/v/cmtj)](https://pypi.org/project/cmtj/)
 [![License](https://img.shields.io/pypi/l/cmtj.svg)](https://github.com/LemurPwned/cmtj/blob/master/LICENSE)
-[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](http://cmtj-simulations.streamlit.app/)
+[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cmtj-app.streamlit.app/spectrum)
 ![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
 
 ## Table of contents
@@ -36,7 +36,14 @@ It is also possible to connect devices in parallel or in series to have electric
 
 ## Web GUI
 
-Check out the [streamlit hosted demo here](http://cmtj-simulations.streamlit.app/). You can simulate PIMM spectra and Spin-Diode spectra there. Let us know if you have any issues with the demo.
+Check out the [streamlit hosted demo here](https://cmtj-app.streamlit.app/spectrum). 
+You can simulate:
+
+* PIMM spectra and Spin-Diode spectra
+* Try some optimization fitting
+* Fit multi-domain or multi-level M(H) or R(H) loops in [Domain mode](https://cmtj-app.streamlit.app)
+
+Let us know if you have any issues with the demo.
 
 ## Quickstart
 

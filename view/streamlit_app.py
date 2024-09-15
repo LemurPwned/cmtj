@@ -6,29 +6,24 @@ from autofit import autofit
 from helpers import simulate_pimm, simulate_vsd
 from utils import GENERIC_BOUNDS, GENERIC_UNITS
 
-apptitle = "CMTJ simulator"
-
-st.title(apptitle)
-
-container = st.container()
-
-container.markdown(
-    """
-    ## Data Upload
-    If you want to upload data, to overlay it on the plot, please upload
-    a file with \t separated columns: H, f1, f2, ... Put H in (A/m) and f in (Hz).
-    They will be rescaled to (kA/m) and (GHz) automatically.
-    """
-)
-container.file_uploader(
-    "Upload your data here",
-    help="Upload your data here. Must be `\t` separated values and have H and f headers.",
-    type=["txt", "dat"],
-    accept_multiple_files=False,
-    key="upload",
-)
+with st.expander("# Read me"):
+    st.write(
+        """
+        ### Data Upload
+        If you want to upload data, to overlay it on the plot, please upload
+        a file with \t separated columns: H, f1, f2, ... Put H in (A/m) and f in (Hz).
+        They will be rescaled to (kA/m) and (GHz) automatically.
+        """
+    )
 
 with st.sidebar:
+    st.file_uploader(
+        "Upload your data here",
+        help="Upload your data here. Must be `\t` separated values and have H and f headers.",
+        type=["txt", "dat"],
+        accept_multiple_files=False,
+        key="upload",
+    )
     N = st.number_input(
         "Number of layers", min_value=1, max_value=10, value=1, key="N", format="%d"
     )
@@ -42,6 +37,7 @@ with st.sidebar:
                 value=0.52,
                 step=0.01,
                 key=f"Ms{i}",
+                help="Saturation magnetisation (T). Affectes shape aniostropy.",
             )
             st.number_input(
                 f"K ({i+1}) ({GENERIC_UNITS['K']})",
@@ -58,6 +54,7 @@ with st.sidebar:
                 value=1e-3,
                 key=f"alpha{i}",
                 format="%.3f",
+                help="Gilbert damping parameter",
             )
             st.number_input(
                 f"thickness ({i+1}) (nm)",
@@ -72,6 +69,7 @@ with st.sidebar:
                 max_value=500.0,
                 value=10.0,
                 key=f"width{i}",
+                help="Width of the sample. For resistance calculations",
             )
             st.number_input(
                 f"length ({i+1}) (um)",
@@ -79,12 +77,23 @@ with st.sidebar:
                 max_value=500.0,
                 value=10.0,
                 key=f"length{i}",
+                help="Length of the sample. For resistance calculations",
             )
-            st.radio(
-                f"anisotropy axis ({i+1})",
-                options=["x", "y", "z"],
-                key=f"anisotropy_axis{i}",
-                index=2,
+            st.number_input(
+                r"$\theta_\mathrm{K}$ (deg.)",
+                min_value=0.0,
+                max_value=180.0,
+                value=0.0,
+                key=f"theta_K{i}",
+                help="Polar angle of the anisotropy axis",
+            )
+            st.number_input(
+                r"$\phi_\mathrm{K}$ (deg.)",
+                min_value=0.0,
+                max_value=180.0,
+                value=0.0,
+                key=f"phi_K{i}",
+                help="Azimuthal angle of the anisotropy axis",
             )
             st.markdown("-----\n")
 
@@ -97,6 +106,7 @@ with st.sidebar:
                 value=0.0,
                 key=f"J{j}",
                 format="%.3f",
+                help="Interlayer exchange coupling constant",
             )
     with st.expander("Simulation & control parameters"):
         st.selectbox(
@@ -118,6 +128,7 @@ with st.sidebar:
             value=1e-12,
             key="int_step",
             format="%.1e",
+            help="Integration step for the simulation",
         )
         st.number_input(
             "sim_time (ns)",
@@ -126,6 +137,7 @@ with st.sidebar:
             value=16,
             key="sim_time",
             format="%d",
+            help="Simulation time in nanoseconds",
         )
         st.number_input(
             "max_freq (GHz)",
@@ -134,32 +146,34 @@ with st.sidebar:
             value=50,
             key="max_freq",
             format="%d",
+            help="Maximum frequency (cutoff) visible in plot",
         )
 
 
 pimm_tab, vsd_tab, opt_tab = st.tabs(["PIMM", "VSD", "Optimization"])
 with opt_tab:
-    st.markdown(
+    with st.expander("Optimization parameters"):
+        st.markdown(
+            """
+        ### Optimization
+
+        Run Bayesian optimisation -- fitting data is source from file upload.
+        Select the number of iterations.
+        The only optimised values are: Ms, and K and J.
+        All other parameters are treated as constants.
+        Narrow the bounds to improve the optimisation.
+
+        #### Fixed parameters
+        Parameters marked as fixed will not be optimised.
+        In the panel below, __the lower bound value will be fixed__
+
+        #### Values to set on the left hand side panel
+        - H axis
+        - K axis for each layer
+        - alpha for each layer
+        - thickness for each layer
         """
-    ## Optimization
-
-    Run Bayesian optimisation -- fitting data is source from file upload.
-    Select the number of iterations.
-    The only optimised values are: Ms, and K and J.
-    All other parameters are treated as constants.
-    Narrow the bounds to improve the optimisation.
-
-    ### Fixed parameters
-    Parameters marked as fixed will not be optimised.
-    In the panel below, __the lower bound value will be fixed__
-
-    ### Values to set on the left hand side panel
-    - H axis
-    - K axis for each layer
-    - alpha for each layer
-    - thickness for each layer
-    """
-    )
+        )
     st.number_input(
         "Number of iterations",
         min_value=1,
@@ -211,6 +225,14 @@ with opt_tab:
             grid[3].toggle(f"fix {param_name} ({i+1})", key=f"check_{param_name}{i}")
 
 with vsd_tab:
+    with st.expander("VSD simulation parameters"):
+        st.markdown(
+            """### Simulation info
+
+        This is Voltage Spin Diode experiment.
+        The frequency is the sinusoidal excitation frequency fed into the system.
+        """
+        )
     st.number_input(
         "Frequency min (GHz)", min_value=0.0, max_value=50.0, value=0.0, key="fmin"
     )
@@ -233,32 +255,35 @@ with vsd_tab:
         options=["Rx", "Ry"],
         key="res_type",
         index=1,
+        help="Resistance type for the VSD simulation. PRL, Kim et al. 2016",
     )
     st.selectbox("excitation axis", options=["x", "y", "z"], key="Hoex", index=1)
-    st.markdown(
-        """### Simulation info
-
-    This is Voltage Spin Diode experiment (WIP).
-    """
-    )
 
     st.button("Simulate VSD", on_click=simulate_vsd, key="VSD_btn")
 
 with pimm_tab:
     fn = simulate_pimm
-    st.markdown(
-        """### Simulation info
-
-    This app simulates PIMM experiment.
-    """
-    )
+    with st.expander("PIMM simulation parameters"):
+        st.write(
+            """### Simulation info\n
+        This app simulates PIMM experiment wherin we apply a step impulse.
+        Here, the impulse is field impulse (in the experiment that could be Oersted field impulse).
+        This impulse is called $\mathbf{H}_{oe}$.
+        """
+        )
     st.button("Simulate PIMM", on_click=simulate_pimm, key="PIMM_btn")
     st.number_input(
-        "Hoe (kA/m)", min_value=0.05, max_value=50.0, value=0.05, key="Hoe_mag"
+        "Hoe (kA/m)",
+        min_value=0.05,
+        max_value=50.0,
+        value=0.05,
+        key="Hoe_mag",
+        help="Magnitude of the Oersted field impulse (PIMM excitation)",
     )
     st.radio(
         "Hoe axis",
         options=["x", "y", "z"],
         key="Hoeaxis",
         index=1,
+        help="Direction of the Oersted field impulse",
     )

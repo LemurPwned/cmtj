@@ -14,11 +14,14 @@ from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
 
 def create_single_domain(id_: str) -> Layer:
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
-    Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
+    # Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
+    Kdir = FieldScan.angle2vector(
+        theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
+    )
     layer = Layer(
         id=f"domain_{id_}",
-        mag=Kdir1,
-        anis=Kdir1,
+        mag=Kdir,
+        anis=Kdir,
         Ms=st.session_state["Ms_shared"],
         thickness=st.session_state["thickness_shared"] * 1e-9,
         cellSurface=1e-16,
@@ -34,11 +37,13 @@ def create_single_domain(id_: str) -> Layer:
 def create_single_layer(id_: str) -> tuple:
     """Do not forget to rescale the units!"""
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
-    Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
+    Kdir = FieldScan.angle2vector(
+        theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
+    )
     layer = Layer(
         id=f"layer_{id_}",
-        mag=Kdir1,
-        anis=Kdir1,
+        mag=Kdir,
+        anis=Kdir,
         Ms=st.session_state[f"Ms{id_}"],
         thickness=st.session_state[f"thickness{id_}"] * 1e-9,
         cellSurface=1e-16,

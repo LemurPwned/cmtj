@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import numpy as np
@@ -13,6 +14,10 @@ GENERIC_UNITS = {
     "K": "kJ/m^3",
     "J": "uJ/m^2",
 }
+
+
+PREGENERATED_ANGLE_VALUES = [float(np.random.randint(0, 20)) for _ in range(30)]
+
 
 def extract_max_resonance_lines(
     spectrum,
@@ -43,3 +48,9 @@ def extract_max_resonance_lines(
         freqs = frequencies[indices].ravel() + [None] * n_diff
         linespectra[h_vals[i]] = freqs
     return linespectra
+
+
+def get_init_kval(i: int = 0):
+    if i < len(PREGENERATED_ANGLE_VALUES):
+        return PREGENERATED_ANGLE_VALUES[i]
+    return 0.0
