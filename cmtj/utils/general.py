@@ -42,8 +42,7 @@ class VectorObj:
         return hash(str(self))
 
     def __eq__(self, __value: "VectorObj") -> bool:
-        return (self.theta == __value.theta and self.phi == __value.phi
-                and self.mag == __value.mag)
+        return self.theta == __value.theta and self.phi == __value.phi and self.mag == __value.mag
 
     def _componentwise_mul(self, other):
         coors = self.get_cartesian()

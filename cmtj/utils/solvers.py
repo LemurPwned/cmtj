@@ -1,17 +1,11 @@
 import numpy as np
-from scipy.optimize import fsolve, root
+from scipy.optimize import root
 
 
 class RootFinder:
     """Adopted from: https://stackoverflow.com/a/65185377/3588442"""
 
-    def __init__(self,
-                 start,
-                 stop,
-                 step=0.01,
-                 root_dtype="float32",
-                 xtol=1e-9):
-
+    def __init__(self, start, stop, step=0.01, root_dtype="float32", xtol=1e-9):
         self.start = start
         self.stop = stop
         self.step = step
@@ -19,7 +13,6 @@ class RootFinder:
         self.roots = np.array([], dtype=root_dtype)
 
     def add_to_roots(self, x):
-
         if (x < self.start) or (x > self.stop):
             return  # outside range
         if any(abs(self.roots - x) < self.xtol):

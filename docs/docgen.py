@@ -122,7 +122,6 @@ def create_api_markdown_file(src_filename):
                 .replace("@overload", "")
             )
             class_name = doc_.partition("\n")[0].replace(":", "").strip()
-            print(i, class_name)
             md_fn += f"## `{class_name}`"
             for g in extract_python_docs(doc_.replace("...", "...\n")):
                 sig = g.py_signature_to_markdown()

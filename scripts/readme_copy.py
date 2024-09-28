@@ -5,9 +5,7 @@ import shutil
 
 log = logging.getLogger("mkdocs")
 
-KNOWN_REFLINK_MAP = {
-    "./scripts": "https://github.com/LemurPwned/video-sampler/tree/main/scripts",
-}
+KNOWN_REFLINK_MAP = {}
 
 
 def on_startup(command, dirty, **kwargs):

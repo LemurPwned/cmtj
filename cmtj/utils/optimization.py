@@ -1,12 +1,12 @@
 from concurrent.futures import ProcessPoolExecutor
-from typing import Callable, Dict, List
+from typing import Callable
 
 import numpy as np
 from tqdm import tqdm
 
 
 def coordinate_descent(
-    operating_point: Dict[str, float],
+    operating_point: dict[str, float],
     fn: Callable,
     best_mse: float = float("-inf"),
     granularity: int = 10,
@@ -24,10 +24,9 @@ def coordinate_descent(
     for k, org_v in tqdm(operating_point.items(), desc="Coordinate descent"):
         new_params = operating_point.copy()
         for v in tqdm(
-                np.linspace((1 - percentage) * org_v, (1 + percentage) * org_v,
-                            granularity),
-                desc=f"Optimising {k}",
-                leave=False,
+            np.linspace((1 - percentage) * org_v, (1 + percentage) * org_v, granularity),
+            desc=f"Optimising {k}",
+            leave=False,
         ):
             new_params[k] = v
             mse = fn(**new_params)
@@ -40,7 +39,7 @@ def coordinate_descent(
 def multiprocess_simulate(
     fn: Callable,
     error_fn: Callable,
-    suggestions: List[dict],
+    suggestions: list[dict],
     target: np.ndarray,
     fixed_parameters: dict,
 ):
@@ -50,7 +49,8 @@ def multiprocess_simulate(
                 fn,
                 **fixed_parameters,
                 **suggestion,
-            ) for suggestion in suggestions
+            )
+            for suggestion in suggestions
         ]
         errors = np.zeros(len(suggestions))
         for j, future in enumerate(futures):
@@ -82,9 +82,7 @@ def hebo_optimization_loop(
         from hebo.design_space.design_space import DesignSpace
         from hebo.optimizers.hebo import HEBO
     except ImportError as e:
-        raise ImportError(
-            "HEBO is not installed. Please install it with `pip install HEBO`"
-        ) from e
+        raise ImportError("HEBO is not installed. Please install it with `pip install HEBO`") from e
     space = DesignSpace().parse(cfg)
     opt = HEBO(space)
     best_mse = float("inf")

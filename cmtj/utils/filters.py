@@ -1,16 +1,10 @@
-from typing import Tuple
-
 import numpy as np
 from scipy.signal import butter, lfilter
 
 
 class Filters:
-
     @staticmethod
-    def butter_bandpass_filter(data: np.ndarray,
-                               pass_freq: Tuple[float, float],
-                               fs: float,
-                               order: int = 5):
+    def butter_bandpass_filter(data: np.ndarray, pass_freq: tuple[float, float], fs: float, order: int = 5):
         """Basic bandpass (notch) butterworth filter.
         :param data: input data.
         :param pass_freq: the tuple of (low, high) band frequencies.
@@ -29,20 +23,14 @@ class Filters:
                         analog=False,
                     )
                 except ValueError as e:
-                    print(fs, pass_freq, nyq, 0.9 * pass_freq / nyq,
-                          pass_freq / nyq)
+                    print(fs, pass_freq, nyq, 0.9 * pass_freq / nyq, pass_freq / nyq)
                     raise ValueError("Error in filtering") from e
         elif isinstance(pass_freq, tuple):
-            b, a = butter(order, [pass_freq[0], pass_freq[1]],
-                          btype="bandpass",
-                          analog=False)
+            b, a = butter(order, [pass_freq[0], pass_freq[1]], btype="bandpass", analog=False)
         return lfilter(b, a, data, zi=None)
 
     @staticmethod
-    def butter_lowpass_filter(data: np.ndarray,
-                              cutoff: float,
-                              fs: float,
-                              order: int = 5):
+    def butter_lowpass_filter(data: np.ndarray, cutoff: float, fs: float, order: int = 5):
         """Low pass digital filter.
         :param data: data to be filtered.
         :param cutoff: cutoff frequency of the filter.

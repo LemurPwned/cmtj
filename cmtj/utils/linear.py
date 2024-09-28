@@ -1,14 +1,11 @@
-from typing import Tuple
-
 import numpy as np
 
 from cmtj import CVector
 
 
 class FieldScan:
-
     @staticmethod
-    def _trig_compute(theta, phi) -> Tuple:
+    def _trig_compute(theta, phi) -> tuple:
         """Compute trigonometric functions for theta and phi.
         :param theta: theta angle in [deg].
         :param phi: phi angle in [deg].
@@ -34,7 +31,7 @@ class FieldScan:
         )
 
     @staticmethod
-    def vector2angle(x, y, z) -> Tuple:
+    def vector2angle(x, y, z) -> tuple:
         """Convert cartesian coordinates to spherical coordinates.
         :param x: x coordinate of the vector.
         :param y: y coordinate of the vector.
@@ -48,7 +45,7 @@ class FieldScan:
         return theta, phi, r
 
     @staticmethod
-    def cvector2angle(vector: CVector) -> Tuple:
+    def cvector2angle(vector: CVector) -> tuple:
         """
         :param vector: cartesian vector.
         :returns (theta, phi, r)
@@ -64,7 +61,7 @@ class FieldScan:
         theta: float,
         phi: float,
         back: bool = False,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear magnitude sweep. Angles given in deg.
         :param start: start of the sweep
@@ -87,8 +84,9 @@ class FieldScan:
         return Hspan, np.vstack((Hx, Hy, Hz)).T
 
     @staticmethod
-    def theta_scan(start: float, stop: float, steps: int, amplitude: float,
-                   phi: float) -> Tuple[np.ndarray, np.ndarray]:
+    def theta_scan(
+        start: float, stop: float, steps: int, amplitude: float, phi: float
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear theta angle sweep. Angles given in deg.
         :param start: polar angle start of the sweep
@@ -105,8 +103,9 @@ class FieldScan:
         return theta_span, np.vstack((Hx, Hy, Hz)).T
 
     @staticmethod
-    def phi_scan(start: float, stop: float, steps: int, amplitude: float,
-                 theta: float) -> Tuple[np.ndarray, np.ndarray]:
+    def phi_scan(
+        start: float, stop: float, steps: int, amplitude: float, theta: float
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Compute a linear phi angle sweep. Angles given in deg.
         :param start: azimuthal angle start of the sweep
