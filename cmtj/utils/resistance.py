@@ -56,7 +56,7 @@ def compute_gmr(Rp: float, Rap: float, m1: np.ndarray, m2: np.ndarray):
     :param Rap: antiparallel resistance
     :param m1: magnetisation of layer 1
     :param m2: magnetisation of layer 2"""
-    return Rp + 0.5 * (Rap - Rp) * np.sum(m1 * m2, axis=0)
+    return Rp + 0.5 * (Rap - Rp) * (1 - np.sum(m1 * m2, axis=0))
 
 
 def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray):
@@ -98,8 +98,8 @@ def calculate_resistance_parallel(
     :param w: width of the layers
     """
     SxAll, SyAll = compute_resistance(Rx0, Ry0, AMR, AHE, SMR, m, l, w)
-    Rx = 1 / np.sum(1.0 / SxAll, axis=0)
-    Ry = 1 / np.sum(1.0 / SyAll, axis=0)
+    Rx = 1.0 / np.sum(1.0 / SxAll, axis=0)
+    Ry = 1.0 / np.sum(1.0 / SyAll, axis=0)
     return Rx, Ry
 
 

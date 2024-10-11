@@ -157,6 +157,8 @@ class LayerSB:
     :param Ks: surface anisotropy (out-of plane, or perpendicular) value [J/m^3].
     :param Ms: magnetisation saturation value in [A/m].
     :param Hdmi: DMI field in the layer. Defaults to [0, 0, 0].
+    :param Ndemag: demagnetisation tensor diagonal. Defaults to [0, 0, 1] (thin film).
+                  for sphere, use [1/3, 1/3, 1/3].
     """
 
     _id: int
@@ -165,6 +167,7 @@ class LayerSB:
     Ks: float
     Ms: float
     Hdmi: VectorObj = None  # TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))
+    Ndemag: VectorObj = VectorObj.from_cartesian(0, 0, 1)
 
     def __post_init__(self):
         if self._id > 9:
@@ -173,6 +176,8 @@ class LayerSB:
             self.Hdmi = sym.Matrix([0, 0, 0])
         else:
             self.Hdmi = sym.ImmutableMatrix(self.Hdmi.get_cartesian())
+        self.Ndemag = sym.ImmutableMatrix(self.Ndemag.get_cartesian())
+
         self.theta = sym.Symbol(r"\theta_" + str(self._id))
         self.phi = sym.Symbol(r"\phi_" + str(self._id))
         self.m = sym.ImmutableMatrix(
@@ -230,9 +235,14 @@ class LayerSB:
 
         field_energy = -mu0 * self.Ms * m.dot(H)
         hdmi_energy = -mu0 * self.Ms * m.dot(self.Hdmi)
-        surface_anistropy = (-self.Ks + (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1] ** 2)
+        # old surface anisotropy only took into account the thin slab demag
+        # surface_anistropy = (-self.Ks + (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1] ** 2)
+        surface_anistropy = -self.Ks * (m[-1] ** 2)
         volume_anisotropy = -self.Kv.mag * (m.dot(alpha) ** 2)
-        return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy
+        m_2 = sym.ImmutableMatrix([m_i**2 for m_i in m])
+        demagnetisation_energy = 0.5 * mu0 * (self.Ms**2) * m_2.dot(self.Ndemag)
+
+        return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy + demagnetisation_energy
 
     def sb_correction(self):
         omega = sym.Symbol(r"\omega")
@@ -281,7 +291,7 @@ class LayerDynamic(LayerSB):
         inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
         dUdtheta = sym.diff(U, self.theta)
         dUdphi = sym.diff(U, self.phi)
-
+        # TODO: check if dtheta, dphi terms with inv_sin have correct isgn
         dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta
         dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin) ** 2
         return prefac * sym.ImmutableMatrix([dtheta, dphi]) / self.Ms
@@ -323,6 +333,8 @@ class Solver:
         if self.ilD is None:
             # this is optional, if not provided, we assume zero DMI
             self.ilD = [VectorObj(0, 0, 0) for _ in range(len(self.layers) - 1)]
+        elif isinstance(self.layers[0], LayerDynamic):
+            raise ValueError("interlayer DMI coupling is not yet supported for LayerDynamic.")
         if len(self.layers) != len(self.ilD) + 1:
             raise ValueError("Number of layers must be 1 more than ilD.")
         if not all(isinstance(d, VectorObj) for d in self.ilD):
@@ -538,6 +550,48 @@ class Solver:
             current_position = new_position
             # history.append(current_position)
         # return np.asarray(current_position), np.asarray(history)
+        return np.asarray(current_position)
+
+    def amsgrad_gradient_descent(
+        self,
+        init_position: np.ndarray,
+        max_steps: int,
+        tol: float = 1e-8,
+        learning_rate: float = 1e-4,
+        first_momentum_decay: float = 0.9,
+        second_momentum_decay: float = 0.999,
+        perturbation: float = 1e-6,
+    ):
+        """
+        A naive implementation of AMSGrad gradient descent.
+        See: On the Convergence of Adam and Beyond, Reddi et al., 2018
+        :param max_steps: maximum number of gradient steps.
+        :param tol: tolerance of the solution.
+        :param learning_rate: the learning rate (descent speed).
+        :param first_momentum_decay: constant for the first momentum.
+        :param second_momentum_decay: constant for the second momentum.
+        """
+        step = 0
+        gradfn = self.get_gradient_expr()
+        current_position = init_position
+        if perturbation:
+            current_position = perturb_position(init_position, perturbation)
+        m = np.zeros_like(current_position)
+        v = np.zeros_like(current_position)
+        v_hat = np.zeros_like(current_position)
+        eps = 1e-12
+        while True:
+            step += 1
+            grad = np.asarray(gradfn(*current_position))
+            m = first_momentum_decay * m + (1.0 - first_momentum_decay) * grad
+            v = second_momentum_decay * v + (1.0 - second_momentum_decay) * grad**2
+            v_hat = np.maximum(v_hat, v)
+            new_position = current_position - learning_rate * m / (np.sqrt(v_hat) + eps)
+            if step > max_steps:
+                break
+            if fast_norm(current_position - new_position) < tol:
+                break
+            current_position = new_position
         return np.asarray(current_position)
 
     def single_layer_resonance(self, layer_indx: int, eq_position: np.ndarray):
