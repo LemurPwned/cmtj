@@ -264,6 +264,16 @@ class LayerSB:
 @dataclass
 class LayerDynamic(LayerSB):
     alpha: float = 0.01
+    torque_par: float = 0
+    torque_perp: float = 0
+
+    @staticmethod
+    def get_hoe_ex_symbol():
+        return sym.Symbol(r"H_{oe}")
+
+    @staticmethod
+    def get_Vp_symbol():
+        return sym.Symbol(r"V_{p}")
 
     def rhs_llg(
         self,
@@ -274,6 +284,7 @@ class LayerDynamic(LayerSB):
         J2bottom: float,
         top_layer: "LayerSB",
         down_layer: "LayerSB",
+        osc: bool = False,
     ):
         """Returns the symbolic expression for the RHS of the spherical LLG equation.
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
@@ -287,14 +298,35 @@ class LayerDynamic(LayerSB):
             down_layer=down_layer,
         )
         # sum all components
-        prefac = gamma_rad / (1.0 + self.alpha) ** 2
+        prefac = gamma_rad / (1.0 + self.alpha**2)
         inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
         dUdtheta = sym.diff(U, self.theta)
         dUdphi = sym.diff(U, self.phi)
-        # TODO: check if dtheta, dphi terms with inv_sin have correct isgn
-        dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta
-        dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin) ** 2
-        return prefac * sym.ImmutableMatrix([dtheta, dphi]) / self.Ms
+
+        # Hoe can be used only for excitation, unlike Vp which controls torquances
+        Hoe = LayerDynamic.get_hoe_ex_symbol() if osc else 0
+        # TODO: check if dtheta, dphi terms with inv_sin have correct sign (other terms have correct sign)
+        # pubs are contradictory for this sign
+        dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe
+        dphi = (
+            inv_sin * dUdtheta
+            - self.alpha * dUdphi * (inv_sin) ** 2
+            + self.alpha * self.Ms * Hoe / (sym.sin(self.theta) + EPS)
+        )
+        return prefac * (sym.Matrix([dtheta, dphi]) + self.torque(osc=osc)) / self.Ms
+
+    def torque(self, osc: bool = True):
+        # cannot be 0 because you may want to use Hoe + torques
+        Vp = LayerDynamic.get_Vp_symbol() if osc else 1
+        torque_ex_par = self.torque_par * Vp
+        torque_ex_perp = self.torque_perp * Vp
+
+        return sym.ImmutableMatrix(
+            [
+                sym.sin(self.theta) * (-torque_ex_par - self.alpha * torque_ex_perp),
+                -torque_ex_perp + self.alpha * torque_ex_par,
+            ]
+        )
 
     def __eq__(self, __value: "LayerDynamic") -> bool:
         return super().__eq__(__value) and self.alpha == __value.alpha
@@ -385,7 +417,11 @@ class Solver:
         jac = sym.ImmutableMatrix(fns).jacobian(symbols)
         return jac, symbols
 
-    def create_energy(self, H: Union[VectorObj, sym.ImmutableMatrix] = None, volumetric: bool = False):
+    def create_energy(
+        self,
+        H: Union[VectorObj, sym.ImmutableMatrix, None] = None,
+        volumetric: bool = False,
+    ):
         """Creates the symbolic energy expression.
 
         Due to problematic nature of coupling, there is an issue of
@@ -653,6 +689,9 @@ class Solver:
         """
         if self.H is None:
             raise ValueError("H must be set before solving the system numerically.")
+        assert len(init_position) == 2 * len(
+            self.layers
+        ), f"Incorrect initial position size. Given: {len(init_position)}, expected: {2 * len(self.layers)}"
         eq = self.adam_gradient_descent(
             init_position=init_position,
             max_steps=max_steps,
@@ -807,3 +846,97 @@ class Solver:
             roots = np.asarray(roots, dtype=np.float32) * gamma / 1e9
             yield eq, roots, Hvalue
             current_position = eq
+
+    @lru_cache(maxsize=1000)  # noqa: B019
+    def _freq_independent_expr(
+        self,
+        H: VectorObj,
+        Vdc_ex_variable: sym.Expr,
+        Vdc_ex_value: float,
+        zero_pos: list[float],
+    ):
+        """Avoid recomputing the same expression for the same system given fixed
+        parameters.
+        """
+        n = len(self.layers)
+        A_matrix = sym.zeros(2 * n, 2 * n)
+        V_matrix = sym.zeros(2 * n, 1)
+        subs = {
+            Vdc_ex_variable: Vdc_ex_value,
+        }
+        dummy_vp = LayerDynamic.get_Vp_symbol()
+        dummy_hoe = LayerDynamic.get_hoe_ex_symbol()
+        # subs for dummy variables if one of the excitations is present
+        if dummy_vp not in subs:
+            subs[dummy_vp] = 0
+        if dummy_hoe not in subs:
+            subs[dummy_hoe] = 0
+
+        H = sym.ImmutableMatrix(H.get_cartesian())
+        omega = sym.Symbol(r"\omega")
+        for i, layer in enumerate(self.layers):
+            theta, phi = layer.get_coord_sym()
+            subs[theta] = zero_pos[2 * i]
+            subs[phi] = zero_pos[2 * i + 1]
+
+            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
+            _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
+            rhs = layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer, bottom_layer, osc=True)
+            V_matrix[2 * i] = sym.diff(rhs[0], Vdc_ex_variable)
+            V_matrix[2 * i + 1] = sym.diff(rhs[1], Vdc_ex_variable)
+            alpha_factor = 1 + layer.alpha**2
+            for j, layer_j in enumerate(self.layers):
+                theta_, phi_ = layer_j.get_coord_sym()
+                A_matrix[2 * i, 2 * j] = sym.diff(rhs[0], theta_) * alpha_factor
+                A_matrix[2 * i + 1, 2 * j + 1] = sym.diff(rhs[1], phi_) * alpha_factor
+                A_matrix[2 * i, 2 * j + 1] = sym.diff(rhs[0], phi_)
+                A_matrix[2 * i + 1, 2 * j] = sym.diff(rhs[1], theta_)
+                if i == j:
+                    A_matrix[2 * i, 2 * j] += alpha_factor * omega * sym.I
+                    A_matrix[2 * i + 1, 2 * j + 1] += alpha_factor * omega * sym.I
+
+        A_matrix = A_matrix.subs(subs)
+        V_matrix = V_matrix.subs(subs)
+        A_inv = A_matrix.inv(method="LU")
+        return A_inv, V_matrix
+
+    def linearised_N_spin_diode(
+        self,
+        H: Union[VectorObj, np.ndarray],
+        frequency: float,
+        Vdc_ex_variable: sym.Expr,
+        Vdc_ex_value: float,
+        zero_pos: np.ndarray,
+        phase_shift: float = 0,
+    ):
+        """
+        Linearised N-spin diode. Use `LayerDynamic.get_Vp_symbol()`
+        or `LayerDynamic.get_hoe_ex_symbol()` for Vdc_ex_variable.
+        :param H: the external field.
+        :param frequency: the frequency of the external field.
+        :param Vdc_ex_variable: the variable to use for the excitation (Vp or Hoe).
+        :param Vdc_ex_value: the value of the excitation.
+        :param zero_pos: the equilibrium position of the system.
+        :param phase_shift: the phase shift of the external field.
+        :return: the N-spin diode angle variations.
+        """
+        # allow only if the layers are LayerDynamic
+        if not isinstance(self.layers[0], LayerDynamic):
+            raise ValueError("Linearised N-spin diode only works with LayerDynamic.")
+        A_inv, V_matrix = self._freq_independent_expr(
+            VectorObj.from_cartesian(*H) if isinstance(H, np.ndarray) else H,
+            Vdc_ex_variable,
+            Vdc_ex_value,
+            tuple(zero_pos.tolist()),  # for hashing & caching
+        )
+        extra_subs = {sym.Symbol(r"\omega"): 2 * sym.pi * frequency}
+        A_inv = A_inv.subs(extra_subs)
+        V_matrix = V_matrix.subs(extra_subs)
+        fstep = A_inv * V_matrix * sym.exp(sym.I * phase_shift)
+        return np.real(np.complex64(fstep.evalf()))
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return str(self) == str(other)
