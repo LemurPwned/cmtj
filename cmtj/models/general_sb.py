@@ -847,22 +847,41 @@ class Solver:
             yield eq, roots, Hvalue
             current_position = eq
 
-    @lru_cache(maxsize=1000)  # noqa: B019
-    def _freq_independent_expr(
+    def _independent_linearised_jacobian_expr(
         self,
-        H: VectorObj,
         Vdc_ex_variable: sym.Expr,
         Vdc_ex_value: float,
         zero_pos: list[float],
+        H: Union[VectorObj, None] = None,
+        frequency: float = None,
     ):
         """Avoid recomputing the same expression for the same system given fixed
-        parameters.
+        parameters. Computes a linearised Jacobian matrix and its inverse.
+        :param Vdc_ex_variable: the variable to use for the excitation (Vp or Hoe).
+        :param Vdc_ex_value: the value of the excitation.
+        :param zero_pos: the equilibrium position of the system.
+        :param H: the external field. If None, the H symbol is used.
+        :param frequency: the frequency of the external field. If None, the omega symbol is used.
+        :return: the inverse of the Jacobian matrix and the V matrix.
         """
         n = len(self.layers)
-        A_matrix = sym.zeros(2 * n, 2 * n)
-        V_matrix = sym.zeros(2 * n, 1)
+        H = (
+            sym.ImmutableMatrix(H.get_cartesian())
+            if H is not None
+            else sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
+        )
+        A_matrix, V_matrix = self._compute_A_and_V_matrices(
+            n=n,
+            Vdc_ex_variable=Vdc_ex_variable,
+            H=H,
+            frequency=frequency,
+        )
         subs = {
             Vdc_ex_variable: Vdc_ex_value,
+            sym.Symbol(r"\omega"): 2 * sym.pi * frequency,
+            sym.Symbol(r"H_{x}"): H[0],
+            sym.Symbol(r"H_{y}"): H[1],
+            sym.Symbol(r"H_{z}"): H[2],
         }
         dummy_vp = LayerDynamic.get_Vp_symbol()
         dummy_hoe = LayerDynamic.get_hoe_ex_symbol()
@@ -872,13 +891,28 @@ class Solver:
         if dummy_hoe not in subs:
             subs[dummy_hoe] = 0
 
-        H = sym.ImmutableMatrix(H.get_cartesian())
-        omega = sym.Symbol(r"\omega")
         for i, layer in enumerate(self.layers):
             theta, phi = layer.get_coord_sym()
             subs[theta] = zero_pos[2 * i]
             subs[phi] = zero_pos[2 * i + 1]
+        A_matrix = sym.ImmutableMatrix(A_matrix)
+        A_matrix = A_matrix.subs(subs)
+        V_matrix = V_matrix.subs(subs)
+        return A_matrix, V_matrix
 
+    def _compute_numerical_inverse(self, A_matrix):
+        # Use NumPy for faster matrix inversion
+        A_np = np.asarray(A_matrix, dtype=np.complex128)
+        A_inv_np = np.linalg.inv(A_np)
+        return sym.Matrix(A_inv_np)
+
+    @lru_cache(maxsize=1000)  # noqa: B019
+    def _compute_A_and_V_matrices(self, n, Vdc_ex_variable, H, frequency):
+        A_matrix = sym.zeros(2 * n, 2 * n)
+        V_matrix = sym.zeros(2 * n, 1)
+
+        omega = sym.Symbol(r"\omega") if frequency is None else 2 * sym.pi * frequency
+        for i, layer in enumerate(self.layers):
             top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
             _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
             rhs = layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer, bottom_layer, osc=True)
@@ -889,16 +923,12 @@ class Solver:
                 theta_, phi_ = layer_j.get_coord_sym()
                 A_matrix[2 * i, 2 * j] = sym.diff(rhs[0], theta_) * alpha_factor
                 A_matrix[2 * i + 1, 2 * j + 1] = sym.diff(rhs[1], phi_) * alpha_factor
-                A_matrix[2 * i, 2 * j + 1] = sym.diff(rhs[0], phi_)
-                A_matrix[2 * i + 1, 2 * j] = sym.diff(rhs[1], theta_)
+                A_matrix[2 * i, 2 * j + 1] = sym.diff(rhs[0], phi_) * alpha_factor
+                A_matrix[2 * i + 1, 2 * j] = sym.diff(rhs[1], theta_) * alpha_factor
                 if i == j:
                     A_matrix[2 * i, 2 * j] += alpha_factor * omega * sym.I
                     A_matrix[2 * i + 1, 2 * j + 1] += alpha_factor * omega * sym.I
-
-        A_matrix = A_matrix.subs(subs)
-        V_matrix = V_matrix.subs(subs)
-        A_inv = A_matrix.inv(method="LU")
-        return A_inv, V_matrix
+        return A_matrix, V_matrix
 
     def linearised_N_spin_diode(
         self,
@@ -908,9 +938,9 @@ class Solver:
         Vdc_ex_value: float,
         zero_pos: np.ndarray,
         phase_shift: float = 0,
+        cache_var: str = "H",
     ):
-        """
-        Linearised N-spin diode. Use `LayerDynamic.get_Vp_symbol()`
+        """Linearised N-spin diode. Use `LayerDynamic.get_Vp_symbol()`
         or `LayerDynamic.get_hoe_ex_symbol()` for Vdc_ex_variable.
         :param H: the external field.
         :param frequency: the frequency of the external field.
@@ -921,17 +951,36 @@ class Solver:
         :return: the N-spin diode angle variations.
         """
         # allow only if the layers are LayerDynamic
-        if not isinstance(self.layers[0], LayerDynamic):
+        if not all(isinstance(layer, LayerDynamic) for layer in self.layers):
             raise ValueError("Linearised N-spin diode only works with LayerDynamic.")
-        A_inv, V_matrix = self._freq_independent_expr(
-            VectorObj.from_cartesian(*H) if isinstance(H, np.ndarray) else H,
-            Vdc_ex_variable,
-            Vdc_ex_value,
-            tuple(zero_pos.tolist()),  # for hashing & caching
+        H = VectorObj.from_cartesian(*H) if isinstance(H, np.ndarray) else H
+
+        extra_args = {}
+        extra_subs = {}
+        if cache_var == "H":
+            extra_args["frequency"] = frequency
+            Hcart = H.get_cartesian()
+            extra_subs = {
+                sym.Symbol(r"H_{x}"): Hcart[0],
+                sym.Symbol(r"H_{y}"): Hcart[1],
+                sym.Symbol(r"H_{z}"): Hcart[2],
+            }
+        elif cache_var == "f":
+            extra_args["H"] = H
+            extra_subs = {
+                sym.Symbol(r"\omega"): 2 * sym.pi * frequency,
+            }
+
+        A_matrix, V_matrix = self._independent_linearised_jacobian_expr(
+            Vdc_ex_variable=Vdc_ex_variable,
+            Vdc_ex_value=Vdc_ex_value,
+            zero_pos=tuple(zero_pos.tolist()),  # for hashing & caching
+            **extra_args,
         )
-        extra_subs = {sym.Symbol(r"\omega"): 2 * sym.pi * frequency}
-        A_inv = A_inv.subs(extra_subs)
+        A_matrix = A_matrix.subs(extra_subs)
         V_matrix = V_matrix.subs(extra_subs)
+
+        A_inv = self._compute_numerical_inverse(A_matrix)
         fstep = A_inv * V_matrix * sym.exp(sym.I * phase_shift)
         return np.real(np.complex64(fstep.evalf()))
 
