@@ -11,8 +11,8 @@ import sympy as sym
 from numba import njit
 from tqdm import tqdm
 
-from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
-from ..utils.solvers import RootFinder
+from cmtj.utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
+from cmtj.utils.solvers import RootFinder
 
 EPS = np.finfo("float64").resolution
 
@@ -197,7 +197,7 @@ class LayerSB:
         return self.m
 
     @lru_cache(3)  # noqa: B019
-    def symbolic_layer_energy(
+    def total_symbolic_layer_energy(
         self,
         H: sym.ImmutableMatrix,
         J1top: float,
@@ -211,22 +211,22 @@ class LayerSB:
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
 
-        eng_non_interaction = self.no_iec_symbolic_layer_energy(H)
+        eng_non_interaction = self.no_interaction_symbolic_energy(H) * self.thickness
 
         top_iec_energy = 0
         bottom_iec_energy = 0
 
         if top_layer is not None:
             other_m = top_layer.get_m_sym()
-            top_iec_energy = -(J1top / self.thickness) * m.dot(other_m) - (J2top / self.thickness) * m.dot(other_m) ** 2
+            mdot = m.dot(other_m)
+            top_iec_energy = -J1top * mdot - J2top * mdot**2
         if down_layer is not None:
             other_m = down_layer.get_m_sym()
-            bottom_iec_energy = (
-                -(J1bottom / self.thickness) * m.dot(other_m) - (J2bottom / self.thickness) * m.dot(other_m) ** 2
-            )
+            mdot = m.dot(other_m)
+            bottom_iec_energy = -J1bottom * mdot - J2bottom * mdot**2
         return eng_non_interaction + top_iec_energy + bottom_iec_energy
 
-    def no_iec_symbolic_layer_energy(self, H: sym.ImmutableMatrix):
+    def no_interaction_symbolic_energy(self, H: sym.ImmutableMatrix):
         """Returns the symbolic expression for the energy of the layer.
         Coupling contribution comes only from the bottom layer (top-down crawl)"""
         m = self.get_m_sym()
@@ -275,28 +275,17 @@ class LayerDynamic(LayerSB):
     def get_Vp_symbol():
         return sym.Symbol(r"V_{p}")
 
-    def rhs_llg(
+    def rhs_spherical_llg(
         self,
-        H: sym.Matrix,
-        J1top: float,
-        J1bottom: float,
-        J2top: float,
-        J2bottom: float,
-        top_layer: "LayerSB",
-        down_layer: "LayerSB",
+        U: sym.Matrix,
         osc: bool = False,
     ):
         """Returns the symbolic expression for the RHS of the spherical LLG equation.
-        Coupling contribution comes only from the bottom layer (top-down crawl)"""
-        U = self.symbolic_layer_energy(
-            H,
-            J1top=J1top,
-            J1bottom=J1bottom,
-            J2top=J2top,
-            J2bottom=J2bottom,
-            top_layer=top_layer,
-            down_layer=down_layer,
-        )
+        Coupling contribution comes only from the bottom layer (top-down crawl)
+
+        :param H: external field
+        :param U: energy expression of the layer
+        """
         # sum all components
         prefac = gamma_rad / (1.0 + self.alpha**2)
         inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
@@ -386,7 +375,7 @@ class Solver:
         if id_sets != ideal_set:
             raise ValueError("Layer ids must be 0, 1, 2, ... and unique." "Ids must start from 0.")
 
-    def get_layer_references(self, layer_indx, interaction_constant):
+    def get_layer_references(self, layer_indx: int, interaction_constant: list[float]):
         """Returns the references to the layers above and below the layer
         with index layer_indx."""
         if len(self.layers) == 1:
@@ -409,14 +398,14 @@ class Solver:
             H = sym.ImmutableMatrix(H.get_cartesian())
 
         symbols, fns = [], []
-        for i, layer in enumerate(self.layers):
+        U = self.create_energy(H=H, volumetric=False)
+        for layer in self.layers:
             symbols.extend((layer.theta, layer.phi))
-            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
-            _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
-            fns.append(layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer, bottom_layer))
+            fns.append(layer.rhs_spherical_llg(U, osc=False))
         jac = sym.ImmutableMatrix(fns).jacobian(symbols)
         return jac, symbols
 
+    @lru_cache(3)
     def create_energy(
         self,
         H: Union[VectorObj, sym.ImmutableMatrix, None] = None,
@@ -434,63 +423,39 @@ class Solver:
         if H is None:
             h = self.H.get_cartesian()
             H = sym.ImmutableMatrix(h)
-        energy = 0
-        if volumetric:
-            # volumetric energy -- DO NOT USE IN GENERAL
-            for i, layer in enumerate(self.layers):
-                top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
-                _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
-                ratio_top, ratio_bottom = 0, 0
-                if top_layer:
-                    ratio_top = top_layer.thickness / (top_layer.thickness + layer.thickness)
-                if bottom_layer:
-                    ratio_bottom = bottom_layer.thickness / (layer.thickness + bottom_layer.thickness)
-                energy += layer.symbolic_layer_energy(
-                    H,
-                    Jtop * ratio_top,
-                    Jbottom * ratio_bottom,
-                    J2top,
-                    J2bottom,
-                    top_layer,
-                    bottom_layer,
+        energy = sum(layer.no_interaction_symbolic_energy(H) * layer.thickness for layer in self.layers)
+
+        for i in range(len(self.layers) - 1):
+            l1m = self.layers[i].get_m_sym()
+            l2m = self.layers[i + 1].get_m_sym()
+
+            # IEC
+            ldot = l1m.dot(l2m)
+            energy -= self.J1[i] * ldot
+            energy -= self.J2[i] * (ldot) ** 2
+
+            # IDMI, sign is the same J1
+            lcross = l1m.cross(l2m)
+            energy -= self.ilD[i].dot(lcross)
+
+            # dipole fields
+            if self.dipoleMatrix is not None:
+                mat = self.dipoleMatrix[i]
+                # is positive, just like demag
+                energy += (
+                    (mu0 / 2.0)
+                    * l1m.dot(mat * l2m)
+                    * self.layers[i].Ms
+                    * self.layers[i + 1].Ms
+                    * self.layers[i].thickness
                 )
-        else:
-            # surface energy for correct angular gradient
-            for layer in self.layers:
-                # to avoid dividing J by thickness
-                energy += layer.no_iec_symbolic_layer_energy(H) * layer.thickness
-
-            for i in range(len(self.layers) - 1):
-                l1m = self.layers[i].get_m_sym()
-                l2m = self.layers[i + 1].get_m_sym()
-
-                # IEC
-                ldot = l1m.dot(l2m)
-                energy -= self.J1[i] * ldot
-                energy -= self.J2[i] * (ldot) ** 2
-
-                # IDMI, sign is the same J1
-                lcross = l1m.cross(l2m)
-                energy -= self.ilD[i].dot(lcross)
-
-                # dipole fields
-                if self.dipoleMatrix is not None:
-                    mat = self.dipoleMatrix[i]
-                    # is positive, just like demag
-                    energy += (
-                        (mu0 / 2.0)
-                        * l1m.dot(mat * l2m)
-                        * self.layers[i].Ms
-                        * self.layers[i + 1].Ms
-                        * self.layers[i].thickness
-                    )
-                    energy += (
-                        (mu0 / 2.0)
-                        * l2m.dot(mat * l1m)
-                        * self.layers[i].Ms
-                        * self.layers[i + 1].Ms
-                        * self.layers[i + 1].thickness
-                    )
+                energy += (
+                    (mu0 / 2.0)
+                    * l2m.dot(mat * l1m)
+                    * self.layers[i].Ms
+                    * self.layers[i + 1].Ms
+                    * self.layers[i + 1].thickness
+                )
         return energy
 
     def create_energy_hessian(self, equilibrium_position: list[float]):
@@ -910,12 +875,10 @@ class Solver:
     def _compute_A_and_V_matrices(self, n, Vdc_ex_variable, H, frequency):
         A_matrix = sym.zeros(2 * n, 2 * n)
         V_matrix = sym.zeros(2 * n, 1)
-
+        U = self.create_energy(H=H, volumetric=False)
         omega = sym.Symbol(r"\omega") if frequency is None else 2 * sym.pi * frequency
         for i, layer in enumerate(self.layers):
-            top_layer, bottom_layer, Jtop, Jbottom = self.get_layer_references(i, self.J1)
-            _, _, J2top, J2bottom = self.get_layer_references(i, self.J2)
-            rhs = layer.rhs_llg(H, Jtop, Jbottom, J2top, J2bottom, top_layer, bottom_layer, osc=True)
+            rhs = layer.rhs_spherical_llg(U / layer.thickness, osc=True)
             V_matrix[2 * i] = sym.diff(rhs[0], Vdc_ex_variable)
             V_matrix[2 * i + 1] = sym.diff(rhs[1], Vdc_ex_variable)
             alpha_factor = 1 + layer.alpha**2
