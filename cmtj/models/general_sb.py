@@ -11,8 +11,8 @@ import sympy as sym
 from numba import njit
 from tqdm import tqdm
 
-from cmtj.utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
-from cmtj.utils.solvers import RootFinder
+from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
+from ..utils.solvers import RootFinder
 
 EPS = np.finfo("float64").resolution
 
@@ -294,14 +294,8 @@ class LayerDynamic(LayerSB):
 
         # Hoe can be used only for excitation, unlike Vp which controls torquances
         Hoe = LayerDynamic.get_hoe_ex_symbol() if osc else 0
-        # TODO: check if dtheta, dphi terms with inv_sin have correct sign (other terms have correct sign)
-        # pubs are contradictory for this sign
         dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe
-        dphi = (
-            inv_sin * dUdtheta
-            - self.alpha * dUdphi * (inv_sin) ** 2
-            + self.alpha * self.Ms * Hoe / (sym.sin(self.theta) + EPS)
-        )
+        dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin) ** 2 + self.alpha * self.Ms * Hoe * inv_sin
         return prefac * (sym.Matrix([dtheta, dphi]) + self.torque(osc=osc)) / self.Ms
 
     def torque(self, osc: bool = True):
@@ -354,8 +348,6 @@ class Solver:
         if self.ilD is None:
             # this is optional, if not provided, we assume zero DMI
             self.ilD = [VectorObj(0, 0, 0) for _ in range(len(self.layers) - 1)]
-        elif isinstance(self.layers[0], LayerDynamic):
-            raise ValueError("interlayer DMI coupling is not yet supported for LayerDynamic.")
         if len(self.layers) != len(self.ilD) + 1:
             raise ValueError("Number of layers must be 1 more than ilD.")
         if not all(isinstance(d, VectorObj) for d in self.ilD):
@@ -366,8 +358,6 @@ class Solver:
         if self.Ndipole is not None:
             if len(self.layers) != len(self.Ndipole) + 1:
                 raise ValueError("Number of layers must be 1 more than number of tensors.")
-            if isinstance(self.layers[0], LayerDynamic):
-                raise ValueError("Dipole coupling is not yet supported for LayerDynamic.")
             self.dipoleMatrix = [sym.Matrix([d.get_cartesian() for d in dipole]) for dipole in self.Ndipole]
 
         id_sets = {layer._id for layer in self.layers}
@@ -401,11 +391,11 @@ class Solver:
         U = self.create_energy(H=H, volumetric=False)
         for layer in self.layers:
             symbols.extend((layer.theta, layer.phi))
-            fns.append(layer.rhs_spherical_llg(U, osc=False))
+            fns.append(layer.rhs_spherical_llg(U / layer.thickness, osc=False))
         jac = sym.ImmutableMatrix(fns).jacobian(symbols)
         return jac, symbols
 
-    @lru_cache(3)
+    @lru_cache(3)  # cache for 3 calls
     def create_energy(
         self,
         H: Union[VectorObj, sym.ImmutableMatrix, None] = None,
@@ -884,10 +874,10 @@ class Solver:
             alpha_factor = 1 + layer.alpha**2
             for j, layer_j in enumerate(self.layers):
                 theta_, phi_ = layer_j.get_coord_sym()
-                A_matrix[2 * i, 2 * j] = sym.diff(rhs[0], theta_) * alpha_factor
-                A_matrix[2 * i + 1, 2 * j + 1] = sym.diff(rhs[1], phi_) * alpha_factor
-                A_matrix[2 * i, 2 * j + 1] = sym.diff(rhs[0], phi_) * alpha_factor
-                A_matrix[2 * i + 1, 2 * j] = sym.diff(rhs[1], theta_) * alpha_factor
+                A_matrix[2 * i, 2 * j] = -sym.diff(rhs[0], theta_) * alpha_factor
+                A_matrix[2 * i + 1, 2 * j + 1] = -sym.diff(rhs[1], phi_) * alpha_factor
+                A_matrix[2 * i, 2 * j + 1] = -sym.diff(rhs[0], phi_) * alpha_factor
+                A_matrix[2 * i + 1, 2 * j] = -sym.diff(rhs[1], theta_) * alpha_factor
                 if i == j:
                     A_matrix[2 * i, 2 * j] += alpha_factor * omega * sym.I
                     A_matrix[2 * i + 1, 2 * j + 1] += alpha_factor * omega * sym.I
