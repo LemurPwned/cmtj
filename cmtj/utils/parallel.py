@@ -8,7 +8,12 @@ from tqdm import tqdm
 __all__ = ["distribute"]
 
 
-def distribute(simulation_fn: Callable, spaces: list[list[float]], n_cores: int = None, shuffle: bool = False):
+def distribute(
+    simulation_fn: Callable,
+    spaces: list[list[float]],
+    n_cores: int = None,
+    shuffle: bool = False,
+):
     """
     Distribute a function over a list of parameters in parallel.
     :param simulation_fn: function to be distributed

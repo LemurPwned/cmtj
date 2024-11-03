@@ -56,7 +56,7 @@ def compute_gmr(Rp: float, Rap: float, m1: np.ndarray, m2: np.ndarray):
     :param Rap: antiparallel resistance
     :param m1: magnetisation of layer 1
     :param m2: magnetisation of layer 2"""
-    return Rp + 0.5 * (Rap - Rp) * np.sum(m1 * m2, axis=0)
+    return Rp + 0.5 * (Rap - Rp) * (1 - np.sum(m1 * m2, axis=0))
 
 
 def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray):
@@ -98,8 +98,8 @@ def calculate_resistance_parallel(
     :param w: width of the layers
     """
     SxAll, SyAll = compute_resistance(Rx0, Ry0, AMR, AHE, SMR, m, l, w)
-    Rx = 1 / np.sum(1.0 / SxAll, axis=0)
-    Ry = 1 / np.sum(1.0 / SyAll, axis=0)
+    Rx = 1.0 / np.sum(1.0 / SxAll, axis=0)
+    Ry = 1.0 / np.sum(1.0 / SyAll, axis=0)
     return Rx, Ry
 
 
@@ -132,3 +132,36 @@ def calculate_resistance_series(
     Rx = np.sum(SxAll, axis=0)
     Ry = np.sum(SyAll, axis=0)
     return Rx, Ry
+
+
+def angular_calculate_resistance_gmr(
+    Rp: float,
+    Rap: float,
+    theta_1: np.ndarray,
+    phi_1: np.ndarray,
+    theta_2: np.ndarray,
+    phi_2: np.ndarray,
+):
+    """Computes the GMR using parallel and antiparallel resistance.
+    :param Rp: parallel resistance
+    :param Rap: antiparallel resistance
+    :param theta_1: angle of layer 1
+    :param phi_1: angle of layer 1
+    :param theta_2: angle of layer 2
+    :param phi_2: angle of layer 2
+    """
+    m1 = np.array(
+        [
+            np.cos(theta_1) * np.cos(phi_1),
+            np.cos(theta_1) * np.sin(phi_1),
+            np.sin(theta_1),
+        ]
+    )
+    m2 = np.array(
+        [
+            np.cos(theta_2) * np.cos(phi_2),
+            np.cos(theta_2) * np.sin(phi_2),
+            np.sin(theta_2),
+        ]
+    )
+    return compute_gmr(Rp, Rap, m1, m2)
