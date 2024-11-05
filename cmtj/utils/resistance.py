@@ -1,6 +1,7 @@
 from typing import Union
 
 import numpy as np
+import sympy as sym
 
 from .filters import Filters
 
@@ -165,3 +166,137 @@ def angular_calculate_resistance_gmr(
         ]
     )
     return compute_gmr(Rp, Rap, m1, m2)
+
+
+def calculate_linearised_resistance(
+    GMR: float,
+    AMR: list[float],
+    SMR: list[float],
+):
+    """
+    Compute the resistance of the two FM bilayer system from the linearised angles.
+    :param GMR: GMR
+    :param AMR: AMR
+    :param SMR: SMR
+    :param stationary_angles: stationary angles [t1, p1, t2, p2]
+    :param linearised_angles: linearised angles [dt1, dp1, dt2, dp2]
+    """
+    theta1 = sym.Symbol(r"\theta_1")
+    phi1 = sym.Symbol(r"\phi_1")
+    theta2 = sym.Symbol(r"\theta_2")
+    phi2 = sym.Symbol(r"\phi_2")
+    m1 = sym.Matrix(
+        [
+            sym.sin(theta1) * sym.cos(phi1),
+            sym.sin(theta1) * sym.sin(phi1),
+            sym.cos(theta1),
+        ]
+    )
+    m2 = sym.Matrix(
+        [
+            sym.sin(theta2) * sym.cos(phi2),
+            -sym.sin(theta2) * sym.sin(phi2),
+            sym.cos(theta2),
+        ]
+    )
+    GMR_resistance = GMR * (1 - (m1.dot(m2))) / 2.0
+
+    Rxx1 = AMR[0] * m1[0] ** 2 + SMR[0] * m1[1] ** 2
+    Rxx2 = AMR[1] * m2[0] ** 2 + SMR[1] * m2[1] ** 2
+    return Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2
+
+
+def calculate_linearised_resistance_parallel(
+    GMR: float,
+    AMR: list[float],
+    SMR: list[float],
+    stationary_angles: list[float],
+    linearised_angles: list[float],
+):
+    """
+    Compute the parallel resistance of the two FM bilayer system from the linearised angles.
+    :param GMR: GMR
+    :param AMR: AMR
+    :param SMR: SMR
+    :param stationary_angles: stationary angles [t1, p1, t2, p2]
+    :param linearised_angles: linearised angles [dt1, dp1, dt2, dp2]
+    """
+    t01, p01 = stationary_angles[:2]
+    t02, p02 = stationary_angles[2:]
+    dt1, dp1 = linearised_angles[:2]
+    dt2, dp2 = linearised_angles[2:]
+    Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = calculate_linearised_resistance(GMR, AMR, SMR)
+    Rparallel = GMR_resistance
+    if any(AMR) or any(SMR):
+        Rparallel += (Rxx1 * Rxx2) / (Rxx1 + Rxx2)
+    dRparallel = (
+        sym.diff(Rparallel, theta1) * dt1
+        + sym.diff(Rparallel, phi1) * dp1
+        + sym.diff(Rparallel, theta2) * dt2
+        + sym.diff(Rparallel, phi2) * dp2
+    )
+
+    dRparallel = dRparallel.subs(
+        {
+            theta1: t01,
+            phi1: p01,
+            theta2: t02,
+            phi2: p02,
+        }
+    ).evalf()
+    Rparallel = Rparallel.subs(
+        {
+            theta1: t01,
+            phi1: p01,
+            theta2: t02,
+            phi2: p02,
+        }
+    ).evalf()
+    return dRparallel, Rparallel
+
+
+def calculate_linearised_resistance_series(
+    GMR: float,
+    AMR: list[float],
+    SMR: list[float],
+    stationary_angles: list[float],
+    linearised_angles: list[float],
+):
+    """
+    Compute the resistance of the two FM bilayer system from the linearised angles.
+    :param GMR: GMR
+    :param AMR: AMR
+    :param SMR: SMR
+    :param stationary_angles: stationary angles [t1, p1, t2, p2]
+    :param linearised_angles: linearised angles [dt1, dp1, dt2, dp2]
+    """
+    t01, p01 = stationary_angles[:2]
+    t02, p02 = stationary_angles[2:]
+    dt1, dp1 = linearised_angles[:2]
+    dt2, dp2 = linearised_angles[2:]
+    Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = calculate_linearised_resistance(GMR, AMR, SMR)
+    Rseries = GMR_resistance + Rxx1 + Rxx2
+    dRseries = (
+        sym.diff(Rseries, theta1) * dt1
+        + sym.diff(Rseries, phi1) * dp1
+        + sym.diff(Rseries, theta2) * dt2
+        + sym.diff(Rseries, phi2) * dp2
+    )
+
+    dRseries = dRseries.subs(
+        {
+            theta1: t01,
+            phi1: p01,
+            theta2: t02,
+            phi2: p02,
+        }
+    ).evalf()
+    Rseries = Rseries.subs(
+        {
+            theta1: t01,
+            phi1: p01,
+            theta2: t02,
+            phi2: p02,
+        }
+    ).evalf()
+    return dRseries, Rseries
