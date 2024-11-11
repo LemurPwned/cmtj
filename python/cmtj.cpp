@@ -378,6 +378,10 @@ PYBIND11_MODULE(cmtj, m) {
      // reservoir module
      py::module reservoir_module = m.def_submodule(
           "reservoir", "A reservoir submodule for joining MTJ junctions");
+     reservoir_module.def("nullDipoleInteraction", &nullDipoleInteraction, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);
+     reservoir_module.def("computeDipoleInteraction", &computeDipoleInteraction, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);
+     reservoir_module.def("computeDipoleInteractionNoumra", &computeDipoleInteractionNoumra, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);
+
      py::class_<GroupInteraction>(reservoir_module, "GroupInteraction")
           .def(py::init<std::vector<DVector>, std::vector<DJunction>, std::string>(),
                "coordinateMatrix"_a, "junctionList"_a, "topId"_a = "free")

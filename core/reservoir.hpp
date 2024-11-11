@@ -29,17 +29,54 @@ void comb(int N, int K) {
     std::cout << std::endl;
   } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
 }
+
+typedef std::array<CVector<double>, 3> tensor;
+typedef std::vector<tensor> tensorList;
 template <typename T>
 using solverFn = void (Layer<T>::*)(T t, T timeStep, const CVector<T> &bottom,
                                     const CVector<T> &top);
 template <typename T>
 using runnerFn = void (Junction<T>::*)(solverFn<T> &functor, T &t, T &timeStep);
 
+const tensor getDipoleTensorFromRelPositions(const CVector<double> &r1,
+                                             const CVector<double> &r2) {
+  const CVector<double> rij = r1 - r2; // 1-2 distance vector
+  const double r_mag = pow(rij.length(), 2);
+  const double mult = 3 / (4 * M_PI * pow(rij.length(), 5));
+  const tensor dipoleTensor = {CVector<double>(pow(rij.x, 2) - (r_mag / 3),
+                                               rij.x * rij.y, rij.x * rij.z) *
+                                   mult,
+                               CVector<double>(rij.x * rij.y,
+                                               pow(rij.y, 2) - (r_mag / 3),
+                                               rij.y * rij.z) *
+                                   mult,
+                               CVector<double>(rij.x * rij.z, rij.y * rij.z,
+                                               pow(rij.z, 2) - (r_mag / 3)) *
+                                   mult};
+  return dipoleTensor;
+}
+
 typedef std::function<CVector<double>(
     const CVector<double> &, const CVector<double> &, const Layer<double> &,
     const Layer<double> &)>
     interactionFunction;
 
+CVector<double> nullDipoleInteraction(const CVector<double> &,
+                                      const CVector<double> &,
+                                      const Layer<double> &,
+                                      const Layer<double> &) {
+  return CVector<double>(0, 0, 0);
+}
+
+/**
+ * @brief Compute dipole interaction between two junctions.
+ * From: Kanao et al, Reservoir Computing on Spin-Torque Oscillator Array (2019)
+ * PRA
+ * @param r1 1st junction position
+ * @param r2 2nd junction position
+ * @param layer1 1st junction layer
+ * @param layer2 2nd junction layer
+ */
 CVector<double> computeDipoleInteraction(const CVector<double> &r1,
                                          const CVector<double> &r2,
                                          const Layer<double> &layer1,
@@ -56,11 +93,26 @@ CVector<double> computeDipoleInteraction(const CVector<double> &r1,
   return prefactor * (3 * c_dot(m1, rij) * rij / r5 - m1 / r3);
 }
 
+/**
+ * @brief Compute dipole interaction between two junctions.
+ * From: Nomura et al, Reservoir computing with dipole-coupled nanomagnets
+ * (2019) JJAP
+ * @param r1 1st junction position
+ * @param r2 2nd junction position
+ * @param layer1 1st junction layer
+ * @param layer2 2nd junction layer
+ */
 CVector<double> computeDipoleInteractionNoumra(const CVector<double> &r1,
                                                const CVector<double> &r2,
                                                const Layer<double> &layer1,
                                                const Layer<double> &layer2) {
-  return computeDipoleInteraction(r1, r2, layer1, layer2);
+  const tensor dipoleTensor = getDipoleTensorFromRelPositions(r1, r2);
+  const double V = layer2.thickness * layer2.cellSurface;
+  const CVector<double> dipoleVector = calculate_tensor_interaction(
+      layer2.mag, dipoleTensor, (layer2.Ms / MAGNETIC_PERMEABILITY) * V);
+  // in the paper they don't multiply explicitly by V, but it's necessary for
+  // units to match
+  return dipoleVector;
 }
 
 class GroupInteraction {
@@ -85,8 +137,6 @@ class GroupInteraction {
                         this->junctionList[i].getLayer(this->topId),
                         this->junctionList[j].getLayer(this->topId));
       }
-      std::cout << "H_extra: " << H_extra << " " << H_extra.length()
-                << std::endl;
       this->junctionList[i].setLayerReservedInteractionField(
           this->topId, AxialDriver<double>(H_extra));
     }
@@ -179,9 +229,6 @@ public:
   }
 };
 
-typedef std::array<CVector<double>, 3> tensor;
-// typedef std::vector<std::vector<tensor>> tensorMatrix;
-typedef std::vector<tensor> tensorList;
 class Reservoir {
 private:
   // log stuff
