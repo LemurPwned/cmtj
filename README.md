@@ -48,7 +48,8 @@ Below is a brief list of examples (it's not exhaustive! Check the docs for more)
   - Magnetic Tunnel Junction Arrays
 - SOT devices
   - Current-Driven SOT
-- Reservoirs (diploe coupling)
+- Advanced device coupling
+- Reservoirs (dipole coupling)
 - Electrically coupled MTJs
 - Base equations
   - Landau-Lifshitz-Gilbert-Slonczewski equation

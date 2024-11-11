@@ -3,6 +3,8 @@ from typing import Union
 import numpy as np
 import sympy as sym
 
+from new_sb import EPS
+
 from .filters import Filters
 
 
@@ -228,7 +230,7 @@ def calculate_linearised_resistance_parallel(
     Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = calculate_linearised_resistance(GMR, AMR, SMR)
     Rparallel = GMR_resistance
     if any(AMR) or any(SMR):
-        Rparallel += (Rxx1 * Rxx2) / (Rxx1 + Rxx2)
+        Rparallel += (Rxx1 * Rxx2) / (Rxx1 + Rxx2 + EPS)
     dRparallel = (
         sym.diff(Rparallel, theta1) * dt1
         + sym.diff(Rparallel, phi1) * dp1
