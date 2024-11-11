@@ -3,12 +3,14 @@ from typing import Union
 import numpy as np
 import sympy as sym
 
-from new_sb import EPS
-
 from .filters import Filters
 
+EPS = np.finfo("float64").resolution
 
-def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray, integration_step: float) -> np.ndarray:
+
+def compute_sd(
+    dynamic_r: np.ndarray, dynamic_i: np.ndarray, integration_step: float
+) -> np.ndarray:
     """Computes the SD voltage.
     :param dynamic_r: magnetoresistance from log
     :param dynamic_i: excitation current
@@ -49,7 +51,11 @@ def compute_resistance(
     for i in range(number_of_layers):
         w_l = w[i] / l[i]
         SxAll[i] = Rx0[i] + (AMR[i] * m[i, 0] ** 2 + SMR[i] * m[i, 1] ** 2)
-        SyAll[i] = Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) * (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1]
+        SyAll[i] = (
+            Ry0[i]
+            + 0.5 * AHE[i] * m[i, 2]
+            + (w_l) * (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1]
+        )
     return SxAll, SyAll
 
 
@@ -71,7 +77,10 @@ def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray):
     if not isinstance(m, np.ndarray):
         m = np.asarray(m)
     if m.shape[0] != 2:
-        raise ValueError("The magnetoresistance can only be computed for 2 layers" f". Current shape {m.shape}")
+        raise ValueError(
+            "The magnetoresistance can only be computed for 2 layers"
+            f". Current shape {m.shape}"
+        )
     return Rp + 0.5 * (Rap - Rp) * np.sum(m[0] * m[1], axis=0)
 
 
@@ -227,7 +236,9 @@ def calculate_linearised_resistance_parallel(
     t02, p02 = stationary_angles[2:]
     dt1, dp1 = linearised_angles[:2]
     dt2, dp2 = linearised_angles[2:]
-    Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = calculate_linearised_resistance(GMR, AMR, SMR)
+    Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = (
+        calculate_linearised_resistance(GMR, AMR, SMR)
+    )
     Rparallel = GMR_resistance
     if any(AMR) or any(SMR):
         Rparallel += (Rxx1 * Rxx2) / (Rxx1 + Rxx2 + EPS)
@@ -276,7 +287,9 @@ def calculate_linearised_resistance_series(
     t02, p02 = stationary_angles[2:]
     dt1, dp1 = linearised_angles[:2]
     dt2, dp2 = linearised_angles[2:]
-    Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = calculate_linearised_resistance(GMR, AMR, SMR)
+    Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2 = (
+        calculate_linearised_resistance(GMR, AMR, SMR)
+    )
     Rseries = GMR_resistance + Rxx1 + Rxx2
     dRseries = (
         sym.diff(Rseries, theta1) * dt1
