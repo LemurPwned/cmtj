@@ -232,7 +232,7 @@ public:
       // junction in the same stack -- i.e. runner is runSingleLayerSolver and
       // runMultiLayerSolver
     }
-    auto solver = &Layer<T>::rk4_step;
+    auto solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
     if (!std::equal(modes.begin() + 1, modes.end(), modes.begin())) {
       throw std::runtime_error(
           "Junctions have different solver modes!"

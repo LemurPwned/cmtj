@@ -123,7 +123,7 @@ private:
   ScalarDriver<T> IECQuadDriverBottom;
   AxialDriver<T> IDMIDriverTop;
   AxialDriver<T> IDMIDriverBottom;
-
+  AxialDriver<T> HreservedInteractionFieldDriver;
   // CMTJ Torque & Field drivers
   ScalarDriver<T> currentDriver;
   ScalarDriver<T> anisotropyDriver;
@@ -461,6 +461,10 @@ public:
     this->HdmiDriver = driver;
   }
 
+  void setReservedInteractionField(const AxialDriver<T> &driver) {
+    this->HreservedInteractionFieldDriver = driver;
+  }
+
   /**
    * @brief Sets reference layer with a custom vector
    * Set reference layer parameter. This is for calculating the spin current
@@ -524,6 +528,8 @@ public:
     this->Hidmi = calculateIDMI(time, stepMag, bottom, top);
     this->HAnis = calculateAnisotropy(stepMag, time);
     this->Hdmi = calculateHdmiField(time);
+    CVector<T> HreservedInteractionField =
+        this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
     const CVector<T> Heff = this->Hext     // external
                             + this->HAnis  // anistotropy
                             + this->HIEC   // IEC
@@ -534,7 +540,9 @@ public:
                             // demag -- negative contribution
                             - this->Hdemag
                             // dipole -- negative contribution
-                            - dipole;
+                            - dipole
+                            // reserved interaction field
+                            + HreservedInteractionField;
     return Heff;
   }
 
@@ -1137,6 +1145,10 @@ public:
                                      const ScalarDriver<T> &driver) {
     scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorqueDriver, driver);
   }
+  void setLayerReservedInteractionField(const std::string &layerID,
+                                        const AxialDriver<T> &driver) {
+    axiallayerSetter(layerID, &Layer<T>::setReservedInteractionField, driver);
+  }
 
   void setLayerHdmiDriver(const std::string &layerID,
                           const AxialDriver<T> &driver) {
@@ -1520,7 +1532,8 @@ public:
     T Ry_acc = 0.0;
 
     for (unsigned int i = 0; i < this->layers.size(); i++) {
-      const T Rx = Rx0[i] + AMR_X[i] * (this->layers[i].mag.x * this->layers[i].mag.x) +
+      const T Rx = Rx0[i] +
+                   AMR_X[i] * (this->layers[i].mag.x * this->layers[i].mag.x) +
                    SMR_X[i] * (this->layers[i].mag.y * this->layers[i].mag.y);
       const T Ry =
           Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
@@ -1629,8 +1642,10 @@ public:
       throw std::runtime_error(
           "The time step cannot be larger than write frequency!");
     }
-    const unsigned int totalIterations = static_cast<unsigned int>(totalTime / timeStep);
-    const unsigned int writeEvery = static_cast<unsigned int>(writeFrequency / timeStep);
+    const unsigned int totalIterations =
+        static_cast<unsigned int>(totalTime / timeStep);
+    const unsigned int writeEvery =
+        static_cast<unsigned int>(writeFrequency / timeStep);
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
     // pick a solver based on drivers

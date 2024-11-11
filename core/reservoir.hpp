@@ -2,6 +2,7 @@
 #define RESERVOIR_H
 
 #include "cvector.hpp"
+#include "drivers.hpp"
 #include "junction.hpp"
 #include <array>
 #include <cmath>
@@ -30,13 +31,208 @@ void comb(int N, int K) {
 }
 
 typedef std::array<CVector<double>, 3> tensor;
-// typedef std::vector<std::vector<tensor>> tensorMatrix;
 typedef std::vector<tensor> tensorList;
+template <typename T>
+using solverFn = void (Layer<T>::*)(T t, T timeStep, const CVector<T> &bottom,
+                                    const CVector<T> &top);
+template <typename T>
+using runnerFn = void (Junction<T>::*)(solverFn<T> &functor, T &t, T &timeStep);
+
+const tensor getDipoleTensorFromRelPositions(const CVector<double> &r1,
+                                             const CVector<double> &r2) {
+  const CVector<double> rij = r1 - r2; // 1-2 distance vector
+  const double r_mag = pow(rij.length(), 2);
+  const double mult = 3 / (4 * M_PI * pow(rij.length(), 5));
+  const tensor dipoleTensor = {CVector<double>(pow(rij.x, 2) - (r_mag / 3),
+                                               rij.x * rij.y, rij.x * rij.z) *
+                                   mult,
+                               CVector<double>(rij.x * rij.y,
+                                               pow(rij.y, 2) - (r_mag / 3),
+                                               rij.y * rij.z) *
+                                   mult,
+                               CVector<double>(rij.x * rij.z, rij.y * rij.z,
+                                               pow(rij.z, 2) - (r_mag / 3)) *
+                                   mult};
+  return dipoleTensor;
+}
+
+typedef std::function<CVector<double>(
+    const CVector<double> &, const CVector<double> &, const Layer<double> &,
+    const Layer<double> &)>
+    interactionFunction;
+
+CVector<double> nullDipoleInteraction(const CVector<double> &,
+                                      const CVector<double> &,
+                                      const Layer<double> &,
+                                      const Layer<double> &) {
+  return CVector<double>(0, 0, 0);
+}
+
+/**
+ * @brief Compute dipole interaction between two junctions.
+ * From: Kanao et al, Reservoir Computing on Spin-Torque Oscillator Array (2019)
+ * PRA
+ * @param r1 1st junction position
+ * @param r2 2nd junction position
+ * @param layer1 1st junction layer
+ * @param layer2 2nd junction layer
+ */
+CVector<double> computeDipoleInteraction(const CVector<double> &r1,
+                                         const CVector<double> &r2,
+                                         const Layer<double> &layer1,
+                                         const Layer<double> &layer2) {
+  const DVector rij = r1 - r2; // 1-2 distance vector
+  const double r3 = pow(rij.length(), 3);
+  const double r5 = pow(rij.length(), 5);
+  const Layer<double> ref_magnetic_moment = layer2;
+  const DVector m1 = ref_magnetic_moment.mag;
+  const double V =
+      ref_magnetic_moment.thickness * ref_magnetic_moment.cellSurface;
+  const double prefactor = (ref_magnetic_moment.Ms / MAGNETIC_PERMEABILITY) * V;
+
+  return prefactor * (3 * c_dot(m1, rij) * rij / r5 - m1 / r3);
+}
+
+/**
+ * @brief Compute dipole interaction between two junctions.
+ * From: Nomura et al, Reservoir computing with dipole-coupled nanomagnets
+ * (2019) JJAP
+ * @param r1 1st junction position
+ * @param r2 2nd junction position
+ * @param layer1 1st junction layer
+ * @param layer2 2nd junction layer
+ */
+CVector<double> computeDipoleInteractionNoumra(const CVector<double> &r1,
+                                               const CVector<double> &r2,
+                                               const Layer<double> &layer1,
+                                               const Layer<double> &layer2) {
+  const tensor dipoleTensor = getDipoleTensorFromRelPositions(r1, r2);
+  const double V = layer2.thickness * layer2.cellSurface;
+  // remember that calculate_tensor_interaction normalises Ms by 1/mu0
+  const CVector<double> dipoleVector =
+      calculate_tensor_interaction(layer2.mag, dipoleTensor, layer2.Ms * V);
+  // in the paper they don't multiply explicitly by V, but it's necessary for
+  // units to match
+  return dipoleVector;
+}
+
+class GroupInteraction {
+  std::string topId; // Id of the top junction
+  std::vector<CVector<double>> coordinateMatrix;
+  std::vector<Junction<double>> junctionList;
+  interactionFunction interactionFunc = computeDipoleInteraction;
+  unsigned int noElements;
+
+  void stepFunctionalSolver(double time, double timeStep,
+                            interactionFunction interaction,
+                            runnerFn<double> runner, solverFn<double> solver) {
+    // collect all frozen states
+    // for each element, compute the extra field from all other elements
+    for (unsigned int i = 0; i < this->noElements; i++) {
+      CVector<double> H_extra;
+      for (unsigned int j = 0; j < this->noElements; j++) {
+        if (i == j)
+          continue;
+        H_extra +=
+            interaction(this->coordinateMatrix[i], this->coordinateMatrix[j],
+                        this->junctionList[i].getLayer(this->topId),
+                        this->junctionList[j].getLayer(this->topId));
+      }
+      this->junctionList[i].setLayerReservedInteractionField(
+          this->topId, AxialDriver<double>(H_extra));
+    }
+    // step the solver with the extra field
+    for (unsigned int i = 0; i < this->noElements; i++) {
+      (this->junctionList[i].*runner)(solver, time, timeStep);
+    }
+  }
+
+public:
+  GroupInteraction(std::vector<CVector<double>> coordinateMatrix,
+                   std::vector<Junction<double>> junctionList,
+                   const std::string &topId = "free")
+      : topId(topId) {
+    if (coordinateMatrix.size() != junctionList.size()) {
+      throw std::runtime_error(
+          "Coordinate matrix and junction list must have the same size!");
+    }
+    if (coordinateMatrix.empty() || junctionList.empty()) {
+      throw std::runtime_error(
+          "Coordinate matrix and junction list cannot be empty!");
+    }
+    this->noElements = junctionList.size();
+    this->coordinateMatrix = std::move(coordinateMatrix);
+    this->junctionList = std::move(junctionList);
+  }
+
+  void setInteractionFunction(interactionFunction interactionFunc) {
+    this->interactionFunc = interactionFunc;
+  }
+
+  void runSimulation(double totalTime, double timeStep = 1e-13,
+                     double writeFrequency = 1e-13) {
+    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
+    const unsigned int totalIterations = (int)(totalTime / timeStep);
+
+    if (timeStep > writeFrequency) {
+      throw std::runtime_error(
+          "The time step cannot be larger than write frequency!");
+    }
+
+    // pick a solver based on drivers
+    std::vector<SolverMode> modes;
+    auto localRunner = &Junction<double>::runMultiLayerSolver;
+    for (auto &j : this->junctionList) {
+      // again, solver mode does not make a difference for legacy reasons
+      auto [runner, solver, mode] = j.getSolver(RK4, totalIterations);
+      modes.push_back(mode);
+      localRunner = runner;
+      // TODO: handle the rare case when the user mixes 1 layer with 2 layer
+      // junction in the same stack -- i.e. runner is runSingleLayerSolver and
+      // runMultiLayerSolver
+    }
+    auto solver = &Layer<double>::rk4_step;
+    if (!std::equal(modes.begin() + 1, modes.end(), modes.begin())) {
+      throw std::runtime_error(
+          "Junctions have different solver modes!"
+          " Set the same solver mode for all junctions explicitly."
+          " Do not mix stochastic and deterministic solvers!");
+    }
+
+    for (unsigned int i = 0; i < totalIterations; i++) {
+      double t = i * timeStep;
+      stepFunctionalSolver(t, timeStep, this->interactionFunc, localRunner,
+                           solver);
+
+      if (!(i % writeEvery)) {
+        for (auto &jun : this->junctionList)
+          jun.logLayerParams(t, timeStep, false);
+      }
+    }
+  }
+
+  void clearLogs() {
+    for (auto &j : this->junctionList) {
+      j.clearLog();
+    }
+  }
+
+  std::unordered_map<std::string, std::vector<double>> &
+  getLog(unsigned int id) {
+    if (id <= this->junctionList.size()) {
+      return this->junctionList[id].getLog();
+    }
+    throw std::runtime_error("Asking for id of a non-existing junction!");
+  }
+
+  std::unordered_map<std::string, std::vector<double>> &getLog() {
+    throw std::runtime_error("Not implemented!");
+  }
+};
+
 class Reservoir {
 private:
   // log stuff
-  const std::string intendedKeys = {"m_"};
-  std::vector<std::string> logKeys;
   std::unordered_map<std::string, std::vector<double>> reservoirLog;
 
   // reservoir matrices
@@ -47,7 +243,7 @@ private:
   std::vector<std::vector<Layer<double>>> layerMatrix;
 
   std::vector<std::vector<tensor>> computeReservoirDipoleMatrix(
-      std::vector<std::vector<CVector<double>>> coordinateMatrix) {
+      const std::vector<std::vector<CVector<double>>> &coordinateMatrix) {
     std::vector<std::vector<tensor>> localReservoirDipoleTensor;
     // reserve some place here
     localReservoirDipoleTensor.resize(this->noElements);

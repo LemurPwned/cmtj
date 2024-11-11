@@ -14,6 +14,7 @@
 - [CMTJ](#cmtj)
   - [Table of contents](#table-of-contents)
   - [Short description](#short-description)
+    - [What can you simulate?](#what-can-you-simulate)
   - [Web GUI](#web-gui)
   - [Quickstart](#quickstart)
     - [Installation :rocket:](#installation-rocket)
@@ -33,6 +34,37 @@
 The `cmtj` name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
+
+### What can you simulate?
+
+Below is a brief list of examples (it's not exhaustive! Check the docs for more).
+
+**Magnetic devices:**
+
+- Magnetic Tunnel Junctions
+  - Voltage-Driven Magnetic Tunnel Junctions
+  - Spin-Torque Oscillators
+  - VCMA sensors and devices
+  - Magnetic Tunnel Junction Arrays
+- SOT devices
+  - Current-Driven SOT
+- Advanced device coupling
+- Reservoirs (dipole coupling)
+- Electrically coupled MTJs
+- Base equations
+  - Landau-Lifshitz-Gilbert-Slonczewski equation
+  - Stochastic Landau-Lifshitz-Gilbert-Slonczewski equation
+  - Landau-Lifshitz-Gilbert-Bloch equation
+- Domain wall motion
+
+**Experimental methods:**
+
+Some of the experimental methods available:
+
+- PIMM
+- Spin-Diode
+- CIMS
+- R(H), M(H)
 
 ## Web GUI
 
