@@ -108,8 +108,9 @@ CVector<double> computeDipoleInteractionNoumra(const CVector<double> &r1,
                                                const Layer<double> &layer2) {
   const tensor dipoleTensor = getDipoleTensorFromRelPositions(r1, r2);
   const double V = layer2.thickness * layer2.cellSurface;
-  const CVector<double> dipoleVector = calculate_tensor_interaction(
-      layer2.mag, dipoleTensor, (layer2.Ms / MAGNETIC_PERMEABILITY) * V);
+  // remember that calculate_tensor_interaction normalises Ms by 1/mu0
+  const CVector<double> dipoleVector =
+      calculate_tensor_interaction(layer2.mag, dipoleTensor, layer2.Ms * V);
   // in the paper they don't multiply explicitly by V, but it's necessary for
   // units to match
   return dipoleVector;
@@ -232,7 +233,6 @@ public:
 class Reservoir {
 private:
   // log stuff
-  std::vector<std::string> logKeys;
   std::unordered_map<std::string, std::vector<double>> reservoirLog;
 
   // reservoir matrices
