@@ -107,26 +107,26 @@ class Reservoir:
         """
         ...
 
-    def setAllExternalField(self, arg0: cmtj.AxialDriver) -> None:
+    def setAllExternalField(self, driver: cmtj.AxialDriver) -> None:
         """Set external field for all layers.
 
-        :param arg0: External field driver
+        :param driver: External field driver
         """
         ...
 
-    def setLayerAnisotropy(self, arg0: int, arg1: cmtj.ScalarDriver) -> None:
+    def setLayerAnisotropy(self, arg0: int, driver: cmtj.ScalarDriver) -> None:
         """Set anisotropy for specific layer.
 
         :param arg0: Layer index
-        :param arg1: Anisotropy driver
+        :param driver: Anisotropy driver
         """
         ...
 
-    def setLayerExternalField(self, arg0: int, arg1: cmtj.AxialDriver) -> None:
+    def setLayerExternalField(self, arg0: int, driver: cmtj.AxialDriver) -> None:
         """Set external field for specific layer.
 
         :param arg0: Layer index
-        :param arg1: External field driver
+        :param driver: External field driver
         """
         ...
 

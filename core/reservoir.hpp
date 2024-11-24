@@ -163,6 +163,15 @@ public:
     this->noElements = junctionList.size();
     this->coordinateMatrix = std::move(coordinateMatrix);
     this->junctionList = std::move(junctionList);
+
+    // check that all vectors in coordinateMatrix are unique
+    for (size_t i = 0; i < this->coordinateMatrix.size(); i++) {
+      for (size_t j = i + 1; j < this->coordinateMatrix.size(); j++) {
+        if (this->coordinateMatrix[i] == this->coordinateMatrix[j]) {
+          throw std::runtime_error("Coordinate vectors must be unique!");
+        }
+      }
+    }
   }
 
   void setInteractionFunction(interactionFunction interactionFunc) {
