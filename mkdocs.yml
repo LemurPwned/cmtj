@@ -9,7 +9,6 @@ edit_uri: ""
 
 hooks:
   - scripts/readme_copy.py
-  - docs/docgen.py
 
 nav:
   - Home: index.md
@@ -28,8 +27,8 @@ nav:
       - Spin Diode experiments: experimental-methods/VoltageSpinDiodeFits.ipynb
   - Parallelism: physics/paralellism.md
   - API:
-      - Core: gen-docs/cmtj.md
-      - Drivers: gen-docs/drivers.md
+      - Core: api/core.md
+      - Drivers: api/drivers.md
       - Models:
           - Smit-Beljers: api/models/sb-general-reference.md
           - Domain wall: api/models/dw-reference.md
@@ -44,9 +43,9 @@ nav:
           - Optimization: api/optimization-reference.md
           - Ensemble models: api/ensemble-reference.md
           - Miscellanous: api/general-reference.md
-      - Stack: gen-docs/stack.md
-      - Noise: gen-docs/noise.md
-      - LLGB: gen-docs/llgb.md
+      - Stack: api/stack.md
+      - Noise: api/noise.md
+      - LLGB: api/llgb.md
   - Examples:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
       - Trajectories: tutorials/trajectory.ipynb

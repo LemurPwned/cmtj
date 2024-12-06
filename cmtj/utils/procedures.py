@@ -1,7 +1,7 @@
 import math
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable
 
 import numpy as np
 from scipy.fft import fft, fftfreq
@@ -25,13 +25,12 @@ class ResistanceParameters:
     l: float = 0  # length
 
 
-def compute_spectrum_strip(input_m: np.ndarray, int_step: float,
-                           max_frequency: float):
+def compute_spectrum_strip(input_m: np.ndarray, int_step: float, max_frequency: float):
     """Compute the spectrum of a given magnetization trajectory."""
     yf = np.abs(fft(input_m))
     freqs = fftfreq(len(yf), int_step)
-    freqs = freqs[:len(freqs) // 2]
-    yf = yf[:len(yf) // 2]
+    freqs = freqs[: len(freqs) // 2]
+    yf = yf[: len(yf) // 2]
 
     findx = np.argwhere(freqs <= max_frequency)
     freqs = freqs[findx]
@@ -44,7 +43,7 @@ def PIMM_procedure(
     junction: "Junction",
     Hvecs: np.ndarray,
     int_step: float,
-    resistance_params: List[ResistanceParameters],
+    resistance_params: list[ResistanceParameters],
     Hoe_direction: Axis = Axis.zaxis,
     Hoe_excitation: float = 50,
     Hoe_duration: int = 3,
@@ -57,7 +56,7 @@ def PIMM_procedure(
     full_output: bool = False,
     disable_tqdm: bool = False,
     static_only: bool = False,
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """Procedure for computing Pulse Induced Microwave Magnetometry.
     It computes both PIMM and Resistance (for instance AHE loops).
     Set `static_only` to True to only compute the static resistance.
@@ -94,22 +93,19 @@ def PIMM_procedure(
         oedriver = AxialDriver(
             NullDriver(),
             NullDriver(),
-            ScalarDriver.getStepDriver(0, Hoe_excitation, 0,
-                                       int_step * Hoe_duration),
+            ScalarDriver.getStepDriver(0, Hoe_excitation, 0, int_step * Hoe_duration),
         )
     elif Hoe_direction == Axis.yaxis:
         extraction_m_component = "y"
         oedriver = AxialDriver(
             NullDriver(),
-            ScalarDriver.getStepDriver(0, Hoe_excitation, 0,
-                                       int_step * Hoe_duration),
+            ScalarDriver.getStepDriver(0, Hoe_excitation, 0, int_step * Hoe_duration),
             NullDriver(),
         )
     else:
         extraction_m_component = "x"
         oedriver = AxialDriver(
-            ScalarDriver.getStepDriver(0, Hoe_excitation, 0,
-                                       int_step * Hoe_duration),
+            ScalarDriver.getStepDriver(0, Hoe_excitation, 0, int_step * Hoe_duration),
             NullDriver(),
             NullDriver(),
         )
@@ -117,12 +113,9 @@ def PIMM_procedure(
     # get layer strings
     layer_ids = junction.getLayerIds()
     if len(layer_ids) != len(resistance_params):
-        raise ValueError(
-            "The number of layers in the junction must match the number of resistance parameters!"
-        )
+        raise ValueError("The number of layers in the junction must match the number of resistance parameters!")
     output = defaultdict(list)
-    normalising_factor = np.sum(
-        [layer.thickness * layer.Ms for layer in junction.layers])
+    normalising_factor = np.sum([layer.thickness * layer.Ms for layer in junction.layers])
     freqs = None  # in case of static_only
     for H in tqdm(Hvecs, desc="Computing PIMM", disable=disable_tqdm):
         junction.clearLog()
@@ -148,16 +141,22 @@ def PIMM_procedure(
         junction.runSimulation(simulation_duration, int_step, int_step)
         log = junction.getLog()
         indx = np.argwhere(np.asarray(log["time"]) >= wait_time).ravel()
-        m_traj = np.asarray([
-            np.asarray([
-                log[f"{layer.id}_mx"],
-                log[f"{layer.id}_my"],
-                log[f"{layer.id}_mz"],
-            ]) * layer.thickness * layer.Ms / normalising_factor
-            for layer in junction.layers
-        ])
-        m = m_traj[:, :,
-                   -take_last_n:]  # all layers, all x, y, z, last 100 steps
+        m_traj = np.asarray(
+            [
+                np.asarray(
+                    [
+                        log[f"{layer.id}_mx"],
+                        log[f"{layer.id}_my"],
+                        log[f"{layer.id}_mz"],
+                    ]
+                )
+                * layer.thickness
+                * layer.Ms
+                / normalising_factor
+                for layer in junction.layers
+            ]
+        )
+        m = m_traj[:, :, -take_last_n:]  # all layers, all x, y, z, last 100 steps
         Rx, Ry = resistance_fn(
             [r.Rxx0 for r in resistance_params],
             [r.Rxy0 for r in resistance_params],
@@ -169,14 +168,17 @@ def PIMM_procedure(
             w=[r.w for r in resistance_params],
         )
         if not static_only:
-            mixed = np.asarray([
-                np.asarray(log[f"{layer.id}_m{extraction_m_component}"])[indx]
-                * layer.thickness * layer.Ms / normalising_factor
-                for layer in junction.layers
-            ])
+            mixed = np.asarray(
+                [
+                    np.asarray(log[f"{layer.id}_m{extraction_m_component}"])[indx]
+                    * layer.thickness
+                    * layer.Ms
+                    / normalising_factor
+                    for layer in junction.layers
+                ]
+            )
             mixed_sum = mixed.sum(axis=0)
-            yf, freqs = compute_spectrum_strip(mixed_sum, int_step,
-                                               max_frequency)
+            yf, freqs = compute_spectrum_strip(mixed_sum, int_step, max_frequency)
 
             spectrum.append(yf)
 
@@ -188,8 +190,7 @@ def PIMM_procedure(
         if full_output and not static_only:
             output["m_traj"].append(m_traj)
             for li, layer_id in enumerate(layer_ids):
-                y, _ = compute_spectrum_strip(mixed[li], int_step,
-                                              max_frequency)
+                y, _ = compute_spectrum_strip(mixed[li], int_step, max_frequency)
                 output[layer_id].append(y)
     spectrum = np.squeeze(np.asarray(spectrum))
     if full_output:
@@ -203,7 +204,7 @@ def VSD_procedure(
     Hvecs: np.ndarray,
     frequencies: np.ndarray,
     int_step: float,
-    resistance_params: List[ResistanceParameters] = [],
+    resistance_params: list[ResistanceParameters] = None,
     Hoe_direction: Axis = Axis.yaxis,
     Hoe_excitation: float = 50,
     simulation_duration: float = 30e-9,
@@ -228,17 +229,15 @@ def VSD_procedure(
     :param Rtype: type of resistance to be used. (Rx Ry or Rz)
     :param disable_tqdm: if True, disable tqdm progress bar.
     """
+    if resistance_params is None:
+        resistance_params = []
     layer_ids = junction.getLayerIds()
     if Rtype == "Rz" and len(layer_ids) > 2:
-        raise ValueError(
-            "Rz can only be used for 2 layer junctions. Use Rx or Ry instead.")
+        raise ValueError("Rz can only be used for 2 layer junctions. Use Rx or Ry instead.")
     elif len(resistance_params) != len(layer_ids):
-        raise ValueError(
-            "The number of layers in the junction must match the number of resistance parameters!"
-        )
+        raise ValueError("The number of layers in the junction must match the number of resistance parameters!")
 
-    def simulate_VSD(H: np.ndarray, frequency: float,
-                     resistance_params: ResistanceParameters):
+    def simulate_VSD(H: np.ndarray, frequency: float, resistance_params: ResistanceParameters):
         if Hoe_direction == Axis.zaxis:
             oedriver = AxialDriver(
                 NullDriver(),
@@ -280,16 +279,19 @@ def VSD_procedure(
                 junction.setLayerMagnetisation(layer_id, new_mag)
         junction.runSimulation(simulation_duration, int_step, int_step)
         log = junction.getLog()
-        m_traj = np.asarray([[
-            log[f"{layer_ids[i]}_mx"],
-            log[f"{layer_ids[i]}_my"],
-            log[f"{layer_ids[i]}_mz"],
-        ] for i in range(len(layer_ids))])
+        m_traj = np.asarray(
+            [
+                [
+                    log[f"{layer_ids[i]}_mx"],
+                    log[f"{layer_ids[i]}_my"],
+                    log[f"{layer_ids[i]}_mz"],
+                ]
+                for i in range(len(layer_ids))
+            ]
+        )
         if Rtype == "Rz":
             if len(layer_ids) > 2:
-                raise ValueError(
-                    "Rz can only be used for 2 layer junctions. One layer can be fictisious."
-                )
+                raise ValueError("Rz can only be used for 2 layer junctions. One layer can be fictisious.")
             elif len(layer_ids) == 2:
                 R = log[f"R_{layer_ids[0]}_{layer_ids[1]}"]
             elif len(layer_ids) == 1:
@@ -299,7 +301,8 @@ def VSD_procedure(
                     "Resistance definition ambiguous!"
                     "If you want to use Rz, you must provide"
                     "a single resistance parameter set or set Rp Rap"
-                    " at junction creation.")
+                    " at junction creation."
+                )
         else:
             Rx, Ry = resistance_fn(
                 [r.Rxx0 for r in resistance_params],
@@ -322,8 +325,7 @@ def VSD_procedure(
         return vmix
 
     spectrum = np.zeros((len(Hvecs), len(frequencies)))
-    for hindx, H in enumerate(
-            tqdm(Hvecs, "Computing VSD", disable=disable_tqdm)):
+    for hindx, H in enumerate(tqdm(Hvecs, "Computing VSD", disable=disable_tqdm)):
         for findx, f in enumerate(frequencies):
             spectrum[hindx, findx] = simulate_VSD(H, f, resistance_params)
     return spectrum

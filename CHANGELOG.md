@@ -1,13 +1,24 @@
 # Changelog
 
-# 1.5.0 (WIP)
+# 1.6.0
+
+- Extended the `Stack` models allowing for non-symmetric coupling between devices.
+  `Stack` current drivers can now be of any type and are adequately scaled.
+- Custom definition of the `ScalarDriver` is now possible and documented.
+- Fixed a bug in the `Stack` class which inverted the connection order of in-series connections.
+- Exposed IDMI interaction to Layer and Junction classes.
+- Added `getLayer` method to the `Junction` class and `getJunction` method to the `Stack` class that return a reference to the object.
+- Fixed and expanded the `reservoir` module. Now, `GroupInteraction` can use any dipole interaction function, with 3 provided as default: `computeDipoleInteraction`, `computeDipoleInteractionNoumra` and `nullDipoleInteraction` (0 dipole tensor).
+
+# 1.5.0-1.5.4
 
 - Dipole interaction added to the `SB Model`
 - Kasdin 1/f noise generator added to the `noise` module and to the solvers
-- reworking the solvers for better performance and stability
-- added a simple noise model to the `utils` class. It exists outside standard simulation procedures.
-- added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.
-- added aliases for `ScalarDriver` -- for example, instead of calling `ScalarDriver.getConstantDriver`, you can now call `constantDriver` directly to create a constant driver.
+- Reworking the solvers for better performance and stability
+- Added a simple noise model to the `utils` class. It exists outside standard simulation procedures.
+- Added LLGB bindings and code. The solver is still WIP and doesn't integrate with more advanced features yet.
+- Added aliases for `ScalarDriver` -- for example, instead of calling `ScalarDriver.getConstantDriver`, you can now call `constantDriver` directly to create a constant driver.
+- Improve stub detection across editors and IDEs
 
 # 1.4.1
 
@@ -40,12 +51,12 @@
 - Adding DW dynamics 1D model with dynamic drivers. (Numba optimised)
 - Adding SB model for energy-based FMR computation. Gradient computed using Adam optimiser.
 - Moving resistance functions from `utils` to `resistance`
-- Introducting docs updates for tutorial notebook (dark/light toggle works now).
+- Introducing docs updates for tutorial notebook (dark/light toggle works now).
 - Reservoir computing is now exposed in Python in the `reservoir` computing module.
 
 ## 1.2.0
 
-- Oersted field computation helper class in [cmtj/models/oersted.py](cmtj/models/oersted.py). Basic functionality is there, but needs to be futher tested and documented. Next release potentially will move the computation to C++ for speed.
+- Oersted field computation helper class in [cmtj/models/oersted.py](cmtj/models/oersted.py). Basic functionality is there, but needs to be further tested and documented. Next release potentially will move the computation to C++ for speed.
 - Added Heun (2nd order) solver and made it default for thermal computation. This is a more stable solver than the Euler solver, but is slower. The Euler solver is still available as an option.
 - Stack class now supports arbitrary layer ids to be coupled.
 - Extended the plotting capabilities of the Stack class. Now supports plotting of the magnetic field and the current density.

@@ -6,11 +6,9 @@ import sympy as sym
 
 def test_layer_energy():
     # create a test layer
-    layer = LayerSB(_id=1,
-                    thickness=1.0,
-                    Kv=VectorObj(theta=0, phi=0.0, mag=1.0),
-                    Ks=1.0,
-                    Ms=1.0)
+    layer = LayerSB(
+        _id=1, thickness=1.0, Kv=VectorObj(theta=0, phi=0.0, mag=1.0), Ks=1.0, Ms=1.0
+    )
 
     # create test values for the input parameters
     H = sym.ImmutableMatrix([0, 0, 1])
@@ -22,8 +20,9 @@ def test_layer_energy():
     down_layer = None
 
     # calculate the energy of the layer
-    energy = layer.symbolic_layer_energy(H, J1top, J1bottom, J2top, J2bottom,
-                                         top_layer, down_layer)
+    energy = layer.total_symbolic_layer_energy(
+        H, J1top, J1bottom, J2top, J2bottom, top_layer, down_layer
+    )
 
     # check that the energy is a sympy expression
     assert isinstance(energy, sym.Expr)
@@ -31,16 +30,12 @@ def test_layer_energy():
 
 def test_solver_init():
     # create test layers
-    layer1 = LayerSB(_id=0,
-                     thickness=1.0,
-                     Kv=VectorObj(theta=00, phi=0.0, mag=1.0),
-                     Ks=1.0,
-                     Ms=1.0)
-    layer2 = LayerSB(_id=1,
-                     thickness=1.0,
-                     Kv=VectorObj(theta=0, phi=0.0, mag=1.0),
-                     Ks=1.0,
-                     Ms=1.0)
+    layer1 = LayerSB(
+        _id=0, thickness=1.0, Kv=VectorObj(theta=00, phi=0.0, mag=1.0), Ks=1.0, Ms=1.0
+    )
+    layer2 = LayerSB(
+        _id=1, thickness=1.0, Kv=VectorObj(theta=0, phi=0.0, mag=1.0), Ks=1.0, Ms=1.0
+    )
     layers = [layer1, layer2]
 
     # create test values for J1 and J2
