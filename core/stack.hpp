@@ -180,7 +180,7 @@ public:
     return this->stackLog;
   }
   std::unordered_map<std::string, std::vector<T>> &getLog(unsigned int id) {
-    if (id <= this->junctionList.size()) {
+    if (id < this->junctionList.size()) {
       return this->junctionList[id].getLog();
     }
     throw std::runtime_error("Asking for id of a non-existing junction!");

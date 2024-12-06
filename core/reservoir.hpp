@@ -41,6 +41,10 @@ using runnerFn = void (Junction<T>::*)(solverFn<T> &functor, T &t, T &timeStep);
 const tensor getDipoleTensorFromRelPositions(const CVector<double> &r1,
                                              const CVector<double> &r2) {
   const CVector<double> rij = r1 - r2; // 1-2 distance vector
+  if (rij.length() < 1e-10) {
+    throw std::runtime_error(
+        "Points are too close for stable dipole calculation");
+  }
   const double r_mag = pow(rij.length(), 2);
   const double mult = 3 / (4 * M_PI * pow(rij.length(), 5));
   const tensor dipoleTensor = {CVector<double>(pow(rij.x, 2) - (r_mag / 3),
@@ -82,6 +86,10 @@ CVector<double> computeDipoleInteraction(const CVector<double> &r1,
                                          const Layer<double> &layer1,
                                          const Layer<double> &layer2) {
   const DVector rij = r1 - r2; // 1-2 distance vector
+  if (rij.length() < 1e-10) {
+    throw std::runtime_error(
+        "Points are too close for stable dipole calculation");
+  }
   const double r3 = pow(rij.length(), 3);
   const double r5 = pow(rij.length(), 5);
   const Layer<double> ref_magnetic_moment = layer2;
@@ -228,7 +236,7 @@ public:
 
   std::unordered_map<std::string, std::vector<double>> &
   getLog(unsigned int id) {
-    if (id <= this->junctionList.size()) {
+    if (id < this->junctionList.size()) {
       return this->junctionList[id].getLog();
     }
     throw std::runtime_error("Asking for id of a non-existing junction!");
@@ -326,12 +334,6 @@ private:
                                  CVector<double>(rij.x * rij.z, rij.y * rij.z,
                                                  pow(rij.z, 2) - (r_mag / 3)) *
                                      mult};
-    // print dipole tensor
-    // std::cout << "Dipole tensor: " << std::endl;
-    // for (auto& row : dipoleTensor)
-    // {
-    //     std::cout << row << " " << std::endl;
-    // }
     return dipoleTensor;
   }
 

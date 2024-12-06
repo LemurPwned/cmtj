@@ -383,7 +383,7 @@ PYBIND11_MODULE(cmtj, m) {
      reservoir_module.def("computeDipoleInteractionNoumra", &computeDipoleInteractionNoumra, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);
 
      py::class_<GroupInteraction>(reservoir_module, "GroupInteraction")
-          .def(py::init<std::vector<DVector>, std::vector<DJunction>, std::string>(),
+          .def(py::init<const std::vector<DVector>&, const std::vector<DJunction>&, const std::string&>(),
                "coordinateMatrix"_a, "junctionList"_a, "topId"_a = "free")
           .def("setInteractionFunction", &GroupInteraction::setInteractionFunction)
           .def("runSimulation", &GroupInteraction::runSimulation, "totalTime"_a,
@@ -391,7 +391,8 @@ PYBIND11_MODULE(cmtj, m) {
           .def("clearLogs", &GroupInteraction::clearLogs)
           .def("getLog",
                py::overload_cast<unsigned int>(&GroupInteraction::getLog))
-          .def("getLog", py::overload_cast<>(&GroupInteraction::getLog));
+          .def("getLog", py::overload_cast<unsigned int>(&GroupInteraction::getLog),
+               py::return_value_policy::reference);
 
      py::class_<Reservoir>(reservoir_module, "Reservoir")
           .def(py::init<DVectorMatrix, DLayerMatrix>(), "coordinateMatrix"_a,

@@ -1,6 +1,6 @@
 from cmtj import AxialDriver, CVector, Junction, Layer
 from cmtj import constantDriver, sineDriver
-
+import pytest
 
 def test_cvector_operators():
     vec1 = (1.0, 2.0, 3.0)
