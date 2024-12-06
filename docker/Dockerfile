@@ -8,7 +8,6 @@ RUN python3 -m pip install --upgrade pip
 WORKDIR /scratch
 RUN git clone --recurse-submodules https://github.com/LemurPwned/cmtj.git && \
     cd cmtj && \
-    python3 -m pip install numpy scipy && \
-    python3 -m pip install .
+    python3 -m pip install .[utils]
 WORKDIR /app
 RUN python3 -c "import cmtj; from cmtj.utils import FieldScan"
