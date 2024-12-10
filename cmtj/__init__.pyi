@@ -483,7 +483,7 @@ class Layer:
         """Create a buffered alpha noise generator."""
         ...
 
-    def setAlphaNoise(self, alpha: float, std: float, scale: float, axis: Axis) -> None:
+    def setAlphaNoise(self, alpha: float, std: float, scale: float, axis: Axis = Axis.all) -> None:
         """Set alpha noise for the layer.
         :param alpha: Alpha parameter
         :param std: Standard deviation
