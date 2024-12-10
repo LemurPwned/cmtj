@@ -479,6 +479,19 @@ class Layer:
         """
         ...
 
+    def createBufferedAlphaNoise(self, bufferSize: int) -> None:
+        """Create a buffered alpha noise generator."""
+        ...
+
+    def setAlphaNoise(self, alpha: float, std: float, scale: float, axis: Axis) -> None:
+        """Set alpha noise for the layer.
+        :param alpha: Alpha parameter
+        :param std: Standard deviation
+        :param scale: Scale
+        :param axis: Axis, by default all axes are used
+        """
+        ...
+
     def setAnisotropyDriver(self, driver: ScalarDriver) -> None:
         """Set anisotropy driver for the layer.
         It's scalar. The axis is determined in the layer constructor"""
