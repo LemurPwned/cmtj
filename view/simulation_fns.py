@@ -36,7 +36,11 @@ def create_single_domain(id_: str) -> Layer:
 
 def create_single_layer(id_: str) -> tuple:
     """Do not forget to rescale the units!"""
-    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    demag = [
+        CVector(st.session_state[f"Nxx{id_}"] * 1e-6, 0, 0),
+        CVector(0, st.session_state[f"Nyy{id_}"] * 1e-6, 0),
+        CVector(0, 0, st.session_state[f"Nzz{id_}"] * 1e-6),
+    ]
     Kdir = FieldScan.angle2vector(
         theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
     )

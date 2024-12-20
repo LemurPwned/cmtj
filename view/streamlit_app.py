@@ -132,6 +132,25 @@ with st.sidebar:
                 key=f"phi_K{i}",
                 help="Azimuthal angle of the anisotropy axis",
             )
+            st.write("Demagnetization field")
+            st.number_input(
+                f"Nxx ({i+1})",
+                value=0.0,
+                key=f"Nxx{i}",
+                format="%0.5f",
+            )
+            st.number_input(
+                f"Nyy ({i+1})",
+                value=0.0,
+                key=f"Nyy{i}",
+                format="%0.5f",
+            )
+            st.number_input(
+                f"Nzz ({i+1})",
+                value=1.0,
+                key=f"Nzz{i}",
+                format="%0.5f",
+            )
             st.markdown("-----\n")
 
     with st.expander("Interlayer parameters"):
@@ -310,9 +329,9 @@ with pimm_tab:
     st.button("Simulate PIMM", on_click=simulate_pimm, key="PIMM_btn")
     st.number_input(
         "Hoe (kA/m)",
-        min_value=0.05,
-        max_value=50.0,
-        value=0.05,
+        min_value=-500.0,
+        max_value=500.0,
+        value=50.0,
         key="Hoe_mag",
         help="Magnitude of the Oersted field impulse (PIMM excitation)",
     )
