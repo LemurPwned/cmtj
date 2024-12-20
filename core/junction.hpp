@@ -597,11 +597,15 @@ public:
     // dm1/dm1x x m2 = (0, -mz, my)
     // dm1/dm1y x m2 = (mz, 0, -mx)
     // dm1/dm1z x m2 = (-my, mx, 0)
-    const CVector<T> dm1crossm2(
-        c_dot(Dvector, CVector<T>(0, -coupledMag.z, coupledMag.y)),
-        c_dot(Dvector, CVector<T>(coupledMag.z, 0, -coupledMag.x)),
-        c_dot(Dvector, CVector<T>(-coupledMag.y, coupledMag.x, 0)));
+    // E = D z * (m1 x m2) == D m1 (m2 x z)
+    // dE/dm1 = D m2 x z
+    const CVector<T> dm1crossm2 = -1.0 * c_cross<T>(Dvector, coupledMag);
     return dm1crossm2 / (this->Ms * this->thickness);
+    // const CVector<T> dm1crossm2(
+    //     c_dot(Dvector, CVector<T>(0, -coupledMag.z, coupledMag.y)),
+    //     c_dot(Dvector, CVector<T>(coupledMag.z, 0, -coupledMag.x)),
+    //     c_dot(Dvector, CVector<T>(-coupledMag.y, coupledMag.x, 0)));
+    // return dm1crossm2 / (this->Ms * this->thickness);
   }
 
   CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
