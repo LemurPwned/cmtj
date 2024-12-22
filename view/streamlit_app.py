@@ -46,6 +46,8 @@ with st.sidebar:
             file_name="session_state.json",
             mime="application/json",
             type="primary",
+            help="Export the current session state to a JSON file. "
+            "You can use this to save your current settings and load them later or ""share them with others.",
         )
 
         st.file_uploader(
@@ -142,18 +144,21 @@ with st.sidebar:
                 value=0.0,
                 key=f"Nxx{i}",
                 format="%0.5f",
+                help="Demagnetization field component diagonal(xx)",
             )
             st.number_input(
                 f"Nyy ({i+1})",
                 value=0.0,
                 key=f"Nyy{i}",
                 format="%0.5f",
+                help="Demagnetization field component diagonal(yy)",
             )
             st.number_input(
                 f"Nzz ({i+1})",
                 value=1.0,
                 key=f"Nzz{i}",
                 format="%0.5f",
+                help="Demagnetization field component diagonal(zz)",
             )
             st.markdown("-----\n")
 
