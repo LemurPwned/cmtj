@@ -113,14 +113,15 @@ with st.sidebar:
             "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0
         )
         st.number_input(
-            "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
+            "Hmin (kA/m)", min_value=-1e6, max_value=1e6, value=-400.0, key="Hmin"
         )
         st.number_input(
-            "Hmax (kA/m)", min_value=0.0, max_value=1000.0, value=400.0, key="Hmax"
+            "Hmax (kA/m)", min_value=-1e6, max_value=1e6, value=400.0, key="Hmax"
         )
         st.number_input(
             "H steps", min_value=1, max_value=1000, value=50, key="Hsteps", format="%d"
         )
+        st.checkbox("Back-and-forth-field (PIMM only)", value=False, key="Hreturn")
         st.number_input(
             "int_step",
             min_value=1e-14,

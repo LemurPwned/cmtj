@@ -8,8 +8,7 @@ import streamlit as st
 from cmtj import *
 from cmtj.models import LayerSB, Solver
 from cmtj.utils import FieldScan, VectorObj, mu0
-from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
-                                   VSD_procedure)
+from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters, VSD_procedure
 
 
 def create_single_domain(id_: str) -> Layer:
@@ -138,7 +137,10 @@ def get_pimm_data(
     sim_time=16e-9,
 ):
     htheta, hphi = get_axis_angles(H_axis)
-    Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
+    hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
+    Hscan, Hvecs = FieldScan.amplitude_scan(
+        hmin, hmax, Hsteps, htheta, hphi, back=st.session_state["Hreturn"]
+    )
     j, rparams = prepare_simulation()
     spec, freqs, out = PIMM_procedure(
         j,
@@ -170,7 +172,8 @@ def get_vsd_data(
     Hoex_mag=500,
 ):
     htheta, hphi = get_axis_angles(H_axis)
-    Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
+    hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
+    Hscan, Hvecs = FieldScan.amplitude_scan(hmin, hmax, Hsteps, htheta, hphi)
     j, rparams = prepare_simulation()
     frequencies = np.arange(fmin, fmax, step=fstep)
     spec = VSD_procedure(
