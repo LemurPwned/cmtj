@@ -136,7 +136,7 @@ def simulate_vsd():
             Hoex_mag=st.session_state.Hoex_mag,
         )
         spec = Filters.detrend_axis(spec, axis=0)
-    plot_data(Hscan, freqs, spec, title="VSD spectrum", mode='vsd')
+    plot_data(Hscan, freqs, spec, title="VSD spectrum", mode="vsd")
 
 
 def simulate_pimm():
@@ -150,4 +150,4 @@ def simulate_pimm():
             sim_time=st.session_state.sim_time * 1e-9,
         )
     mag = np.asarray(output["m_avg"])
-    plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum", mode='pimm')
+    plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum", mode="pimm")
