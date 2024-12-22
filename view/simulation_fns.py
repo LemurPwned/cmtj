@@ -143,9 +143,14 @@ def get_pimm_data(
     htheta, hphi = get_axis_angles(H_axis)
     hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
     Hscan, Hvecs = FieldScan.amplitude_scan(
-        hmin, hmax, Hsteps, htheta, hphi, back=st.session_state["Hreturn"]
+        hmin, hmax, Hsteps, htheta, hphi
     )
+    if st.session_state["Hreturn"]:
+        Hscan = np.concatenate((Hscan, Hscan[::-1]))
+        Hvecs = np.concatenate((Hvecs, Hvecs[::-1]))
     j, rparams = prepare_simulation()
+    # avoid wait if the user sim's too short
+    wtime = 4e-9 if sim_time >= 6e-9 else 0.0
     spec, freqs, out = PIMM_procedure(
         j,
         Hvecs=Hvecs,
@@ -156,7 +161,7 @@ def get_pimm_data(
         max_frequency=st.session_state["max_freq"] * 1e9,
         simulation_duration=sim_time,
         disturbance=1e-6,
-        wait_time=4e-9,
+        wait_time=wtime,
     )
     return spec, freqs, out, Hscan
 
