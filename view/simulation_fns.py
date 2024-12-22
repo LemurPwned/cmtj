@@ -35,11 +35,17 @@ def create_single_domain(id_: str) -> Layer:
 
 def create_single_layer(id_: str) -> tuple:
     """Do not forget to rescale the units!"""
+    nxx = st.session_state[f"Nxx{id_}"]
+    nyy = st.session_state[f"Nyy{id_}"]
+    nzz = st.session_state[f"Nzz{id_}"]
     demag = [
-        CVector(st.session_state[f"Nxx{id_}"], 0, 0),
-        CVector(0, st.session_state[f"Nyy{id_}"], 0),
-        CVector(0, 0, st.session_state[f"Nzz{id_}"]),
+        CVector(nxx, 0, 0),
+        CVector(0, nyy, 0),
+        CVector(0, 0, nzz),
     ]
+    demag_sum = nxx + nyy + nzz
+    if abs(demag_sum - 1.0) > 1e-5:
+        st.warning(f"Warning: Demagnetization tensor components should sum to 1.0 (Layer {id_})")
     Kdir = FieldScan.angle2vector(
         theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
     )
@@ -142,9 +148,7 @@ def get_pimm_data(
 ):
     htheta, hphi = get_axis_angles(H_axis)
     hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
-    Hscan, Hvecs = FieldScan.amplitude_scan(
-        hmin, hmax, Hsteps, htheta, hphi
-    )
+    Hscan, Hvecs = FieldScan.amplitude_scan(hmin, hmax, Hsteps, htheta, hphi)
     if st.session_state["Hreturn"]:
         Hscan = np.concatenate((Hscan, Hscan[::-1]))
         Hvecs = np.concatenate((Hvecs, Hvecs[::-1]))

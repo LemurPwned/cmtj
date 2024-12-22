@@ -20,8 +20,12 @@ def export_session_state():
 
 
 def import_session_state(file):
-    for k, v in json.load(file).items():
-        st.session_state[k] = v
+    try:
+        data = json.load(file)
+        for k, v in data.items():
+            st.session_state[k] = v
+    except json.JSONDecodeError:
+        st.error("Error: Invalid JSON file format. Please upload a valid JSON file.")
 
 
 with st.expander("# Read me"):
