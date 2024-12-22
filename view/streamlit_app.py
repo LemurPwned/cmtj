@@ -5,6 +5,28 @@ import streamlit as st
 from autofit import autofit
 from helpers import simulate_pimm, simulate_vsd
 from utils import GENERIC_BOUNDS, GENERIC_UNITS
+import json
+
+
+def export_session_state():
+    export_dict = {}
+    opts = ["_btn", "_file", "_state", "low_", "up_", "check_", "upload"]
+    for k, v in st.session_state.items():
+        skip = any(forb_opts in k for forb_opts in opts)
+        if not skip:
+            export_dict[k] = v
+
+    return json.dumps(export_dict)
+
+
+def import_session_state(file):
+    try:
+        data = json.load(file)
+        for k, v in data.items():
+            st.session_state[k] = v
+    except json.JSONDecodeError:
+        st.error("Error: Invalid JSON file format. Please upload a valid JSON file.")
+
 
 with st.expander("# Read me"):
     st.write(
@@ -17,13 +39,34 @@ with st.expander("# Read me"):
     )
 
 with st.sidebar:
-    st.file_uploader(
-        "Upload your data here",
-        help="Upload your data here. Must be `\t` separated values and have H and f headers.",
-        type=["txt", "dat"],
-        accept_multiple_files=False,
-        key="upload",
-    )
+    with st.expander("Export/Import"):
+        st.download_button(
+            label="Export session state",
+            data=export_session_state(),
+            file_name="session_state.json",
+            mime="application/json",
+            type="primary",
+            help="Export the current session state to a JSON file. "
+            "You can use this to save your current settings and load them later or ""share them with others.",
+        )
+
+        st.file_uploader(
+            "Upload session state",
+            help="Upload your data here. Must be `\t` separated values and have H and f headers.",
+            type=["json"],
+            accept_multiple_files=False,
+            key="import_file",
+        )
+        if st.session_state.import_file:
+            import_session_state(st.session_state.import_file)
+
+        st.file_uploader(
+            "Upload your data here",
+            help="Upload your data here. Must be `\t` separated values and have H and f headers.",
+            type=["txt", "dat"],
+            accept_multiple_files=False,
+            key="upload",
+        )
     N = st.number_input(
         "Number of layers", min_value=1, max_value=10, value=1, key="N", format="%d"
     )
@@ -95,6 +138,28 @@ with st.sidebar:
                 key=f"phi_K{i}",
                 help="Azimuthal angle of the anisotropy axis",
             )
+            st.write("Demagnetization field")
+            st.number_input(
+                f"Nxx ({i+1})",
+                value=0.0,
+                key=f"Nxx{i}",
+                format="%0.5f",
+                help="Demagnetization field component diagonal(xx)",
+            )
+            st.number_input(
+                f"Nyy ({i+1})",
+                value=0.0,
+                key=f"Nyy{i}",
+                format="%0.5f",
+                help="Demagnetization field component diagonal(yy)",
+            )
+            st.number_input(
+                f"Nzz ({i+1})",
+                value=1.0,
+                key=f"Nzz{i}",
+                format="%0.5f",
+                help="Demagnetization field component diagonal(zz)",
+            )
             st.markdown("-----\n")
 
     with st.expander("Interlayer parameters"):
@@ -113,14 +178,15 @@ with st.sidebar:
             "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0
         )
         st.number_input(
-            "Hmin (kA/m)", min_value=-1000.0, max_value=1000.0, value=-400.0, key="Hmin"
+            "Hmin (kA/m)", min_value=-1e6, max_value=1e6, value=-400.0, key="Hmin"
         )
         st.number_input(
-            "Hmax (kA/m)", min_value=0.0, max_value=1000.0, value=400.0, key="Hmax"
+            "Hmax (kA/m)", min_value=-1e6, max_value=1e6, value=400.0, key="Hmax"
         )
         st.number_input(
             "H steps", min_value=1, max_value=1000, value=50, key="Hsteps", format="%d"
         )
+        st.checkbox("Back-and-forth-field (PIMM only)", value=False, key="Hreturn")
         st.number_input(
             "int_step",
             min_value=1e-14,
@@ -148,7 +214,6 @@ with st.sidebar:
             format="%d",
             help="Maximum frequency (cutoff) visible in plot",
         )
-
 
 pimm_tab, vsd_tab, opt_tab = st.tabs(["PIMM", "VSD", "Optimization"])
 with opt_tab:
@@ -274,9 +339,9 @@ with pimm_tab:
     st.button("Simulate PIMM", on_click=simulate_pimm, key="PIMM_btn")
     st.number_input(
         "Hoe (kA/m)",
-        min_value=0.05,
-        max_value=50.0,
-        value=0.05,
+        min_value=-500.0,
+        max_value=500.0,
+        value=50.0,
         key="Hoe_mag",
         help="Magnitude of the Oersted field impulse (PIMM excitation)",
     )

@@ -8,8 +8,7 @@ import streamlit as st
 from cmtj import *
 from cmtj.models import LayerSB, Solver
 from cmtj.utils import FieldScan, VectorObj, mu0
-from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
-                                   VSD_procedure)
+from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters, VSD_procedure
 
 
 def create_single_domain(id_: str) -> Layer:
@@ -36,7 +35,17 @@ def create_single_domain(id_: str) -> Layer:
 
 def create_single_layer(id_: str) -> tuple:
     """Do not forget to rescale the units!"""
-    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    nxx = st.session_state[f"Nxx{id_}"]
+    nyy = st.session_state[f"Nyy{id_}"]
+    nzz = st.session_state[f"Nzz{id_}"]
+    demag = [
+        CVector(nxx, 0, 0),
+        CVector(0, nyy, 0),
+        CVector(0, 0, nzz),
+    ]
+    demag_sum = nxx + nyy + nzz
+    if abs(demag_sum - 1.0) > 1e-5:
+        st.warning(f"Warning: Demagnetization tensor components should sum to 1.0 (Layer {id_})")
     Kdir = FieldScan.angle2vector(
         theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
     )
@@ -138,8 +147,14 @@ def get_pimm_data(
     sim_time=16e-9,
 ):
     htheta, hphi = get_axis_angles(H_axis)
-    Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
+    hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
+    Hscan, Hvecs = FieldScan.amplitude_scan(hmin, hmax, Hsteps, htheta, hphi)
+    if st.session_state["Hreturn"]:
+        Hscan = np.concatenate((Hscan, Hscan[::-1]))
+        Hvecs = np.concatenate((Hvecs, Hvecs[::-1]))
     j, rparams = prepare_simulation()
+    # avoid wait if the user sim's too short
+    wtime = 4e-9 if sim_time >= 6e-9 else 0.0
     spec, freqs, out = PIMM_procedure(
         j,
         Hvecs=Hvecs,
@@ -150,7 +165,7 @@ def get_pimm_data(
         max_frequency=st.session_state["max_freq"] * 1e9,
         simulation_duration=sim_time,
         disturbance=1e-6,
-        wait_time=4e-9,
+        wait_time=wtime,
     )
     return spec, freqs, out, Hscan
 
@@ -170,7 +185,8 @@ def get_vsd_data(
     Hoex_mag=500,
 ):
     htheta, hphi = get_axis_angles(H_axis)
-    Hscan, Hvecs = FieldScan.amplitude_scan(Hmin, Hmax, Hsteps, htheta, hphi)
+    hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
+    Hscan, Hvecs = FieldScan.amplitude_scan(hmin, hmax, Hsteps, htheta, hphi)
     j, rparams = prepare_simulation()
     frequencies = np.arange(fmin, fmax, step=fstep)
     spec = VSD_procedure(

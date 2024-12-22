@@ -51,7 +51,20 @@ def plot_optim(hvals, target, simulation, title="Optimisation"):
         st.pyplot(fig)
 
 
-def plot_data(Hscan, freqs, spec, mag=None, title="Resonance spectrum"):
+def plot_data(
+    Hscan, freqs, spec, mag=None, title: str = "Resonance spectrum", mode: str = "none"
+):
+    Hscan_spec = Hscan
+    if st.session_state["Hreturn"] and mode.lower() == "pimm":
+        print("Adding spectrum")
+        Hlen = len(Hscan) // 2
+        Hscan_spec = Hscan[:Hlen]
+        spec_left_right = spec[:Hlen, :]
+        spec_right_left = spec[Hlen:, :]
+        # invert the right side
+        spec_right_left = spec_right_left[::-1, :]
+        spec = spec_left_right + spec_right_left
+
     with plt.style.context(["dark_background"]):
         if mag is not None:
             fig = plt.figure(dpi=300)
@@ -77,7 +90,7 @@ def plot_data(Hscan, freqs, spec, mag=None, title="Resonance spectrum"):
         else:
             fig, ax1 = plt.subplots(dpi=300)
         ax1.pcolormesh(
-            Hscan / 1e3,
+            Hscan_spec / 1e3,
             freqs / 1e9,
             10 * np.log10(np.abs(spec.T)),
             shading="auto",
@@ -123,7 +136,7 @@ def simulate_vsd():
             Hoex_mag=st.session_state.Hoex_mag,
         )
         spec = Filters.detrend_axis(spec, axis=0)
-    plot_data(Hscan, freqs, spec, title="VSD spectrum")
+    plot_data(Hscan, freqs, spec, title="VSD spectrum", mode="vsd")
 
 
 def simulate_pimm():
@@ -137,4 +150,4 @@ def simulate_pimm():
             sim_time=st.session_state.sim_time * 1e-9,
         )
     mag = np.asarray(output["m_avg"])
-    plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum")
+    plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum", mode="pimm")

@@ -17,7 +17,7 @@ spectrum_page = st.Page(
     icon=":material/bar_chart:",
 )
 
-pg = st.navigation([domain_page, spectrum_page])
+pg = st.navigation([spectrum_page, domain_page])
 st.set_page_config(
     page_title=app_title,
     page_icon="🦈",

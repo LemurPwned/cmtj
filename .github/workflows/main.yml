@@ -11,20 +11,9 @@ on:
       - 'setup.py'
       - 'setup.cfg'
       - 'pyproject.toml'
-  workflow_dispatch:
-    inputs:
-      linux:
-        type: boolean
-        required: true
-        default: true
-      other-os:
-        type: boolean
-        required: true
-        default: true
 
 jobs:
   linux-build:
-    if: ${{ inputs.linux }} 
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: __token__
@@ -50,7 +39,6 @@ jobs:
         continue-on-error: false
     
   other-os-build:
-    if: ${{ inputs.other-os }} 
     runs-on: ${{ matrix.os }}
     env:
       TWINE_USERNAME: __token__
@@ -98,5 +86,5 @@ jobs:
         run: |
           gh release create "v${{ steps.get_version.outputs.version }}" \
               --repo="$GITHUB_REPOSITORY" \
-              --title="${GITHUB_REPOSITORY#*/} v${{ steps.get_version.outputs.version }}" \
+              --title="${GITHUB_REPOSITORY#*/} ${{ steps.get_version.outputs.version }}" \
               --generate-notes
