@@ -861,8 +861,32 @@ class Solver:
         A_inv_np = np.linalg.inv(A_np)
         return sym.Matrix(A_inv_np)
 
-    @lru_cache(maxsize=1000)  # noqa: B019
     def _compute_A_and_V_matrices(self, n, Vdc_ex_variable, H, frequency):
+        A_matrix = sym.zeros(2 * n, 2 * n)
+        V_matrix = sym.zeros(2 * n, 1)
+        U = self.create_energy(H=H, volumetric=False)
+        omega = sym.Symbol(r"\omega") if frequency is None else 2 * sym.pi * frequency
+        for i, layer in enumerate(self.layers):
+            rhs = layer.rhs_spherical_llg(U / layer.thickness, osc=True)
+            alpha_factor = 1 + layer.alpha**2
+            V_matrix[2 * i] = sym.diff(rhs[0] * alpha_factor, Vdc_ex_variable)
+            V_matrix[2 * i + 1] = sym.diff(rhs[1] * alpha_factor, Vdc_ex_variable)
+            theta, phi = layer.get_coord_sym()
+            fn_theta = (omega * sym.I * theta - rhs[0]) * alpha_factor
+            fn_phi = (omega * sym.I * phi - rhs[1]) * alpha_factor
+            # the functions are only valid for that row i (theta) and i + 1 (phi)
+            # so we only need to compute the derivatives for the other layers
+            # for the other layers, the derivatives are zero
+            for j, layer_j in enumerate(self.layers):
+                theta_, phi_ = layer_j.get_coord_sym()
+                A_matrix[2 * i, 2 * j] = sym.diff(fn_theta, theta_)
+                A_matrix[2 * i, 2 * j + 1] = sym.diff(fn_theta, phi_)
+                A_matrix[2 * i + 1, 2 * j] = sym.diff(fn_phi, theta_)
+                A_matrix[2 * i + 1, 2 * j + 1] = sym.diff(fn_phi, phi_)
+        return A_matrix, V_matrix
+
+    @lru_cache(maxsize=1000)  # noqa: B019
+    def _compute_A_and_V_matrices_old(self, n, Vdc_ex_variable, H, frequency):
         A_matrix = sym.zeros(2 * n, 2 * n)
         V_matrix = sym.zeros(2 * n, 1)
         U = self.create_energy(H=H, volumetric=False)
