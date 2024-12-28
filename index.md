@@ -6,7 +6,7 @@
 [![pages-build-deployment](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment)
 [![Version](https://img.shields.io/pypi/v/cmtj)](https://pypi.org/project/cmtj/)
 [![License](https://img.shields.io/pypi/l/cmtj.svg)](https://github.com/LemurPwned/cmtj/blob/master/LICENSE)
-[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](http://cmtj-simulations.streamlit.app/)
+[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cmtj-app.streamlit.app/spectrum)
 ![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
 
 ## Table of contents
@@ -14,10 +14,11 @@
 - [CMTJ](#cmtj)
   - [Table of contents](#table-of-contents)
   - [Short description](#short-description)
+    - [What can you simulate?](#what-can-you-simulate)
   - [Web GUI](#web-gui)
   - [Quickstart](#quickstart)
-      - [Installation :rocket:](#installation-rocket)
-      - [Extra dependencies](#extra-dependencies)
+    - [Installation :rocket:](#installation-rocket)
+    - [Extra dependencies](#extra-dependencies)
   - [Documentation and examples](#documentation-and-examples)
   - [Extensions](#extensions)
   - [Citing](#citing)
@@ -34,9 +35,47 @@ The `cmtj` name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
 
+### What can you simulate?
+
+Below is a brief list of examples (it's not exhaustive! Check the docs for more).
+
+**Magnetic devices:**
+
+- Magnetic Tunnel Junctions
+  - Voltage-Driven Magnetic Tunnel Junctions
+  - Spin-Torque Oscillators
+  - VCMA sensors and devices
+  - Magnetic Tunnel Junction Arrays
+- SOT devices
+  - Current-Driven SOT
+- Advanced device coupling
+- Reservoirs (dipole coupling)
+- Electrically coupled MTJs
+- Base equations
+  - Landau-Lifshitz-Gilbert-Slonczewski equation
+  - Stochastic Landau-Lifshitz-Gilbert-Slonczewski equation
+  - Landau-Lifshitz-Gilbert-Bloch equation
+- Domain wall motion
+
+**Experimental methods:**
+
+Some of the experimental methods available:
+
+- PIMM
+- Spin-Diode
+- CIMS
+- R(H), M(H)
+
 ## Web GUI
 
-Check out the [streamlit hosted demo here](http://cmtj-simulations.streamlit.app/). You can simulate PIMM spectra and Spin-Diode spectra there. Let us know if you have any issues with the demo.
+Check out the [streamlit hosted demo here](https://cmtj-app.streamlit.app/spectrum). 
+You can simulate:
+
+* PIMM spectra and Spin-Diode spectra
+* Try some optimization fitting
+* Fit multi-domain or multi-level M(H) or R(H) loops in [Domain mode](https://cmtj-app.streamlit.app)
+
+Let us know if you have any issues with the demo.
 
 ## Quickstart
 
@@ -144,7 +183,7 @@ pre-commit run -a (or --files core/* cmtj/*)
 
 ## Documentation builds
 
-**Note**  
+**Note**
 For stub generation add `__init__.py` to the `cmtj` directory.
 
 There are a couple of stages to building the documentation

@@ -1576,7 +1576,9 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 5</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
 <span class="normal"> 6</span>
 <span class="normal"> 7</span>
 <span class="normal"> 8</span>
@@ -1623,16 +1625,10 @@
 <span class="normal">49</span>
 <span class="normal">50</span>
 <span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LLGBJunction</span><span class="p">:</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LLGBJunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;LLGB Junction class.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LLGBLayer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LLGBLayer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialises a LLGB junction with layers.</span>
 <span class="sd">        :param layers: list of LLGB layers.&quot;&quot;&quot;</span>
         <span class="o">...</span>
@@ -1641,7 +1637,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clears the simulation log of the junction.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the simulation log of the junction.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
@@ -1667,17 +1663,13 @@
 <span class="sd">        :param arg0: file path.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set an external field driver for a layer.</span>
 <span class="sd">        :param layerId: the id of the layer.</span>
 <span class="sd">        :param driver: the field driver to be set.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerTemperatureDriver</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">setLayerTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a temperature driver for a layer.</span>
 <span class="sd">        :param layerId: the id of the layer.</span>
 <span class="sd">        :param driver: the temperature driver to be set.</span>
@@ -1726,7 +1718,7 @@
         <tr>
           <td><code>layers</code></td>
           <td>
-                <code><span title="typing.List">List</span>[<a title="cmtj.llgb.LLGBLayer" href="#cmtj.llgb.LLGBLayer">LLGBLayer</a>]</code>
+                <code>list[<a title="cmtj.llgb.LLGBLayer" href="#cmtj.llgb.LLGBLayer">LLGBLayer</a>]</code>
           </td>
           <td><p>list of LLGB layers.</p></td>
           <td>
@@ -1738,10 +1730,10 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LLGBLayer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LLGBLayer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialises a LLGB junction with layers.</span>
 <span class="sd">    :param layers: list of LLGB layers.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -1767,9 +1759,9 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clears the simulation log of the junction.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -1794,9 +1786,9 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the simulation log of the junction.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -1873,7 +1865,7 @@
         <tr>
           <td><code>solverMode</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.SolverMode" href="../core/#cmtj.SolverMode">SolverMode</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.SolverMode">SolverMode</span></code>
           </td>
           <td><p>solver mode.</p></td>
           <td>
@@ -1885,7 +1877,9 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
@@ -1898,9 +1892,7 @@
 <span class="normal">31</span>
 <span class="normal">32</span>
 <span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
@@ -1962,10 +1954,10 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">saveLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">saveLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Saves the simulation logs to a file.</span>
 <span class="sd">    :param arg0: file path.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -2013,7 +2005,7 @@
         <tr>
           <td><code>driver</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.AxialDriver" href="../core/#cmtj.AxialDriver">AxialDriver</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.AxialDriver">AxialDriver</span></code>
           </td>
           <td><p>the field driver to be set.</p></td>
           <td>
@@ -2025,15 +2017,11 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
 <span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set an external field driver for a layer.</span>
 <span class="sd">    :param layerId: the id of the layer.</span>
 <span class="sd">    :param driver: the field driver to be set.&quot;&quot;&quot;</span>
@@ -2082,7 +2070,7 @@
         <tr>
           <td><code>driver</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.ScalarDriver" href="../core/#cmtj.ScalarDriver">ScalarDriver</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.ScalarDriver">ScalarDriver</span></code>
           </td>
           <td><p>the temperature driver to be set.</p></td>
           <td>
@@ -2094,16 +2082,12 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerTemperatureDriver</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a temperature driver for a layer.</span>
 <span class="sd">    :param layerId: the id of the layer.</span>
 <span class="sd">    :param driver: the temperature driver to be set.</span>
@@ -2142,52 +2126,52 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LLGBLayer</span><span class="p">:</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LLGBLayer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;LLGB Layer class.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2198,7 +2182,7 @@
         <span class="n">Ms</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">cellSurface</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">demagTensor</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">],</span>
+        <span class="n">demagTensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">],</span>
         <span class="n">damping</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">susceptibility</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2286,7 +2270,7 @@
         <tr>
           <td><code>mag</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.CVector" href="../core/#cmtj.CVector">CVector</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.CVector">CVector</span></code>
           </td>
           <td><p>magnetisation.</p></td>
           <td>
@@ -2296,7 +2280,7 @@
         <tr>
           <td><code>anis</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.CVector" href="../core/#cmtj.CVector">CVector</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.CVector">CVector</span></code>
           </td>
           <td><p>anisotropy axis.</p></td>
           <td>
@@ -2336,7 +2320,7 @@
         <tr>
           <td><code>demagTensor</code></td>
           <td>
-                <code><span title="typing.List">List</span>[<a href="../core/#cmtj">cmtj</a>.<a title="cmtj.CVector" href="../core/#cmtj.CVector">CVector</a>]</code>
+                <code>list[<a href="../core/#cmtj">cmtj</a>.<span title="cmtj.CVector">CVector</span>]</code>
           </td>
           <td><p>demagnetisation tensor.</p></td>
           <td>
@@ -2388,7 +2372,13 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
@@ -2409,13 +2399,7 @@
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">,</span>
@@ -2423,7 +2407,7 @@
     <span class="n">Ms</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">cellSurface</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">demagTensor</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">],</span>
+    <span class="n">demagTensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">],</span>
     <span class="n">damping</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">Tc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">susceptibility</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2477,7 +2461,7 @@
         <tr>
           <td><code>driver</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.ScalarDriver" href="../core/#cmtj.ScalarDriver">ScalarDriver</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.ScalarDriver">ScalarDriver</span></code>
           </td>
           <td><p>the anisotropy driver to be set.</p></td>
           <td>
@@ -2489,10 +2473,10 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets an anisotropy driver.</span>
 <span class="sd">    :param driver: the anisotropy driver to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -2530,7 +2514,7 @@
         <tr>
           <td><code>driver</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.AxialDriver" href="../core/#cmtj.AxialDriver">AxialDriver</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.AxialDriver">AxialDriver</span></code>
           </td>
           <td><p>the field driver to be set.</p></td>
           <td>
@@ -2542,10 +2526,10 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets an external field driver.</span>
 <span class="sd">    :param driver: the field driver to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -2583,7 +2567,7 @@
         <tr>
           <td><code>driver</code></td>
           <td>
-                <code><a href="../core/#cmtj">cmtj</a>.<a title="cmtj.ScalarDriver" href="../core/#cmtj.ScalarDriver">ScalarDriver</a></code>
+                <code><a href="../core/#cmtj">cmtj</a>.<span title="cmtj.ScalarDriver">ScalarDriver</span></code>
           </td>
           <td><p>the temperature driver to be set.</p></td>
           <td>
@@ -2595,10 +2579,10 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets a temperature driver.</span>
 <span class="sd">    :param driver: the temperature driver to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -2707,7 +2691,13 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/llgb/__init__.pyi</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
@@ -2716,20 +2706,14 @@
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">MFAWeissCurie</span><span class="p">(</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">MFAWeissCurie</span><span class="p">(</span>
     <span class="n">me</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">T</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">J0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">relax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
     <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
     <span class="n">maxIter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mean Field Approximation for Weiss Curie temperature.</span>
 <span class="sd">    :param me: equilibrium magnetisation.</span>
 <span class="sd">    :param T: temperature.</span>

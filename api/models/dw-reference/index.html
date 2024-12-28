@@ -1511,12 +1511,14 @@
 <span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
-<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DW</span><span class="p">:</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DW</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initial conditions for the phi of DW equation.&quot;&quot;&quot;</span>
+
     <span class="n">NEEL_RIGHT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">NEEL_LEFT</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">BLOCH_UP</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.</span>
-    <span class="n">BLOCH_DOWN</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="n">BLOCH_UP</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">BLOCH_DOWN</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span>
 </code></pre></div></td></tr></table></div>
         </details>
 
@@ -1787,20 +1789,7 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
@@ -1874,7 +1863,21 @@
 <span class="normal">190</span>
 <span class="normal">191</span>
 <span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">DomainWallDynamics</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Domain Wall dynamics class.</span>
 <span class="sd">    :param H: applied magnetic field vector.</span>
@@ -1901,6 +1904,7 @@
 <span class="sd">    For classical formulation see:</span>
 <span class="sd">    Current-driven dynamics of chiral ferromagnetic domain walls, Emori et al, 2013</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">Ms</span><span class="p">:</span> <span class="nb">float</span>
@@ -1928,7 +1932,7 @@
         <span class="c1"># in post init we already have p</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bj</span> <span class="o">=</span> <span class="n">bohr_magneton</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">/</span> <span class="p">(</span><span class="n">echarge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">je_driver</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mi">0</span>
-        <span class="n">denom</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">echarge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+        <span class="n">denom</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">mu0</span> <span class="o">*</span> <span class="n">echarge</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Hshe</span> <span class="o">=</span> <span class="n">hbar</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">SHE_angle</span> <span class="o">/</span> <span class="n">denom</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">H</span><span class="o">.</span><span class="n">get_cartesian</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dw0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unrelaxed_domain_width</span><span class="p">()</span>
@@ -1993,9 +1997,9 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_Hdmi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain_width</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_Hdmi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain_width</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the DMI field&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">domain_width</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2020,9 +2024,9 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_inplane_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_inplane_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the in-plane anisotropy field&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2047,9 +2051,9 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_perpendicular_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_perpendicular_anisotropy_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the perpeanisotropy field&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ku</span> <span class="o">/</span> <span class="p">(</span><span class="n">mu0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2075,12 +2079,12 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_unrelaxed_domain_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_unrelaxed_domain_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">effective</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Domain width is based off the effective perpendicular anisotropy.</span>
 <span class="sd">    We reduce the perpendicular anisotropy by demagnetising field&quot;&quot;&quot;</span>
     <span class="c1"># Keff = self.Ku - 0.5*mu0*(self.Ms)**2</span>
@@ -2132,11 +2136,11 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">set_current_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param driver: A function of time that returns the current density</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2176,21 +2180,7 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 
         <details class="quote">
           <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
@@ -2284,9 +2274,25 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 <span class="normal">301</span>
 <span class="normal">302</span>
 <span class="normal">303</span>
-<span class="normal">304</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">MultilayerWallDynamics</span><span class="p">:</span>
-    <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DomainWallDynamics</span><span class="p">]</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DomainWallDynamics</span><span class="p">]</span>
     <span class="n">J</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">vector_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># 3 for X, phi, delta</span>
 
@@ -2305,7 +2311,7 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
         <span class="n">new_vec</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
             <span class="n">je_at_t</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
-            <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span>
             <span class="n">lx</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span>
             <span class="n">lphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">ldomain_width</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
@@ -2343,7 +2349,8 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
                 <span class="n">A</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
                 <span class="n">Ku</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ku</span><span class="p">,</span>
                 <span class="n">Kp</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Kp</span><span class="p">,</span>
-                <span class="n">thickness</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+                <span class="n">thickness</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">dXdt</span> <span class="o">=</span> <span class="n">dXdt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
             <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">dPhidt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
             <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">!=</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">DYNAMIC</span><span class="p">:</span>
@@ -2351,45 +2358,46 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
             <span class="n">new_vec</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span><span class="p">,</span> <span class="n">dDeltadt</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">new_vec</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="n">starting_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
-            <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">starting_conditions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics.</span>
 <span class="sd">        :param sim_time: total simulation time (simulation units).</span>
 <span class="sd">        :param starting_conditions: starting position and angle of the DW.</span>
 <span class="sd">        :param max_step: maximum allowed step of the RK45 method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multilayer_dw_llg</span><span class="p">,</span>
-                          <span class="n">t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                          <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
-                          <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
-                          <span class="n">y0</span><span class="o">=</span><span class="n">starting_conditions</span><span class="p">,</span>
-                          <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
-                          <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">)</span>
+        <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span>
+            <span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multilayer_dw_llg</span><span class="p">,</span>
+            <span class="n">t0</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
+            <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
+            <span class="n">y0</span><span class="o">=</span><span class="n">starting_conditions</span><span class="p">,</span>
+            <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+            <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to converge&quot;</span><span class="p">)</span>
                 <span class="k">break</span>
             <span class="n">layer_vecs</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
-            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
-                <span class="n">x</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span>
-                    <span class="mi">1</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dw</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span>
+                    <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span>
+                <span class="p">)</span>
                 <span class="c1"># static relaxation Thiaville</span>
                 <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">==</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">STATIC</span><span class="p">:</span>
                     <span class="n">ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ku</span>
-                    <span class="n">dw</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">dw</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
                 <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
-                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span>
-                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
-                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;je_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;je_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;finished&quot;</span><span class="p">:</span>
                 <span class="k">break</span>
 
         <span class="k">return</span> <span class="n">result</span>
@@ -2473,21 +2481,7 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">220</span>
 <span class="normal">221</span>
 <span class="normal">222</span>
 <span class="normal">223</span>
@@ -2528,7 +2522,22 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 <span class="normal">258</span>
 <span class="normal">259</span>
 <span class="normal">260</span>
-<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve the Thiaville llg equation for LLG.</span>
 <span class="sd">    :param t: current simulation time.</span>
 <span class="sd">    :param vec: contains [X, phi, delta], current DW position, its angle and domain width.</span>
@@ -2539,7 +2548,7 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
     <span class="n">new_vec</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
         <span class="n">je_at_t</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
-        <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">reduced_alpha</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">alpha</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">lx</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span>
         <span class="n">lphi</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
         <span class="n">ldomain_width</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
@@ -2577,7 +2586,8 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
             <span class="n">A</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">A</span><span class="p">,</span>
             <span class="n">Ku</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Ku</span><span class="p">,</span>
             <span class="n">Kp</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">Kp</span><span class="p">,</span>
-            <span class="n">thickness</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+            <span class="n">thickness</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">dXdt</span> <span class="o">=</span> <span class="n">dXdt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
         <span class="n">dPhidt</span> <span class="o">=</span> <span class="n">dPhidt</span> <span class="o">/</span> <span class="n">reduced_alpha</span>
         <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">!=</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">DYNAMIC</span><span class="p">:</span>
@@ -2628,7 +2638,7 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
         <tr>
           <td><code>starting_conditions</code></td>
           <td>
-                <code><span title="typing.List">List</span>[float]</code>
+                <code>list[float]</code>
           </td>
           <td><p>starting position and angle of the DW.</p></td>
           <td>
@@ -2650,22 +2660,7 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/models/domain_dynamics.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
@@ -2691,45 +2686,62 @@ We reduce the perpendicular anisotropy by demagnetising field</p>
 <span class="normal">301</span>
 <span class="normal">302</span>
 <span class="normal">303</span>
-<span class="normal">304</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-        <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">starting_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
-        <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">starting_conditions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">max_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run simulation of DW dynamics.</span>
 <span class="sd">    :param sim_time: total simulation time (simulation units).</span>
 <span class="sd">    :param starting_conditions: starting position and angle of the DW.</span>
 <span class="sd">    :param max_step: maximum allowed step of the RK45 method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multilayer_dw_llg</span><span class="p">,</span>
-                      <span class="n">t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
-                      <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
-                      <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
-                      <span class="n">y0</span><span class="o">=</span><span class="n">starting_conditions</span><span class="p">,</span>
-                      <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
-                      <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">)</span>
+    <span class="n">integrator</span> <span class="o">=</span> <span class="n">RK45</span><span class="p">(</span>
+        <span class="n">fun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multilayer_dw_llg</span><span class="p">,</span>
+        <span class="n">t0</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">first_step</span><span class="o">=</span><span class="mf">1e-16</span><span class="p">,</span>
+        <span class="n">max_step</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
+        <span class="n">y0</span><span class="o">=</span><span class="n">starting_conditions</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">,</span>
+        <span class="n">t_bound</span><span class="o">=</span><span class="n">sim_time</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">integrator</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to converge&quot;</span><span class="p">)</span>
             <span class="k">break</span>
         <span class="n">layer_vecs</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y</span>
-        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dw</span> <span class="o">=</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span>
-                <span class="mi">1</span><span class="p">],</span> <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dw</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span>
+                <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">layer_vecs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_size</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">)</span>
             <span class="c1"># static relaxation Thiaville</span>
             <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">relax_dw</span> <span class="o">==</span> <span class="n">DWRelax</span><span class="o">.</span><span class="n">STATIC</span><span class="p">:</span>
                 <span class="n">ratio</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">Kp</span> <span class="o">/</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ku</span>
-                <span class="n">dw</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">dw</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">dw0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ratio</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">vel</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">integrator</span><span class="o">.</span><span class="n">y_old</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">integrator</span><span class="o">.</span><span class="n">step_size</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;je_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">&#39;finished&#39;</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dw_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dw</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;v_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vel</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;phi_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;je_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">je_driver</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">integrator</span><span class="o">.</span><span class="n">t</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">integrator</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;finished&quot;</span><span class="p">:</span>
             <span class="k">break</span>
 
     <span class="k">return</span> <span class="n">result</span>

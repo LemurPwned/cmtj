@@ -1211,11 +1211,15 @@
 
 
 <h1 id="changelog">Changelog</h1>
-<h1 id="155">1.5.5</h1>
+<h1 id="160">1.6.0</h1>
 <ul>
-<li>Extended the <code>Stack</code> models allowing for non-symmetric coupling between devices.</li>
-<li><code>Stack</code> current drivers can now be of any type are adequately scaled.</li>
+<li>Extended the <code>Stack</code> models allowing for non-symmetric coupling between devices.
+  <code>Stack</code> current drivers can now be of any type and are adequately scaled.</li>
 <li>Custom definition of the <code>ScalarDriver</code> is now possible and documented.</li>
+<li>Fixed a bug in the <code>Stack</code> class which inverted the connection order of in-series connections.</li>
+<li>Exposed IDMI interaction to Layer and Junction classes.</li>
+<li>Added <code>getLayer</code> method to the <code>Junction</code> class and <code>getJunction</code> method to the <code>Stack</code> class that return a reference to the object.</li>
+<li>Fixed and expanded the <code>reservoir</code> module. Now, <code>GroupInteraction</code> can use any dipole interaction function, with 3 provided as default: <code>computeDipoleInteraction</code>, <code>computeDipoleInteractionNoumra</code> and <code>nullDipoleInteraction</code> (0 dipole tensor).</li>
 </ul>
 <h1 id="150-154">1.5.0-1.5.4</h1>
 <ul>

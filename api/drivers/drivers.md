@@ -6,7 +6,7 @@ title: Tips and tricks
 ---
 
 
-# Drivers API 
+# Drivers API
 
 The drivers API allows you to freely control the excitation types in `cmtj` library.
 There are two types of drivers:

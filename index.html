@@ -317,6 +317,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Short description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-can-you-simulate" class="md-nav__link">
+    <span class="md-ellipsis">
+      What can you simulate?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1334,6 +1349,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Short description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-can-you-simulate" class="md-nav__link">
+    <span class="md-ellipsis">
+      What can you simulate?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1426,13 +1456,16 @@
 <a href="https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment"><img alt="pages-build-deployment" src="https://github.com/LemurPwned/cmtj/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages" /></a>
 <a href="https://pypi.org/project/cmtj/"><img alt="Version" src="https://img.shields.io/pypi/v/cmtj" /></a>
 <a href="https://github.com/LemurPwned/cmtj/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/pypi/l/cmtj.svg" /></a>
-<a href="http://cmtj-simulations.streamlit.app/"><img alt="Streamlit" src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" /></a>
+<a href="https://cmtj-app.streamlit.app/spectrum"><img alt="Streamlit" src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" /></a>
 <img alt="Downloads" src="https://img.shields.io/pypi/dm/cmtj.svg" /></p>
 <h2 id="table-of-contents">Table of contents</h2>
 <ul>
 <li><a href="#cmtj">CMTJ</a></li>
 <li><a href="#table-of-contents">Table of contents</a></li>
-<li><a href="#short-description">Short description</a></li>
+<li><a href="#short-description">Short description</a><ul>
+<li><a href="#what-can-you-simulate">What can you simulate?</a></li>
+</ul>
+</li>
 <li><a href="#web-gui">Web GUI</a></li>
 <li><a href="#quickstart">Quickstart</a><ul>
 <li><a href="#installation-rocket">Installation :rocket:</a></li>
@@ -1453,8 +1486,43 @@
 <p>The <code>cmtj</code> name may be misleading -- the MTJ (Magnetic Tunnel Junctions) are not the only structures that may be simulated.
 The library allows for macromagnetic simulation of various multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.</p>
+<h3 id="what-can-you-simulate">What can you simulate?</h3>
+<p>Below is a brief list of examples (it's not exhaustive! Check the docs for more).</p>
+<p><strong>Magnetic devices:</strong></p>
+<ul>
+<li>Magnetic Tunnel Junctions</li>
+<li>Voltage-Driven Magnetic Tunnel Junctions</li>
+<li>Spin-Torque Oscillators</li>
+<li>VCMA sensors and devices</li>
+<li>Magnetic Tunnel Junction Arrays</li>
+<li>SOT devices</li>
+<li>Current-Driven SOT</li>
+<li>Advanced device coupling</li>
+<li>Reservoirs (dipole coupling)</li>
+<li>Electrically coupled MTJs</li>
+<li>Base equations</li>
+<li>Landau-Lifshitz-Gilbert-Slonczewski equation</li>
+<li>Stochastic Landau-Lifshitz-Gilbert-Slonczewski equation</li>
+<li>Landau-Lifshitz-Gilbert-Bloch equation</li>
+<li>Domain wall motion</li>
+</ul>
+<p><strong>Experimental methods:</strong></p>
+<p>Some of the experimental methods available:</p>
+<ul>
+<li>PIMM</li>
+<li>Spin-Diode</li>
+<li>CIMS</li>
+<li>R(H), M(H)</li>
+</ul>
 <h2 id="web-gui">Web GUI</h2>
-<p>Check out the <a href="http://cmtj-simulations.streamlit.app/">streamlit hosted demo here</a>. You can simulate PIMM spectra and Spin-Diode spectra there. Let us know if you have any issues with the demo.</p>
+<p>Check out the <a href="https://cmtj-app.streamlit.app/spectrum">streamlit hosted demo here</a>. 
+You can simulate:</p>
+<ul>
+<li>PIMM spectra and Spin-Diode spectra</li>
+<li>Try some optimization fitting</li>
+<li>Fit multi-domain or multi-level M(H) or R(H) loops in <a href="https://cmtj-app.streamlit.app">Domain mode</a></li>
+</ul>
+<p>Let us know if you have any issues with the demo.</p>
 <h2 id="quickstart">Quickstart</h2>
 <h4 id="installation-rocket">Installation :rocket:</h4>
 <p>The recommended way is to use the <code>pip</code> package manager and virtualenv (or conda).
@@ -1526,7 +1594,7 @@ This may be run with:</p>
 <div class="highlight"><pre><span></span><code>pre-commit run -a (or --files core/* cmtj/*)
 </code></pre></div>
 <h2 id="documentation-builds">Documentation builds</h2>
-<p><strong>Note</strong><br />
+<p><strong>Note</strong>
 For stub generation add <code>__init__.py</code> to the <code>cmtj</code> directory.</p>
 <p>There are a couple of stages to building the documentation</p>
 <ol>

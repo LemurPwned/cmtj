@@ -1453,7 +1453,7 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
         <tr>
           <td><code>junction</code></td>
           <td>
-                <code><a title="cmtj.Junction" href="../core/#cmtj.Junction">Junction</a></code>
+                <code><span title="cmtj.Junction">Junction</span></code>
           </td>
           <td><p>junction to be simulated.</p></td>
           <td>
@@ -1483,7 +1483,7 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
         <tr>
           <td><code>resistance_params</code></td>
           <td>
-                <code><span title="typing.List">List</span>[<a title="cmtj.utils.procedures.ResistanceParameters" href="#cmtj.utils.procedures.ResistanceParameters">ResistanceParameters</a>]</code>
+                <code>list[<a title="cmtj.utils.procedures.ResistanceParameters" href="#cmtj.utils.procedures.ResistanceParameters">ResistanceParameters</a>]</code>
           </td>
           <td><p>list of resistance parameters.</p></td>
           <td>
@@ -1614,7 +1614,7 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
     <tbody>
         <tr>
           <td>
-                <code><span title="typing.Tuple">Tuple</span>[<span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span>, <span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span>, <span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]]</code>
+                <code>tuple[<span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span>, <span title="numpy">np</span>.<span title="numpy.ndarray">ndarray</span>, dict[str, <span title="typing.Any">Any</span>]]</code>
           </td>
           <td><p>(spectrum, frequencies, other_data) other_data is a dictionary with the following keys: - 'H': Hext field [A/m] - 'Rx': resistance in x direction [Ohm] - 'Ry': resistance in y direction [Ohm] - 'm_avg': average magnetization [unit] - 'm_traj': magnetization trajectories [unit]</p></td>
         </tr>
@@ -1623,7 +1623,8 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/procedures.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 43</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 42</span>
+<span class="normal"> 43</span>
 <span class="normal"> 44</span>
 <span class="normal"> 45</span>
 <span class="normal"> 46</span>
@@ -1778,11 +1779,12 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
 <span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">PIMM_procedure</span><span class="p">(</span>
+<span class="normal">198</span>
+<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">PIMM_procedure</span><span class="p">(</span>
     <span class="n">junction</span><span class="p">:</span> <span class="s2">&quot;Junction&quot;</span><span class="p">,</span>
     <span class="n">Hvecs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">resistance_params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResistanceParameters</span><span class="p">],</span>
+    <span class="n">resistance_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ResistanceParameters</span><span class="p">],</span>
     <span class="n">Hoe_direction</span><span class="p">:</span> <span class="n">Axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="o">.</span><span class="n">zaxis</span><span class="p">,</span>
     <span class="n">Hoe_excitation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">Hoe_duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
@@ -1795,7 +1797,7 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
     <span class="n">full_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">disable_tqdm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">static_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Procedure for computing Pulse Induced Microwave Magnetometry.</span>
 <span class="sd">    It computes both PIMM and Resistance (for instance AHE loops).</span>
 <span class="sd">    Set `static_only` to True to only compute the static resistance.</span>
@@ -1832,22 +1834,19 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
         <span class="n">oedriver</span> <span class="o">=</span> <span class="n">AxialDriver</span><span class="p">(</span>
             <span class="n">NullDriver</span><span class="p">(),</span>
             <span class="n">NullDriver</span><span class="p">(),</span>
-            <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getStepDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-                                       <span class="n">int_step</span> <span class="o">*</span> <span class="n">Hoe_duration</span><span class="p">),</span>
+            <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getStepDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">int_step</span> <span class="o">*</span> <span class="n">Hoe_duration</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">Hoe_direction</span> <span class="o">==</span> <span class="n">Axis</span><span class="o">.</span><span class="n">yaxis</span><span class="p">:</span>
         <span class="n">extraction_m_component</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span>
         <span class="n">oedriver</span> <span class="o">=</span> <span class="n">AxialDriver</span><span class="p">(</span>
             <span class="n">NullDriver</span><span class="p">(),</span>
-            <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getStepDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-                                       <span class="n">int_step</span> <span class="o">*</span> <span class="n">Hoe_duration</span><span class="p">),</span>
+            <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getStepDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">int_step</span> <span class="o">*</span> <span class="n">Hoe_duration</span><span class="p">),</span>
             <span class="n">NullDriver</span><span class="p">(),</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">extraction_m_component</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
         <span class="n">oedriver</span> <span class="o">=</span> <span class="n">AxialDriver</span><span class="p">(</span>
-            <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getStepDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
-                                       <span class="n">int_step</span> <span class="o">*</span> <span class="n">Hoe_duration</span><span class="p">),</span>
+            <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getStepDriver</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">int_step</span> <span class="o">*</span> <span class="n">Hoe_duration</span><span class="p">),</span>
             <span class="n">NullDriver</span><span class="p">(),</span>
             <span class="n">NullDriver</span><span class="p">(),</span>
         <span class="p">)</span>
@@ -1855,12 +1854,9 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
     <span class="c1"># get layer strings</span>
     <span class="n">layer_ids</span> <span class="o">=</span> <span class="n">junction</span><span class="o">.</span><span class="n">getLayerIds</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resistance_params</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;The number of layers in the junction must match the number of resistance parameters!&quot;</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of layers in the junction must match the number of resistance parameters!&quot;</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-    <span class="n">normalising_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">junction</span><span class="o">.</span><span class="n">layers</span><span class="p">])</span>
+    <span class="n">normalising_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">junction</span><span class="o">.</span><span class="n">layers</span><span class="p">])</span>
     <span class="n">freqs</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># in case of static_only</span>
     <span class="k">for</span> <span class="n">H</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">Hvecs</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Computing PIMM&quot;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">disable_tqdm</span><span class="p">):</span>
         <span class="n">junction</span><span class="o">.</span><span class="n">clearLog</span><span class="p">()</span>
@@ -1886,16 +1882,22 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
         <span class="n">junction</span><span class="o">.</span><span class="n">runSimulation</span><span class="p">(</span><span class="n">simulation_duration</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">int_step</span><span class="p">)</span>
         <span class="n">log</span> <span class="o">=</span> <span class="n">junction</span><span class="o">.</span><span class="n">getLog</span><span class="p">()</span>
         <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="n">wait_time</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-        <span class="n">m_traj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-                <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span>
-                <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span>
-                <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">],</span>
-            <span class="p">])</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">/</span> <span class="n">normalising_factor</span>
-            <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">junction</span><span class="o">.</span><span class="n">layers</span>
-        <span class="p">])</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">m_traj</span><span class="p">[:,</span> <span class="p">:,</span>
-                   <span class="o">-</span><span class="n">take_last_n</span><span class="p">:]</span>  <span class="c1"># all layers, all x, y, z, last 100 steps</span>
+        <span class="n">m_traj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span>
+                        <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span>
+                        <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">],</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span>
+                <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span>
+                <span class="o">/</span> <span class="n">normalising_factor</span>
+                <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">junction</span><span class="o">.</span><span class="n">layers</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">m_traj</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="n">take_last_n</span><span class="p">:]</span>  <span class="c1"># all layers, all x, y, z, last 100 steps</span>
         <span class="n">Rx</span><span class="p">,</span> <span class="n">Ry</span> <span class="o">=</span> <span class="n">resistance_fn</span><span class="p">(</span>
             <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">Rxx0</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resistance_params</span><span class="p">],</span>
             <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">Rxy0</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resistance_params</span><span class="p">],</span>
@@ -1907,14 +1909,17 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
             <span class="n">w</span><span class="o">=</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">w</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resistance_params</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">static_only</span><span class="p">:</span>
-            <span class="n">mixed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_m</span><span class="si">{</span><span class="n">extraction_m_component</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])[</span><span class="n">indx</span><span class="p">]</span>
-                <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="o">/</span> <span class="n">normalising_factor</span>
-                <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">junction</span><span class="o">.</span><span class="n">layers</span>
-            <span class="p">])</span>
+            <span class="n">mixed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_m</span><span class="si">{</span><span class="n">extraction_m_component</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])[</span><span class="n">indx</span><span class="p">]</span>
+                    <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span>
+                    <span class="o">*</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span>
+                    <span class="o">/</span> <span class="n">normalising_factor</span>
+                    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">junction</span><span class="o">.</span><span class="n">layers</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
             <span class="n">mixed_sum</span> <span class="o">=</span> <span class="n">mixed</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">yf</span><span class="p">,</span> <span class="n">freqs</span> <span class="o">=</span> <span class="n">compute_spectrum_strip</span><span class="p">(</span><span class="n">mixed_sum</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span>
-                                               <span class="n">max_frequency</span><span class="p">)</span>
+            <span class="n">yf</span><span class="p">,</span> <span class="n">freqs</span> <span class="o">=</span> <span class="n">compute_spectrum_strip</span><span class="p">(</span><span class="n">mixed_sum</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">max_frequency</span><span class="p">)</span>
 
             <span class="n">spectrum</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">yf</span><span class="p">)</span>
 
@@ -1926,8 +1931,7 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
         <span class="k">if</span> <span class="n">full_output</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">static_only</span><span class="p">:</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;m_traj&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m_traj</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">li</span><span class="p">,</span> <span class="n">layer_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">):</span>
-                <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">compute_spectrum_strip</span><span class="p">(</span><span class="n">mixed</span><span class="p">[</span><span class="n">li</span><span class="p">],</span> <span class="n">int_step</span><span class="p">,</span>
-                                              <span class="n">max_frequency</span><span class="p">)</span>
+                <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">compute_spectrum_strip</span><span class="p">(</span><span class="n">mixed</span><span class="p">[</span><span class="n">li</span><span class="p">],</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">max_frequency</span><span class="p">)</span>
                 <span class="n">output</span><span class="p">[</span><span class="n">layer_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">spectrum</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">full_output</span><span class="p">:</span>
@@ -1945,7 +1949,7 @@ Set <code>static_only</code> to True to only compute the static resistance.</p>
 
 
 <h2 id="cmtj.utils.procedures.VSD_procedure" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">resistance_params</span><span class="o">=</span><span class="p">[],</span> <span class="n">Hoe_direction</span><span class="o">=</span><span class="n">Axis</span><span class="o">.</span><span class="n">yaxis</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">=</span><span class="mf">3e-08</span><span class="p">,</span> <span class="n">disturbance</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">Rtype</span><span class="o">=</span><span class="s1">&#39;Rz&#39;</span><span class="p">,</span> <span class="n">resistance_fn</span><span class="o">=</span><span class="n">calculate_resistance_series</span><span class="p">,</span> <span class="n">disable_tqdm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">VSD_procedure</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">resistance_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Hoe_direction</span><span class="o">=</span><span class="n">Axis</span><span class="o">.</span><span class="n">yaxis</span><span class="p">,</span> <span class="n">Hoe_excitation</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">=</span><span class="mf">3e-08</span><span class="p">,</span> <span class="n">disturbance</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">Rtype</span><span class="o">=</span><span class="s1">&#39;Rz&#39;</span><span class="p">,</span> <span class="n">resistance_fn</span><span class="o">=</span><span class="n">calculate_resistance_series</span><span class="p">,</span> <span class="n">disable_tqdm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1969,7 +1973,7 @@ We use the Oersted field sine exctitation to excite the system.</p>
         <tr>
           <td><code>junction</code></td>
           <td>
-                <code><a title="cmtj.Junction" href="../core/#cmtj.Junction">Junction</a></code>
+                <code><span title="cmtj.Junction">Junction</span></code>
           </td>
           <td><p>junction to be simulated.</p></td>
           <td>
@@ -2009,11 +2013,11 @@ We use the Oersted field sine exctitation to excite the system.</p>
         <tr>
           <td><code>resistance_params</code></td>
           <td>
-                <code><span title="typing.List">List</span>[<a title="cmtj.utils.procedures.ResistanceParameters" href="#cmtj.utils.procedures.ResistanceParameters">ResistanceParameters</a>]</code>
+                <code>list[<a title="cmtj.utils.procedures.ResistanceParameters" href="#cmtj.utils.procedures.ResistanceParameters">ResistanceParameters</a>]</code>
           </td>
           <td><p>list of resistance parameters.</p></td>
           <td>
-                <code>[]</code>
+                <code>None</code>
           </td>
         </tr>
         <tr>
@@ -2091,8 +2095,7 @@ We use the Oersted field sine exctitation to excite the system.</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/procedures.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">201</span>
-<span class="normal">202</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">202</span>
 <span class="normal">203</span>
 <span class="normal">204</span>
 <span class="normal">205</span>
@@ -2219,12 +2222,14 @@ We use the Oersted field sine exctitation to excite the system.</p>
 <span class="normal">326</span>
 <span class="normal">327</span>
 <span class="normal">328</span>
-<span class="normal">329</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">VSD_procedure</span><span class="p">(</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">VSD_procedure</span><span class="p">(</span>
     <span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span>
     <span class="n">Hvecs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">frequencies</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">resistance_params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ResistanceParameters</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">resistance_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ResistanceParameters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">Hoe_direction</span><span class="p">:</span> <span class="n">Axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="o">.</span><span class="n">yaxis</span><span class="p">,</span>
     <span class="n">Hoe_excitation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">simulation_duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30e-9</span><span class="p">,</span>
@@ -2249,17 +2254,15 @@ We use the Oersted field sine exctitation to excite the system.</p>
 <span class="sd">    :param Rtype: type of resistance to be used. (Rx Ry or Rz)</span>
 <span class="sd">    :param disable_tqdm: if True, disable tqdm progress bar.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">resistance_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resistance_params</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">layer_ids</span> <span class="o">=</span> <span class="n">junction</span><span class="o">.</span><span class="n">getLayerIds</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">Rtype</span> <span class="o">==</span> <span class="s2">&quot;Rz&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Rz can only be used for 2 layer junctions. Use Rx or Ry instead.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Rz can only be used for 2 layer junctions. Use Rx or Ry instead.&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">resistance_params</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;The number of layers in the junction must match the number of resistance parameters!&quot;</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of layers in the junction must match the number of resistance parameters!&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">simulate_VSD</span><span class="p">(</span><span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                     <span class="n">resistance_params</span><span class="p">:</span> <span class="n">ResistanceParameters</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">simulate_VSD</span><span class="p">(</span><span class="n">H</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">:</span> <span class="n">ResistanceParameters</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">Hoe_direction</span> <span class="o">==</span> <span class="n">Axis</span><span class="o">.</span><span class="n">zaxis</span><span class="p">:</span>
             <span class="n">oedriver</span> <span class="o">=</span> <span class="n">AxialDriver</span><span class="p">(</span>
                 <span class="n">NullDriver</span><span class="p">(),</span>
@@ -2301,16 +2304,19 @@ We use the Oersted field sine exctitation to excite the system.</p>
                 <span class="n">junction</span><span class="o">.</span><span class="n">setLayerMagnetisation</span><span class="p">(</span><span class="n">layer_id</span><span class="p">,</span> <span class="n">new_mag</span><span class="p">)</span>
         <span class="n">junction</span><span class="o">.</span><span class="n">runSimulation</span><span class="p">(</span><span class="n">simulation_duration</span><span class="p">,</span> <span class="n">int_step</span><span class="p">,</span> <span class="n">int_step</span><span class="p">)</span>
         <span class="n">log</span> <span class="o">=</span> <span class="n">junction</span><span class="o">.</span><span class="n">getLog</span><span class="p">()</span>
-        <span class="n">m_traj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span>
-            <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span>
-            <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span>
-            <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">],</span>
-        <span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">))])</span>
+        <span class="n">m_traj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span>
+                    <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span>
+                    <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">],</span>
+                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">))</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">Rtype</span> <span class="o">==</span> <span class="s2">&quot;Rz&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Rz can only be used for 2 layer junctions. One layer can be fictisious.&quot;</span>
-                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Rz can only be used for 2 layer junctions. One layer can be fictisious.&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">R</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;R_</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">layer_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -2320,7 +2326,8 @@ We use the Oersted field sine exctitation to excite the system.</p>
                     <span class="s2">&quot;Resistance definition ambiguous!&quot;</span>
                     <span class="s2">&quot;If you want to use Rz, you must provide&quot;</span>
                     <span class="s2">&quot;a single resistance parameter set or set Rp Rap&quot;</span>
-                    <span class="s2">&quot; at junction creation.&quot;</span><span class="p">)</span>
+                    <span class="s2">&quot; at junction creation.&quot;</span>
+                <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">Rx</span><span class="p">,</span> <span class="n">Ry</span> <span class="o">=</span> <span class="n">resistance_fn</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">Rxx0</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resistance_params</span><span class="p">],</span>
@@ -2343,8 +2350,7 @@ We use the Oersted field sine exctitation to excite the system.</p>
         <span class="k">return</span> <span class="n">vmix</span>
 
     <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">Hvecs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)))</span>
-    <span class="k">for</span> <span class="n">hindx</span><span class="p">,</span> <span class="n">H</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-            <span class="n">tqdm</span><span class="p">(</span><span class="n">Hvecs</span><span class="p">,</span> <span class="s2">&quot;Computing VSD&quot;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">disable_tqdm</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">hindx</span><span class="p">,</span> <span class="n">H</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">Hvecs</span><span class="p">,</span> <span class="s2">&quot;Computing VSD&quot;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">disable_tqdm</span><span class="p">)):</span>
         <span class="k">for</span> <span class="n">findx</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frequencies</span><span class="p">):</span>
             <span class="n">spectrum</span><span class="p">[</span><span class="n">hindx</span><span class="p">,</span> <span class="n">findx</span><span class="p">]</span> <span class="o">=</span> <span class="n">simulate_VSD</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">resistance_params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">spectrum</span>
@@ -2381,14 +2387,12 @@ We use the Oersted field sine exctitation to excite the system.</p>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_spectrum_strip</span><span class="p">(</span><span class="n">input_m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                           <span class="n">max_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_spectrum_strip</span><span class="p">(</span><span class="n">input_m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">int_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the spectrum of a given magnetization trajectory.&quot;&quot;&quot;</span>
     <span class="n">yf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">input_m</span><span class="p">))</span>
     <span class="n">freqs</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">yf</span><span class="p">),</span> <span class="n">int_step</span><span class="p">)</span>
-    <span class="n">freqs</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
-    <span class="n">yf</span> <span class="o">=</span> <span class="n">yf</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">yf</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">freqs</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">yf</span> <span class="o">=</span> <span class="n">yf</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">yf</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
 
     <span class="n">findx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">freqs</span> <span class="o">&lt;=</span> <span class="n">max_frequency</span><span class="p">)</span>
     <span class="n">freqs</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">findx</span><span class="p">]</span>

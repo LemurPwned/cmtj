@@ -1404,7 +1404,9 @@
 
         <details class="quote">
           <summary>Source code in <code>cmtj/utils/energy.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 6</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
 <span class="normal"> 7</span>
 <span class="normal"> 8</span>
 <span class="normal"> 9</span>
@@ -1461,19 +1463,10 @@
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">EnergyCompute</span><span class="p">:</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">EnergyCompute</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy density in [J/m^3] computing functions&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_surface</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                 <span class="n">log</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_surface</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialise energy computation class</span>
 <span class="sd">        :param cell_surface: surface of the cell in [m^2]</span>
 <span class="sd">        :param thickness: thickness of the cell in [m]</span>
@@ -1483,19 +1476,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cell_volumne</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_surface</span> <span class="o">*</span> <span class="n">thickness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">log</span>
 
-    <span class="k">def</span> <span class="nf">compute_from_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">compute_from_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes a log of energies over time and returns it</span>
 <span class="sd">        in the same form of the</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">field_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">k</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="k">if</span> <span class="s2">&quot;_H&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">})</span>
         <span class="n">mag_k</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_mx&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="k">if</span> <span class="s2">&quot;_mx&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">)</span>
-        <span class="n">mag_vectors</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">]</span>
-            <span class="p">])</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mag_k</span>
-        <span class="p">}</span>
+        <span class="n">mag_vectors</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">]])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mag_k</span><span class="p">}</span>
         <span class="n">energy_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">field_key</span> <span class="ow">in</span> <span class="n">field_keys</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;J_&quot;</span> <span class="ow">in</span> <span class="n">field_key</span><span class="p">:</span>
@@ -1505,17 +1493,18 @@
 
             <span class="n">m_key</span> <span class="o">=</span> <span class="n">field_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># get m key</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">mag_vectors</span><span class="p">[</span><span class="n">m_key</span><span class="p">]</span>
-            <span class="n">field_series</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">y&quot;</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">],</span>
-            <span class="p">])</span>
+            <span class="n">field_series</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">y&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">],</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
             <span class="n">energy_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;energy_</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eng_fn</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">field_series</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">energy_data</span>
 
-    <span class="k">def</span> <span class="nf">calculate_energy_from_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                                    <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">calculate_energy_from_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param m: magnetisation</span>
 <span class="sd">        :param field_vector: magnetic field vector (can be external, Oersted etc.)</span>
@@ -1525,8 +1514,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">field_vector</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_volumne</span>
 
-    <span class="k">def</span> <span class="nf">calculate_energy_from_field_interfacial</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">calculate_energy_from_field_interfacial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param m: magnetisation</span>
 <span class="sd">        :param field_vector: magnetic field vector (can be IEC etc.)</span>
@@ -1598,7 +1586,7 @@
         <tr>
           <td><code>log</code></td>
           <td>
-                <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[float]]</code>
+                <code>dict[str, list[float]]</code>
           </td>
           <td><p>log of the simulation (directly from .getLog())</p></td>
           <td>
@@ -1610,17 +1598,15 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/energy.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 9</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
 <span class="normal">10</span>
 <span class="normal">11</span>
 <span class="normal">12</span>
 <span class="normal">13</span>
 <span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_surface</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-             <span class="n">log</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_surface</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialise energy computation class</span>
 <span class="sd">    :param cell_surface: surface of the cell in [m^2]</span>
 <span class="sd">    :param thickness: thickness of the cell in [m]</span>
@@ -1685,17 +1671,15 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/energy.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
 <span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_energy_from_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                                <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_energy_from_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param m: magnetisation</span>
 <span class="sd">    :param field_vector: magnetic field vector (can be external, Oersted etc.)</span>
@@ -1760,17 +1744,15 @@
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/energy.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_energy_from_field_interfacial</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_energy_from_field_interfacial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">field_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param m: magnetisation</span>
 <span class="sd">    :param field_vector: magnetic field vector (can be IEC etc.)</span>
@@ -1802,7 +1784,10 @@ in the same form of the</p>
 
       <details class="quote">
         <summary>Source code in <code>cmtj/utils/energy.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
 <span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
@@ -1825,25 +1810,14 @@ in the same form of the</p>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_from_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compute_from_log</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes a log of energies over time and returns it</span>
 <span class="sd">    in the same form of the</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">field_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">k</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="k">if</span> <span class="s2">&quot;_H&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">})</span>
     <span class="n">mag_k</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_mx&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="k">if</span> <span class="s2">&quot;_mx&quot;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">)</span>
-    <span class="n">mag_vectors</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">]</span>
-        <span class="p">])</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mag_k</span>
-    <span class="p">}</span>
+    <span class="n">mag_vectors</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mx&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_my&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_mz&quot;</span><span class="p">]])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mag_k</span><span class="p">}</span>
     <span class="n">energy_data</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">field_key</span> <span class="ow">in</span> <span class="n">field_keys</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;J_&quot;</span> <span class="ow">in</span> <span class="n">field_key</span><span class="p">:</span>
@@ -1853,11 +1827,13 @@ in the same form of the</p>
 
         <span class="n">m_key</span> <span class="o">=</span> <span class="n">field_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># get m key</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">mag_vectors</span><span class="p">[</span><span class="n">m_key</span><span class="p">]</span>
-        <span class="n">field_series</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">y&quot;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">],</span>
-        <span class="p">])</span>
+        <span class="n">field_series</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">y&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
         <span class="n">energy_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;energy_</span><span class="si">{</span><span class="n">field_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">eng_fn</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">field_series</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">energy_data</span>

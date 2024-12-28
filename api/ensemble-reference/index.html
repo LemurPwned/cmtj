@@ -1634,8 +1634,7 @@
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">mixed_lorentz</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Va</span><span class="p">,</span> <span class="n">Vas</span><span class="p">):</span>
+<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">mixed_lorentz</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Va</span><span class="p">,</span> <span class="n">Vas</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mixed Lorentzian function.</span>
 <span class="sd">    :param H: applied field in A/m</span>
@@ -1644,8 +1643,7 @@
 <span class="sd">    :param Va: amplitude of symmetric Lorentzian</span>
 <span class="sd">    :param Vas: amplitude of antisymmetric Lorentzian</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">symmetric_lorentz</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Va</span><span class="p">)</span> <span class="o">+</span> <span class="n">antisymmetric_lorentz</span><span class="p">(</span>
-        <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Vas</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">symmetric_lorentz</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Va</span><span class="p">)</span> <span class="o">+</span> <span class="n">antisymmetric_lorentz</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Vas</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -1725,7 +1723,7 @@
 <span class="sd">    :param Hr: resonance field in A/m</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dH2</span> <span class="o">=</span> <span class="n">dH</span><span class="o">**</span><span class="mi">2</span>
-    <span class="k">return</span> <span class="n">Vs</span> <span class="o">*</span> <span class="n">dH2</span> <span class="o">/</span> <span class="p">((</span><span class="n">H</span> <span class="o">-</span> <span class="n">Hr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dH2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Vs</span> <span class="o">*</span> <span class="n">dH2</span> <span class="o">/</span> <span class="p">((</span><span class="n">H</span> <span class="o">-</span> <span class="n">Hr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">dH2</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
