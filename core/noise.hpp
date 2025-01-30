@@ -134,7 +134,7 @@ public:
   }
 };
 
-std::mt19937 generator(std::random_device{}());
+// std::mt19937 generator(std::random_device{}());
 template <typename T = double> class BufferedAlphaNoise : public NullTicker<T> {
 protected:
   std::vector<std::complex<float>> bufferWhite, bufferColoured;
@@ -148,6 +148,7 @@ protected:
       inv; // configs for forward and inverse real fft
   unsigned int internalCounter = 0;
   unsigned int refills = 0;
+  std::mt19937 generator;
 
 public:
   /**
@@ -160,7 +161,7 @@ public:
    */
   BufferedAlphaNoise(unsigned int bufferSize, T alpha, T std, T scale)
       : bufferSize(bufferSize), alpha(alpha), scale(scale) {
-
+    this->generator = std::mt19937(std::random_device{}());
     this->bufferColoured.resize(2 * bufferSize);
     this->bufferWhite.resize(2 * bufferSize);
     this->result.resize(bufferSize);

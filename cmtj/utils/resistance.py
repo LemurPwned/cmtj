@@ -274,6 +274,47 @@ def Rxx_parallel_bilayer_expr():
     return Rlin_func, R_func
 
 
+def GMR_expr():
+    """Get the symbolic expression for the GMR.
+    :returns: GMR function
+    """
+    GMR_s = sym.Symbol(r"\mathrm{GMR}")
+    theta1 = sym.Symbol(r"\theta_1")
+    phi1 = sym.Symbol(r"\phi_1")
+    m1 = sym.Matrix(
+        [
+            sym.sin(theta1) * sym.cos(phi1),
+            sym.sin(theta1) * sym.sin(phi1),
+            sym.cos(theta1),
+        ]
+    )
+    theta2 = sym.Symbol(r"\theta_2")
+    phi2 = sym.Symbol(r"\phi_2")
+    m2 = sym.Matrix(
+        [
+            sym.sin(theta2) * sym.cos(phi2),
+            sym.sin(theta2) * sym.sin(phi2),
+            sym.cos(theta2),
+        ]
+    )
+    Rf = GMR_s * (1 - m1.dot(m2)) / 2
+    dRdt1 = sym.diff(Rf, theta1)
+    dRdp1 = sym.diff(Rf, phi1)
+    dRdt2 = sym.diff(Rf, theta2)
+    dRdp2 = sym.diff(Rf, phi2)
+    linearised_terms = sym.symbols(r"\partial\theta_1, \partial\phi_1, \partial\theta_2, \partial\phi_2")
+    dRf = (
+        dRdt1 * linearised_terms[0]
+        + dRdp1 * linearised_terms[1]
+        + dRdt2 * linearised_terms[2]
+        + dRdp2 * linearised_terms[3]
+    )
+
+    Rf_func = sym.lambdify([GMR_s, [theta1, phi1, theta2, phi2]], Rf)
+    dRf_func = sym.lambdify([GMR_s, [theta1, phi1, theta2, phi2], linearised_terms], dRf)
+    return Rf_func, dRf_func
+
+
 def Rxx_series_bilayer_expr():
     """Get the symbolic expressions for the series and linearised resistance of a bilayer system.
 
