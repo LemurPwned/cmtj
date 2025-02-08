@@ -1,5 +1,10 @@
 # Changelog
 
+# 1.6.1
+
+- Small fixes to the noise interfaces and resistance functions.
+- Documentation updates.
+
 # 1.6.0
 
 - Extended the `Stack` models allowing for non-symmetric coupling between devices.

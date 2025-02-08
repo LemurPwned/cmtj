@@ -46,6 +46,7 @@ nav:
       - Stack: api/stack.md
       - Noise: api/noise.md
       - LLGB: api/llgb.md
+      - Group interactions: api/reservoir.md
   - Examples:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
       - Trajectories: tutorials/trajectory.ipynb

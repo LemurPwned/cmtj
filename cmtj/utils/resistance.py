@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Union
+from typing import Callable, Union
 
 import numpy as np
 import sympy as sym
@@ -11,6 +11,7 @@ EPS = np.finfo("float64").resolution
 
 def compute_sd(dynamic_r: np.ndarray, dynamic_i: np.ndarray, integration_step: float) -> np.ndarray:
     """Computes the SD voltage.
+
     :param dynamic_r: magnetoresistance from log
     :param dynamic_i: excitation current
     :param integration_step: integration paramemter from run_simulation
@@ -30,11 +31,21 @@ def compute_resistance(
     m: Union[list[float], np.ndarray],
     l: list[float],
     w: list[float],
-):
+) -> tuple[list[float], list[float]]:
     """Computes the resistance of the system.
+
     If you want to compute the resistance for an entire time series, pass m as a 3D array
     with shape [number_of_layers, 3, T], where T is the time component.
     [number_of_layers, 3, T] where T is the time component.
+
+    :param Rx0: resistance offset in longitudinal direction
+    :param Ry0: resistance offset in transverse direction
+    :param AMR: anisotropic magnetoresistance
+    :param AHE: anomalous Hall effect
+    :param SMR: spin Hall magnetoresistance
+    :param m: magnetisation of the layers. Shape [number_of_layers, 3, T]
+    :param l: length of the layers
+    :param w: width of the layers
     """
     number_of_layers = len(Rx0)
     if not isinstance(m, np.ndarray):
@@ -54,7 +65,7 @@ def compute_resistance(
     return SxAll, SyAll
 
 
-def compute_gmr(Rp: float, Rap: float, m1: np.ndarray, m2: np.ndarray):
+def compute_gmr(Rp: float, Rap: float, m1: np.ndarray, m2: np.ndarray) -> np.ndarray:
     """Computes the GMR using parallel and antiparallel resistance.
     :param Rp: parallel resistance
     :param Rap: antiparallel resistance
@@ -63,7 +74,7 @@ def compute_gmr(Rp: float, Rap: float, m1: np.ndarray, m2: np.ndarray):
     return Rp + 0.5 * (Rap - Rp) * (1 - np.sum(m1 * m2, axis=0))
 
 
-def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray):
+def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray) -> np.ndarray:
     """Computes the magnetoresistance using parallel and antiparallel resistance.
     :param Rp: parallel resistance
     :param Rap: antiparallel resistance
@@ -85,7 +96,7 @@ def calculate_resistance_parallel(
     m: list[float],
     l: list[float],
     w: list[float],
-):
+) -> tuple[np.ndarray, np.ndarray]:
     """Calculates the resistance of the system in parallel.
     If you want to compute the resistance for an entire time series, pass m as a 3D array.
     [number_of_layers, 3, T] where T is the time component.
@@ -116,7 +127,7 @@ def calculate_resistance_series(
     m: list[float],
     l: list[float],
     w: list[float],
-):
+) -> tuple[np.ndarray, np.ndarray]:
     """Calculates the resistance of the system in series.
     If you want to compute the resistance for an entire time series, pass m as a 3D array.
     [number_of_layers, 3, T] where T is the time component.
@@ -145,7 +156,7 @@ def angular_calculate_resistance_gmr(
     phi_1: np.ndarray,
     theta_2: np.ndarray,
     phi_2: np.ndarray,
-):
+) -> np.ndarray:
     """Computes the GMR using parallel and antiparallel resistance.
     :param Rp: parallel resistance
     :param Rap: antiparallel resistance
@@ -172,7 +183,7 @@ def angular_calculate_resistance_gmr(
 
 
 @lru_cache(maxsize=5)
-def Rxx_symbolic(id: int, AMR: float, SMR: float):
+def Rxx_symbolic(id: int, AMR: float, SMR: float) -> tuple[float, sym.Symbol, sym.Symbol, sym.Matrix]:
     """Compute the Rxx resistance for a given layer.
     :param id: layer id
     :param AMR: anisotropic magnetoresistance
@@ -191,7 +202,9 @@ def Rxx_symbolic(id: int, AMR: float, SMR: float):
 
 
 @lru_cache(maxsize=5)
-def Rxy_symbolic(id: int, AMR: float, SMR: float, AHE: float, w_l: float):
+def Rxy_symbolic(
+    id: int, AMR: float, SMR: float, AHE: float, w_l: float
+) -> tuple[float, sym.Symbol, sym.Symbol, sym.Matrix]:
     """Compute the Rxy resistance for a given layer.
     :param id: layer id
     :param AMR: anisotropic magnetoresistance
@@ -215,9 +228,10 @@ def calculate_linearised_resistance(
     GMR: float,
     AMR: list[float],
     SMR: list[float],
-):
+) -> tuple[float, float, float, sym.Symbol, sym.Symbol, sym.Symbol, sym.Symbol]:
     """
     Compute the resistance of the two FM bilayer system from the linearised angles.
+
     :param GMR: GMR
     :param AMR: AMR
     :param SMR: SMR
@@ -229,9 +243,50 @@ def calculate_linearised_resistance(
     return Rxx1, Rxx2, GMR_resistance, theta1, phi1, theta2, phi2
 
 
-def Rxx_parallel_bilayer_expr():
+def Rxx_parallel_bilayer_expr() -> (
+    tuple[
+        Callable[
+            [
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+            ],
+            float,
+        ],
+        Callable[
+            [
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+            ],
+            float,
+        ],
+    ]
+):
     """Get the symbolic expressions for the parallel and linearised resistance of a bilayer system.
-    :returns: linearised and parallel resistance functions
+
     Signals:
     - GMR: GMR
     - AMR1: AMR of layer 1
@@ -246,6 +301,8 @@ def Rxx_parallel_bilayer_expr():
         f(GMR, AMR1, SMR1, AMR2, SMR2, [t1, p1, t2, p2], [dt1, dp1, dt2, dp2])
     - R_func: series resistance function
         f(GMR, AMR1, SMR1, AMR2, SMR2, [t1, p1, t2, p2])
+
+    :returns: linearised and parallel resistance functions
     """
     AMR_1 = sym.Symbol(r"\mathrm{AMR}_1")
     SMR_1 = sym.Symbol(r"\mathrm{SMR}_1")
@@ -274,9 +331,10 @@ def Rxx_parallel_bilayer_expr():
     return Rlin_func, R_func
 
 
-def GMR_expr():
+def GMR_expr() -> Callable[[float, float, float, float], float]:
     """Get the symbolic expression for the GMR.
-    :returns: GMR function
+
+    :returns: GMR function: Callable[[theta1, phi1, theta2, phi2], float]
     """
     GMR_s = sym.Symbol(r"\mathrm{GMR}")
     theta1 = sym.Symbol(r"\theta_1")
@@ -315,10 +373,50 @@ def GMR_expr():
     return Rf_func, dRf_func
 
 
-def Rxx_series_bilayer_expr():
+def Rxx_series_bilayer_expr() -> (
+    tuple[
+        Callable[
+            [
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+            ],
+            float,
+        ],
+        Callable[
+            [
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+                float,
+            ],
+            float,
+        ],
+    ]
+):
     """Get the symbolic expressions for the series and linearised resistance of a bilayer system.
 
-    :returns: linearised and series resistance functions
     Signals:
     - GMR: GMR
     - AMR1: AMR of layer 1
@@ -333,6 +431,8 @@ def Rxx_series_bilayer_expr():
         f(GMR, AMR1, SMR1, AMR2, SMR2, [t1, p1, t2, p2], [dt1, dp1, dt2, dp2])
     - R_func: series resistance function
         f(GMR, AMR1, SMR1, AMR2, SMR2, [t1, p1, t2, p2])
+
+    :returns: linearised and series resistance functions
     """
     AMR_1 = sym.Symbol(r"\mathrm{AMR}_1")
     SMR_1 = sym.Symbol(r"\mathrm{SMR}_1")
@@ -370,6 +470,7 @@ def calculate_linearised_resistance_parallel(
 ):
     """
     Compute the parallel resistance of the two FM bilayer system from the linearised angles.
+
     :param GMR: GMR
     :param AMR: AMR
     :param SMR: SMR
@@ -419,7 +520,7 @@ def calculate_linearised_resistance_series(
     SMR: list[float],
     stationary_angles: list[float],
     linearised_angles: list[float],
-):
+) -> tuple[float, float]:
     """
     Compute the resistance of the two FM bilayer system from the linearised angles.
     :param GMR: GMR
