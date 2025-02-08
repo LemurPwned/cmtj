@@ -1175,6 +1175,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1554,9 +1574,9 @@
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FieldScan</span><span class="p">:</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FieldScan</span><span class="p">:</span>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_trig_compute</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_trig_compute</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute trigonometric functions for theta and phi.</span>
 <span class="sd">        :param theta: theta angle in [deg].</span>
 <span class="sd">        :param phi: phi angle in [deg].</span>
@@ -1568,7 +1588,7 @@
         <span class="k">return</span> <span class="n">st</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">cp</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">angle2vector</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">angle2vector</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert spherical coordinates to cartesian coordinates.</span>
 <span class="sd">        :param theta: polar angle in degrees.</span>
 <span class="sd">        :param phi: azimuthal angle in degrees.</span>
@@ -1582,7 +1602,7 @@
         <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">vector2angle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vector2angle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert cartesian coordinates to spherical coordinates.</span>
 <span class="sd">        :param x: x coordinate of the vector.</span>
 <span class="sd">        :param y: y coordinate of the vector.</span>
@@ -1596,7 +1616,7 @@
         <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">r</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">cvector2angle</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cvector2angle</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param vector: cartesian vector.</span>
 <span class="sd">        :returns (theta, phi, r)</span>
@@ -1605,7 +1625,7 @@
         <span class="k">return</span> <span class="n">FieldScan</span><span class="o">.</span><span class="n">vector2angle</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">vector</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">vector</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">amplitude_scan</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">amplitude_scan</span><span class="p">(</span>
         <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1635,7 +1655,7 @@
         <span class="k">return</span> <span class="n">Hspan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">Hx</span><span class="p">,</span> <span class="n">Hy</span><span class="p">,</span> <span class="n">Hz</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">theta_scan</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">theta_scan</span><span class="p">(</span>
         <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1654,7 +1674,7 @@
         <span class="k">return</span> <span class="n">theta_span</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">Hx</span><span class="p">,</span> <span class="n">Hy</span><span class="p">,</span> <span class="n">Hz</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">phi_scan</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">phi_scan</span><span class="p">(</span>
         <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1817,7 +1837,7 @@
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">amplitude_scan</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">amplitude_scan</span><span class="p">(</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1943,7 +1963,7 @@
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">angle2vector</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">angle2vector</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">amplitude</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert spherical coordinates to cartesian coordinates.</span>
 <span class="sd">    :param theta: polar angle in degrees.</span>
 <span class="sd">    :param phi: azimuthal angle in degrees.</span>
@@ -2031,7 +2051,7 @@
 <span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">cvector2angle</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cvector2angle</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param vector: cartesian vector.</span>
 <span class="sd">    :returns (theta, phi, r)</span>
@@ -2146,7 +2166,7 @@
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">phi_scan</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">phi_scan</span><span class="p">(</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2271,7 +2291,7 @@
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">theta_scan</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">theta_scan</span><span class="p">(</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2386,7 +2406,7 @@
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">vector2angle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">vector2angle</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert cartesian coordinates to spherical coordinates.</span>
 <span class="sd">    :param x: x coordinate of the vector.</span>
 <span class="sd">    :param y: y coordinate of the vector.</span>

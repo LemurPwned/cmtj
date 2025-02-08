@@ -1048,6 +1048,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2242,11 +2262,11 @@ Licensed under the Apache License, Version 2.0.
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 </pre></div>
 <div id="cell-1" class="clipboard-copy-txt">import glob
 import logging
@@ -2495,12 +2515,12 @@ c_arg_rgx = re.compile(arg_cdoc)</div>
             </clipboard-copy>
         </div>
             <div class="highlight-ipynb hl-python"><pre><span></span><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">PythonDocstring</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PythonDocstring</span><span class="p">:</span>
     <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">rtype</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">docstring</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="nf">extract_signature_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_signature_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">type_map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">rtype_map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">first_bracket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)</span>
@@ -2521,7 +2541,7 @@ c_arg_rgx = re.compile(arg_cdoc)</div>
                 <span class="n">rtype_map</span><span class="p">[</span><span class="n">key_</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_</span>
         <span class="k">return</span> <span class="n">type_map</span><span class="p">,</span> <span class="n">rtype_map</span>
 
-    <span class="k">def</span> <span class="nf">py_signature_to_markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">py_signature_to_markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># form type map first</span>
         <span class="n">type_map</span><span class="p">,</span> <span class="n">rtype_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_signature_types</span><span class="p">()</span>
 
@@ -2634,7 +2654,7 @@ class PythonDocstring:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">extract_python_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">extract_python_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">captured</span> <span class="ow">in</span> <span class="n">c_joint_py</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">captured</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">captured</span><span class="p">:</span>
@@ -2682,7 +2702,7 @@ class PythonDocstring:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">extract_cpp_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">extract_cpp_docs</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">captured</span> <span class="ow">in</span> <span class="n">c_cdoc_rgx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">file_text</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">captured</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">captured</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -2720,7 +2740,7 @@ class PythonDocstring:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">create_api_markdown_file</span><span class="p">(</span><span class="n">src_filename</span><span class="p">):</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_api_markdown_file</span><span class="p">(</span><span class="n">src_filename</span><span class="p">):</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">src_filename</span><span class="p">)</span>
     <span class="n">target_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src_filename</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
         <span class="n">file_extension</span><span class="p">,</span> <span class="s2">&quot;.md&quot;</span>
@@ -2812,7 +2832,7 @@ class PythonDocstring:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">on_startup</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">dirty</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">on_startup</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">dirty</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">fn_lists</span> <span class="o">=</span> <span class="p">[</span>
         <span class="o">*</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;cmtj/*/*.pyi&quot;</span><span class="p">)),</span>
         <span class="o">*</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;cmtj/*.pyi&quot;</span><span class="p">)),</span>

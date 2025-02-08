@@ -1394,6 +1394,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1943,20 +1963,20 @@ Rodríguez-Suárez et al.,
 <span class="normal">316</span>
 <span class="normal">317</span>
 <span class="normal">318</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">LayerDynamic</span><span class="p">(</span><span class="n">LayerSB</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayerDynamic</span><span class="p">(</span><span class="n">LayerSB</span><span class="p">):</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>
     <span class="n">torque_par</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">torque_perp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_hoe_ex_symbol</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_hoe_ex_symbol</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;H_</span><span class="si">{oe}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_Vp_symbol</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_Vp_symbol</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;V_</span><span class="si">{p}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">rhs_spherical_llg</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rhs_spherical_llg</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">U</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">,</span>
         <span class="n">osc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1979,7 +1999,7 @@ Rodríguez-Suárez et al.,
         <span class="n">dphi</span> <span class="o">=</span> <span class="n">inv_sin</span> <span class="o">*</span> <span class="n">dUdtheta</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">dUdphi</span> <span class="o">*</span> <span class="p">(</span><span class="n">inv_sin</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">Hoe</span> <span class="o">*</span> <span class="n">inv_sin</span>
         <span class="k">return</span> <span class="n">prefac</span> <span class="o">*</span> <span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([</span><span class="n">dtheta</span><span class="p">,</span> <span class="n">dphi</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">torque</span><span class="p">(</span><span class="n">osc</span><span class="o">=</span><span class="n">osc</span><span class="p">))</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span>
 
-    <span class="k">def</span> <span class="nf">torque</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">torque</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="c1"># cannot be 0 because you may want to use Hoe + torques</span>
         <span class="n">Vp</span> <span class="o">=</span> <span class="n">LayerDynamic</span><span class="o">.</span><span class="n">get_Vp_symbol</span><span class="p">()</span> <span class="k">if</span> <span class="n">osc</span> <span class="k">else</span> <span class="mi">1</span>
         <span class="n">torque_ex_par</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">torque_par</span> <span class="o">*</span> <span class="n">Vp</span>
@@ -1992,10 +2012,10 @@ Rodríguez-Suárez et al.,
             <span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__value</span><span class="p">:</span> <span class="s2">&quot;LayerDynamic&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__value</span><span class="p">:</span> <span class="s2">&quot;LayerDynamic&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">__value</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">==</span> <span class="n">__value</span><span class="o">.</span><span class="n">alpha</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
         </details>
@@ -2083,7 +2103,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">296</span>
 <span class="normal">297</span>
 <span class="normal">298</span>
-<span class="normal">299</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">rhs_spherical_llg</span><span class="p">(</span>
+<span class="normal">299</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rhs_spherical_llg</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">U</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">,</span>
     <span class="n">osc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2326,7 +2346,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">259</span>
 <span class="normal">260</span>
 <span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">LayerSB</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayerSB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic Layer for Smit-Beljers model.</span>
 <span class="sd">    :param thickness: thickness of the FM layer (effective).</span>
 <span class="sd">    :param Kv: volumetric (in-plane) anisotropy. Only phi and mag count [J/m^3].</span>
@@ -2345,7 +2365,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
     <span class="n">Hdmi</span><span class="p">:</span> <span class="n">VectorObj</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))</span>
     <span class="n">Ndemag</span><span class="p">:</span> <span class="n">VectorObj</span> <span class="o">=</span> <span class="n">VectorObj</span><span class="o">.</span><span class="n">from_cartesian</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only up to 10 layers supported.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Hdmi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2364,16 +2384,16 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the symbolic coordinates of the layer.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
 
-    <span class="k">def</span> <span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the magnetisation vector.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
 
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># noqa: B019</span>
-    <span class="k">def</span> <span class="nf">total_symbolic_layer_energy</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">total_symbolic_layer_energy</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">,</span>
         <span class="n">J1top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2402,7 +2422,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="n">bottom_iec_energy</span> <span class="o">=</span> <span class="o">-</span><span class="n">J1bottom</span> <span class="o">*</span> <span class="n">mdot</span> <span class="o">-</span> <span class="n">J2bottom</span> <span class="o">*</span> <span class="n">mdot</span><span class="o">**</span><span class="mi">2</span>
         <span class="k">return</span> <span class="n">eng_non_interaction</span> <span class="o">+</span> <span class="n">top_iec_energy</span> <span class="o">+</span> <span class="n">bottom_iec_energy</span>
 
-    <span class="k">def</span> <span class="nf">no_interaction_symbolic_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">no_interaction_symbolic_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the symbolic expression for the energy of the layer.</span>
 <span class="sd">        Coupling contribution comes only from the bottom layer (top-down crawl)&quot;&quot;&quot;</span>
         <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
@@ -2420,14 +2440,14 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 
         <span class="k">return</span> <span class="n">field_energy</span> <span class="o">+</span> <span class="n">surface_anistropy</span> <span class="o">+</span> <span class="n">volume_anisotropy</span> <span class="o">+</span> <span class="n">hdmi_energy</span> <span class="o">+</span> <span class="n">demagnetisation_energy</span>
 
-    <span class="k">def</span> <span class="nf">sb_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sb_correction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">omega</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\omega&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">omega</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ms</span> <span class="o">*</span> <span class="n">sym</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__value</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__value</span><span class="p">:</span> <span class="s2">&quot;LayerSB&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">==</span> <span class="n">__value</span><span class="o">.</span><span class="n">_id</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">==</span> <span class="n">__value</span><span class="o">.</span><span class="n">thickness</span>
@@ -2468,7 +2488,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
 <span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_coord_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the symbolic coordinates of the layer.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
 </code></pre></div></td></tr></table></div>
@@ -2495,7 +2515,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
 <span class="normal">196</span>
-<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_m_sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the magnetisation vector.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span>
 </code></pre></div></td></tr></table></div>
@@ -2537,7 +2557,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
-<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">no_interaction_symbolic_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">):</span>
+<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">no_interaction_symbolic_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the symbolic expression for the energy of the layer.</span>
 <span class="sd">    Coupling contribution comes only from the bottom layer (top-down crawl)&quot;&quot;&quot;</span>
     <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_m_sym</span><span class="p">()</span>
@@ -2610,7 +2630,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">225</span>
 <span class="normal">226</span>
 <span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># noqa: B019</span>
-<span class="k">def</span> <span class="nf">total_symbolic_layer_energy</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">total_symbolic_layer_energy</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">,</span>
     <span class="n">J1top</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -3397,7 +3417,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
 <span class="normal">966</span>
 <span class="normal">967</span>
 <span class="normal">968</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Solver</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Solver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;General solver for the system.</span>
 
 <span class="sd">    :param layers: list of layers in the system.</span>
@@ -3418,7 +3438,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
     <span class="n">ilD</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">Ndipole</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of layers must be 1 more than J1.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
@@ -3443,7 +3463,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="k">if</span> <span class="n">id_sets</span> <span class="o">!=</span> <span class="n">ideal_set</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Layer ids must be 0, 1, 2, ... and unique.&quot;</span> <span class="s2">&quot;Ids must start from 0.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_layer_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interaction_constant</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interaction_constant</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the references to the layers above and below the layer</span>
 <span class="sd">        with index layer_indx.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -3459,7 +3479,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="n">interaction_constant</span><span class="p">[</span><span class="n">layer_indx</span><span class="p">],</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">compose_llg_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compose_llg_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a symbolic jacobian of the LLG equation in spherical coordinates.&quot;&quot;&quot;</span>
         <span class="c1"># has order theta0, phi0, theta1, phi1, ...</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">):</span>
@@ -3474,7 +3494,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="k">return</span> <span class="n">jac</span><span class="p">,</span> <span class="n">symbols</span>
 
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># cache for 3 calls</span>
-    <span class="k">def</span> <span class="nf">create_energy</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_energy</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">H</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">,</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">volumetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3526,7 +3546,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">energy</span>
 
-    <span class="k">def</span> <span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the symbolic hessian of the energy expression.&quot;&quot;&quot;</span>
         <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subs</span><span class="p">(</span><span class="n">equilibrium_position</span><span class="p">)</span>
@@ -3565,7 +3585,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">_</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">hes</span><span class="o">.</span><span class="n">LUdecomposition</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">U</span><span class="o">.</span><span class="n">det</span><span class="p">()</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;math&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;math&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the symbolic gradient of the energy expression.&quot;&quot;&quot;</span>
         <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">grad_vector</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3576,7 +3596,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="n">symbols</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">lambdify</span><span class="p">(</span><span class="n">symbols</span><span class="p">,</span> <span class="n">grad_vector</span><span class="p">,</span> <span class="n">accel</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">adam_gradient_descent</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adam_gradient_descent</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -3621,7 +3641,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="c1"># return np.asarray(current_position), np.asarray(history)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">amsgrad_gradient_descent</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">amsgrad_gradient_descent</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -3663,7 +3683,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="n">current_position</span> <span class="o">=</span> <span class="n">new_position</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">single_layer_resonance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">single_layer_resonance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;We can compute the equilibrium position of a single layer directly.</span>
 <span class="sd">        :param layer_indx: the index of the layer to compute the equilibrium</span>
 <span class="sd">        :param eq_position: the equilibrium position vector&quot;&quot;&quot;</span>
@@ -3682,7 +3702,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">fmr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fmr</span><span class="p">))</span> <span class="o">*</span> <span class="n">gamma_rad</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fmr</span>
 
-    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
@@ -3748,7 +3768,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="n">frequencies</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_solve</span><span class="p">(</span><span class="n">eq</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="n">ftol</span><span class="p">,</span> <span class="n">max_freq</span><span class="o">=</span><span class="n">max_freq</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">dynamic_layer_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dynamic_layer_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the FMR frequencies and modes for N layers using the</span>
 <span class="sd">        dynamic RHS model</span>
 <span class="sd">        :param eq: the equilibrium position of the system.</span>
@@ -3762,7 +3782,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">eigvals_im</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">eigvals_im</span><span class="p">[</span><span class="n">indx</span><span class="p">],</span> <span class="n">eigvecs</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">num_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01e9</span><span class="p">,</span> <span class="n">max_freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">80e9</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01e9</span><span class="p">,</span> <span class="n">max_freq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">80e9</span><span class="p">):</span>
         <span class="n">hes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy_hessian</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span>
         <span class="n">omega</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">Symbol</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\omega&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
@@ -3777,7 +3797,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">roots</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="n">f</span>
 
-    <span class="k">def</span> <span class="nf">analytical_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analytical_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find &amp; cache the analytical roots of the system.</span>
 <span class="sd">        Returns a list of solutions.</span>
 <span class="sd">        Ineffecient for more than 2 layers (can try though).</span>
@@ -3801,7 +3821,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">subs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ms_subs</span><span class="p">())</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">root_expr</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">get_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the substitution dictionary for the energy expression.&quot;&quot;&quot;</span>
         <span class="n">subs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)):</span>
@@ -3810,17 +3830,17 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="n">subs</span><span class="p">[</span><span class="n">phi</span><span class="p">]</span> <span class="o">=</span> <span class="n">equilibrium_position</span><span class="p">[(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">subs</span>
 
-    <span class="k">def</span> <span class="nf">get_ms_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ms_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a dictionary of substitutions for the Ms symbols.&quot;&quot;&quot;</span>
         <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="sa">r</span><span class="s2">&quot;M_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">}</span>
         <span class="n">b</span> <span class="o">=</span> <span class="p">{</span><span class="sa">r</span><span class="s2">&quot;t_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">a</span> <span class="o">|</span> <span class="n">b</span>
 
-    <span class="k">def</span> <span class="nf">set_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the external field.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">H</span> <span class="o">=</span> <span class="n">H</span>
 
-    <span class="k">def</span> <span class="nf">analytical_field_scan</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analytical_field_scan</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">Hrange</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">],</span>
         <span class="n">init_position</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3880,7 +3900,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
             <span class="k">yield</span> <span class="n">eq</span><span class="p">,</span> <span class="n">roots</span><span class="p">,</span> <span class="n">Hvalue</span>
             <span class="n">current_position</span> <span class="o">=</span> <span class="n">eq</span>
 
-    <span class="k">def</span> <span class="nf">_independent_linearised_jacobian_expr</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_independent_linearised_jacobian_expr</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">Vdc_ex_variable</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Expr</span><span class="p">,</span>
         <span class="n">Vdc_ex_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -3933,13 +3953,13 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">V_matrix</span> <span class="o">=</span> <span class="n">V_matrix</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">A_matrix</span><span class="p">,</span> <span class="n">V_matrix</span>
 
-    <span class="k">def</span> <span class="nf">_compute_numerical_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A_matrix</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_numerical_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A_matrix</span><span class="p">):</span>
         <span class="c1"># Use NumPy for faster matrix inversion</span>
         <span class="n">A_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">A_matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
         <span class="n">A_inv_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">A_np</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sym</span><span class="o">.</span><span class="n">Matrix</span><span class="p">(</span><span class="n">A_inv_np</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_compute_A_and_V_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">Vdc_ex_variable</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_A_and_V_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">Vdc_ex_variable</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
         <span class="n">A_matrix</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
         <span class="n">V_matrix</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">H</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -3964,7 +3984,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="k">return</span> <span class="n">A_matrix</span><span class="p">,</span> <span class="n">V_matrix</span>
 
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># noqa: B019</span>
-    <span class="k">def</span> <span class="nf">_compute_A_and_V_matrices_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">Vdc_ex_variable</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_A_and_V_matrices_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">Vdc_ex_variable</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">frequency</span><span class="p">):</span>
         <span class="n">A_matrix</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
         <span class="n">V_matrix</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">H</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -3985,7 +4005,7 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
                     <span class="n">A_matrix</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">alpha_factor</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">*</span> <span class="n">sym</span><span class="o">.</span><span class="n">I</span>
         <span class="k">return</span> <span class="n">A_matrix</span><span class="p">,</span> <span class="n">V_matrix</span>
 
-    <span class="k">def</span> <span class="nf">linearised_N_spin_diode</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">linearised_N_spin_diode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">H</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -4039,10 +4059,10 @@ Coupling contribution comes only from the bottom layer (top-down crawl)</p>
         <span class="n">fstep</span> <span class="o">=</span> <span class="n">A_inv</span> <span class="o">*</span> <span class="n">V_matrix</span> <span class="o">*</span> <span class="n">sym</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">I</span> <span class="o">*</span> <span class="n">phase_shift</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">(</span><span class="n">fstep</span><span class="o">.</span><span class="n">evalf</span><span class="p">()))</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
         </details>
@@ -4183,7 +4203,7 @@ See: ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION, Kingma et Ba, 2015</p>
 <span class="normal">541</span>
 <span class="normal">542</span>
 <span class="normal">543</span>
-<span class="normal">544</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">adam_gradient_descent</span><span class="p">(</span>
+<span class="normal">544</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">adam_gradient_descent</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -4354,7 +4374,7 @@ See: On the Convergence of Adam and Beyond, Reddi et al., 2018</p>
 <span class="normal">583</span>
 <span class="normal">584</span>
 <span class="normal">585</span>
-<span class="normal">586</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">amsgrad_gradient_descent</span><span class="p">(</span>
+<span class="normal">586</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">amsgrad_gradient_descent</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -4577,7 +4597,7 @@ See: On the Convergence of Adam and Beyond, Reddi et al., 2018</p>
 <span class="normal">800</span>
 <span class="normal">801</span>
 <span class="normal">802</span>
-<span class="normal">803</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">analytical_field_scan</span><span class="p">(</span>
+<span class="normal">803</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">analytical_field_scan</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">Hrange</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">],</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4682,7 +4702,7 @@ Ineffecient for more than 2 layers (can try though).</p>
 <span class="normal">721</span>
 <span class="normal">722</span>
 <span class="normal">723</span>
-<span class="normal">724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">analytical_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">analytical_roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find &amp; cache the analytical roots of the system.</span>
 <span class="sd">    Returns a list of solutions.</span>
 <span class="sd">    Ineffecient for more than 2 layers (can try though).</span>
@@ -4739,7 +4759,7 @@ Ineffecient for more than 2 layers (can try though).</p>
 <span class="normal">393</span>
 <span class="normal">394</span>
 <span class="normal">395</span>
-<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">compose_llg_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compose_llg_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a symbolic jacobian of the LLG equation in spherical coordinates.&quot;&quot;&quot;</span>
     <span class="c1"># has order theta0, phi0, theta1, phi1, ...</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">):</span>
@@ -4836,7 +4856,7 @@ and included in every layer's energy, correcting FMR automatically.</p>
 <span class="normal">447</span>
 <span class="normal">448</span>
 <span class="normal">449</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># cache for 3 calls</span>
-<span class="k">def</span> <span class="nf">create_energy</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_energy</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">,</span> <span class="n">sym</span><span class="o">.</span><span class="n">ImmutableMatrix</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">volumetric</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -4946,7 +4966,7 @@ and included in every layer's energy, correcting FMR automatically.</p>
 <span class="normal">485</span>
 <span class="normal">486</span>
 <span class="normal">487</span>
-<span class="normal">488</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">488</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_energy_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates the symbolic hessian of the energy expression.&quot;&quot;&quot;</span>
     <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subs</span><span class="p">(</span><span class="n">equilibrium_position</span><span class="p">)</span>
@@ -5060,7 +5080,7 @@ dynamic RHS model</p>
 <span class="normal">682</span>
 <span class="normal">683</span>
 <span class="normal">684</span>
-<span class="normal">685</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">dynamic_layer_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">685</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dynamic_layer_solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the FMR frequencies and modes for N layers using the</span>
 <span class="sd">    dynamic RHS model</span>
 <span class="sd">    :param eq: the equilibrium position of the system.</span>
@@ -5104,7 +5124,7 @@ dynamic RHS model</p>
 <span class="normal">496</span>
 <span class="normal">497</span>
 <span class="normal">498</span>
-<span class="normal">499</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;math&quot;</span><span class="p">):</span>
+<span class="normal">499</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gradient_expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accel</span><span class="o">=</span><span class="s2">&quot;math&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the symbolic gradient of the energy expression.&quot;&quot;&quot;</span>
     <span class="n">energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_energy</span><span class="p">(</span><span class="n">volumetric</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">grad_vector</span> <span class="o">=</span> <span class="p">[]</span>
@@ -5151,7 +5171,7 @@ with index layer_indx.</p>
 <span class="normal">379</span>
 <span class="normal">380</span>
 <span class="normal">381</span>
-<span class="normal">382</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_layer_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interaction_constant</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">382</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_layer_references</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interaction_constant</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the references to the layers above and below the layer</span>
 <span class="sd">    with index layer_indx.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -5192,7 +5212,7 @@ with index layer_indx.</p>
 <span class="normal">736</span>
 <span class="normal">737</span>
 <span class="normal">738</span>
-<span class="normal">739</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_ms_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">739</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ms_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dictionary of substitutions for the Ms symbols.&quot;&quot;&quot;</span>
     <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="sa">r</span><span class="s2">&quot;M_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">Ms</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">}</span>
     <span class="n">b</span> <span class="o">=</span> <span class="p">{</span><span class="sa">r</span><span class="s2">&quot;t_{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">thickness</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">}</span>
@@ -5226,7 +5246,7 @@ with index layer_indx.</p>
 <span class="normal">730</span>
 <span class="normal">731</span>
 <span class="normal">732</span>
-<span class="normal">733</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">733</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_subs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equilibrium_position</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the substitution dictionary for the energy expression.&quot;&quot;&quot;</span>
     <span class="n">subs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)):</span>
@@ -5400,7 +5420,7 @@ or <code>LayerDynamic.get_hoe_ex_symbol()</code> for Vdc_ex_variable.</p>
 <span class="normal">959</span>
 <span class="normal">960</span>
 <span class="normal">961</span>
-<span class="normal">962</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">linearised_N_spin_diode</span><span class="p">(</span>
+<span class="normal">962</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">linearised_N_spin_diode</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">H</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">VectorObj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -5477,7 +5497,7 @@ or <code>LayerDynamic.get_hoe_ex_symbol()</code> for Vdc_ex_variable.</p>
         <summary>Source code in <code>cmtj/models/general_sb.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">741</span>
 <span class="normal">742</span>
-<span class="normal">743</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">set_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
+<span class="normal">743</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_H</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">VectorObj</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets the external field.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">H</span> <span class="o">=</span> <span class="n">H</span>
 </code></pre></div></td></tr></table></div>
@@ -5553,7 +5573,7 @@ or <code>LayerDynamic.get_hoe_ex_symbol()</code> for Vdc_ex_variable.</p>
 <span class="normal">602</span>
 <span class="normal">603</span>
 <span class="normal">604</span>
-<span class="normal">605</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">single_layer_resonance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="normal">605</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">single_layer_resonance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_indx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">eq_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;We can compute the equilibrium position of a single layer directly.</span>
 <span class="sd">    :param layer_indx: the index of the layer to compute the equilibrium</span>
 <span class="sd">    :param eq_position: the equilibrium position vector&quot;&quot;&quot;</span>
@@ -5805,7 +5825,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">668</span>
 <span class="normal">669</span>
 <span class="normal">670</span>
-<span class="normal">671</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+<span class="normal">671</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">init_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
@@ -5908,7 +5928,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@njit</span>
-<span class="k">def</span> <span class="nf">fast_norm</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>  <span class="c1"># sourcery skip: for-index-underscore, sum-comprehension</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fast_norm</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>  <span class="c1"># sourcery skip: for-index-underscore, sum-comprehension</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast norm function for 1D arrays.&quot;&quot;&quot;</span>
     <span class="n">sum_</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">x_</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
@@ -5980,7 +6000,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span>
-<span class="k">def</span> <span class="nf">general_hessian_functional</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">general_hessian_functional</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a generalised hessian functional for N layers.</span>
 <span class="sd">    :param N: number of layers.</span>
 <span class="sd">    ! WARNING: remember Ms Symbols must match!!!</span>
@@ -6075,7 +6095,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
-<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_all_second_derivatives</span><span class="p">(</span><span class="n">energy_functional_expr</span><span class="p">,</span> <span class="n">energy_expression</span><span class="p">,</span> <span class="n">subs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_all_second_derivatives</span><span class="p">(</span><span class="n">energy_functional_expr</span><span class="p">,</span> <span class="n">energy_expression</span><span class="p">,</span> <span class="n">subs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get all second derivatives of the energy expression.</span>
 <span class="sd">    :param energy_functional_expr: symbolic energy_functional expression</span>
 <span class="sd">    :param energy_expression: symbolic energy expression (from solver)</span>
@@ -6206,7 +6226,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span>
-<span class="k">def</span> <span class="nf">get_hessian_from_energy_expr</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">energy_functional_expr</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Expr</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_hessian_from_energy_expr</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">energy_functional_expr</span><span class="p">:</span> <span class="n">sym</span><span class="o">.</span><span class="n">Expr</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Hessian matrix of the energy functional expression with respect to the spin angles and phases.</span>
 
@@ -6286,10 +6306,10 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
-<span class="normal">26</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">real_deocrator</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<span class="normal">26</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">real_deocrator</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Using numpy real cast is way faster than sympy.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">wrap_fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap_fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">wrap_fn</span>
@@ -6355,7 +6375,7 @@ For full analytical solution, see: <code>analytical_field_scan</code></p>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span>
-<span class="k">def</span> <span class="nf">solve_for_determinant</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_for_determinant</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve for the determinant of the hessian functional.</span>
 <span class="sd">    :param N: number of layers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

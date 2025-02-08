@@ -1186,6 +1186,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1534,12 +1554,12 @@ Finally, <span class="arithmatex">\(\vec{K}_{dir}\)</span> is given by:</p>
 <h2 id="runnning-the-model">Runnning the model</h2>
 <p>The same example can be found in the <a href="../../tutorials/SBModel/"><code>Examples</code> section</a>, expanded with dynamic spherical approach.
 Below is an example of how the model can be used, based on a system with 2 ferromagnetic layers:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">cmtj.models</span> <span class="kn">import</span> <span class="n">LayerSB</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Solver</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils</span> <span class="kn">import</span> <span class="n">mu0</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayerSB</span><span class="p">,</span> <span class="n">VectorObj</span><span class="p">,</span> <span class="n">Solver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">mu0</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="n">Ms1</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">mu0</span> <span class="c1"># here we pass the saturation magnetisation in A/m, but in the dynamic model we use T!</span>
 <span class="n">Ms2</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="o">/</span> <span class="n">mu0</span>

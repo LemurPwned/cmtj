@@ -1287,6 +1287,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1757,8 +1777,8 @@
 <span class="normal">95</span>
 <span class="normal">96</span>
 <span class="normal">97</span>
-<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ParallelStack</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ParallelStack</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">junctionList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">],</span>
         <span class="n">topId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;free&quot;</span><span class="p">,</span>
@@ -1775,7 +1795,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clear all the logs, both of the stack and the junctions</span>
 <span class="sd">        that constitute the stack.</span>
@@ -1783,7 +1803,7 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the logs of a specific junction -- integer id</span>
 <span class="sd">        from the `junctionList`.</span>
@@ -1792,13 +1812,13 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the logs of the stack</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the simulation of the stack.</span>
 <span class="sd">        :param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.</span>
@@ -1807,7 +1827,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets a global current driver for all junctions inside the stack.</span>
 <span class="sd">        Keep in mind the current passed down the stack will be modified</span>
@@ -1816,7 +1836,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coupling constant that represents the energy losses as the current</span>
 <span class="sd">        passes through the stack.</span>
@@ -1824,14 +1844,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets a external field current driver for all junctions inside the stack.</span>
 <span class="sd">        :param driver: the field driver to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set magnetisation on a specific layer in a specific junction.</span>
 <span class="sd">        :param junctionId: the id of the junction (int) as passed in the init.</span>
@@ -1840,13 +1860,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the magnetisation of a specific layer in a specific junction.</span>
 <span class="sd">        :param junction: the id of the junction (int) as passed in the init.</span>
 <span class="sd">        :param layerId: the string id of the layer in the junction.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a specific junction from the stack. Returns a reference.</span>
 <span class="sd">        :param junctionId: the id of the junction (int) as passed in the init.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1952,7 +1972,7 @@ Layer ids are used to identify the layers in the junctions and for resistance ca
 <span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
-<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">junctionList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">],</span>
     <span class="n">topId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;free&quot;</span><span class="p">,</span>
@@ -1996,7 +2016,7 @@ that constitute the stack.</p>
 <span class="normal">25</span>
 <span class="normal">26</span>
 <span class="normal">27</span>
-<span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clear all the logs, both of the stack and the junctions</span>
 <span class="sd">    that constitute the stack.</span>
@@ -2052,7 +2072,7 @@ that constitute the stack.</p>
 <span class="normal">95</span>
 <span class="normal">96</span>
 <span class="normal">97</span>
-<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
+<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a specific junction from the stack. Returns a reference.</span>
 <span class="sd">    :param junctionId: the id of the junction (int) as passed in the init.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2117,7 +2137,7 @@ that constitute the stack.</p>
 <span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
-<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the magnetisation of a specific layer in a specific junction.</span>
 <span class="sd">    :param junction: the id of the junction (int) as passed in the init.</span>
 <span class="sd">    :param layerId: the string id of the layer in the junction.&quot;&quot;&quot;</span>
@@ -2195,7 +2215,7 @@ that constitute the stack.</p>
 <span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
-<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the simulation of the stack.</span>
 <span class="sd">    :param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.</span>
@@ -2258,7 +2278,7 @@ by the coupling constant.</p>
 <span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
-<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets a global current driver for all junctions inside the stack.</span>
 <span class="sd">    Keep in mind the current passed down the stack will be modified</span>
@@ -2319,7 +2339,7 @@ passes through the stack.</p>
 <span class="normal">67</span>
 <span class="normal">68</span>
 <span class="normal">69</span>
-<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Coupling constant that represents the energy losses as the current</span>
 <span class="sd">    passes through the stack.</span>
@@ -2377,7 +2397,7 @@ passes through the stack.</p>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets a external field current driver for all junctions inside the stack.</span>
 <span class="sd">    :param driver: the field driver to be set.</span>
@@ -2456,7 +2476,7 @@ passes through the stack.</p>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
-<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set magnetisation on a specific layer in a specific junction.</span>
 <span class="sd">    :param junctionId: the id of the junction (int) as passed in the init.</span>
@@ -2599,8 +2619,8 @@ passes through the stack.</p>
 <span class="normal">201</span>
 <span class="normal">202</span>
 <span class="normal">203</span>
-<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SeriesStack</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SeriesStack</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">junctionList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">],</span>
         <span class="n">topId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;free&quot;</span><span class="p">,</span>
@@ -2617,7 +2637,7 @@ passes through the stack.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Clear all the logs, both of the stack and the junctions</span>
 <span class="sd">        that constitute the stack.</span>
@@ -2625,7 +2645,7 @@ passes through the stack.</p>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the logs of a specific junction -- integer id</span>
 <span class="sd">        from the `junctionList`.</span>
@@ -2634,13 +2654,13 @@ passes through the stack.</p>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the logs of the stack</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the simulation of the stack.</span>
 <span class="sd">        :param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.</span>
@@ -2649,7 +2669,7 @@ passes through the stack.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets a global current driver for all junctions inside the stack.</span>
 <span class="sd">        Keep in mind the current passed down the stack will be modified</span>
@@ -2659,7 +2679,7 @@ passes through the stack.</p>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coupling constant that represents the energy losses as the current</span>
 <span class="sd">        passes through the stack.</span>
@@ -2668,7 +2688,7 @@ passes through the stack.</p>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setCouplingStrength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coupling</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coupling constant that represents the energy losses as the current</span>
 <span class="sd">        passes through the stack.</span>
@@ -2677,14 +2697,14 @@ passes through the stack.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets a external field current driver for all junctions inside the stack.</span>
 <span class="sd">        :param driver: the field driver to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set magnetisation on a specific layer in a specific junction.</span>
 <span class="sd">        :param junctionId: the id of the junction (int) as passed in the init.</span>
@@ -2693,13 +2713,13 @@ passes through the stack.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the magnetisation of a specific layer in a specific junction.</span>
 <span class="sd">        :param junction: the id of the junction (int) as passed in the init.</span>
 <span class="sd">        :param layerId: the string id of the layer in the junction.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a specific junction from the stack. Returns a reference.</span>
 <span class="sd">        :param junctionId: the id of the junction (int) as passed in the init.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2805,7 +2825,7 @@ Layer ids are used to identify the layers in the junctions and for resistance ca
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">junctionList</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">],</span>
     <span class="n">topId</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;free&quot;</span><span class="p">,</span>
@@ -2849,7 +2869,7 @@ that constitute the stack.</p>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
-<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clearLogs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clear all the logs, both of the stack and the junctions</span>
 <span class="sd">    that constitute the stack.</span>
@@ -2905,7 +2925,7 @@ that constitute the stack.</p>
 <span class="normal">201</span>
 <span class="normal">202</span>
 <span class="normal">203</span>
-<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getJunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">Junction</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a specific junction from the stack. Returns a reference.</span>
 <span class="sd">    :param junctionId: the id of the junction (int) as passed in the init.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2970,7 +2990,7 @@ that constitute the stack.</p>
 <span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the magnetisation of a specific layer in a specific junction.</span>
 <span class="sd">    :param junction: the id of the junction (int) as passed in the init.</span>
 <span class="sd">    :param layerId: the string id of the layer in the junction.&quot;&quot;&quot;</span>
@@ -3048,7 +3068,7 @@ that constitute the stack.</p>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">runSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">writeFrequency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the simulation of the stack.</span>
 <span class="sd">    :param totalTime: total time of a simulation, give it in seconds. Typical length is in ~couple ns.</span>
@@ -3111,7 +3131,7 @@ by the coupling constant.</p>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setCoupledCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets a global current driver for all junctions inside the stack.</span>
 <span class="sd">    Keep in mind the current passed down the stack will be modified</span>
@@ -3170,7 +3190,7 @@ by the coupling constant.</p>
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span>
-<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets a external field current driver for all junctions inside the stack.</span>
 <span class="sd">    :param driver: the field driver to be set.</span>
@@ -3249,7 +3269,7 @@ by the coupling constant.</p>
 <span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
-<span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junctionId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">cmtj</span><span class="o">.</span><span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set magnetisation on a specific layer in a specific junction.</span>
 <span class="sd">    :param junctionId: the id of the junction (int) as passed in the init.</span>

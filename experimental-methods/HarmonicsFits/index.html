@@ -1069,6 +1069,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2277,9 +2297,9 @@ Licensed under the Apache License, Version 2.0.
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">OeToAm</span> <span class="o">=</span> <span class="mf">79.57747</span>
 </pre></div>
@@ -2339,31 +2359,31 @@ OeToAm = 79.57747</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">curve_fit</span>
 
 
-<span class="k">def</span> <span class="nf">fit_beta_rxx</span><span class="p">(</span><span class="n">beta_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">SMR</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_beta_rxx</span><span class="p">(</span><span class="n">beta_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">SMR</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">R0</span> <span class="o">+</span> <span class="n">SMR</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beta_scan</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">fit_beta_rxy</span><span class="p">(</span><span class="n">beta_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AHE</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_beta_rxy</span><span class="p">(</span><span class="n">beta_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AHE</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">R0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">AHE</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">beta_scan</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">fit_gamma_rxx</span><span class="p">(</span><span class="n">gamma_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_gamma_rxx</span><span class="p">(</span><span class="n">gamma_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">R0</span> <span class="o">+</span> <span class="n">AMR</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gamma_scan</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">fit_gamma_rxy</span><span class="p">(</span><span class="n">gamma_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AHE</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_gamma_rxy</span><span class="p">(</span><span class="n">gamma_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AHE</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">R0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">AHE</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gamma_scan</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">fit_alpha_rxx</span><span class="p">(</span><span class="n">alpha_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_alpha_rxx</span><span class="p">(</span><span class="n">alpha_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">R0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">AMR</span> <span class="o">+</span> <span class="n">SMR</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">AMR</span> <span class="o">-</span> <span class="n">SMR</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">alpha_scan</span> <span class="o">+</span>
                                                                <span class="n">offset</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">fit_alpha_rxy</span><span class="p">(</span><span class="n">alpha_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_alpha_rxy</span><span class="p">(</span><span class="n">alpha_scan</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">R0</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">AMR</span> <span class="o">+</span> <span class="n">SMR</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">alpha_scan</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
 
 
@@ -2641,7 +2661,7 @@ l = [2e-5]</code></pre>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
 
 <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.formatter.useoffset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -2693,7 +2713,7 @@ l = [2e-5]</code></pre>
         <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
         <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
 
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span> <span class="s1">&#39;(b)&#39;</span><span class="p">,</span> <span class="s1">&#39;(c)&#39;</span><span class="p">,</span> <span class="s1">&#39;(d)&#39;</span><span class="p">,</span> <span class="s1">&#39;(e)&#39;</span><span class="p">,</span> <span class="s1">&#39;(f)&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
         <span class="c1"># label physical distance in and down:</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">ScaledTranslation</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span>
@@ -2949,13 +2969,13 @@ class="
             </clipboard-copy>
         </div>
             <div class="highlight-ipynb hl-python"><pre><span></span><span class="c1">### generate data for publication</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">cmtj</span> <span class="kn">import</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils.linear</span> <span class="kn">import</span> <span class="n">FieldScan</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils.linear</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldScan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
 
 <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.formatter.useoffset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">fsize</span> <span class="o">=</span> <span class="mi">20</span>
@@ -2970,7 +2990,7 @@ class="
 <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">]</span>
 
 <span class="n">lw</span> <span class="o">=</span> <span class="mf">2.5</span>
-<span class="k">def</span> <span class="nf">get_field_scan_from_angle</span><span class="p">(</span><span class="n">experiment_field</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_field_scan_from_angle</span><span class="p">(</span><span class="n">experiment_field</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
     <span class="n">st</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">cp</span> <span class="o">=</span> <span class="n">FieldScan</span><span class="o">.</span><span class="n">_trig_compute</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
     <span class="n">Hx</span> <span class="o">=</span> <span class="n">st</span> <span class="o">*</span> <span class="n">cp</span> <span class="o">*</span> <span class="n">experiment_field</span>
     <span class="n">Hy</span> <span class="o">=</span> <span class="n">st</span> <span class="o">*</span> <span class="n">sp</span> <span class="o">*</span> <span class="n">experiment_field</span>
@@ -2980,7 +3000,7 @@ class="
     <span class="k">return</span> <span class="n">Hvecs</span>
 
 
-<span class="k">def</span> <span class="nf">calculate_resistance</span><span class="p">(</span><span class="n">Rx0</span><span class="p">,</span> <span class="n">Ry0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">AHE</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">number_of_layers</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_resistance</span><span class="p">(</span><span class="n">Rx0</span><span class="p">,</span> <span class="n">Ry0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">AHE</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">number_of_layers</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">SxAll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_of_layers</span><span class="p">,</span> <span class="p">))</span>
         <span class="n">SyAll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_of_layers</span><span class="p">,</span> <span class="p">))</span>
@@ -3000,7 +3020,7 @@ class="
     <span class="k">return</span> <span class="n">Rx</span><span class="p">,</span> <span class="n">Ry</span>
 
 
-<span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_simulation</span><span class="p">(</span><span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span>
                    <span class="n">Hvecs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                    <span class="n">int_time</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">):</span>
@@ -3045,7 +3065,7 @@ class="
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Rxy</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="n">Ku</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rxx&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span><span class="n">Ku</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rxx&#39;</span><span class="p">):</span>
     <span class="n">demagTensor</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">0.00024164288391924</span><span class="p">,</span> <span class="mf">2.71396011566517e-10</span><span class="p">,</span>
                 <span class="mf">5.95503928124313e-14</span><span class="p">),</span>
@@ -3142,7 +3162,7 @@ class="
                             <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span> <span class="s1">&#39;(b)&#39;</span><span class="p">,</span> <span class="s1">&#39;(c)&#39;</span><span class="p">,</span> <span class="s1">&#39;(d)&#39;</span><span class="p">,</span> <span class="s1">&#39;(e)&#39;</span><span class="p">,</span> <span class="s1">&#39;(f)&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
         <span class="c1"># label physical distance in and down:</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">ScaledTranslation</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span>
@@ -3436,10 +3456,10 @@ class="
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">cmtj</span> <span class="kn">import</span> <span class="n">SolverMode</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cmtj</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolverMode</span>
 
 
-<span class="k">def</span> <span class="nf">run_simulation_temp</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_simulation_temp</span><span class="p">(</span>
     <span class="n">junction</span><span class="p">:</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">int_time</span><span class="o">=</span><span class="mf">1e-13</span>
 <span class="p">):</span>
     <span class="n">sim_time</span> <span class="o">=</span> <span class="mf">10e-9</span>
@@ -3484,7 +3504,7 @@ class="
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Rxx</span><span class="p">)</span> <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;rxx&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Rxy</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="n">Ku</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rxx&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span><span class="n">Ku</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Hvecs</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rxx&quot;</span><span class="p">):</span>
     <span class="n">demagTensor</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">0.00024164288391924</span><span class="p">,</span> <span class="mf">2.71396011566517e-10</span><span class="p">,</span> <span class="mf">5.95503928124313e-14</span><span class="p">),</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">2.71396011566517e-10</span><span class="p">,</span> <span class="mf">0.000160046006320031</span><span class="p">,</span> <span class="mf">1.32504057070646e-14</span><span class="p">),</span>
@@ -3578,7 +3598,7 @@ class="
         <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res_mode</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> $[\Omega]$&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
 
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;a)&quot;</span><span class="p">,</span> <span class="s2">&quot;b)&quot;</span><span class="p">,</span> <span class="s2">&quot;c)&quot;</span><span class="p">,</span> <span class="s2">&quot;d)&quot;</span><span class="p">,</span> <span class="s2">&quot;e)&quot;</span><span class="p">,</span> <span class="s2">&quot;f)&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
         <span class="c1"># label physical distance in and down:</span>
@@ -3824,7 +3844,7 @@ class="
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftfreq</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.fft</span><span class="w"> </span><span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftfreq</span>
 
 <span class="n">Rx0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">304.306</span><span class="p">]</span>
 <span class="n">Ry0</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span>
@@ -3835,7 +3855,7 @@ class="
 <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">integration_step</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">integration_step</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">):</span>
     <span class="n">SD</span> <span class="o">=</span> <span class="n">dynamicI</span> <span class="o">*</span> <span class="n">dynamicR</span>
     <span class="c1"># SD -= np.mean(SD)</span>
     <span class="c1"># SD *= hann(len(SD))</span>
@@ -3848,7 +3868,7 @@ class="
     <span class="k">return</span> <span class="n">amp</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">freqs</span>
 
 
-<span class="k">def</span> <span class="nf">calculate_resistance</span><span class="p">(</span><span class="n">Rx0</span><span class="p">,</span> <span class="n">Ry0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">AHE</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">number_of_layers</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_resistance</span><span class="p">(</span><span class="n">Rx0</span><span class="p">,</span> <span class="n">Ry0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">AHE</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">number_of_layers</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">SxAll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_of_layers</span><span class="p">,))</span>
         <span class="n">SyAll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_of_layers</span><span class="p">,))</span>
@@ -3871,7 +3891,7 @@ class="
     <span class="k">return</span> <span class="n">Rx</span><span class="p">,</span> <span class="n">Ry</span>
 
 
-<span class="k">def</span> <span class="nf">find_max_f_frequency</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_max_f_frequency</span><span class="p">(</span><span class="n">freqs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
     <span class="c1"># take between 0 and max</span>
     <span class="n">freq_indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freqs</span> <span class="o">-</span> <span class="n">frequency</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
     <span class="n">max_value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">freq_indx</span><span class="p">]</span>
@@ -3879,7 +3899,7 @@ class="
     <span class="k">return</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">max_freq</span>
 
 
-<span class="k">def</span> <span class="nf">compute_harmonics</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">Hdl</span><span class="p">,</span> <span class="n">Hfl</span><span class="p">,</span> <span class="n">back</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_harmonics</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">Hdl</span><span class="p">,</span> <span class="n">Hfl</span><span class="p">,</span> <span class="n">back</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;hx&quot;</span><span class="p">:</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;hy&quot;</span><span class="p">:</span>
@@ -4178,7 +4198,7 @@ amp_diag1f_Hy, phase_diag2f_Hy, Hscan_Hy = compute_harmonics(
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1.inset_locator</span> <span class="kn">import</span> <span class="n">inset_axes</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1.inset_locator</span><span class="w"> </span><span class="kn">import</span> <span class="n">inset_axes</span>
 
 <span class="n">amp_diag1f_Hy</span> <span class="o">-=</span> <span class="n">amp_diag1f_Hy</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">amp_diag1f_Hx</span> <span class="o">-=</span> <span class="n">amp_diag1f_Hx</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
@@ -4289,7 +4309,7 @@ amp_diag1f_Hy, phase_diag2f_Hy, Hscan_Hy = compute_harmonics(
     <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
     <span class="c1"># fig.tight_layout()</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span> <span class="s1">&#39;(b)&#39;</span><span class="p">,</span> <span class="s1">&#39;(c)&#39;</span><span class="p">,</span> <span class="s1">&#39;(d)&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
         <span class="c1"># label physical distance in and down:</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">ScaledTranslation</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span>
@@ -4495,8 +4515,8 @@ class="
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.fft</span> <span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span><span class="p">,</span> <span class="n">fftfreq</span>
-<span class="kn">from</span> <span class="nn">scipy.signal.windows</span> <span class="kn">import</span> <span class="n">hann</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.fft</span><span class="w"> </span><span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">fftshift</span><span class="p">,</span> <span class="n">fftfreq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal.windows</span><span class="w"> </span><span class="kn">import</span> <span class="n">hann</span>
 
 <span class="n">Rx0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">304.306</span><span class="p">]</span>
 <span class="n">Ry0</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span>
@@ -4747,7 +4767,7 @@ phase_diag2f_Hx -= phase_diag2f_Hx[0]</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 
 <span class="n">ms</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">lw</span> <span class="o">=</span> <span class="mf">1.5</span>
@@ -5089,7 +5109,7 @@ Computing: Hfl for Hy: 100%|██████████| 10/10 [05:22&lt;00:0
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="n">ms</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">lw</span> <span class="o">=</span> <span class="mf">1.5</span>
 <span class="n">mec</span> <span class="o">=</span> <span class="kc">None</span>

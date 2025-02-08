@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://lemurpwned.github.io/cmtj/tutorials/CMTJBindingsTutorial/">
       
       
-        <link rel="prev" href="../../api/llgb/">
+        <link rel="prev" href="../../api/reservoir/">
       
       
         <link rel="next" href="../trajectory/">
@@ -1048,6 +1048,26 @@
   
   <span class="md-ellipsis">
     LLGB
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
   </span>
   
 
@@ -2390,9 +2410,9 @@ Here are some key parameters:</p>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">cmtj</span> <span class="kn">import</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj</span><span class="w"> </span><span class="kn">import</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
 </pre></div>
 <div id="cell-1" class="clipboard-copy-txt">import numpy as np
 import time
@@ -2510,15 +2530,15 @@ For each of the points we will calculate the constant voltage (Vmix, the diode v
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils</span> <span class="kn">import</span> <span class="n">compute_sd</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">import</span> <span class="nn">math</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_sd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd</span><span class="p">(</span><span class="n">simulation_log</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tstart</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd</span><span class="p">(</span><span class="n">simulation_log</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tstart</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
     <span class="n">stime</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">simulation_log</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
     <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">stime</span> <span class="o">&gt;=</span> <span class="n">tstart</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
     <span class="n">Rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">simulation_log</span><span class="p">[</span><span class="s1">&#39;Rx&#39;</span><span class="p">])[</span><span class="n">indx</span><span class="p">]</span>
@@ -2744,10 +2764,10 @@ print(f"Simulation time: {end-start:.2f}")</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils</span> <span class="kn">import</span> <span class="n">Filters</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_axes_locatable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
 
 <span class="n">VSD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">VSD</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
@@ -2863,9 +2883,9 @@ Another procedure -- PIMM, illustrated below -- is the one that performs the PIM
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils.linear</span> <span class="kn">import</span> <span class="n">FieldScan</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils.procedures</span> <span class="kn">import</span> <span class="n">ResistanceParameters</span><span class="p">,</span> <span class="n">PIMM_procedure</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils.linear</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldScan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils.procedures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResistanceParameters</span><span class="p">,</span> <span class="n">PIMM_procedure</span>
 
 <span class="n">rp</span> <span class="o">=</span> <span class="n">ResistanceParameters</span><span class="p">(</span><span class="n">Rxx0</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                           <span class="n">Rxy0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -3072,11 +3092,11 @@ Additionally, we lower the free layer anisotropy and we turn off the coupling (f
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
-<span class="kn">from</span> <span class="nn">cmtj.utils.plotting</span> <span class="kn">import</span> <span class="n">get_sphere</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sphere</span>
 <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">get_sphere</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">plot_trajectories</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_trajectories</span><span class="p">(</span><span class="n">log</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">([</span><span class="s1">&#39;science&#39;</span><span class="p">,</span> <span class="s1">&#39;nature&#39;</span><span class="p">]):</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>

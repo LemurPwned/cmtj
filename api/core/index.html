@@ -1701,6 +1701,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2546,11 +2566,11 @@
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AxialDriver</span><span class="p">:</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AxialDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Axial driver class.&quot;&quot;&quot;</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an axial driver with three scalar drivers for each axis.</span>
 <span class="sd">        :param x: driver for the x axis</span>
 <span class="sd">        :param y: driver for the y axis</span>
@@ -2559,14 +2579,14 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axialDrivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ScalarDriver</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axialDrivers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ScalarDriver</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an axial driver with a list of scalar drivers.</span>
 <span class="sd">        :param axialDrivers: list of scalar drivers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an axial driver with a list of floats.</span>
 <span class="sd">        :param x: constant float for the x axis</span>
 <span class="sd">        :param y: constant float for the y axis</span>
@@ -2575,30 +2595,30 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyz</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyz</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an axial driver with a vector.</span>
 <span class="sd">        :param xyz: CVector object with x, y, z components</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">applyMask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">applyMask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply mask to the driver.</span>
 <span class="sd">        :param mask: mask to be applied&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">applyMask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">applyMask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply mask to the driver.</span>
 <span class="sd">        :param mask: mask to be applied&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">applyMask</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="nf">getCurrentAxialDrivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="nf">getVectorAxialDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AxialDriver</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">applyMask</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getCurrentAxialDrivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getVectorAxialDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AxialDriver</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
         </details>
 
@@ -2686,52 +2706,52 @@
 <span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
-<span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">CVector</span><span class="p">:</span>
+<span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CVector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CVector class. Represents a 3D vector.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialises a 3D vector.</span>
 <span class="sd">        :param x: x component of the vector</span>
 <span class="sd">        :param y: y component of the vector</span>
 <span class="sd">        :param z: z component of the vector&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the length of the vector.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalizes the vector.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">tolist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tolist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts the vector to a list.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__imul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__isub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
     <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
         </details>
 
@@ -2812,7 +2832,7 @@
 <span class="normal">187</span>
 <span class="normal">188</span>
 <span class="normal">189</span>
-<span class="normal">190</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">190</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialises a 3D vector.</span>
 <span class="sd">    :param x: x component of the vector</span>
 <span class="sd">    :param y: y component of the vector</span>
@@ -2842,7 +2862,7 @@
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">192</span>
 <span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the length of the vector.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -2869,7 +2889,7 @@
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">196</span>
 <span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalizes the vector.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -2896,7 +2916,7 @@
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
 <span class="normal">201</span>
-<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">tolist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">tolist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts the vector to a list.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -3097,14 +3117,14 @@
 <span class="normal">393</span>
 <span class="normal">394</span>
 <span class="normal">395</span>
-<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Junction</span><span class="p">:</span>
+<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Junction</span><span class="p">:</span>
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Layer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Layer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Layer</span><span class="p">],</span> <span class="n">Rp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">Rap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Layer</span><span class="p">],</span> <span class="n">Rp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">Rap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a junction with a magnetoresistance.</span>
 <span class="sd">        :param layers: list of layers</span>
 
@@ -3114,7 +3134,7 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Layer</span><span class="p">],</span>
         <span class="n">Rx0</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -3141,22 +3161,22 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="nf">clearLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clearLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset current simulation state.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the magnetisation of a layer.</span>
 <span class="sd">        :param layerId: the layer id&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the simulation log [data].&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getMagnetoresistance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getMagnetoresistance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runSimulation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
@@ -3176,7 +3196,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set IEC interaction between two layers.</span>
 <span class="sd">        The names of the params are only for convention. The IEC will be set</span>
 <span class="sd">        between bottomLyaer or topLayer, order is irrelevant.</span>
@@ -3185,7 +3205,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setQuadIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setQuadIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set secondary (biquadratic term) IEC interaction between two layers.</span>
 <span class="sd">        The names of the params are only for convention. The IEC will be set</span>
 <span class="sd">        between bottomLyaer or topLayer, order is irrelevant.</span>
@@ -3194,35 +3214,35 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a temperature driver for a layer.</span>
 <span class="sd">        :param layerId: the id of the layer.</span>
 <span class="sd">        :param driver: the temperature driver to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set anisotropy driver for a layer.</span>
 <span class="sd">        :param layerId: the id of the layer.</span>
 <span class="sd">        :param driver: the anisotropy driver to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a current driver for a layer.</span>
 <span class="sd">        :param layerId: the layer id</span>
 <span class="sd">        :param driver: the driver</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set an external field driver for a layer.</span>
 <span class="sd">        :param layerId: the id of the layer.</span>
 <span class="sd">        :param driver: the field driver to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the magnetisation of a layer.</span>
 <span class="sd">        :param layerId: the layer id</span>
 <span class="sd">        :param mag: the magnetisation</span>
@@ -3230,28 +3250,28 @@
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">setLayerOerstedFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerOerstedFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set an Oersted field driver for a layer.</span>
 <span class="sd">        :param layerId: the id of the layer.</span>
 <span class="sd">        :param driver: the field driver to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the damping like torque driver for a layer.</span>
 <span class="sd">        :param layerId: the layer id</span>
 <span class="sd">        :param driver: the driver</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the field like torque driver for a layer.</span>
 <span class="sd">        :param layerId: the layer id</span>
 <span class="sd">        :param driver: the driver</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setLayerOneFNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLayerOneFNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set 1/f noise for a layer.</span>
 <span class="sd">        :param layerId: the layer id</span>
 <span class="sd">        :param sources: the number of generation sources (the more the slower, but more acc.)</span>
@@ -3260,7 +3280,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Layer</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Layer</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a specific layer from the junction. Returns a reference.</span>
 <span class="sd">        :param layerId: the id of the layer (string) as passed in the init.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3298,7 +3318,7 @@
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">274</span>
 <span class="normal">275</span>
-<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clearLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reset current simulation state.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -3351,7 +3371,7 @@
 <span class="normal">393</span>
 <span class="normal">394</span>
 <span class="normal">395</span>
-<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Layer</span><span class="p">:</span>
+<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Layer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a specific layer from the junction. Returns a reference.</span>
 <span class="sd">    :param layerId: the id of the layer (string) as passed in the init.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3405,7 +3425,7 @@
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
-<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
+<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVector</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the magnetisation of a layer.</span>
 <span class="sd">    :param layerId: the layer id&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -3433,7 +3453,7 @@
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">283</span>
 <span class="normal">284</span>
-<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the simulation log [data].&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -3551,7 +3571,7 @@ Use it to run the simulation.</p>
 <span class="normal">303</span>
 <span class="normal">304</span>
 <span class="normal">305</span>
-<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runSimulation</span><span class="p">(</span>
+<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">runSimulation</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">totalTime</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">timeStep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
@@ -3635,7 +3655,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">312</span>
 <span class="normal">313</span>
 <span class="normal">314</span>
-<span class="normal">315</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">315</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set IEC interaction between two layers.</span>
 <span class="sd">    The names of the params are only for convention. The IEC will be set</span>
 <span class="sd">    between bottomLyaer or topLayer, order is irrelevant.</span>
@@ -3704,7 +3724,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">335</span>
 <span class="normal">336</span>
 <span class="normal">337</span>
-<span class="normal">338</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">338</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set anisotropy driver for a layer.</span>
 <span class="sd">    :param layerId: the id of the layer.</span>
 <span class="sd">    :param driver: the anisotropy driver to be set.</span>
@@ -3771,7 +3791,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">342</span>
 <span class="normal">343</span>
 <span class="normal">344</span>
-<span class="normal">345</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">345</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerCurrentDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a current driver for a layer.</span>
 <span class="sd">    :param layerId: the layer id</span>
 <span class="sd">    :param driver: the driver</span>
@@ -3838,7 +3858,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">371</span>
 <span class="normal">372</span>
 <span class="normal">373</span>
-<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the damping like torque driver for a layer.</span>
 <span class="sd">    :param layerId: the layer id</span>
 <span class="sd">    :param driver: the driver</span>
@@ -3905,7 +3925,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">349</span>
 <span class="normal">350</span>
 <span class="normal">351</span>
-<span class="normal">352</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">352</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set an external field driver for a layer.</span>
 <span class="sd">    :param layerId: the id of the layer.</span>
 <span class="sd">    :param driver: the field driver to be set.</span>
@@ -3972,7 +3992,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">378</span>
 <span class="normal">379</span>
 <span class="normal">380</span>
-<span class="normal">381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">381</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the field like torque driver for a layer.</span>
 <span class="sd">    :param layerId: the layer id</span>
 <span class="sd">    :param driver: the driver</span>
@@ -4039,7 +4059,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">356</span>
 <span class="normal">357</span>
 <span class="normal">358</span>
-<span class="normal">359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the magnetisation of a layer.</span>
 <span class="sd">    :param layerId: the layer id</span>
 <span class="sd">    :param mag: the magnetisation</span>
@@ -4128,7 +4148,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">387</span>
 <span class="normal">388</span>
 <span class="normal">389</span>
-<span class="normal">390</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerOneFNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">390</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerOneFNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set 1/f noise for a layer.</span>
 <span class="sd">    :param layerId: the layer id</span>
 <span class="sd">    :param sources: the number of generation sources (the more the slower, but more acc.)</span>
@@ -4197,7 +4217,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">328</span>
 <span class="normal">329</span>
 <span class="normal">330</span>
-<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setLayerTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setLayerTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layerId</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a temperature driver for a layer.</span>
 <span class="sd">    :param layerId: the id of the layer.</span>
 <span class="sd">    :param driver: the temperature driver to be set.</span>
@@ -4268,7 +4288,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">321</span>
 <span class="normal">322</span>
 <span class="normal">323</span>
-<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setQuadIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setQuadIECDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bottomLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">topLayer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set secondary (biquadratic term) IEC interaction between two layers.</span>
 <span class="sd">    The names of the params are only for convention. The IEC will be set</span>
 <span class="sd">    between bottomLyaer or topLayer, order is irrelevant.</span>
@@ -4477,8 +4497,8 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="normal">565</span>
 <span class="normal">566</span>
 <span class="normal">567</span>
-<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Layer</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Layer</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
@@ -4507,7 +4527,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">createSOTLayer</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">createSOTLayer</span><span class="p">(</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
         <span class="n">anis</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
@@ -4533,7 +4553,7 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">createSTTLayer</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">createSTTLayer</span><span class="p">(</span>
         <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
         <span class="n">anis</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
@@ -4561,11 +4581,11 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">createBufferedAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">createBufferedAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a buffered alpha noise generator.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set alpha noise for the layer.</span>
 <span class="sd">        :param alpha: Alpha parameter</span>
 <span class="sd">        :param std: Standard deviation</span>
@@ -4574,74 +4594,74 @@ between bottomLyaer or topLayer, order is irrelevant.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set anisotropy driver for the layer.</span>
 <span class="sd">        It&#39;s scalar. The axis is determined in the layer constructor&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a driver for the temperature of the layer.</span>
 <span class="sd">        Automatically changes the solver to Euler-Heun.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setExternalFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the magnetisation of the layer.</span>
 <span class="sd">        :param mag: the magnetisation to be set.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setOerstedFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setOerstedFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set an Oersted field driver for the layer.</span>
 <span class="sd">        :param driver: the field driver to be set.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a driver for the damping like torque of the layer.</span>
 <span class="sd">        :param driver: the driver to be set.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a driver for the field like torque of the layer.</span>
 <span class="sd">        :param driver: the driver to be set.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setReferenceLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setReferenceLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a reference layer for the STT.</span>
 <span class="sd">        :param ref: the reference layer vector.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="nf">setReferenceLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Reference</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: F811</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setReferenceLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Reference</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: F811</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a reference layer for the STT. The reference can be</span>
 <span class="sd">        FIXED, BOTTOM or TOP. YOu can use another layer as reference</span>
 <span class="sd">        to this one.</span>
 <span class="sd">        :param ref: the reference layer vector.&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setTopDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setTopDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a dipole tensor from the top layer.</span>
 <span class="sd">        :param tensor: the dipole tensor to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setBottomDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setBottomDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a dipole tensor from the bottom layer.</span>
 <span class="sd">        :param tensor: the dipole tensor to be set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">getId</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getId</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get Id of the layer&quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setAlternativeSTT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setAlternative</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setAlternativeSTT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setAlternative</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Switch to an alternative STT forumulation (Taniguchi et al.)</span>
 <span class="sd">        https://iopscience.iop.org/article/10.7567/APEX.11.013005</span>
 <span class="sd">        :param setAlternative: whether to set the alternative STT formulation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">setKappa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setKappa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the kappa parameter for the layer -- determines SOT mixing</span>
 <span class="sd">            Hdl * kappa + Hfl</span>
 <span class="sd">        Allows you to turn off Hdl. Turning Hfl is via beta parameter.</span>
@@ -4793,7 +4813,7 @@ Use <code>setReferenceLayer</code> function to do that.</p>
 <span class="normal">422</span>
 <span class="normal">423</span>
 <span class="normal">424</span>
-<span class="normal">425</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">425</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
@@ -4844,7 +4864,7 @@ Use <code>setReferenceLayer</code> function to do that.</p>
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">482</span>
 <span class="normal">483</span>
-<span class="normal">484</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createBufferedAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">484</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">createBufferedAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bufferSize</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a buffered alpha noise generator.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -4983,7 +5003,7 @@ calculated based on the effective Spin Hall angles.</p>
 <span class="normal">449</span>
 <span class="normal">450</span>
 <span class="normal">451</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">createSOTLayer</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">createSOTLayer</span><span class="p">(</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
     <span class="n">anis</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
@@ -5175,7 +5195,7 @@ calculated based on the effective Spin Hall angles.</p>
 <span class="normal">478</span>
 <span class="normal">479</span>
 <span class="normal">480</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">createSTTLayer</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">createSTTLayer</span><span class="p">(</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
     <span class="n">anis</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span>
@@ -5226,7 +5246,7 @@ calculated based on the effective Spin Hall angles.</p>
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">551</span>
 <span class="normal">552</span>
-<span class="normal">553</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getId</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">553</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getId</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Id of the layer&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -5312,7 +5332,7 @@ calculated based on the effective Spin Hall angles.</p>
 <span class="normal">490</span>
 <span class="normal">491</span>
 <span class="normal">492</span>
-<span class="normal">493</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">493</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setAlphaNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">std</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Axis</span> <span class="o">=</span> <span class="n">Axis</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set alpha noise for the layer.</span>
 <span class="sd">    :param alpha: Alpha parameter</span>
 <span class="sd">    :param std: Standard deviation</span>
@@ -5372,7 +5392,7 @@ https://iopscience.iop.org/article/10.7567/APEX.11.013005</p>
 <span class="normal">557</span>
 <span class="normal">558</span>
 <span class="normal">559</span>
-<span class="normal">560</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setAlternativeSTT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setAlternative</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">560</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setAlternativeSTT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setAlternative</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Switch to an alternative STT forumulation (Taniguchi et al.)</span>
 <span class="sd">    https://iopscience.iop.org/article/10.7567/APEX.11.013005</span>
 <span class="sd">    :param setAlternative: whether to set the alternative STT formulation</span>
@@ -5404,7 +5424,7 @@ It's scalar. The axis is determined in the layer constructor</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">495</span>
 <span class="normal">496</span>
 <span class="normal">497</span>
-<span class="normal">498</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">498</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setAnisotropyDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set anisotropy driver for the layer.</span>
 <span class="sd">    It&#39;s scalar. The axis is determined in the layer constructor&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5458,7 +5478,7 @@ It's scalar. The axis is determined in the layer constructor</p>
 <span class="normal">546</span>
 <span class="normal">547</span>
 <span class="normal">548</span>
-<span class="normal">549</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setBottomDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">549</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setBottomDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a dipole tensor from the bottom layer.</span>
 <span class="sd">    :param tensor: the dipole tensor to be set.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -5512,7 +5532,7 @@ It's scalar. The axis is determined in the layer constructor</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">516</span>
 <span class="normal">517</span>
 <span class="normal">518</span>
-<span class="normal">519</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">519</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setDampingLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a driver for the damping like torque of the layer.</span>
 <span class="sd">    :param driver: the driver to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5565,7 +5585,7 @@ It's scalar. The axis is determined in the layer constructor</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">521</span>
 <span class="normal">522</span>
 <span class="normal">523</span>
-<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setFieldLikeTorqueDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a driver for the field like torque of the layer.</span>
 <span class="sd">    :param driver: the driver to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5623,7 +5643,7 @@ Allows you to turn off Hdl. Turning Hfl is via beta parameter.</p>
 <span class="normal">565</span>
 <span class="normal">566</span>
 <span class="normal">567</span>
-<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setKappa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setKappa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the kappa parameter for the layer -- determines SOT mixing</span>
 <span class="sd">        Hdl * kappa + Hfl</span>
 <span class="sd">    Allows you to turn off Hdl. Turning Hfl is via beta parameter.</span>
@@ -5679,7 +5699,7 @@ Allows you to turn off Hdl. Turning Hfl is via beta parameter.</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">506</span>
 <span class="normal">507</span>
 <span class="normal">508</span>
-<span class="normal">509</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">509</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setMagnetisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mag</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the magnetisation of the layer.</span>
 <span class="sd">    :param mag: the magnetisation to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5732,7 +5752,7 @@ Allows you to turn off Hdl. Turning Hfl is via beta parameter.</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">511</span>
 <span class="normal">512</span>
 <span class="normal">513</span>
-<span class="normal">514</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setOerstedFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">514</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setOerstedFieldDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">AxialDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set an Oersted field driver for the layer.</span>
 <span class="sd">    :param driver: the field driver to be set.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5785,7 +5805,7 @@ Allows you to turn off Hdl. Turning Hfl is via beta parameter.</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">526</span>
 <span class="normal">527</span>
 <span class="normal">528</span>
-<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setReferenceLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setReferenceLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a reference layer for the STT.</span>
 <span class="sd">    :param ref: the reference layer vector.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5815,7 +5835,7 @@ Automatically changes the solver to Euler-Heun.</p>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">500</span>
 <span class="normal">501</span>
 <span class="normal">502</span>
-<span class="normal">503</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">503</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setTemperatureDriver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a driver for the temperature of the layer.</span>
 <span class="sd">    Automatically changes the solver to Euler-Heun.&quot;&quot;&quot;</span>
     <span class="o">...</span>
@@ -5869,7 +5889,7 @@ Automatically changes the solver to Euler-Heun.</p>
 <span class="normal">540</span>
 <span class="normal">541</span>
 <span class="normal">542</span>
-<span class="normal">543</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">setTopDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">543</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setTopDipoleTensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CVector</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a dipole tensor from the top layer.</span>
 <span class="sd">    :param tensor: the dipole tensor to be set.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -5913,8 +5933,8 @@ Automatically changes the solver to Euler-Heun.</p>
 <span class="normal">573</span>
 <span class="normal">574</span>
 <span class="normal">575</span>
-<span class="normal">576</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">NullDriver</span><span class="p">(</span><span class="n">ScalarDriver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">576</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NullDriver</span><span class="p">(</span><span class="n">ScalarDriver</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        An empty driver that does nothing. Use in Axial Driver when</span>
 <span class="sd">        the axis is to be id.</span>
@@ -5957,7 +5977,7 @@ the axis is to be id.</p>
 <span class="normal">573</span>
 <span class="normal">574</span>
 <span class="normal">575</span>
-<span class="normal">576</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">576</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An empty driver that does nothing. Use in Axial Driver when</span>
 <span class="sd">    the axis is to be id.</span>
@@ -6002,7 +6022,7 @@ the axis is to be id.</p>
 <span class="normal">694</span>
 <span class="normal">695</span>
 <span class="normal">696</span>
-<span class="normal">697</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Reference</span><span class="p">:</span>
+<span class="normal">697</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Reference</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reference layer indicator.&quot;&quot;&quot;</span>
 
     <span class="n">bottom</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Reference</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
@@ -6152,9 +6172,9 @@ the axis is to be id.</p>
 <span class="normal">678</span>
 <span class="normal">679</span>
 <span class="normal">680</span>
-<span class="normal">681</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ScalarDriver</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
-    <span class="k">def</span> <span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal">681</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param time: time in seconds</span>
 <span class="sd">        :return: the scalar value of the driver at time.</span>
@@ -6162,7 +6182,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getConstantDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getConstantDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constant driver produces a constant signal of a fixed amplitude.</span>
 <span class="sd">        :param constantValue: constant value of the driver (constant offset/amplitude)</span>
@@ -6170,7 +6190,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getPulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cycle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getPulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cycle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Produces a square pulse of certain period and cycle</span>
 <span class="sd">        :param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.</span>
@@ -6181,7 +6201,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</span>
 <span class="sd">        :param constantValue: vertical offset. The sine will oscillate around this value.</span>
@@ -6192,7 +6212,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere</span>
 <span class="sd">        :param constantValue: offset of the pulse (vertical)</span>
@@ -6203,7 +6223,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getTrapezoidDriver</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getTrapezoidDriver</span><span class="p">(</span>
         <span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">timeStart</span><span class="p">,</span>
@@ -6220,7 +6240,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getGaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getGaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.</span>
 
 <span class="sd">        Formula:</span>
@@ -6234,7 +6254,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getGaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getGaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.</span>
 
 <span class="sd">        Formula:</span>
@@ -6248,7 +6268,7 @@ the axis is to be id.</p>
         <span class="o">...</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">getPosSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getPosSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</span>
 <span class="sd">        :param constantValue: vertical offset. The sine will oscillate around this value.</span>
 <span class="sd">        :param amplitude: amplitude of the sine wave</span>
@@ -6322,7 +6342,7 @@ the axis is to be id.</p>
 <span class="normal">591</span>
 <span class="normal">592</span>
 <span class="normal">593</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getConstantDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getConstantDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constant driver produces a constant signal of a fixed amplitude.</span>
 <span class="sd">    :param constantValue: constant value of the driver (constant offset/amplitude)</span>
@@ -6397,7 +6417,7 @@ the axis is to be id.</p>
 <span class="normal">582</span>
 <span class="normal">583</span>
 <span class="normal">584</span>
-<span class="normal">585</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal">585</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param time: time in seconds</span>
 <span class="sd">    :return: the scalar value of the driver at time.</span>
@@ -6498,7 +6518,7 @@ A * exp(-((t - t0) <strong> 2) / (2 * sigma </strong> 2))</p>
 <span class="normal">655</span>
 <span class="normal">656</span>
 <span class="normal">657</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getGaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getGaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Gaussian impulse driver. It has amplitude starts at t0 and falls off with sigma.</span>
 
 <span class="sd">    Formula:</span>
@@ -6605,7 +6625,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">669</span>
 <span class="normal">670</span>
 <span class="normal">671</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getGaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getGaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Gaussian step driver (erf function). It has amplitude starts at t0 and falls off with sigma.</span>
 
 <span class="sd">    Formula:</span>
@@ -6706,7 +6726,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">679</span>
 <span class="normal">680</span>
 <span class="normal">681</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getPosSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getPosSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</span>
 <span class="sd">    :param constantValue: vertical offset. The sine will oscillate around this value.</span>
 <span class="sd">    :param amplitude: amplitude of the sine wave</span>
@@ -6804,7 +6824,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">602</span>
 <span class="normal">603</span>
 <span class="normal">604</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getPulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cycle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getPulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cycle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Produces a square pulse of certain period and cycle</span>
 <span class="sd">    :param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.</span>
@@ -6903,7 +6923,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">613</span>
 <span class="normal">614</span>
 <span class="normal">615</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</span>
 <span class="sd">    :param constantValue: vertical offset. The sine will oscillate around this value.</span>
@@ -7002,7 +7022,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">624</span>
 <span class="normal">625</span>
 <span class="normal">626</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere</span>
 <span class="sd">    :param constantValue: offset of the pulse (vertical)</span>
@@ -7116,7 +7136,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">641</span>
 <span class="normal">642</span>
 <span class="normal">643</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">getTrapezoidDriver</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getTrapezoidDriver</span><span class="p">(</span>
     <span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">timeStart</span><span class="p">,</span>
@@ -7170,7 +7190,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">686</span>
 <span class="normal">687</span>
 <span class="normal">688</span>
-<span class="normal">689</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SolverMode</span><span class="p">:</span>
+<span class="normal">689</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SolverMode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;SolverMode Indicator&quot;&quot;&quot;</span>
 
     <span class="n">DormandPrice</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">SolverMode</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
@@ -7219,7 +7239,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
         <summary>Source code in <code>cmtj/core/__init__.pyi</code></summary>
         <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">10</span>
 <span class="normal">11</span>
-<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">c_dot</span><span class="p">(</span><span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">c_dot</span><span class="p">(</span><span class="n">arg0</span><span class="p">:</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">CVector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute dot (scalar) product of two CVectors.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -7273,7 +7293,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">16</span>
 <span class="normal">17</span>
 <span class="normal">18</span>
-<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">constantDriver</span><span class="p">(</span><span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">constantDriver</span><span class="p">(</span><span class="n">constant</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constant driver produces a constant signal of a fixed amplitude.</span>
 <span class="sd">    :param constant: constant value of the driver (constant offset/amplitude)</span>
@@ -7370,7 +7390,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">gaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gaussianImpulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gaussian impulse driver. It starts with an max amplitude at t0 and falls off with sigma.</span>
 
@@ -7474,7 +7494,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">gaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gaussianStepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Gaussian step driver (erf function). It starts at t0 and falls off with sigma.</span>
 
 <span class="sd">    Formula:</span>
@@ -7570,7 +7590,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
-<span class="normal">67</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">posSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">67</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">posSineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Produces a positive sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</span>
 <span class="sd">    :param constantValue: vertical offset. The sine will oscillate around this value.</span>
 <span class="sd">    :param amplitude: amplitude of the sine wave</span>
@@ -7662,7 +7682,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">pulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cycle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pulseDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cycle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Produces a square pulse of certain period and cycle</span>
 <span class="sd">    :param constantValue: offset (vertical) of the pulse. The pulse amplitude will be added to this.</span>
@@ -7755,7 +7775,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
-<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sineDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Produces a sinusoidal signal with some offset (constantValue), amplitude frequency and phase offset.</span>
 <span class="sd">    :param constantValue: vertical offset. The sine will oscillate around this value.</span>
@@ -7848,7 +7868,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">stepDriver</span><span class="p">(</span><span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStart</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">timeStop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a step driver. It has amplitude between timeStart and timeStop and 0 elsewhere</span>
 <span class="sd">    :param constantValue: offset of the pulse (vertical)</span>
@@ -7956,7 +7976,7 @@ f(t) = constantValue + amplitude * (1 + erf((t - t0) / (sigma * sqrt(2))))</p>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
-<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">trapezoidDriver</span><span class="p">(</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">trapezoidDriver</span><span class="p">(</span>
     <span class="n">constantValue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">amplitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">timeStart</span><span class="p">,</span>

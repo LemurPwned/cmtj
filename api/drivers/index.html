@@ -1108,6 +1108,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1291,7 +1311,7 @@ There are two types of drivers:</p>
 http://127.0.0.1:8000/cmtj/api/core/ -->
 <h2 id="how-to-define-your-own-drivers">How to define your own drivers?</h2>
 <p>You can define your own drivers by inheriting from the <code>ScalarDriver</code> class. This class has a single method <code>getCurrentScalarValue</code> which you need to implement. This method should return the scalar value of the driver at the given time. The time is given in seconds. The driver can be used in the same way as the built-in drivers. Here is an example of a driver that returns a random value at each time step:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">cmtj</span> <span class="kn">import</span> <span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cmtj</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ScalarDriver</span><span class="p">,</span>
     <span class="n">Layer</span><span class="p">,</span>
     <span class="n">Junction</span><span class="p">,</span>
@@ -1300,11 +1320,11 @@ http://127.0.0.1:8000/cmtj/api/core/ -->
     <span class="n">AxialDriver</span><span class="p">,</span>
     <span class="n">NullDriver</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
-<span class="k">class</span> <span class="nc">MyDriver</span><span class="p">(</span><span class="n">ScalarDriver</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyDriver</span><span class="p">(</span><span class="n">ScalarDriver</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">time</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
 

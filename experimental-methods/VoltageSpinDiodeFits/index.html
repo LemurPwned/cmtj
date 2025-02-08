@@ -1108,6 +1108,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2333,13 +2353,13 @@ fitting error depends on our parameter choice</p>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">cmtj</span> <span class="kn">import</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">lfilter</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cmtj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">lfilter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
 <div id="cell-1" class="clipboard-copy-txt">from cmtj import CVector, Layer, Junction, ScalarDriver, AxialDriver, NullDriver
 from tqdm import tqdm
@@ -2424,7 +2444,7 @@ OeToAm = 79.57747</div>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">cmtj</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmtj</span>
 
 <span class="n">Rx0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">304.306</span><span class="p">]</span>
 <span class="n">Ry0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.008</span><span class="p">]</span>
@@ -2435,7 +2455,7 @@ OeToAm = 79.57747</div>
 <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
     <span class="k">if</span> <span class="n">pass_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pass_freq</span> <span class="o">=</span> <span class="mf">0.1</span>
@@ -2450,7 +2470,7 @@ OeToAm = 79.57747</div>
     <span class="k">return</span> <span class="n">y</span>
 
 
-<span class="k">def</span> <span class="nf">butter_lowpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">butter_lowpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
     <span class="n">normal_cutoff</span> <span class="o">=</span> <span class="n">cutoff</span> <span class="o">/</span> <span class="n">nyq</span>
     <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -2458,7 +2478,7 @@ OeToAm = 79.57747</div>
     <span class="k">return</span> <span class="n">y</span>
 
 
-<span class="k">def</span> <span class="nf">calculate_resistance</span><span class="p">(</span><span class="n">Rx0</span><span class="p">,</span> <span class="n">Ry0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">AHE</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">number_of_layers</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_resistance</span><span class="p">(</span><span class="n">Rx0</span><span class="p">,</span> <span class="n">Ry0</span><span class="p">,</span> <span class="n">AMR</span><span class="p">,</span> <span class="n">AHE</span><span class="p">,</span> <span class="n">SMR</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">number_of_layers</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">SxAll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_of_layers</span><span class="p">,</span> <span class="p">))</span>
         <span class="n">SyAll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_of_layers</span><span class="p">,</span> <span class="p">))</span>
@@ -2478,7 +2498,7 @@ OeToAm = 79.57747</div>
     <span class="k">return</span> <span class="n">Rx</span><span class="p">,</span> <span class="n">Ry</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd1</span><span class="p">(</span><span class="n">stime</span><span class="p">,</span> <span class="n">resistance</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">tstart</span><span class="o">=</span><span class="mf">2e-9</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd1</span><span class="p">(</span><span class="n">stime</span><span class="p">,</span> <span class="n">resistance</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">tstart</span><span class="o">=</span><span class="mf">2e-9</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time&quot;&quot;&quot;</span>
     <span class="n">stime</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">stime</span><span class="p">)</span>
     <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">stime</span> <span class="o">&gt;=</span> <span class="n">tstart</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -2489,7 +2509,7 @@ OeToAm = 79.57747</div>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">current</span> <span class="o">*</span> <span class="n">Rx</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd2</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">integration_step</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd2</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">integration_step</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pymag&quot;&quot;&quot;</span>
     <span class="n">SD</span> <span class="o">=</span> <span class="o">-</span><span class="n">dynamicI</span> <span class="o">*</span> <span class="n">dynamicR</span>
     <span class="n">fs</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">integration_step</span>
@@ -2497,7 +2517,7 @@ OeToAm = 79.57747</div>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">SD_dc</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd_scan</span><span class="p">(</span><span class="n">Ms</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd_scan</span><span class="p">(</span><span class="n">Ms</span><span class="p">,</span>
                      <span class="n">Ku</span><span class="p">,</span>
                      <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;4p&#39;</span><span class="p">,</span>
                      <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -2776,8 +2796,8 @@ def compute_vsd_scan(Ms,
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">cmtj</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cmtj</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="n">Rx0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">304.306</span><span class="p">]</span>
 <span class="n">Ry0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.008</span><span class="p">]</span>
@@ -2788,7 +2808,7 @@ def compute_vsd_scan(Ms,
 <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2e-5</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">simulate_lorentz</span><span class="p">(</span><span class="n">Ms</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">Irf</span><span class="o">=</span><span class="mf">0.5e-3</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_lorentz</span><span class="p">(</span><span class="n">Ms</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">Irf</span><span class="o">=</span><span class="mf">0.5e-3</span><span class="p">):</span>
     <span class="n">demagTensor</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
@@ -3035,11 +3055,11 @@ for orient, irf in zip(('4p', '2p'), (0.75e-3, 0.4e-3)):
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 
 
-<span class="k">def</span> <span class="nf">lorentz_fit</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Va</span><span class="p">,</span> <span class="n">Vs</span><span class="p">,</span> <span class="n">Vb</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lorentz_fit</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hr</span><span class="p">,</span> <span class="n">Va</span><span class="p">,</span> <span class="n">Vs</span><span class="p">,</span> <span class="n">Vb</span><span class="p">):</span>
     <span class="n">dH2</span> <span class="o">=</span> <span class="p">(</span><span class="n">dH</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">HHr</span> <span class="o">=</span> <span class="n">H</span> <span class="o">-</span> <span class="n">Hr</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">HHr</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">dH2</span>
@@ -3087,7 +3107,7 @@ for orient, irf in zip(('4p', '2p'), (0.75e-3, 0.4e-3)):
 
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;H (kA/m)&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span> <span class="s1">&#39;(b)&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">ScaledTranslation</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span>
                                               <span class="n">fig</span><span class="o">.</span><span class="n">dpi_scale_trans</span><span class="p">)</span>
@@ -3235,7 +3255,7 @@ jp-needs-light-background
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">signal_modes</span><span class="p">(</span><span class="n">signal</span><span class="p">):</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">signal_modes</span><span class="p">(</span><span class="n">signal</span><span class="p">):</span>
     <span class="n">signal_indx</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">signal_indx</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
@@ -3463,7 +3483,7 @@ VSD4p, frequencies4p, Hspace4p, phideg4p = compute_vsd_scan(Ms,
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 
 <span class="n">crest</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;crest&#39;</span><span class="p">,</span> <span class="n">as_cmap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">([</span><span class="s1">&#39;science&#39;</span><span class="p">,</span> <span class="s1">&#39;nature&#39;</span><span class="p">]):</span>
@@ -3488,7 +3508,7 @@ VSD4p, frequencies4p, Hspace4p, phideg4p = compute_vsd_scan(Ms,
         <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$R_</span><span class="si">{xy}</span><span class="s2"> \textrm{ at } (\theta, \phi)=(90^\circ, 0^\circ$)&quot;</span><span class="p">,</span>
                   <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span> <span class="s1">&#39;(b)&#39;</span><span class="p">],</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)):</span>
         <span class="c1"># label physical distance in and down:</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">ScaledTranslation</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span>
@@ -3628,16 +3648,16 @@ parameters we found make sense for our sample</p>
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">cmtj</span> <span class="kn">import</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">lfilter</span>
-<span class="kn">from</span> <span class="nn">multiprocess</span> <span class="kn">import</span> <span class="n">Pool</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cmtj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CVector</span><span class="p">,</span> <span class="n">Layer</span><span class="p">,</span> <span class="n">Junction</span><span class="p">,</span> <span class="n">ScalarDriver</span><span class="p">,</span> <span class="n">AxialDriver</span><span class="p">,</span> <span class="n">NullDriver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">lfilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 
 
-<span class="k">def</span> <span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
     <span class="k">if</span> <span class="n">pass_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pass_freq</span> <span class="o">=</span> <span class="mf">0.1</span>
@@ -3652,7 +3672,7 @@ parameters we found make sense for our sample</p>
     <span class="k">return</span> <span class="n">y</span>
 
 
-<span class="k">def</span> <span class="nf">butter_lowpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">butter_lowpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
     <span class="n">normal_cutoff</span> <span class="o">=</span> <span class="n">cutoff</span> <span class="o">/</span> <span class="n">nyq</span>
     <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">normal_cutoff</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">analog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -3660,14 +3680,14 @@ parameters we found make sense for our sample</p>
     <span class="k">return</span> <span class="n">y</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">integration_step</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd</span><span class="p">(</span><span class="n">dynamicR</span><span class="p">,</span> <span class="n">integration_step</span><span class="p">,</span> <span class="n">dynamicI</span><span class="p">):</span>
     <span class="n">SD</span> <span class="o">=</span> <span class="o">-</span><span class="n">dynamicI</span> <span class="o">*</span> <span class="n">dynamicR</span>
     <span class="n">fs</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">integration_step</span>
     <span class="n">SD_dc</span> <span class="o">=</span> <span class="n">butter_lowpass_filter</span><span class="p">(</span><span class="n">SD</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">10e6</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">SD_dc</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">compute_vsd_scan</span><span class="p">(</span><span class="n">Ms</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">int_step</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vsd_scan</span><span class="p">(</span><span class="n">Ms</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">int_step</span><span class="o">=</span><span class="mf">1e-11</span><span class="p">):</span>
     <span class="n">demagTensor</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
         <span class="n">CVector</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span>
@@ -3738,7 +3758,7 @@ parameters we found make sense for our sample</p>
     <span class="k">return</span> <span class="n">VSD</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">Hspace</span>
 
 
-<span class="k">def</span> <span class="nf">parallel_scan</span><span class="p">(</span><span class="n">Kui</span><span class="p">,</span> <span class="n">Ms_space</span><span class="p">,</span> <span class="n">VSD_comp</span><span class="p">,</span> <span class="n">freqs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parallel_scan</span><span class="p">(</span><span class="n">Kui</span><span class="p">,</span> <span class="n">Ms_space</span><span class="p">,</span> <span class="n">VSD_comp</span><span class="p">,</span> <span class="n">freqs</span><span class="p">):</span>
     <span class="n">Ku</span><span class="p">,</span> <span class="n">ki</span> <span class="o">=</span> <span class="n">Kui</span>
     <span class="n">VSD_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">VSD_mse</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3760,7 +3780,7 @@ parameters we found make sense for our sample</p>
 <span class="n">main_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">main_line</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">mse_</span><span class="p">(</span><span class="n">lineA</span><span class="p">,</span> <span class="n">lineB</span><span class="p">,</span> <span class="n">freqs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mse_</span><span class="p">(</span><span class="n">lineA</span><span class="p">,</span> <span class="n">lineB</span><span class="p">,</span> <span class="n">freqs</span><span class="p">):</span>
     <span class="n">freq_line</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">lineA</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
     <span class="n">main_freq_line</span> <span class="o">=</span> <span class="n">freqs</span><span class="p">[</span><span class="n">lineB</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">freq_line</span> <span class="o">-</span> <span class="n">main_freq_line</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -3989,7 +4009,7 @@ with Pool(8) as pool:
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fn</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">c</span><span class="p">))</span> <span class="o">+</span> <span class="n">d</span>
 
 
@@ -4178,7 +4198,7 @@ for K_, M_ in zip(tqdm(Ku_), Ms_):
                 </div>
             </clipboard-copy>
         </div>
-            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
+            <div class="highlight-ipynb hl-python"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_axes_locatable</span>
 
 <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">([</span><span class="s1">&#39;science&#39;</span><span class="p">,</span> <span class="s1">&#39;nature&#39;</span><span class="p">]):</span>
     <span class="n">magma</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;magma&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
@@ -4216,7 +4236,7 @@ for K_, M_ in zip(tqdm(Ku_), Ms_):
     <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency (GHz)&quot;</span><span class="p">)</span>
     <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Dispersion relation&quot;</span><span class="p">)</span>
 
-    <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mtransforms</span>
     <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span> <span class="s1">&#39;(b)&#39;</span><span class="p">],</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)):</span>
         <span class="c1"># label physical distance in and down:</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">ScaledTranslation</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">72</span><span class="p">,</span>

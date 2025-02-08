@@ -1124,6 +1124,26 @@
 
               
             
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reservoir/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group interactions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1445,7 +1465,7 @@
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span>
-<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">coordinate_descent</span><span class="p">(</span>
+<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">coordinate_descent</span><span class="p">(</span>
     <span class="n">operating_point</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">best_mse</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span>
@@ -1624,7 +1644,7 @@ See HEBO documentation for more details: https://github.com/huawei-noah/HEBO</p>
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">hebo_optimization_loop</span><span class="p">(</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hebo_optimization_loop</span><span class="p">(</span>
     <span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">error_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
@@ -1644,10 +1664,10 @@ See HEBO documentation for more details: https://github.com/huawei-noah/HEBO</p>
 <span class="sd">    :param n_suggestions: number of suggestions per iteration</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">hebo.design_space.design_space</span> <span class="kn">import</span> <span class="n">DesignSpace</span>
-        <span class="kn">from</span> <span class="nn">hebo.optimizers.hebo</span> <span class="kn">import</span> <span class="n">HEBO</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hebo.design_space.design_space</span><span class="w"> </span><span class="kn">import</span> <span class="n">DesignSpace</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hebo.optimizers.hebo</span><span class="w"> </span><span class="kn">import</span> <span class="n">HEBO</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;HEBO is not installed. Please install it with `pip install HEBO`&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;HEBO is not installed. Please install it with `pip install HEBO`&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
     <span class="n">space</span> <span class="o">=</span> <span class="n">DesignSpace</span><span class="p">()</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
     <span class="n">opt</span> <span class="o">=</span> <span class="n">HEBO</span><span class="p">(</span><span class="n">space</span><span class="p">)</span>
     <span class="n">best_mse</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
