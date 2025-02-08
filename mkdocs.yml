@@ -51,6 +51,7 @@ nav:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
       - Trajectories: tutorials/trajectory.ipynb
       - Smit-Beljers: tutorials/SBModel.ipynb
+      - Interactions: tutorials/interactions.ipynb
 
 theme:
   icon:

@@ -3,7 +3,7 @@
 # 1.6.1
 
 - Small fixes to the noise interfaces and resistance functions.
-- Documentation updates.
+- Documentation updates: added a tutorial on custom dipole interactions + interface fixes and typing.
 
 # 1.6.0
 
