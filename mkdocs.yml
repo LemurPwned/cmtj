@@ -52,6 +52,7 @@ nav:
       - Trajectories: tutorials/trajectory.ipynb
       - Smit-Beljers: tutorials/SBModel.ipynb
       - Interactions: tutorials/interactions.ipynb
+      - Simple Harmonic Hall voltage detection: tutorials/simpler_harmonics.ipynb
 
 theme:
   icon:
