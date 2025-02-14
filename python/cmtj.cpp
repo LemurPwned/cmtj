@@ -119,7 +119,8 @@ PYBIND11_MODULE(cmtj, m) {
                [](const DVector& v, const int key) { return v[key]; })
           .def("__len__", [](const DVector& v) { return 3; })
           .def("__str__", py::overload_cast<>(&DVector::toString))
-          .def("__repr__", py::overload_cast<>(&DVector::toString));
+          .def("__repr__", py::overload_cast<>(&DVector::toString))
+          .def_static("fromSpherical", &DVector::fromSpherical, "theta"_a, "phi"_a, "r"_a = 1.0);
 
      py::implicitly_convertible<std::list<double>, DVector>();
      py::implicitly_convertible<std::vector<double>, DVector>();
@@ -240,7 +241,7 @@ PYBIND11_MODULE(cmtj, m) {
           .def_readonly("cellSurface", &DLayer::cellSurface)
           .def_readonly("demagTensor", &DLayer::demagTensor)
           // noise
-          .def("setAlphaNoise", &DLayer::setAlphaNoise)
+          .def("setAlphaNoise", &DLayer::setAlphaNoise, "alpha"_a, "std"_a, "scale"_a, "axis"_a = Axis::all)
           .def("setOneFNoise", &DLayer::setOneFNoise)
           // getters
           .def("getId", &DLayer::getId)

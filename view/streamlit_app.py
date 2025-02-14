@@ -47,7 +47,8 @@ with st.sidebar:
             mime="application/json",
             type="primary",
             help="Export the current session state to a JSON file. "
-            "You can use this to save your current settings and load them later or ""share them with others.",
+            "You can use this to save your current settings and load them later or "
+            "share them with others.",
         )
 
         st.file_uploader(
@@ -172,6 +173,16 @@ with st.sidebar:
                 key=f"J{j}",
                 format="%.3f",
                 help="Interlayer exchange coupling constant",
+            )
+
+            st.number_input(
+                f"$J_2$ ({j+1}<-->{j+2}) (uJ/m^2)",
+                min_value=GENERIC_BOUNDS["J"][0],
+                max_value=GENERIC_BOUNDS["J"][1],
+                value=0.0,
+                key=f"J2{j}",
+                format="%.4f",
+                help="Biquadratic interlayer exchange coupling constant",
             )
     with st.expander("Simulation & control parameters"):
         st.selectbox(

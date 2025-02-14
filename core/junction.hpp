@@ -922,6 +922,14 @@ public:
     if (this->layerNo == 0) {
       throw std::invalid_argument("Passed a zero length Layer vector!");
     }
+    // verify that all layers have unique ids
+    std::unordered_set<std::string> _ids;
+    for (const auto &layer : this->layers) {
+      if (_ids.find(layer.id) != _ids.end()) {
+        throw std::invalid_argument("Layers must have unique ids!");
+      }
+      _ids.insert(layer.id);
+    }
   }
   explicit Junction(const std::vector<Layer<T>> &layersToSet, T Rp, T Rap)
       : Junction(layersToSet) {

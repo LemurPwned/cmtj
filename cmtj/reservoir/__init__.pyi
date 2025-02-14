@@ -159,5 +159,14 @@ def computeDipoleInteractionNoumra(
     ...
 
 def nullDipoleInteraction(r1: cmtj.CVector, r2: cmtj.CVector, layer1: cmtj.Layer, layer2: cmtj.Layer) -> cmtj.CVector:
-    """Compute null dipole interaction between two junctions."""
+    """Compute null dipole interaction between two junctions.
+    This is a placeholder function that returns a zero vector.
+
+    :param r1: Position vector of the first junction
+    :param r2: Position vector of the second junction
+    :param layer1: Magnetic layer of the first junction
+    :param layer2: Magnetic layer of the second junction
+
+    :return: Zero vector
+    """
     ...
