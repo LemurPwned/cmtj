@@ -25,29 +25,17 @@ private:
   AxialDriver<T> IDMIDriverBottom =
       AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
 
-  // CMTJ Torque & Field drivers
-  std::shared_ptr<Driver<T>> fieldLikeTorqueDriver =
-      ScalarDriver<T>::getConstantDriver(0.0);
-  std::shared_ptr<Driver<T>> dampingLikeTorqueDriver =
-      ScalarDriver<T>::getConstantDriver(0.0);
-
   bool nonStochasticTempSet = false;
   bool nonStochasticOneFSet = true;
   bool temperatureSet = false;
   bool pinkNoiseSet = false;
-  bool alternativeSTTSet = false;
 
   // Distribution for noise generation
   std::function<T()> distribution = std::bind(
       std::normal_distribution<T>(0, 1), std::mt19937(std::random_device{}()));
 
   CVector<T> dWn, dWn2; // one for thermal, one for OneF
-  Reference referenceType = Reference::NONE;
-
 public:
-  // Added to match LLGB implementation
-  T K_log = 0.0;
-
   struct BufferedNoiseParameters {
     T alphaNoise = 1.0;
     T scaleNoise = 0.0;
@@ -57,24 +45,18 @@ public:
   BufferedNoiseParameters noiseParams;
   std::shared_ptr<OneFNoise<T>> ofn;
   std::shared_ptr<VectorAlphaNoise<T>> bfn;
-  bool includeSTT = false;
-  bool includeSOT = false;
-  bool dynamicSOT = false;
 
   T Ms = 0.0;
   T thickness = 0.0;
   T cellVolume = 0.0, cellSurface = 0.0;
   T damping = 0.1;
 
-  CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
+  CVector<T> H_log, Hoe_log, Hconst, mag, anis;
   CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation, Hdmi,
       Hidmi;
-  CVector<T> Hfl_v, Hdl_v;
   CVector<T> HIEC, HIECtop, HIECbottom;
 
   // Fixed constructor chain
-  Layer() = default;
-
   explicit Layer(const std::string &id, const CVector<T> &mag,
                  const CVector<T> &anis, T Ms, T thickness, T cellSurface,
                  const std::vector<CVector<T>> &demagTensor, T damping)
@@ -82,27 +64,6 @@ public:
         thickness(thickness), cellSurface(cellSurface), damping(damping) {
     this->demagTensor = demagTensor;
     this->cellVolume = cellSurface * thickness;
-  }
-
-  explicit Layer(const std::string &id, const CVector<T> &mag,
-                 const CVector<T> &anis, T Ms, T thickness, T cellSurface,
-                 const std::vector<CVector<T>> &demagTensor, T damping,
-                 T fieldLikeTorque, T dampingLikeTorque) {
-    Layer(id, mag, anis, Ms, thickness, cellSurface, demagTensor, damping);
-    this->includeSTT = false;
-    this->includeSOT = true;
-    this->dynamicSOT = false;
-  }
-
-  explicit Layer(const std::string &id, const CVector<T> &mag,
-                 const CVector<T> &anis, T Ms, T thickness, T cellSurface,
-                 const std::vector<CVector<T>> &demagTensor, T damping,
-                 T SlonczewskiSpacerLayerParameter, T beta,
-                 T spinPolarisation) {
-    Layer(id, mag, anis, Ms, thickness, cellSurface, demagTensor, damping);
-    this->includeSTT = true;
-    this->includeSOT = false;
-    // Add STT parameters as needed
   }
 
   // Accessor methods
@@ -263,14 +224,6 @@ public:
     }
   }
 
-  void setFieldLikeTorqueDriver(const std::shared_ptr<Driver<T>> &driver) {
-    this->fieldLikeTorqueDriver = driver;
-  }
-
-  void setDampingLikeTorqueDriver(const std::shared_ptr<Driver<T>> &driver) {
-    this->dampingLikeTorqueDriver = driver;
-  }
-
   // RK4 step implementation (simplified for now)
   void rk4_step(const T &time, const T &timeStep, const CVector<T> &bottom,
                 const CVector<T> &top) {
@@ -293,6 +246,191 @@ public:
     if (isnan(this->mag.x)) {
       throw std::runtime_error("NAN magnetisation");
     }
+  }
+};
+
+template <typename T> class LayerSTT : public Layer<T> {
+public:
+  /**
+   * @brief Creates a layer with Spin Transfer Torque functionality
+   *
+   * @param id Layer identifier
+   * @param mag Initial magnetization vector
+   * @param anis Anisotropy vector
+   * @param Ms Saturation magnetization
+   * @param thickness Layer thickness
+   * @param cellSurface Cell surface area
+   * @param demagTensor Demagnetization tensor
+   * @param damping Damping parameter
+   * @param SlonczewskiParameter Slonczewski spacer layer parameter
+   * @param beta STT non-adiabatic parameter
+   * @param spinPolarisation Spin polarization parameter
+   */
+  explicit LayerSTT(const std::string &id, const CVector<T> &mag,
+                    const CVector<T> &anis, T Ms, T thickness, T cellSurface,
+                    const std::vector<CVector<T>> &demagTensor, T damping,
+                    T SlonczewskiParameter, T beta, T spinPolarisation)
+      : Layer<T>(id, mag, anis, Ms, thickness, cellSurface, demagTensor,
+                 damping) {
+
+    // Store STT parameters
+    this->SlonczewskiParameter = SlonczewskiParameter;
+    this->beta = beta;
+    this->spinPolarisation = spinPolarisation;
+  }
+  T SlonczewskiParameter;
+  T beta;
+  T spinPolarisation;
+  T kappa = 1.0;
+  bool alternativeSTTSet = false;
+
+  // override calculateLLG
+  const CVector<T> calculateLLG(const T &time, const T &timeStep,
+                                const CVector<T> &m,
+                                const CVector<T> &bottom = CVector<T>(),
+                                const CVector<T> &top = CVector<T>()) override {
+    const CVector<T> base_dmdt =
+        Layer<T>::calculateLLG(time, timeStep, m, bottom, top);
+    const T I_log = this->currentDriver->getCurrentScalarValue(time);
+    const T convTerm = 1 / (1 + pow(this->damping, 2)); // LLGS -> LL form
+    CVector<T> reference;
+    switch (this->getReferenceType()) {
+      // TODO: add the warning if reference layer is top/bottom and empty
+    case FIXED:
+      reference = this->referenceLayer;
+      if (reference.length() < 1e-10) {
+        throw std::runtime_error("Reference layer is empty");
+      }
+      break;
+    case TOP:
+      reference = top;
+      break;
+    case BOTTOM:
+      reference = bottom;
+      break;
+    default:
+      throw std::runtime_error("Setting reference type is required for STT");
+      break;
+    }
+
+    // use standard STT formulation
+    // see that literature reports Ms/MAGNETIC_PERMEABILITY
+    // but then the units don't match, we use Ms [T] which works
+    const T aJ = HBAR * I_log / (ELECTRON_CHARGE * this->Ms * this->thickness);
+    // field like
+    T eta = 0;
+    if (this->alternativeSTTSet) {
+      // this is simplified
+      eta = (this->spinPolarisation) /
+            (1 + this->SlonczewskiParameter * c_dot<T>(m, reference));
+    } else {
+      // this is more complex model (classical STT)
+      const T slonSq = pow(this->SlonczewskiParameter, 2);
+      eta = (this->spinPolarisation * slonSq) /
+            (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
+    }
+    const T sttTerm = GYRO * aJ * eta;
+    const CVector<T> fieldLike = c_cross<T>(m, reference);
+    // damping like
+    const CVector<T> dampingLike = c_cross<T>(m, fieldLike);
+    // dmdt is already calculated in the base class and has been multiplied by
+    // -GYRO and convTerm
+    return base_dmdt + (dampingLike * -sttTerm * this->kappa +
+                        fieldLike * sttTerm * this->beta) *
+                           convTerm;
+  }
+};
+
+template <typename T> class LayerSOT : public Layer<T> {
+public:
+  // CMTJ Torque & Field drivers
+  std::shared_ptr<Driver<T>> fieldLikeTorqueDriver =
+      ScalarDriver<T>::getConstantDriver(0.0);
+  std::shared_ptr<Driver<T>> dampingLikeTorqueDriver =
+      ScalarDriver<T>::getConstantDriver(0.0);
+
+  bool directTorques = false;
+  /**
+   * @brief Creates a layer with Spin Orbit Torque functionality
+   *
+   * @param id Layer identifier
+   * @param mag Initial magnetization vector
+   * @param anis Anisotropy vector
+   * @param Ms Saturation magnetization
+   * @param thickness Layer thickness
+   * @param cellSurface Cell surface area
+   * @param demagTensor Demagnetization tensor
+   * @param damping Damping parameter
+   * @param fieldLikeTorque Field-like torque parameter
+   * @param dampingLikeTorque Damping-like torque parameter
+   */
+  explicit LayerSOT(const std::string &id, const CVector<T> &mag,
+                    const CVector<T> &anis, T Ms, T thickness, T cellSurface,
+                    const std::vector<CVector<T>> &demagTensor, T damping,
+                    T fieldLikeTorque, T dampingLikeTorque,
+                    bool directTorques = false)
+      : Layer<T>(id, mag, anis, Ms, thickness, cellSurface, demagTensor,
+                 damping) {
+    // Initialize the torque drivers with constant values
+    this->fieldLikeTorqueDriver =
+        ScalarDriver<T>::getConstantDriver(fieldLikeTorque);
+    this->dampingLikeTorqueDriver =
+        ScalarDriver<T>::getConstantDriver(dampingLikeTorque);
+    this->directTorques = directTorques;
+  }
+
+  // add setters for fieldLikeTorqueDriver and dampingLikeTorqueDriver
+  void setFieldLikeTorqueDriver(const std::shared_ptr<Driver<T>> &driver) {
+    this->fieldLikeTorqueDriver = driver;
+  }
+  void setDampingLikeTorqueDriver(const std::shared_ptr<Driver<T>> &driver) {
+    this->dampingLikeTorqueDriver = driver;
+  }
+
+  // override calculateLLG
+  const CVector<T> calculateLLG(const T &time, const T &timeStep,
+                                const CVector<T> &m,
+                                const CVector<T> &bottom = CVector<T>(),
+                                const CVector<T> &top = CVector<T>()) override {
+
+    const CVector<T> base_dmdt =
+        Layer<T>::calculateLLG(time, timeStep, m, bottom, top);
+    CVector<T> reference;
+    switch (this->getReferenceType()) {
+      // TODO: add the warning if reference layer is top/bottom and empty
+    case FIXED:
+      reference = this->referenceLayer;
+      if (reference.length() < 1e-10) {
+        throw std::runtime_error("Reference layer is empty");
+      }
+      break;
+    case TOP:
+      reference = top;
+      break;
+    case BOTTOM:
+      reference = bottom;
+      break;
+    default:
+      throw std::runtime_error("Setting reference type is required for SOT");
+      break;
+    }
+
+    const T I_log = this->currentDriver->getCurrentScalarValue(time);
+    const T convTerm = 1 / (1 + pow(this->damping, 2)); // LLGS -> LL form
+    T Hdl = this->dampingLikeTorqueDriver->getCurrentScalarValue(time);
+    T Hfl = this->fieldLikeTorqueDriver->getCurrentScalarValue(time);
+    if (!this->directTorques) {
+      Hdl = Hdl * I_log;
+      Hfl = Hfl * I_log;
+    }
+    std::cout << "reference: " << reference << ", m: " << m << std::endl;
+    const CVector<T> mxp = c_cross<T>(m, reference);
+    const CVector<T> mxmxp = c_cross<T>(m, mxp);
+    const CVector<T> flTorque = mxp * (Hfl - this->damping * Hdl);
+    const CVector<T> dlTorque = mxmxp * (Hdl + this->damping * Hfl);
+    std::cout << "flTorque: " << flTorque << ", dlTorque: " << dlTorque
+              << std::endl;
+    return base_dmdt + (flTorque + dlTorque) * -GYRO * convTerm;
   }
 };
 

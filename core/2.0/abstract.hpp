@@ -77,6 +77,8 @@ protected:
   std::string id;
 
   Reference referenceType = Reference::NONE;
+  CVector<T> referenceLayer = CVector<T>(0, 0, 0);
+
   std::shared_ptr<Driver<T>> anisotropyDriver =
       ScalarDriver<T>::getConstantDriver(0.0);
   std::shared_ptr<Driver<T>> temperatureDriver =
@@ -98,9 +100,34 @@ public:
   // Pure virtual functions that must be implemented
   virtual void setMagnetisation(const CVector<T> &newMag) = 0;
   virtual CVector<T> getMagnetisation() const = 0;
-  void setReferenceLayer(Reference reference) {
+
+  /**
+   * @brief Sets reference layer with a custom vector
+   * Set reference layer parameter. This is for calculating the spin current
+   * polarisation if `includeSTT` is true.
+   * @param reference: CVector describing the reference layer.
+   */
+  void setReferenceLayer(const CVector<T> &reference) {
+    this->referenceLayer = reference;
+    this->referenceType = FIXED;
+  }
+
+  /**
+   * @brief Set reference layer with enum
+   * Can be used to refer to other layers in stack as reference
+   * for this layer.
+   * @param reference: an enum: FIXED, TOP, BOTTOM, or CUSTOM
+   */
+  void setReferenceType(Reference reference) {
+    if ((reference == FIXED) && (!this->referenceLayer.length())) {
+      throw std::runtime_error("Cannot set fixed polarisation layer to 0!"
+                               " Set reference to NONE to disable reference.");
+    }
     this->referenceType = reference;
   }
+
+  CVector<T> getReferenceLayer() const { return this->referenceLayer; }
+
   Reference getReferenceType() const { return this->referenceType; }
   std::string getId() { return this->id; }
 
