@@ -48,7 +48,7 @@ def gaussianStepDriver(constantValue: float, amplitude: float, t0: float, sigma:
 
     Formula:
 
-    $f(t) = c + A + A\mathrm{erf}((t - t_0) / (\sigma \sqrt(2)))$
+    $$f(t) = c + A + A\mathrm{erf}((t - t_0) / (\sigma \sqrt(2)))$$
 
     :param constantValue: offset of the pulse (vertical)
     :param amplitude: amplitude that is added on top of the constantValue

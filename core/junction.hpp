@@ -82,32 +82,6 @@ template <typename T> inline T c_dot(const CVector<T> &a, const CVector<T> &b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-template <typename T> class EnergyDriver {
-public:
-  static T calculateZeemanEnergy(CVector<T> mag, CVector<T> Hext, T cellVolume,
-                                 T Ms) {
-    return -MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hext) * cellVolume;
-  }
-
-  static T calculateAnisotropyEnergy(CVector<T> mag, CVector<T> anis, T K,
-                                     T cellVolume) {
-    const T sinSq =
-        1.0 - pow(c_dot<T>(mag, anis) / (anis.length() * mag.length()), 2);
-    return K * sinSq * cellVolume;
-  }
-
-  static T calculateIECEnergy(CVector<T> mag, CVector<T> other, T J,
-                              T cellSurface) {
-    return -c_dot<T>(mag, other) * J * cellSurface;
-  }
-
-  static T calculateDemagEnergy(CVector<T> mag, CVector<T> Hdemag, T Ms,
-                                T cellVolume) {
-    return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hdemag) *
-           cellVolume;
-  }
-};
-
 enum Reference { NONE = 0, FIXED, TOP, BOTTOM };
 
 enum SolverMode { EULER_HEUN = 0, RK4 = 1, DORMAND_PRICE = 2, HEUN = 3 };
