@@ -8,6 +8,7 @@
 #include <memory>
 #include <random> // for mt19937, normal_distribution
 #include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -71,11 +72,17 @@ enum Reference { NONE = 0, FIXED, TOP, BOTTOM };
 enum SolverMode { EULER_HEUN = 0, RK4 = 1, DORMAND_PRICE = 2, HEUN = 3 };
 enum MRmode { MR_NONE = 0, CLASSIC = 1, STRIP = 2 };
 
+template <typename T> struct BufferedNoiseParameters {
+  T alphaNoise = 1.0;
+  T scaleNoise = 0.0;
+  T stdNoise = 0.0;
+  Axis axis = Axis::all;
+};
+
 template <typename T> class AbstractLayer {
 
 protected:
   std::string id;
-
   Reference referenceType = Reference::NONE;
   CVector<T> referenceLayer = CVector<T>(0, 0, 0);
 
@@ -85,21 +92,36 @@ protected:
       ScalarDriver<T>::getConstantDriver(0.0);
   std::shared_ptr<Driver<T>> currentDriver =
       ScalarDriver<T>::getConstantDriver(0.0);
-  AxialDriver<T> externalFieldDriver =
-      AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
-  AxialDriver<T> HoeDriver = AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
-  AxialDriver<T> HdmiDriver = AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
-  AxialDriver<T> HreservedInteractionFieldDriver =
-      AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
+  std::shared_ptr<AxialDriver<T>> externalFieldDriver =
+      std::make_shared<AxialDriver<T>>(
+          AxialDriver<T>::getVectorAxialDriver(0, 0, 0));
+  std::shared_ptr<AxialDriver<T>> HoeDriver = std::make_shared<AxialDriver<T>>(
+      AxialDriver<T>::getVectorAxialDriver(0, 0, 0));
+  std::shared_ptr<AxialDriver<T>> HdmiDriver = std::make_shared<AxialDriver<T>>(
+      AxialDriver<T>::getVectorAxialDriver(0, 0, 0));
+  std::shared_ptr<AxialDriver<T>> HreservedInteractionFieldDriver =
+      std::make_shared<AxialDriver<T>>(
+          AxialDriver<T>::getVectorAxialDriver(0, 0, 0));
+  BufferedNoiseParameters<T> noiseParams;
+
+public:
   std::vector<CVector<T>> demagTensor = {
       CVector<T>(0, 0, 0), CVector<T>(0, 0, 0), CVector<T>(0, 0, 0)};
 
-public:
+  bool isStochastic = false;
+  CVector<T> mag = CVector<T>(0, 0, 0);
   virtual ~AbstractLayer() = default;
   AbstractLayer(const std::string &id) : id(id) {};
   // Pure virtual functions that must be implemented
-  virtual void setMagnetisation(const CVector<T> &newMag) = 0;
-  virtual CVector<T> getMagnetisation() const = 0;
+  CVector<T> getMagnetisation() const { return this->mag; }
+
+  void setMagnetisation(const CVector<T> &newMag) {
+    if (newMag.length() < 1e-10) {
+      throw std::runtime_error("Magnetization vector cannot be zero!");
+    }
+    this->mag = newMag;
+    this->mag.normalize();
+  }
 
   /**
    * @brief Sets reference layer with a custom vector
@@ -134,6 +156,7 @@ public:
   // Common driver setters that must be implemented
   void setTemperatureDriver(const std::shared_ptr<Driver<T>> &driver) {
     this->temperatureDriver = driver;
+    this->isStochastic = true;
   }
   void setCurrentDriver(const std::shared_ptr<Driver<T>> &driver) {
     this->currentDriver = driver;
@@ -141,16 +164,17 @@ public:
   void setAnisotropyDriver(const std::shared_ptr<Driver<T>> &driver) {
     this->anisotropyDriver = driver;
   }
-  void setExternalFieldDriver(const AxialDriver<T> &driver) {
+  void setExternalFieldDriver(const std::shared_ptr<AxialDriver<T>> &driver) {
     this->externalFieldDriver = driver;
   }
-  void setOerstedFieldDriver(const AxialDriver<T> &driver) {
+  void setOerstedFieldDriver(const std::shared_ptr<AxialDriver<T>> &driver) {
     this->HoeDriver = driver;
   }
-  void setHdmiDriver(const AxialDriver<T> &driver) {
+  void setHdmiDriver(const std::shared_ptr<AxialDriver<T>> &driver) {
     this->HdmiDriver = driver;
   }
-  void setReservedInteractionFieldDriver(const AxialDriver<T> &driver) {
+  void setReservedInteractionFieldDriver(
+      const std::shared_ptr<AxialDriver<T>> &driver) {
     this->HreservedInteractionFieldDriver = driver;
   }
   // Solver methods that must be implemented
@@ -167,8 +191,23 @@ public:
                const CVector<T> &top = CVector<T>()) = 0;
 
   // Type definitions for driver setters
-  typedef void (AbstractLayer<T>::*scalarDriverSetter)(const Driver<T> &);
-  typedef void (AbstractLayer<T>::*axialDriverSetter)(const AxialDriver<T> &);
+  typedef void (AbstractLayer<T>::*scalarDriverSetter)(
+      const std::shared_ptr<Driver<T>> &);
+  typedef void (AbstractLayer<T>::*axialDriverSetter)(
+      const std::shared_ptr<AxialDriver<T>> &);
+
+  virtual void rk4_step(const T &time, const T &timeStep,
+                        const CVector<T> &bottom, const CVector<T> &top) = 0;
+
+  BufferedNoiseParameters<T> getBufferedNoiseParameters() const {
+    return this->noiseParams;
+  }
+
+  // void setBufferedNoiseParameters(const BufferedNoiseParameters<T>& params) {
+  //     this->noiseParams = params;
+  // }
+
+  // void createBufferedAlphaNoise(const unsigned int totalIterations) = 0;
 };
 
 template <typename T> class AbstractJunction {
@@ -176,7 +215,6 @@ protected:
   // Common member variables
   std::vector<std::shared_ptr<AbstractLayer<T>>>
       layers; // Changed to store pointers to AbstractLayer
-  MRmode MR_mode = MRmode::MR_NONE;
   unsigned int logLength = 0;
   unsigned int layerNo = 0;
   std::string Rtag = "R";
@@ -186,50 +224,62 @@ protected:
   T time = 0;
 
 public:
-  AbstractJunction(const std::vector<AbstractLayer<T>> &layers) {
+  AbstractJunction(
+      const std::vector<std::shared_ptr<AbstractLayer<T>>> &layers) {
     this->layers = layers;
     this->layerNo = layers.size();
+    if (this->layerNo == 0) {
+      throw std::invalid_argument("Passed a zero length Layer vector!");
+    }
+    // Verify that all layers have unique ids
+    std::unordered_set<std::string> _ids;
+    for (const auto &layer : this->layers) {
+      if (_ids.find(layer->getId()) != _ids.end()) {
+        throw std::invalid_argument("Layers must have unique ids!");
+      }
+      _ids.insert(layer->getId());
+    }
   }
 
-  // Pure virtual functions for layer management
+  /**
+   * @brief Get Ids of the layers in the junction.
+   * @return vector of layer ids.
+   */
   const std::vector<std::string> getLayerIds() const {
     std::vector<std::string> ids;
-    for (const auto &layer : layers) {
-      ids.push_back(layer.id);
-    }
+    std::transform(this->layers.begin(), this->layers.end(),
+                   std::back_inserter(ids),
+                   [](const std::shared_ptr<AbstractLayer<T>> &layer) {
+                     return layer->getId();
+                   });
     return ids;
   }
+
+  /**
+   * @brief Gets a specific layer from the junction
+   *
+   * @param index Layer index
+   * @return Shared pointer to the layer
+   */
+  std::shared_ptr<AbstractLayer<T>> getLayer(size_t index) const {
+    if (index >= layers.size()) {
+      throw std::out_of_range("Layer index out of range");
+    }
+    return layers[index];
+  }
+
   unsigned int getLayerCount() const { return this->layerNo; }
 
-  // Pure virtual functions for driver management
-  virtual void
-  scalarlayerSetter(const std::string &layerID,
-                    typename AbstractLayer<T>::scalarDriverSetter functor,
-                    Driver<T> driver) = 0;
-
-  typedef void (AbstractLayer<T>::*scalarDriverSetter)(const Driver<T> &driver);
+  typedef void (AbstractLayer<T>::*scalarDriverSetter)(
+      const std::shared_ptr<Driver<T>> &);
   typedef void (AbstractLayer<T>::*axialDriverSetter)(
-      const AxialDriver<T> &driver);
+      const std::shared_ptr<AxialDriver<T>> &);
   void scalarlayerSetter(const std::string &layerID, scalarDriverSetter functor,
-                         Driver<T> driver) {
+                         std::shared_ptr<Driver<T>> driver) {
     bool found = false;
     for (auto &l : this->layers) {
-      if (l.id == layerID || layerID == "all") {
-        (l.*functor)(driver);
-        found = true;
-      }
-    }
-    if (!found) {
-      throw std::runtime_error(
-          "Failed to find a layer with a given id: " + layerID + "!");
-    }
-  }
-  void axiallayerSetter(const std::string &layerID, axialDriverSetter functor,
-                        AxialDriver<T> driver) {
-    bool found = false;
-    for (auto &l : this->layers) {
-      if (l.id == layerID || layerID == "all") {
-        (l.*functor)(driver);
+      if (l->getId() == layerID || layerID == "all") {
+        ((*l).*functor)(driver);
         found = true;
       }
     }
@@ -239,158 +289,162 @@ public:
     }
   }
 
-  virtual void setCouplingDriver(
-      const std::string &bottomLayer, const std::string &topLayer,
-      const Driver<T> &driver,
-      typename AbstractLayer<T>::scalarDriverSetter setDriverFuncTop,
-      typename AbstractLayer<T>::scalarDriverSetter setDriverFuncBottom) = 0;
+  void axiallayerSetter(const std::string &layerID, axialDriverSetter functor,
+                        std::shared_ptr<AxialDriver<T>> driver) {
+    bool found = false;
+    for (auto &l : this->layers) {
+      if (l->getId() == layerID || layerID == "all") {
+        ((*l).*functor)(driver);
+        found = true;
+      }
+    }
+    if (!found) {
+      throw std::runtime_error(
+          "Failed to find a layer with a given id: " + layerID + "!");
+    }
+  }
+
+  /**
+   * Set coupling between two layers.
+   * The names of the params are only for convention. The coupling will be set
+   * between bottomLayer or topLayer, order is irrelevant.
+   * @param bottomLayer: the first layer id
+   * @param topLayer: the second layer id
+   */
+  void setCouplingDriver(const std::string &bottomLayer,
+                         const std::string &topLayer,
+                         const std::shared_ptr<Driver<T>> driver,
+                         void (AbstractLayer<T>::*setDriverFuncTop)(
+                             const std::shared_ptr<Driver<T>> &),
+                         void (AbstractLayer<T>::*setDriverFuncBottom)(
+                             const std::shared_ptr<Driver<T>> &)) {
+    bool found = false;
+    for (unsigned int i = 0; i < this->layerNo - 1; i++) {
+      // check if the layer above is actually top layer the user specified
+      if ((this->layers[i]->getId() == bottomLayer) &&
+          (this->layers[i + 1]->getId() == topLayer)) {
+        (this->layers[i]->*setDriverFuncTop)(driver);
+        (this->layers[i + 1]->*setDriverFuncBottom)(driver);
+        found = true;
+        break;
+      } else if ((this->layers[i]->getId() == topLayer) &&
+                 (this->layers[i + 1]->getId() == bottomLayer)) {
+        (this->layers[i]->*setDriverFuncTop)(driver);
+        (this->layers[i + 1]->*setDriverFuncBottom)(driver);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      throw std::runtime_error(
+          "Failed to match the layer order or find layer ids: " + bottomLayer +
+          " and " + topLayer + "!");
+    }
+  }
+
+  /**
+   * Set coupling between two layers with an AxialDriver
+   * The names of the params are only for convention. The coupling will be set
+   * between bottomLayer or topLayer, order is irrelevant.
+   * @param bottomLayer: the first layer id
+   * @param topLayer: the second layer id
+   */
+  void setCouplingDriverAxial(const std::string &bottomLayer,
+                              const std::string &topLayer,
+                              const std::shared_ptr<AxialDriver<T>> driver,
+                              void (AbstractLayer<T>::*setDriverFuncTop)(
+                                  const std::shared_ptr<AxialDriver<T>>),
+                              void (AbstractLayer<T>::*setDriverFuncBottom)(
+                                  const std::shared_ptr<AxialDriver<T>>)) {
+    bool found = false;
+    for (unsigned int i = 0; i < this->layerNo - 1; i++) {
+      // check if the layer above is actually top layer the user specified
+      if ((this->layers[i]->getId() == bottomLayer) &&
+          (this->layers[i + 1]->getId() == topLayer)) {
+        (this->layers[i]->*setDriverFuncTop)(driver);
+        (this->layers[i + 1]->*setDriverFuncBottom)(driver);
+        found = true;
+        break;
+      } else if ((this->layers[i]->getId() == topLayer) &&
+                 (this->layers[i + 1]->getId() == bottomLayer)) {
+        (this->layers[i]->*setDriverFuncTop)(driver);
+        (this->layers[i + 1]->*setDriverFuncBottom)(driver);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      throw std::runtime_error(
+          "Failed to match the layer order or find layer ids: " + bottomLayer +
+          " and " + topLayer + "!");
+    }
+  }
 
   // Pure virtual functions for magnetoresistance
   virtual std::vector<T> getMagnetoresistance() = 0;
+  typedef void (AbstractLayer<T>::*solverFn)(const T &, const T &,
+                                             const CVector<T> &,
+                                             const CVector<T> &);
+  typedef void (AbstractJunction<T>::*runnerFn)(solverFn, T &, T &);
+  /**
+   * @brief Run Euler-Heun or RK4 method for a single layer.
+   *
+   * The Euler-Heun method should only be used
+   * for stochastic simulations where the temperature
+   * driver is set.
+   * @param functor: solver function.
+   * @param t: current time
+   * @param timeStep: integration step
+   */
+  void runSingleLayerSolver(solverFn functor, T &t, T &timeStep) {
+    CVector<T> null;
+    (this->layers[0].get()->*functor)(t, timeStep, null, null);
+  }
 
-  virtual void calculateLLG(const T &t, CVector<T> &m, const CVector<T> &bottom,
-                            const CVector<T> &top, const T timeStep) = 0;
-
-  void heunSolverStep(const T &t, const T &timeStep,
-                      const bool normalise = true) {
-    /*
-        Heun method
-        y'(t+1) = y(t) + dy(y, t)
-        y(t+1) = y(t) + 0.5 * (dy(y, t) + dy(y'(t+1), t+1))
-    */
-    /*
-        Stochastic Heun method
-        y_np = y + g(y,t,dW)*dt
-        g_sp = g(y_np,t+1,dW)
-        y' = y_n + f_n * dt + g_n * dt
-        f' = f(y, )
-        y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
-    */
-    std::vector<CVector<T>> fn(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> gn(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> nonAdiabatic(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> adiabatic(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> mNext(this->layerNo, CVector<T>());
-    // first approximation
-
-    // make sure that
-    // 1. Thermal field is added if needed
-    // 2. One/f noise is added if needed
-    // 3. The timestep is correctly multiplied
-
+  /**
+   * @brief Select a solver based on the setup.
+   *
+   * Multilayer layer solver iteration.
+   * @param functor: solver function.
+   * @param t: current time
+   * @param timeStep: integration step
+   * */
+  void runMultiLayerSolver(solverFn functor, T &t, T &timeStep) {
+    // initialise with 0 CVectors
+    std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
+    // the first and the last layer get 0 vector coupled
     for (unsigned int i = 0; i < this->layerNo; i++) {
-
-      const CVector<T> bottom =
-          (i == 0) ? CVector<T>() : this->layers[i - 1].mag;
-      const CVector<T> top =
-          (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
-
-      fn[i] = this->layers[i].calculateLLG(t, this->layers[i].mag, bottom, top,
-                                           timeStep);
-
-      // draw the noise for each layer, dW
-      nonAdiabatic[i] = this->layers[i].nonadiabaticThermalField(t, timeStep);
-      adiabatic[i] = this->layers[i].adiabaticThermalField(t, timeStep);
-      gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, t,
-                                               nonAdiabatic[i], adiabatic[i]);
-
-      mNext[i] =
-          this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep);
+      magCopies[i + 1] = this->layers[i]->mag;
     }
-    // second approximation
+
     for (unsigned int i = 0; i < this->layerNo; i++) {
-      // first approximation is already multiplied by timeStep
-      this->layers[i].mag =
-          this->layers[i].mag +
-          0.5 * timeStep *
-              (fn[i] +
-               this->layers[i].calculateLLG(t + timeStep, timeStep, mNext[i])) +
-          0.5 *
-              (gn[i] + this->layers[i].stochasticTorque(mNext[i], t + timeStep,
-                                                        nonAdiabatic[i],
-                                                        adiabatic[i])) *
-              sqrt(timeStep);
-      // normalise only in classical
-      if (normalise) {
-        this->layers[i].mag.normalize(); // LLB doesn't normalise
+      (this->layers[i].get()->*functor)(t, timeStep, magCopies[i],
+                                        magCopies[i + 2]);
+    }
+  }
+
+  std::tuple<runnerFn, solverFn, SolverMode>
+  getSolver(SolverMode mode, unsigned int totalIterations) {
+    SolverMode localMode = mode;
+    for (auto &l : this->layers) {
+      if (l->isStochastic) {
+        localMode = HEUN;
+        break;
       }
     }
-  }
 
-  void eulerHeunSolverStep(const T &t, const T &timeStep,
-                           const bool normalise = true) {
-    /*
-        Euler Heun method (stochastic heun)
+    // Define the correct solver function pointer
+    solverFn solver = &AbstractLayer<T>::rk4_step;
+    runnerFn runner;
 
-        y_np = y + g(y,t,dW)*dt
-        g_sp = g(y_np,t+1,dW)
-        y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
-
-        with f being the non-stochastic part and g the stochastic part
-    */
-    // draw the noise for each layer, dW
-    std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
-    for (unsigned int i = 0; i < this->layerNo; i++) {
-      // todo: after you're done, double check the thermal magnitude and dt
-      // scaling there
-      const CVector<T> nonAdiabaticTorque =
-          this->layers[i].nonadiabaticThermalField(t, timeStep);
-      const CVector<T> adiabaticTorque =
-          this->layers[i].adiabaticThermalField(t, timeStep);
-
-      const CVector<T> fnApprox =
-          this->layers[i].calculateLLG(t, timeStep, this->layers[i].mag);
-      const CVector<T> gnApprox = this->layers[i].stochasticTorque(
-          this->layers[i].mag, t, nonAdiabaticTorque, adiabaticTorque);
-
-      // theoretically we have 2 options
-      // 1. calculate only the stochastic part with the second approximation
-      // 2. calculate the second approximation of m with the stochastic and
-      // non-stochastic
-      //    part and then use if for torque est.
-      const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
-      const CVector<T> gnPrimeApprox = this->layers[i].stochasticTorque(
-          mNext, t + timeStep, nonAdiabaticTorque, adiabaticTorque);
-      mPrime[i] = this->layers[i].mag + fnApprox * timeStep +
-                  0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
+    if (this->layerNo == 1) {
+      runner = &AbstractJunction<T>::runSingleLayerSolver;
+    } else {
+      runner = &AbstractJunction<T>::runMultiLayerSolver;
     }
 
-    for (unsigned int i = 0; i < this->layerNo; i++) {
-      this->layers[i].mag = mPrime[i];
-      if (normalise) {
-        this->layers[i].mag.normalize(); // LLB doesn't normalise
-      }
-    }
+    return std::make_tuple(runner, solver, localMode);
   }
-
-  void commonHeunSolverStep(const T &t, const T &timeStep,
-                            const bool normalise = true) {
-    /*
-    Euler Heun method (stochastic heun)
-
-    y_np = y + g(y,t,dW)*dt
-    g_sp = g(y_np,t+1,dW)
-    y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
-
-    with f being the non-stochastic part and g the stochastic part
-    */
-    std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
-    for (unsigned int i = 0; i < this->layerNo; i++) {
-    }
-  }
-
-  typedef void (AbstractJunction<T>::*runnerFn)(const T &t, const T &timeStep);
-  std::tuple<runnerFn, SolverMode> getSolver(SolverMode mode) {
-    auto runner = &AbstractJunction<T>::heunSolverStep;
-    if (mode == HEUN)
-      runner = &AbstractJunction<T>::heunSolverStep;
-    else if (mode == EULER_HEUN)
-      runner = &AbstractJunction<T>::eulerHeunSolverStep;
-    else
-      throw std::runtime_error("The solver mode is not supported!");
-    return std::make_tuple(runner, mode);
-  }
-
   /**
    * Main run simulation function. Use it to run the simulation.
    * @param totalTime: total time of a simulation, give it in seconds. Typical
@@ -403,38 +457,29 @@ public:
    * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
    */
   void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-13,
-                     bool log = false, SolverMode mode = HEUN)
-
-  {
+                     SolverMode mode = HEUN) {
     if (timeStep > writeFrequency) {
       throw std::runtime_error(
           "The time step cannot be larger than write frequency!");
     }
-    const unsigned int totalIterations = (int)(totalTime / timeStep);
-    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
-    std::chrono::steady_clock::time_point begin =
-        std::chrono::steady_clock::now();
+    const unsigned int totalIterations =
+        static_cast<unsigned int>(totalTime / timeStep);
+    const unsigned int writeEvery =
+        static_cast<unsigned int>(writeFrequency / timeStep);
+
     // pick a solver based on drivers
-    auto [runner, _] = getSolver(mode);
+    auto [runner, solver, _] = getSolver(mode, totalIterations);
 
     for (unsigned int i = 0; i < totalIterations; i++) {
       this->time += timeStep;
-      (*this.*runner)(this->time, timeStep);
+      (*this.*runner)(solver, this->time, timeStep);
 
       if (!(i % writeEvery)) {
-        logLayerParams(this->time, timeStep);
+        logLayerParams(this->time);
       }
     }
     std::chrono::steady_clock::time_point end =
         std::chrono::steady_clock::now();
-    if (log) {
-      std::cout << "Steps in simulation: " << totalIterations << std::endl;
-      std::cout << "Write every: " << writeEvery << std::endl;
-      std::cout << "Simulation time = "
-                << std::chrono::duration_cast<std::chrono::seconds>(end - begin)
-                       .count()
-                << "[s]" << std::endl;
-    }
   }
 
   // log management
@@ -459,12 +504,34 @@ public:
   }
 
   /**
+   * @brief Log junction parameters
+   *
+   * @param time Current simulation time
+   */
+  void logLayerParams(const T &time) {
+    // Log each layer's parameters
+    for (size_t i = 0; i < layers.size(); i++) {
+      CVector<T> mag = layers[i]->getMagnetisation();
+
+      // Log magnetization components
+      std::string layerPrefix = "layer" + std::to_string(i) + "_";
+      this->log[layerPrefix + "mx"].push_back(mag[0]);
+      this->log[layerPrefix + "my"].push_back(mag[1]);
+      this->log[layerPrefix + "mz"].push_back(mag[2]);
+    }
+
+    // Log junction parameters
+    this->log["time"].push_back(time);
+
+    this->logLength = this->log["time"].size();
+  }
+
+  /**
    * Clears the simulation log.
    **/
   void clearLog() {
     this->log.clear();
     this->logLength = 0;
-    this->time = 0;
   }
   std::unordered_map<std::string, std::vector<T>> &getLog() {
     return this->log;

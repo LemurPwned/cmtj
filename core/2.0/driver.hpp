@@ -42,22 +42,23 @@ public:
   // Common methods
   void setConstantValue(const T &val) { this->constantValue = val; }
   T getConstantValue() const { return constantValue; }
-
-  // Virtual method for axis representation
-  virtual CVector<T> getUnitAxis() const {
-    return CVector<T>(constantValue != 0 ? 1 : 0, constantValue != 0 ? 1 : 0,
-                      constantValue != 0 ? 1 : 0);
-  }
 };
 
 // Default implementation - returns constant value only
-template <typename T> class NullDriver : public Driver<T> {
+template <typename T> class ConstantDriver : public Driver<T> {
 public:
-  explicit NullDriver(T constantValue = 0.0) : Driver<T>(constantValue) {}
+  explicit ConstantDriver(T constantValue = 0.0) : Driver<T>(constantValue) {}
 
   T getCurrentScalarValue(const T &time) const override {
     return this->constantValue;
   }
+};
+
+// Alias for ConstantDriver
+template <typename T> class NullDriver : public ConstantDriver<T> {
+public:
+  explicit NullDriver(T constantValue = 0.0)
+      : ConstantDriver<T>(constantValue) {}
 };
 
 // Sine wave driver
@@ -203,10 +204,10 @@ public:
 };
 
 // Scalar driver factory - creates appropriate driver types
-template <typename T> class ScalarDriver {
+template <typename T> class ScalarDriver : public Driver<T> {
 public:
   static std::shared_ptr<Driver<T>> getConstantDriver(T constantValue) {
-    return std::make_shared<NullDriver<T>>(constantValue);
+    return std::make_shared<ConstantDriver<T>>(constantValue);
   }
 
   static std::shared_ptr<Driver<T>> getSineDriver(T constantValue, T amplitude,
@@ -226,18 +227,23 @@ public:
     return std::make_shared<StepDriver<T>>(constantValue, amplitude, timeStart,
                                            timeStop);
   }
+
+  // Implement the pure virtual function from Driver
+  T getCurrentScalarValue(const T &time) const override {
+    return this->constantValue;
+  }
 };
 
 // Axial driver - manages three scalar drivers for x, y, z components
-template <typename T> class AxialDriver {
+template <typename T> class AxialDriver : public Driver<T> {
 private:
   std::vector<std::shared_ptr<Driver<T>>> drivers;
 
 public:
   AxialDriver() {
-    this->drivers = {std::make_shared<NullDriver<T>>(),
-                     std::make_shared<NullDriver<T>>(),
-                     std::make_shared<NullDriver<T>>()};
+    this->drivers = {std::make_shared<ConstantDriver<T>>(),
+                     std::make_shared<ConstantDriver<T>>(),
+                     std::make_shared<ConstantDriver<T>>()};
   }
 
   AxialDriver(std::shared_ptr<Driver<T>> x, std::shared_ptr<Driver<T>> y,
@@ -272,6 +278,11 @@ public:
     return CVector<T>(values.x != 0.0 ? values.x / std::abs(values.x) : 0.0,
                       values.y != 0.0 ? values.y / std::abs(values.y) : 0.0,
                       values.z != 0.0 ? values.z / std::abs(values.z) : 0.0);
+  }
+
+  // Implement the pure virtual function from Driver
+  T getCurrentScalarValue(const T &time) const override {
+    throw std::runtime_error("Cannot get scalar value from AxialDriver");
   }
 };
 

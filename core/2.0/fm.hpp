@@ -21,9 +21,12 @@ private:
       ScalarDriver<T>::getConstantDriver(0.0);
   std::shared_ptr<Driver<T>> IECQuadDriverBottom =
       ScalarDriver<T>::getConstantDriver(0.0);
-  AxialDriver<T> IDMIDriverTop = AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
-  AxialDriver<T> IDMIDriverBottom =
-      AxialDriver<T>::getVectorAxialDriver(0, 0, 0);
+  std::shared_ptr<AxialDriver<T>> IDMIDriverTop =
+      std::make_shared<AxialDriver<T>>(
+          AxialDriver<T>::getVectorAxialDriver(0, 0, 0));
+  std::shared_ptr<AxialDriver<T>> IDMIDriverBottom =
+      std::make_shared<AxialDriver<T>>(
+          AxialDriver<T>::getVectorAxialDriver(0, 0, 0));
 
   bool nonStochasticTempSet = false;
   bool nonStochasticOneFSet = true;
@@ -36,13 +39,6 @@ private:
 
   CVector<T> dWn, dWn2; // one for thermal, one for OneF
 public:
-  struct BufferedNoiseParameters {
-    T alphaNoise = 1.0;
-    T scaleNoise = 0.0;
-    T stdNoise = 0.0;
-    Axis axis = Axis::all;
-  };
-  BufferedNoiseParameters noiseParams;
   std::shared_ptr<OneFNoise<T>> ofn;
   std::shared_ptr<VectorAlphaNoise<T>> bfn;
 
@@ -66,28 +62,17 @@ public:
     this->cellVolume = cellSurface * thickness;
   }
 
-  // Accessor methods
-  CVector<T> getMagnetisation() const override { return this->mag; }
-
-  void setMagnetisation(const CVector<T> &newMag) override {
-    if (newMag.length() < 1e-10) {
-      throw std::runtime_error("Magnetization vector cannot be zero!");
-    }
-    this->mag = newMag;
-    this->mag.normalize();
-  }
-
   // Fixed field calculation methods
   CVector<T> calculateExternalField(const T &time) {
-    return this->externalFieldDriver.getCurrentAxialDrivers(time);
+    return this->externalFieldDriver->getCurrentAxialDrivers(time);
   }
 
   CVector<T> calculateHOeField(const T &time) {
-    return this->HoeDriver.getCurrentAxialDrivers(time);
+    return this->HoeDriver->getCurrentAxialDrivers(time);
   }
 
   CVector<T> calculateHdmiField(const T &time) {
-    return this->HdmiDriver.getCurrentAxialDrivers(time);
+    return this->HdmiDriver->getCurrentAxialDrivers(time);
   }
 
   CVector<T> calculateAnisotropy(const CVector<T> &stepMag, const T &time) {
@@ -138,9 +123,9 @@ public:
 
   CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
                            const CVector<T> &bottom, const CVector<T> &top) {
-    return calculateIDMI_(this->IDMIDriverBottom.getCurrentAxialDrivers(time),
+    return calculateIDMI_(this->IDMIDriverBottom->getCurrentAxialDrivers(time),
                           stepMag, bottom) +
-           calculateIDMI_(this->IDMIDriverTop.getCurrentAxialDrivers(time),
+           calculateIDMI_(this->IDMIDriverTop->getCurrentAxialDrivers(time),
                           stepMag, top);
   }
 
@@ -181,7 +166,7 @@ public:
 
     // Get reserved interaction field
     CVector<T> HreservedInteractionField =
-        this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
+        this->HreservedInteractionFieldDriver->getCurrentAxialDrivers(time);
 
     // Sum all field contributions
     const CVector<T> Heff =
@@ -214,9 +199,11 @@ public:
     this->IECQuadDriverBottom = driver;
   }
 
-  void setHoeDriver(const AxialDriver<T> &driver) { this->HoeDriver = driver; }
+  void setHoeDriver(const std::shared_ptr<AxialDriver<T>> &driver) {
+    this->HoeDriver = driver;
+  }
 
-  void setIDMIDriver(const AxialDriver<T> &driver, bool top) {
+  void setIDMIDriver(const std::shared_ptr<AxialDriver<T>> &driver, bool top) {
     if (top) {
       this->IDMIDriverTop = driver;
     } else {
@@ -226,7 +213,7 @@ public:
 
   // RK4 step implementation (simplified for now)
   void rk4_step(const T &time, const T &timeStep, const CVector<T> &bottom,
-                const CVector<T> &top) {
+                const CVector<T> &top) override {
     // Basic RK4 implementation for testing
     CVector<T> m_t = this->mag;
     CVector<T> k1 = calculateLLG(time, timeStep, m_t, bottom, top) * timeStep;
