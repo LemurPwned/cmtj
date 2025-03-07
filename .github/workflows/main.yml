@@ -2,6 +2,17 @@ name: Python Package Publication
 
 on:
   pull_request:
+    branches: [master]
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '**.py'
+      - 'setup.py'
+      - 'setup.cfg'
+      - 'pyproject.toml'
+      - '**.yml'
+
+  pull_request_target:
     types: [closed]
     branches: [master]
     paths:
@@ -11,13 +22,20 @@ on:
       - 'setup.py'
       - 'setup.cfg'
       - 'pyproject.toml'
+      
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run (no actual upload to PyPI)'
+        type: boolean
+        default: true
 
 jobs:
   linux-build:
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: __token__
-      TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      IS_DRY_RUN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -29,24 +47,35 @@ jobs:
       - name: Python wheels manylinux stable build
         uses: RalfG/python-wheels-manylinux-build@v0.5.0
         with:
-          python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
-      - name: upload wheel
-        if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+          python-versions: 'cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312'
+      - name: Upload wheel testpypi
+        if: env.IS_DRY_RUN == 'true'
+        env:
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
-          python -m pip install --upgrade pip 
-          python -m pip install wheel setuptools twine packaging>=24.2
-          twine upload dist/*-manylinux*.whl
-        continue-on-error: false
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload --repository testpypi dist/*-manylinux*.whl --verbose
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}
+      - name: Upload wheel to production
+        if: env.IS_DRY_RUN == 'false'
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload dist/*-manylinux*.whl
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}  
     
   other-os-build:
     runs-on: ${{ matrix.os }}
     env:
       TWINE_USERNAME: __token__
-      TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      IS_DRY_RUN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) }}
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
     steps:
       - uses: actions/checkout@v3
         with:
@@ -61,18 +90,30 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: build wheel
         run: |
-          python -m pip install --upgrade pip 
-          python -m pip install wheel setuptools twine packaging>=24.2
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
           python setup.py bdist_wheel
-      - name: upload wheel
-        if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+      - name: Upload wheel testpypi
+        if: env.IS_DRY_RUN == 'true'
+        env:
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
-          twine upload dist/*
-        continue-on-error: false
-        
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload --repository testpypi dist/* --verbose
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}
+      - name: Upload wheel to production
+        if: env.IS_DRY_RUN == 'false'
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload dist/*
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}    
   release-build:
-    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     needs: [ linux-build, other-os-build ]
+    if: (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
