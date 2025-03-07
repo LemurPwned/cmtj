@@ -72,7 +72,7 @@ jobs:
         run: |
           if [ "$IS_DRY_RUN" == "true" ]; then
             echo "Running in dry-run mode..."
-            twine upload --repository-url https://test.pypi.org/legacy/ dist/*-manylinux*.whl || echo "Dry run - would have uploaded wheels"
+            twine upload --repository testpypi dist/*-manylinux*.whl || echo "Dry run - would have uploaded wheels"
           else
             echo "Running in production mode..."
             twine upload dist/*-manylinux*.whl
@@ -109,7 +109,7 @@ jobs:
         run: |
           if [ "$IS_DRY_RUN" == "true" ]; then
             echo "Running in dry-run mode..."
-            twine upload --repository-url https://test.pypi.org/legacy/ dist/* || echo "Dry run - would have uploaded wheels"
+            twine upload --repository testpypi dist/* || echo "Dry run - would have uploaded wheels"
           else
             echo "Running in production mode..."
             twine upload dist/*
