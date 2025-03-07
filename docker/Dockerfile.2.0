@@ -1,0 +1,16 @@
+FROM python:3.12
+
+# let's copy all the necessary files
+# we install our only 2 dependencies :) and vim for nice workflow
+RUN apt-get update && \
+    apt-get install -y build-essential libfftw3-dev git python3 python3-pip python3-dev vim
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install pybind11[global]
+WORKDIR /app
+COPY src /app/src
+COPY third_party /app/third_party
+COPY setup.py .
+COPY CMakeLists.txt .
+COPY core/ /app/core
+COPY pyproject.toml .
+RUN pip install -e .

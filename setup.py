@@ -41,6 +41,8 @@ class CMakeBuild(build_ext):
             ["cmake", "--build", "."] + build_args, cwd=build_temp
         )
 
+        print(f"Building extension to: {extdir}")
+
 setup(
     ext_modules=[CMakeExtension("pycmtj", sourcedir=".")],
     cmdclass={"build_ext": CMakeBuild},
