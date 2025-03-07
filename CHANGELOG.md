@@ -1,6 +1,6 @@
 # Changelog
 
-# 1.6.5
+# 1.6.2-1.6.6
 
 - Fixed a bug in the `ScalarDriver` class which prevented the use of custom drivers with no arguments.
 
