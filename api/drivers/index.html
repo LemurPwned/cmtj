@@ -1363,14 +1363,11 @@ http://127.0.0.1:8000/cmtj/api/core/ -->
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MyDriver</span><span class="p">(</span><span class="n">ScalarDriver</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">getCurrentScalarValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">time</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_custom_function</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">time</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
-
-<span class="n">driver</span> <span class="o">=</span> <span class="n">MyDriver</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">getCurrentScalarValue</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">))</span>
+<span class="c1"># Create a driver with this function</span>
+<span class="n">driver</span> <span class="o">=</span> <span class="n">ScalarDriver</span><span class="o">.</span><span class="n">getCustomDriver</span><span class="p">(</span><span class="n">my_custom_function</span><span class="p">)</span>
 
 <span class="n">demag</span> <span class="o">=</span> <span class="p">[</span><span class="n">CVector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">CVector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">CVector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
 <span class="n">layer</span> <span class="o">=</span> <span class="n">Layer</span><span class="p">(</span>

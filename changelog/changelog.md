@@ -1,5 +1,9 @@
 # Changelog
 
+# 1.6.2-1.6.6
+
+- Fixed a bug in the `ScalarDriver` class which prevented the use of custom drivers with no arguments.
+
 # 1.6.1
 
 - Small fixes to the noise interfaces and resistance functions.
