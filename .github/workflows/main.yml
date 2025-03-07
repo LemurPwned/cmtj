@@ -18,7 +18,18 @@ on:
         description: 'Dry run (no actual upload to PyPI)'
         type: boolean
         default: true
-    
+
+  push:
+    branches-ignore:
+      - master
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '**.py'
+      - 'setup.py'
+      - 'setup.cfg'
+      - 'pyproject.toml'
+    # When pushing to non-master branches, run with dry-run mode
 
 jobs:
   linux-build:
@@ -43,7 +54,7 @@ jobs:
         with:
           python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312'
       - name: upload wheel
-        if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && inputs.dry-run != true)
+        if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && false)
         run: |
           twine upload dist/*-manylinux*.whl
         continue-on-error: false
@@ -82,7 +93,7 @@ jobs:
         run: |
           python setup.py bdist_wheel
       - name: upload wheel
-        if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && inputs.dry-run != true)
+        if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && false)
         run: |
           twine upload dist/*
         continue-on-error: false
@@ -93,7 +104,7 @@ jobs:
         continue-on-error: true
         
   release-build:
-    if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && inputs.dry-run != true)
+    if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && false)
     needs: [ linux-build, other-os-build ]
     runs-on: ubuntu-latest
     steps:
