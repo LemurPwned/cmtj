@@ -245,6 +245,17 @@ public:
   }
 
   static ScalarDriver getCustomDriver(pybind11::function callback) {
+    if (!callback) {
+      throw std::runtime_error("Callback function is not set");
+    }
+    // check if the callback is callable has one argument
+    // Check if the callback function has exactly one argument
+    // Using cast to int to avoid type mismatch error
+    if (pybind11::cast<int>(callback.attr("__code__").attr("co_argcount")) !=
+        1) {
+      throw std::runtime_error("Callback function must have one argument");
+    }
+
     return ScalarDriver(custom, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, callback);
   }
 
@@ -287,7 +298,7 @@ public:
         return pybind11::cast<double>(m_callback(time));
       } catch (pybind11::error_already_set &e) {
         std::cerr << "Error in Python callback: " << e.what() << std::endl;
-        return 0.0;
+        throw std::runtime_error("Error in Python callback");
       }
     }
     return returnValue;

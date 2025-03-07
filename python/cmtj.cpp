@@ -166,10 +166,6 @@ PYBIND11_MODULE(cmtj, m) {
           .def(py::self += double())
           .def(py::self * double())
           .def(py::self *= double())
-          // .def(py::init<UpdateType, double, double, double, double, double, double, double, double, double, double>(),
-          //      "update"_a = constant, "constantValue"_a = 0.0, "amplitude"_a = 0.0,
-          //      "frequency"_a = -1.0, "phase"_a = 0.0, "period"_a = -1.0, "cycle"_a = -1.0,
-          //      "timeStart"_a = -1.0, "timeStop"_a = -1.0, "edgeTime"_a = -1.0, "steadyTime"_a = -1.0)
           .def("getCurrentScalarValue", &DScalarDriver::getCurrentScalarValue,
                "time"_a)
           .def_static("getConstantDriver", &DScalarDriver::getConstantDriver,
