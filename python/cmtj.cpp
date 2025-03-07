@@ -147,6 +147,18 @@ PYBIND11_MODULE(cmtj, m) {
           .value("DormandPrice", DORMAND_PRICE)
           .export_values();
 
+     py::enum_<UpdateType>(m, "UpdateType")
+          .value("constant", constant)
+          .value("pulse", pulse)
+          .value("sine", sine)
+          .value("step", step)
+          .value("posine", posine)
+          .value("halfsine", halfsine)
+          .value("trapezoid", trapezoid)
+          .value("gaussimpulse", gaussimpulse)
+          .value("gaussstep", gaussstep)
+          .value("custom", custom)
+          .export_values();
      // Driver Class
      py::class_<DScalarDriver>(m, "ScalarDriver")
           .def(py::init<>())
@@ -174,7 +186,9 @@ PYBIND11_MODULE(cmtj, m) {
                "amplitude"_a, "t0"_a, "sigma"_a)
           .def_static("getGaussianStepDriver",
                &DScalarDriver::getGaussianStepDriver, "constantValue"_a,
-               "amplitude"_a, "t0"_a, "sigma"_a);
+               "amplitude"_a, "t0"_a, "sigma"_a)
+          .def_static("getCustomDriver", &DScalarDriver::getCustomDriver,
+               "callback"_a);
 
      py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
           .def(py::init<>())
