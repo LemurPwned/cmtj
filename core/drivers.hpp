@@ -10,9 +10,10 @@
 #define _USE_MATH_DEFINES
 #include "cvector.hpp" // for CVector
 #include <cmath>       // for M_PI
-#include <stdexcept>   // for runtime_error
-#include <utility>     // for move
-#include <vector>      // for vector
+#include <pybind11/pybind11.h>
+#include <stdexcept> // for runtime_error
+#include <utility>   // for move
+#include <vector>    // for vector
 
 enum UpdateType {
   constant,
@@ -23,7 +24,8 @@ enum UpdateType {
   halfsine,
   trapezoid,
   gaussimpulse,
-  gaussstep
+  gaussstep,
+  custom = 100
 };
 
 template <typename T> class Driver {
@@ -65,14 +67,14 @@ template <typename T> class ScalarDriver : public Driver<T> {
 private:
   T edgeTime = 0;
   T steadyTime = 0;
+  pybind11::function m_callback;
 
 protected:
   T stepUpdate(T amplitude, T time, T timeStart, T timeStop) {
     if (time >= timeStart && time <= timeStop) {
       return amplitude;
-    } else {
-      return 0.0;
     }
+    return 0.0;
   }
   T pulseTrain(T amplitude, T time, T period, T cycle) {
     const int n = static_cast<int>(time / period);
@@ -80,9 +82,8 @@ protected:
     const T nT = n * period;
     if (nT <= time && time <= (nT + dT)) {
       return amplitude;
-    } else {
-      return 0;
     }
+    return 0.0;
   }
 
   T trapezoidalUpdate(T amplitude, T time, T timeStart, T edgeTime,
@@ -110,7 +111,8 @@ public:
   explicit ScalarDriver(UpdateType update = constant, T constantValue = 0,
                         T amplitude = 0, T frequency = -1, T phase = 0,
                         T period = -1, T cycle = -1, T timeStart = -1,
-                        T timeStop = -1, T edgeTime = -1, T steadyTime = -1)
+                        T timeStop = -1, T edgeTime = -1, T steadyTime = -1,
+                        pybind11::function m_callback = pybind11::function())
       : Driver<T>(update, constantValue, amplitude, frequency, phase, period,
                   cycle, timeStart, timeStop) {
     this->edgeTime = edgeTime;
@@ -122,6 +124,7 @@ public:
       throw std::runtime_error(
           "Selected sine driver type but frequency was not set");
     }
+    this->m_callback = m_callback;
   }
 
   /**
@@ -241,6 +244,10 @@ public:
                         t0, -1, sigma);
   }
 
+  static ScalarDriver getCustomDriver(pybind11::function callback) {
+    return ScalarDriver(custom, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, callback);
+  }
+
   T getCurrentScalarValue(T &time) override {
     T returnValue = this->constantValue;
     if (this->update == pulse) {
@@ -273,6 +280,15 @@ public:
           0.5 * this->amplitude *
           (1 + std::erf((time - this->timeStart) / (sqrt(2) * this->edgeTime)));
       returnValue += gaussStep;
+    } else if (this->update == custom) {
+      // If it is, call the Python function
+      pybind11::gil_scoped_acquire gil;
+      try {
+        return pybind11::cast<double>(m_callback(time));
+      } catch (pybind11::error_already_set &e) {
+        std::cerr << "Error in Python callback: " << e.what() << std::endl;
+        return 0.0;
+      }
     }
     return returnValue;
   }

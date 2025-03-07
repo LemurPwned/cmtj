@@ -1,6 +1,8 @@
-from cmtj import AxialDriver, CVector, Junction, Layer
+from cmtj import AxialDriver, CVector, Junction, Layer, ScalarDriver
 from cmtj import constantDriver, sineDriver
 import pytest
+import math
+
 
 def test_cvector_operators():
     vec1 = (1.0, 2.0, 3.0)
@@ -84,3 +86,12 @@ def test_junction_with_driver():
         AxialDriver(constantDriver(0), constantDriver(0), sineDriver(0, 1e3, 7e9, 0)),
     )
     junction.runSimulation(10e-9, 1e-13, 1e-13)
+
+
+def test_custom_driver():
+    def my_custom_function(time: float) -> float:
+        return math.sqrt(time)
+
+    driver = ScalarDriver.getCustomDriver(my_custom_function)
+    assert driver.getCurrentScalarValue(1e-9) == math.sqrt(1e-9)
+    assert driver.getCurrentScalarValue(3e-9) == math.sqrt(3e-9)

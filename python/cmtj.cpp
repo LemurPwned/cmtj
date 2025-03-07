@@ -147,6 +147,18 @@ PYBIND11_MODULE(cmtj, m) {
           .value("DormandPrice", DORMAND_PRICE)
           .export_values();
 
+     py::enum_<UpdateType>(m, "UpdateType")
+          .value("constant", constant)
+          .value("pulse", pulse)
+          .value("sine", sine)
+          .value("step", step)
+          .value("posine", posine)
+          .value("halfsine", halfsine)
+          .value("trapezoid", trapezoid)
+          .value("gaussimpulse", gaussimpulse)
+          .value("gaussstep", gaussstep)
+          .value("custom", custom)
+          .export_values();
      // Driver Class
      py::class_<DScalarDriver>(m, "ScalarDriver")
           .def(py::init<>())
@@ -154,6 +166,10 @@ PYBIND11_MODULE(cmtj, m) {
           .def(py::self += double())
           .def(py::self * double())
           .def(py::self *= double())
+          // .def(py::init<UpdateType, double, double, double, double, double, double, double, double, double, double>(),
+          //      "update"_a = constant, "constantValue"_a = 0.0, "amplitude"_a = 0.0,
+          //      "frequency"_a = -1.0, "phase"_a = 0.0, "period"_a = -1.0, "cycle"_a = -1.0,
+          //      "timeStart"_a = -1.0, "timeStop"_a = -1.0, "edgeTime"_a = -1.0, "steadyTime"_a = -1.0)
           .def("getCurrentScalarValue", &DScalarDriver::getCurrentScalarValue,
                "time"_a)
           .def_static("getConstantDriver", &DScalarDriver::getConstantDriver,
@@ -174,7 +190,9 @@ PYBIND11_MODULE(cmtj, m) {
                "amplitude"_a, "t0"_a, "sigma"_a)
           .def_static("getGaussianStepDriver",
                &DScalarDriver::getGaussianStepDriver, "constantValue"_a,
-               "amplitude"_a, "t0"_a, "sigma"_a);
+               "amplitude"_a, "t0"_a, "sigma"_a)
+          .def_static("getCustomDriver", &DScalarDriver::getCustomDriver,
+               "callback"_a);
 
      py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
           .def(py::init<>())
