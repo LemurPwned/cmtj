@@ -55,7 +55,7 @@ jobs:
         run: |
           python -m pip install wheel setuptools twine packaging
           python -m pip install --upgrade twine packaging
-          python -m twine upload --repository testpypi dist/* --verbose
+          python -m twine upload --repository testpypi dist/*-manylinux*.whl --verbose
         continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}
       - name: Upload wheel to production
         if: env.IS_DRY_RUN == 'false'
@@ -64,7 +64,7 @@ jobs:
         run: |
           python -m pip install wheel setuptools twine packaging
           python -m pip install --upgrade twine packaging
-          python -m twine upload dist/*
+          python -m twine upload dist/*-manylinux*.whl
         continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}  
     
   other-os-build:
