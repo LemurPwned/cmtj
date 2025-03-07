@@ -29,6 +29,8 @@ on:
       - 'setup.py'
       - 'setup.cfg'
       - 'pyproject.toml'
+      # this workflow is triggered by push to master
+      - '**.yml'
     # When pushing to non-master branches, run with dry-run mode
 
 jobs:
