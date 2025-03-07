@@ -1,0 +1,41 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "cmake>=3.16",
+    "ninja; platform_system!='Windows'",
+    "pybind11>=2.6.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pycmtj"
+version = "2.0.0"
+description = "Magnetic junction simulation library"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {text = "MIT"}
+authors = [
+    {name = "LemurPwned", email = "lemurpwned@gmail.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.optional-dependencies]
+utils = ["matplotlib", "numpy", "scipy", "pandas", "tqdm", "multiprocess", "numba", "sympy"]
+test = ["pytest"]
+
+[tool.setuptools]
+packages = ["pycmtj"]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+pycmtj = ["py.typed", "*.pyi"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
