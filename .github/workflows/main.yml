@@ -40,11 +40,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: 'true'
-      # installing twice seems to help with the manylinux build
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install wheel setuptools twine packaging>=24.2
       - name: Get version
         id: get_version
         run: |
@@ -57,6 +52,8 @@ jobs:
         env:
           TWINE_PASSWORD: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.merged == true && secrets.PYPI_TOKEN || secrets.TEST_PYPI_TOKEN }}
         run: |
+          python -m pip install --upgrade pip
+          python -m pip install wheel setuptools twine>=6.0.0 packaging>=24.2
           if [ "$IS_DRY_RUN" == "true" ]; then
             echo "Running in dry-run mode..."
             twine upload --repository testpypi dist/*-manylinux*.whl || echo "Dry run - would have uploaded wheels"
