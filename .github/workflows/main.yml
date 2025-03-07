@@ -1,23 +1,23 @@
 name: Python Package Publication
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [master]
-    paths:
-      - '**.cpp'
-      - '**.hpp'
-      - '**.py'
-      - 'setup.py'
-      - 'setup.cfg'
-      - 'pyproject.toml'
+  # pull_request:
+  #   types: [closed]
+  #   branches: [master]
+  #   paths:
+  #     - '**.cpp'
+  #     - '**.hpp'
+  #     - '**.py'
+  #     - 'setup.py'
+  #     - 'setup.cfg'
+  #     - 'pyproject.toml'
 
-  workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Dry run (no actual upload to PyPI)'
-        type: boolean
-        default: true
+  # workflow_dispatch:
+  #   inputs:
+  #     dry-run:
+  #       description: 'Dry run (no actual upload to PyPI)'
+  #       type: boolean
+  #       default: true
 
   push:
     branches-ignore:
@@ -53,13 +53,7 @@ jobs:
         uses: RalfG/python-wheels-manylinux-build@v0.5.0
         with:
           python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312'
-      - name: upload wheel
-        if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && false)
-        run: |
-          twine upload dist/*-manylinux*.whl
-        continue-on-error: false
       - name: dry run upload wheel
-        if: github.event_name == 'workflow_dispatch' && inputs.dry-run == true
         run: |
           twine upload --repository-url https://test.pypi.org/legacy/ dist/*-manylinux*.whl || echo "Dry run - would have uploaded wheels"
         continue-on-error: true
@@ -92,19 +86,13 @@ jobs:
       - name: build wheel
         run: |
           python setup.py bdist_wheel
-      - name: upload wheel
-        if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && false)
-        run: |
-          twine upload dist/*
-        continue-on-error: false
       - name: dry run upload wheel
-        if: github.event_name == 'workflow_dispatch' && inputs.dry-run == true
         run: |
           twine upload --repository-url https://test.pypi.org/legacy/ dist/* || echo "Dry run - would have uploaded wheels"
         continue-on-error: true
         
   release-build:
-    if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch' && false)
+    if: false  # Temporarily disabled
     needs: [ linux-build, other-os-build ]
     runs-on: ubuntu-latest
     steps:
