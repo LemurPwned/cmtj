@@ -126,7 +126,7 @@ private:
   AxialDriver<T> HreservedInteractionFieldDriver;
   // CMTJ Torque & Field drivers
   ScalarDriver<T> currentDriver;
-  ScalarDriver<T> anisotropyDriver;
+  ScalarDriver<T> anisotropyDriver, secondOrderAnisotropyDriver;
   ScalarDriver<T> fieldLikeTorqueDriver;
   ScalarDriver<T> dampingLikeTorqueDriver;
   AxialDriver<T> externalFieldDriver;
@@ -200,6 +200,7 @@ public:
   T Jbottom_log = 0.0, Jtop_log = 0.0;
   T J2bottom_log = 0.0, J2top_log = 0.0;
   T K_log = 0.0;
+  T K2_log = 0.0;
   T I_log = 0.0;
 
   // dipole and demag tensors
@@ -417,6 +418,10 @@ public:
     this->anisotropyDriver = driver;
   }
 
+  void setSecondOrderAnisotropyDriver(const ScalarDriver<T> &driver) {
+    this->secondOrderAnisotropyDriver = driver;
+  }
+
   void setExternalFieldDriver(const AxialDriver<T> &driver) {
     this->externalFieldDriver = driver;
   }
@@ -530,8 +535,10 @@ public:
     this->Hdmi = calculateHdmiField(time);
     CVector<T> HreservedInteractionField =
         this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
+    const CVector<T> HAnis2 = calculateSecondOrderAnisotropy(stepMag, time);
     const CVector<T> Heff = this->Hext     // external
                             + this->HAnis  // anistotropy
+                            + HAnis2       // second order anisotropy
                             + this->HIEC   // IEC
                             + this->Hidmi  // IDMI
                             + this->Hoe    // Oersted field
@@ -564,6 +571,15 @@ public:
     this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
     const T nom =
         (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / (this->Ms);
+    return this->anis * nom;
+  }
+
+  CVector<T> calculateSecondOrderAnisotropy(const CVector<T> &stepMag,
+                                            T &time) {
+    this->K2_log =
+        this->secondOrderAnisotropyDriver.getCurrentScalarValue(time);
+    const T nom =
+        (4 * this->K2_log) * pow(c_dot<T>(this->anis, stepMag), 3) / (this->Ms);
     return this->anis * nom;
   }
 
@@ -1137,6 +1153,11 @@ public:
                                 const ScalarDriver<T> &driver) {
     scalarlayerSetter(layerID, &Layer<T>::setAnisotropyDriver, driver);
   }
+  void setLayerSecondOrderAnisotropyDriver(const std::string &layerID,
+                                           const ScalarDriver<T> &driver) {
+    scalarlayerSetter(layerID, &Layer<T>::setSecondOrderAnisotropyDriver,
+                      driver);
+  }
   void setLayerExternalFieldDriver(const std::string &layerID,
                                    const AxialDriver<T> &driver) {
     axiallayerSetter(layerID, &Layer<T>::setExternalFieldDriver, driver);
@@ -1304,6 +1325,7 @@ public:
         // parameters const CVector<T> heff = calculateHeff(t, timeStep,
         // layer.m, layer.bottom, layer.top);
         this->log[lId + "_K"].emplace_back(layer.K_log);
+        this->log[lId + "_K2"].emplace_back(layer.K2_log);
         this->log[lId + "_Jbottom"].emplace_back(layer.Jbottom_log);
         this->log[lId + "_Jtop"].emplace_back(layer.Jtop_log);
         this->log[lId + "_I"].emplace_back(layer.I_log);
@@ -1312,6 +1334,7 @@ public:
           this->log[lId + "_Hiec" + vectorNames[i]].emplace_back(layer.HIEC[i]);
           this->log[lId + "_Hanis" + vectorNames[i]].emplace_back(
               layer.HAnis[i]);
+
           this->log[lId + "_Hdemag" + vectorNames[i]].emplace_back(
               layer.Hdemag[i]);
           this->log[lId + "_Hth" + vectorNames[i]].emplace_back(
