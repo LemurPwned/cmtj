@@ -118,8 +118,8 @@ PYBIND11_MODULE(cmtj, m) {
           .def("__getitem__",
                [](const DVector& v, const int key) { return v[key]; })
           .def("__len__", [](const DVector& v) { return 3; })
-          .def("__str__", py::overload_cast<>(&DVector::toString))
-          .def("__repr__", py::overload_cast<>(&DVector::toString))
+          .def("__str__", [](const DVector& v) { return v.toString(); })
+          .def("__repr__", [](const DVector& v) { return v.toString(); })
           .def_static("fromSpherical", &DVector::fromSpherical, "theta"_a, "phi"_a, "r"_a = 1.0);
 
      py::implicitly_convertible<std::list<double>, DVector>();
@@ -144,8 +144,22 @@ PYBIND11_MODULE(cmtj, m) {
           .value("RK4", RK4)
           .value("Heun", HEUN)
           .value("EulerHeun", EULER_HEUN)
-          .value("DormandPrice", DORMAND_PRICE)
+          .value("DormandPrince", DORMAND_PRINCE)
           .export_values();
+
+     py::class_<AdaptiveIntegrationParams<double>>(m, "AdaptiveIntegrationParams")
+          .def(py::init<>())
+          .def_readwrite("abs_tol", &AdaptiveIntegrationParams<double>::abs_tol)
+          .def_readwrite("rel_tol", &AdaptiveIntegrationParams<double>::rel_tol)
+          .def_readwrite("max_factor", &AdaptiveIntegrationParams<double>::max_factor)
+          .def_readwrite("min_factor", &AdaptiveIntegrationParams<double>::min_factor)
+          .def_readwrite("safety_factor", &AdaptiveIntegrationParams<double>::safety_factor)
+          .def_readwrite("use_pid_control", &AdaptiveIntegrationParams<double>::use_pid_control)
+          .def_readwrite("ki", &AdaptiveIntegrationParams<double>::ki)
+          .def_readwrite("kp", &AdaptiveIntegrationParams<double>::kp)
+          .def_readwrite("kd", &AdaptiveIntegrationParams<double>::kd)
+          .def_readwrite("prev_error_ratio", &AdaptiveIntegrationParams<double>::prev_error_ratio)
+          .def_readwrite("integral_error", &AdaptiveIntegrationParams<double>::integral_error);
 
      py::enum_<UpdateType>(m, "UpdateType")
           .value("constant", constant)
@@ -261,6 +275,7 @@ PYBIND11_MODULE(cmtj, m) {
           // getters
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
+          .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
           .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
 
      py::class_<DJunction>(m, "Junction")
@@ -279,7 +294,7 @@ PYBIND11_MODULE(cmtj, m) {
           .def("saveLog", &DJunction::saveLogs, "filename"_a)
           // main run
           .def("runSimulation", &DJunction::runSimulation, "totalTime"_a,
-               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "log"_a = false,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "verbose"_a = false,
                "calculateEnergies"_a = false, "solverMode"_a = RK4)
 
           // driver setters
@@ -462,7 +477,7 @@ PYBIND11_MODULE(cmtj, m) {
      py::class_<DLLGBJunction>(llgb_module, "LLGBJunction")
           .def(py::init<std::vector<DLLGBLayer>>(), "layers"_a)
           .def("runSimulation", &DLLGBJunction::runSimulation, "totalTime"_a,
-               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "log"_a = false,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "verbose"_a = false,
                "solverMode"_a = HEUN)
           .def("setLayerTemperatureDriver",
                &DLLGBJunction::setLayerTemperatureDriver)

@@ -6,7 +6,7 @@ import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.6.6"
+__version__ = "1.7.0"
 """
 As per
 https://github.com/pybind/python_example
