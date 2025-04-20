@@ -108,9 +108,25 @@ public:
   }
 };
 
+template <typename T> struct AdaptiveIntegrationParams {
+  T abs_tol = 1e-6;             // Absolute error tolerance
+  T rel_tol = 1e-3;             // Relative error tolerance
+  T max_factor = 5.0;           // Maximum allowed increase in step size
+  T min_factor = 0.1;           // Minimum allowed decrease in step size
+  T safety_factor = 0.9;        // Safety factor for step size adjustment
+  bool use_pid_control = false; // Whether to use PID control for step size
+  T ki = 0.0;                   // Integral gain for PID controller
+  T kp = 0.2;                   // Proportional gain for PID controller
+  T kd = 0.0;                   // Derivative gain for PID controller
+
+  // Previous error for PID controller
+  T prev_error_ratio = 1.0;
+  T integral_error = 0.0;
+};
+
 enum Reference { NONE = 0, FIXED, TOP, BOTTOM };
 
-enum SolverMode { EULER_HEUN = 0, RK4 = 1, DORMAND_PRICE = 2, HEUN = 3 };
+enum SolverMode { EULER_HEUN = 0, RK4 = 1, DORMAND_PRINCE = 2, HEUN = 3 };
 
 template <typename T = double> class Layer {
 private:
@@ -126,7 +142,7 @@ private:
   AxialDriver<T> HreservedInteractionFieldDriver;
   // CMTJ Torque & Field drivers
   ScalarDriver<T> currentDriver;
-  ScalarDriver<T> anisotropyDriver;
+  ScalarDriver<T> anisotropyDriver, secondOrderAnisotropyDriver;
   ScalarDriver<T> fieldLikeTorqueDriver;
   ScalarDriver<T> dampingLikeTorqueDriver;
   AxialDriver<T> externalFieldDriver;
@@ -178,6 +194,7 @@ public:
     Axis axis = Axis::all;
   };
   BufferedNoiseParameters noiseParams;
+  AdaptiveIntegrationParams<T> adaptiveParams;
   std::shared_ptr<OneFNoise<T>> ofn;
   std::shared_ptr<VectorAlphaNoise<T>> bfn;
   bool includeSTT = false;
@@ -200,6 +217,7 @@ public:
   T Jbottom_log = 0.0, Jtop_log = 0.0;
   T J2bottom_log = 0.0, J2top_log = 0.0;
   T K_log = 0.0;
+  T K2_log = 0.0;
   T I_log = 0.0;
 
   // dipole and demag tensors
@@ -319,6 +337,10 @@ public:
                     damping, fieldLikeTorque, dampingLikeTorque);
   }
 
+  void setAdaptiveParams(const AdaptiveIntegrationParams<T> &params) {
+    this->adaptiveParams = params;
+  }
+
   /**
    * @brief Get the Id object
    *
@@ -415,6 +437,10 @@ public:
 
   void setAnisotropyDriver(const ScalarDriver<T> &driver) {
     this->anisotropyDriver = driver;
+  }
+
+  void setSecondOrderAnisotropyDriver(const ScalarDriver<T> &driver) {
+    this->secondOrderAnisotropyDriver = driver;
   }
 
   void setExternalFieldDriver(const AxialDriver<T> &driver) {
@@ -530,8 +556,10 @@ public:
     this->Hdmi = calculateHdmiField(time);
     CVector<T> HreservedInteractionField =
         this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
+    const CVector<T> HAnis2 = calculateSecondOrderAnisotropy(stepMag, time);
     const CVector<T> Heff = this->Hext     // external
                             + this->HAnis  // anistotropy
+                            + HAnis2       // second order anisotropy
                             + this->HIEC   // IEC
                             + this->Hidmi  // IDMI
                             + this->Hoe    // Oersted field
@@ -564,6 +592,15 @@ public:
     this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
     const T nom =
         (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / (this->Ms);
+    return this->anis * nom;
+  }
+
+  CVector<T> calculateSecondOrderAnisotropy(const CVector<T> &stepMag,
+                                            T &time) {
+    this->K2_log =
+        this->secondOrderAnisotropyDriver.getCurrentScalarValue(time);
+    const T nom =
+        (4 * this->K2_log) * pow(c_dot<T>(this->anis, stepMag), 3) / (this->Ms);
     return this->anis * nom;
   }
 
@@ -756,6 +793,144 @@ public:
     return solveLLG(time, m, timeStep, bottom, top, heff);
   }
 
+  bool dormand_prince_step(T time, T &timeStep, const CVector<T> &bottom,
+                           const CVector<T> &top) {
+    CVector<T> m_t = this->mag;
+
+    // Constants for Dormand-Prince method
+    constexpr T c2 = 1.0 / 5.0, c3 = 3.0 / 10.0, c4 = 4.0 / 5.0, c5 = 8.0 / 9.0,
+                c6 = 1.0, c7 = 1.0;
+
+    // First stage - same as RK4
+    const CVector<T> k1 =
+        calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep) *
+        timeStep;
+
+    // Second stage
+    const CVector<T> k2 =
+        calculateLLGWithFieldTorque(time + c2 * timeStep, m_t + k1 * (c2),
+                                    bottom, top, timeStep) *
+        timeStep;
+
+    // Third stage
+    const CVector<T> k3 =
+        calculateLLGWithFieldTorque(time + c3 * timeStep,
+                                    m_t + k1 * (3.0 / 40.0) + k2 * (9.0 / 40.0),
+                                    bottom, top, timeStep) *
+        timeStep;
+
+    // Fourth stage
+    const CVector<T> k4 =
+        calculateLLGWithFieldTorque(time + c4 * timeStep,
+                                    m_t + k1 * (44.0 / 45.0) +
+                                        k2 * (-56.0 / 15.0) + k3 * (32.0 / 9.0),
+                                    bottom, top, timeStep) *
+        timeStep;
+
+    // Fifth stage
+    const CVector<T> k5 =
+        calculateLLGWithFieldTorque(
+            time + c5 * timeStep,
+            m_t + k1 * (19372.0 / 6561.0) + k2 * (-25360.0 / 2187.0) +
+                k3 * (64448.0 / 6561.0) + k4 * (-212.0 / 729.0),
+            bottom, top, timeStep) *
+        timeStep;
+
+    // Sixth stage
+    const CVector<T> k6 =
+        calculateLLGWithFieldTorque(
+            time + c6 * timeStep,
+            m_t + k1 * (9017.0 / 3168.0) + k2 * (-355.0 / 33.0) +
+                k3 * (46732.0 / 5247.0) + k4 * (49.0 / 176.0) +
+                k5 * (-5103.0 / 18656.0),
+            bottom, top, timeStep) *
+        timeStep;
+
+    // Seventh stage (k7) - will be used as k1 for next step (FSAL property)
+    const CVector<T> k7 = calculateLLGWithFieldTorque(
+                              time + c7 * timeStep,
+                              m_t + k1 * (35.0 / 384.0) +
+                                  k3 * (500.0 / 1113.0) + k4 * (125.0 / 192.0) +
+                                  k5 * (-2187.0 / 6784.0) + k6 * (11.0 / 84.0),
+                              bottom, top, timeStep) *
+                          timeStep;
+
+    // 5th order solution
+    CVector<T> m_t5 = m_t + k1 * (35.0 / 384.0) + k3 * (500.0 / 1113.0) +
+                      k4 * (125.0 / 192.0) + k5 * (-2187.0 / 6784.0) +
+                      k6 * (11.0 / 84.0);
+
+    // 4th order solution
+    CVector<T> m_t4 = m_t + k1 * (5179.0 / 57600.0) + k3 * (7571.0 / 16695.0) +
+                      k4 * (393.0 / 640.0) + k5 * (-92097.0 / 339200.0) +
+                      k6 * (187.0 / 2100.0) + k7 * (1.0 / 40.0);
+
+    // Error estimation
+    CVector<T> error = m_t5 - m_t4;
+    T error_norm = error.length();
+
+    // Calculate tolerance based on absolute and relative tolerances
+    T tol = adaptiveParams.abs_tol + adaptiveParams.rel_tol * m_t.length();
+    T error_ratio = error_norm / tol;
+
+    // Prevent division by zero or other numerical issues
+    if (tol < 1e-15 || isnan(error_ratio) || isinf(error_ratio)) {
+      error_ratio = 10.0; // Force a smaller timestep but avoid NaN
+    }
+
+    // Step size control
+    T factor;
+    if (adaptiveParams.use_pid_control) {
+      // PID controller for step size
+      // TODO: Test it a bit more
+      T e_n = log(error_ratio);
+      adaptiveParams.integral_error += e_n;
+      factor = exp(adaptiveParams.kp * e_n +
+                   adaptiveParams.ki * adaptiveParams.integral_error +
+                   adaptiveParams.kd * (e_n - adaptiveParams.prev_error_ratio));
+      adaptiveParams.prev_error_ratio = e_n;
+    } else {
+      // Standard controller (error-based)
+      factor = adaptiveParams.safety_factor * pow(1.0 / error_ratio, 0.2);
+    }
+
+    // Check for numerical errors in factor calculation
+    if (isnan(factor) || isinf(factor)) {
+      factor = adaptiveParams.min_factor; // Default to reducing timestep
+    }
+
+    // Limit the factor to avoid too large/small steps
+    factor = std::min(factor, adaptiveParams.max_factor);
+    factor = std::max(factor, adaptiveParams.min_factor);
+
+    // Calculate new step size
+    T new_timestep = timeStep * factor;
+
+    // Ensure new timestep is valid
+    if (isnan(new_timestep) || isinf(new_timestep) || new_timestep <= 0) {
+      new_timestep = timeStep * adaptiveParams.min_factor;
+    }
+
+    // Accept or reject the step
+    if (error_ratio <= 1.0) {
+      // Accept step - update magnetization (using 5th order solution)
+      m_t5.normalize();
+      this->mag = m_t5;
+
+      if (isnan(this->mag.x)) {
+        throw std::runtime_error("NAN magnetisation");
+      }
+
+      // Update the timeStep for next iteration
+      timeStep = new_timestep;
+      return true; // Step was accepted
+    } else {
+      // Reject step - don't update magnetization, just reduce the step size
+      timeStep = new_timestep;
+      return false; // Step was rejected
+    }
+  }
+
   /**
    * @brief RK4 step of the LLG equation.
    * Compute the LLG time step. The efficient field vectors is calculated
@@ -769,7 +944,7 @@ public:
    * m). For IEC interaction.
    * @param timeStep: RK45 integration step.
    */
-  void rk4_step(T time, T timeStep, const CVector<T> &bottom,
+  bool rk4_step(T time, T &timeStep, const CVector<T> &bottom,
                 const CVector<T> &top) {
     CVector<T> m_t = this->mag;
     const CVector<T> k1 =
@@ -792,6 +967,7 @@ public:
     if (isnan(this->mag.x)) {
       throw std::runtime_error("NAN magnetisation");
     }
+    return true;
   }
 
   /**
@@ -807,7 +983,7 @@ public:
    * m). For IEC interaction.
    * @param timeStep: RK45 integration step.
    */
-  void rk4_stepDipoleInjection(T time, T timeStep, const CVector<T> &bottom,
+  void rk4_stepDipoleInjection(T time, T &timeStep, const CVector<T> &bottom,
                                const CVector<T> &top,
                                const CVector<T> &dipole) {
     CVector<T> m_t = this->mag;
@@ -1137,6 +1313,11 @@ public:
                                 const ScalarDriver<T> &driver) {
     scalarlayerSetter(layerID, &Layer<T>::setAnisotropyDriver, driver);
   }
+  void setLayerSecondOrderAnisotropyDriver(const std::string &layerID,
+                                           const ScalarDriver<T> &driver) {
+    scalarlayerSetter(layerID, &Layer<T>::setSecondOrderAnisotropyDriver,
+                      driver);
+  }
   void setLayerExternalFieldDriver(const std::string &layerID,
                                    const AxialDriver<T> &driver) {
     axiallayerSetter(layerID, &Layer<T>::setExternalFieldDriver, driver);
@@ -1304,6 +1485,7 @@ public:
         // parameters const CVector<T> heff = calculateHeff(t, timeStep,
         // layer.m, layer.bottom, layer.top);
         this->log[lId + "_K"].emplace_back(layer.K_log);
+        this->log[lId + "_K2"].emplace_back(layer.K2_log);
         this->log[lId + "_Jbottom"].emplace_back(layer.Jbottom_log);
         this->log[lId + "_Jtop"].emplace_back(layer.Jtop_log);
         this->log[lId + "_I"].emplace_back(layer.I_log);
@@ -1312,6 +1494,7 @@ public:
           this->log[lId + "_Hiec" + vectorNames[i]].emplace_back(layer.HIEC[i]);
           this->log[lId + "_Hanis" + vectorNames[i]].emplace_back(
               layer.HAnis[i]);
+
           this->log[lId + "_Hdemag" + vectorNames[i]].emplace_back(
               layer.Hdemag[i]);
           this->log[lId + "_Hth" + vectorNames[i]].emplace_back(
@@ -1370,9 +1553,10 @@ public:
     logFile.close();
   }
 
-  typedef void (Layer<T>::*solverFn)(T t, T timeStep, const CVector<T> &bottom,
+  typedef bool (Layer<T>::*solverFn)(T t, T &timeStep, const CVector<T> &bottom,
                                      const CVector<T> &top);
-  typedef void (Junction<T>::*runnerFn)(solverFn &functor, T &t, T &timeStep);
+  typedef void (Junction<T>::*runnerFn)(solverFn &functor, T &t, T &timeStep,
+                                        bool &step_accepted);
   /**
    * @brief Run Euler-Heun or RK4 method for a single layer.
    *
@@ -1383,9 +1567,10 @@ public:
    * @param t: current time
    * @param timeStep: integration step
    */
-  void runSingleLayerSolver(solverFn &functor, T &t, T &timeStep) {
-    CVector<T> null;
-    (this->layers[0].*functor)(t, timeStep, null, null);
+  void runSingleLayerSolver(solverFn &functor, T &t, T &timeStep,
+                            bool &step_accepted) {
+    const CVector<T> dummy(0, 0, 0);
+    step_accepted = (layers[0].*functor)(t, timeStep, dummy, dummy);
   }
 
   /**
@@ -1396,20 +1581,35 @@ public:
    * @param t: current time
    * @param timeStep: integration step
    * */
-  void runMultiLayerSolver(solverFn &functor, T &t, T &timeStep) {
-    // initialise with 0 CVectors
-    std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
-    // the first and the last layer get 0 vector coupled
-    for (unsigned int i = 0; i < this->layerNo; i++) {
-      magCopies[i + 1] = this->layers[i].mag;
+  void runMultiLayerSolver(solverFn &functor, T &t, T &timeStep,
+                           bool &step_accepted) {
+    // Run solver for each layer and check if all steps were accepted
+    step_accepted = true;
+    for (unsigned int i = 0; i < layerNo; i++) {
+      const CVector<T> bottom =
+          (i > 0) ? layers[i - 1].mag : CVector<T>(0, 0, 0);
+      const CVector<T> top =
+          (i < layerNo - 1) ? layers[i + 1].mag : CVector<T>(0, 0, 0);
+
+      // If any layer rejects the step, the whole step is rejected
+      if (!(layers[i].*functor)(t, timeStep, bottom, top)) {
+        step_accepted = false;
+      }
     }
 
-    for (unsigned int i = 0; i < this->layerNo; i++) {
-      (this->layers[i].*functor)(t, timeStep, magCopies[i], magCopies[i + 2]);
+    // If any layer rejected, we need the smallest timestep among all layers
+    if (!step_accepted) {
+      T min_timestep = timeStep;
+      for (unsigned int i = 0; i < layerNo; i++) {
+        // Assuming each layer has its own timeStep that was updated
+        min_timestep = std::min(min_timestep, layers[i].hopt);
+      }
+      timeStep = min_timestep;
     }
   }
 
-  void eulerHeunSolverStep(solverFn &functor, T &t, T &timeStep) {
+  void eulerHeunSolverStep(solverFn &functor, T &t, T &timeStep,
+                           bool &step_accepted) {
     /*
         Euler Heun method (stochastic heun)
 
@@ -1455,7 +1655,8 @@ public:
     }
   }
 
-  void heunSolverStep(solverFn &functor, T &t, T &timeStep) {
+  void heunSolverStep(solverFn &functor, T &t, T &timeStep,
+                      bool &step_accepted) {
     /*
         Heun method
         y'(t+1) = y(t) + dy(y, t)
@@ -1617,7 +1818,8 @@ public:
       }
     }
     auto solver = &Layer<T>::rk4_step;
-
+    if (localMode == DORMAND_PRINCE)
+      solver = &Layer<T>::dormand_prince_step;
     // assign a runner function pointer from junction
     auto runner = &Junction<T>::runMultiLayerSolver;
     if (this->layerNo == 1)
@@ -1643,13 +1845,12 @@ public:
    * is false
    * @param calculateEnergies: [WORK IN PROGRESS] log energy values to the log.
    * Default is false.
-   * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRICE
+   * @param mode: Solver mode EULER_HEUN, RK4 or DORMAND_PRINCE
    */
   void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
-                     bool log = false, bool calculateEnergies = false,
-                     SolverMode mode = RK4)
+                     bool verbose = false, bool calculateEnergies = false,
+                     SolverMode mode = RK4) {
 
-  {
     if (timeStep > writeFrequency) {
       throw std::runtime_error(
           "The time step cannot be larger than write frequency!");
@@ -1661,19 +1862,93 @@ public:
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
     // pick a solver based on drivers
-    auto [runner, solver, _] = getSolver(mode, totalIterations);
+    auto [runner, solver, solver_mode] = getSolver(mode, totalIterations);
+    T t = 0.0;
+    T next_write_time = 0.0;
+    T current_timestep = timeStep;
+    if (solver_mode != DORMAND_PRINCE) {
+      // assign parameters
+      const unsigned int totalIterations =
+          static_cast<unsigned int>(totalTime / timeStep);
+      const unsigned int writeEvery =
+          static_cast<unsigned int>(writeFrequency / timeStep);
 
-    for (unsigned int i = 0; i < totalIterations; i++) {
-      T t = i * timeStep;
-      (*this.*runner)(solver, t, timeStep);
+      for (unsigned int i = 0; i < totalIterations; i++) {
+        t = i * timeStep;
+        bool step_accepted = true;
+        (*this.*runner)(solver, t, timeStep, step_accepted);
 
-      if (!(i % writeEvery)) {
-        logLayerParams(t, timeStep, calculateEnergies);
+        if (!(i % writeEvery)) {
+          logLayerParams(t, timeStep, calculateEnergies);
+        }
+      }
+    } else {
+      T t = 0.0;
+      T next_write_time = 0.0;
+      T current_timestep = timeStep;
+      int consecutive_rejections = 0;
+      const unsigned int max_rejections = 10;
+      const T min_timestep_threshold = 1e-15;
+      while (t < totalTime) {
+        // Ensure we don't exceed totalTime
+        if (t + current_timestep > totalTime) {
+          current_timestep = totalTime - t;
+        }
+        consecutive_rejections = 0;
+        // Check for NaN in timestep and fix it
+        if (isnan(current_timestep) || isinf(current_timestep) ||
+            current_timestep <= 0) {
+          std::cout << "Warning: Invalid timestep detected (NaN/Inf). "
+                       "Resetting to initial timestep at t="
+                    << t << std::endl;
+          current_timestep = timeStep; // Reset to initial timestep
+          consecutive_rejections++;    // Count this as a rejection
+        }
+
+        // Run one step with adaptive timestep and check if accepted
+        bool step_accepted = false;
+
+        // Minimum timestep threshold (can be adjusted based on needs)
+
+        if (layerNo > 1) {
+          // For multi-layer systems
+          runMultiLayerSolver(solver, t, current_timestep, step_accepted);
+        } else {
+          // For single layer systems
+          runSingleLayerSolver(solver, t, current_timestep, step_accepted);
+        }
+
+        // Force acceptance if timestep is too small or too many consecutive
+        // rejections
+        if (!step_accepted && (current_timestep < min_timestep_threshold ||
+                               consecutive_rejections >= max_rejections)) {
+          step_accepted = true;
+          consecutive_rejections = 0;
+          std::cout << "Warning: Forcing step acceptance after multiple "
+                       "rejections or tiny timestep at t="
+                    << t << ", dt=" << current_timestep << std::endl;
+        }
+
+        // If step was accepted, update time and possibly log
+        if (step_accepted) {
+          t += current_timestep;
+          consecutive_rejections = 0;
+
+          // Log data at regular intervals based on writeFrequency
+          if (t >= next_write_time) {
+            logLayerParams(t, current_timestep, calculateEnergies);
+            next_write_time =
+                ((static_cast<unsigned int>(t / writeFrequency) + 1) *
+                 writeFrequency);
+          }
+        } else {
+          consecutive_rejections++;
+        }
       }
     }
     std::chrono::steady_clock::time_point end =
         std::chrono::steady_clock::now();
-    if (log) {
+    if (verbose) {
       std::cout << "Steps in simulation: " << totalIterations << std::endl;
       std::cout << "Write every: " << writeEvery << std::endl;
       std::cout << "Simulation time = "
