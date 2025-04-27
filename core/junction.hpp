@@ -143,8 +143,8 @@ private:
   // CMTJ Torque & Field drivers
   ScalarDriver<T> currentDriver;
   ScalarDriver<T> anisotropyDriver, secondOrderAnisotropyDriver;
-  ScalarDriver<T> fieldLikeTorqueDriver;
-  ScalarDriver<T> dampingLikeTorqueDriver;
+  ScalarDriver<T> fieldLikeTorqueDriver, fieldLikeTorqueDriver2;
+  ScalarDriver<T> dampingLikeTorqueDriver, dampingLikeTorqueDriver2;
   AxialDriver<T> externalFieldDriver;
   AxialDriver<T> HoeDriver, HdmiDriver;
 
@@ -207,7 +207,8 @@ public:
   T thickness = 0.0;
   T cellVolume = 0.0, cellSurface = 0.0;
 
-  CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer;
+  CVector<T> H_log, Hoe_log, Hconst, mag, anis, referenceLayer,
+      secondaryReferenceLayer;
   CVector<T> Hext, Hdipole, Hdemag, Hoe, HAnis, Hthermal, Hfluctuation, Hdmi,
       Hidmi;
 
@@ -413,7 +414,7 @@ public:
     this->currentDriver = driver;
   }
 
-  void setFieldLikeTorqueDriver(const ScalarDriver<T> &driver) {
+  void setTorqueParameters() {
     this->includeSOT = true;
     if (this->includeSTT)
       throw std::runtime_error(
@@ -421,18 +422,41 @@ public:
     if (!this->dynamicSOT)
       throw std::runtime_error(
           "used a static SOT definition, now trying to set it dynamically!");
+  }
+
+  void setFieldLikeTorqueDriver(const ScalarDriver<T> &driver) {
+    setTorqueParameters();
     this->fieldLikeTorqueDriver = driver;
   }
 
   void setDampingLikeTorqueDriver(const ScalarDriver<T> &driver) {
-    this->includeSOT = true;
-    if (this->includeSTT)
-      throw std::runtime_error(
-          "includeSTT was on and now setting SOT interaction!");
-    if (!this->dynamicSOT)
-      throw std::runtime_error(
-          "used a static SOT definition, now trying to set it dynamically!");
+    setTorqueParameters();
     this->dampingLikeTorqueDriver = driver;
+  }
+
+  void setSecondaryFieldLikeTorqueDriver(const ScalarDriver<T> &driver) {
+    setTorqueParameters();
+    this->fieldLikeTorqueDriver2 = driver;
+  }
+
+  void setSecondaryDampingLikeTorqueDriver(const ScalarDriver<T> &driver) {
+    setTorqueParameters();
+    this->dampingLikeTorqueDriver2 = driver;
+  }
+
+  void setPrimaryTorqueDrivers(const ScalarDriver<T> &fieldLikeTorqueDriver,
+                               const ScalarDriver<T> &dampingLikeTorqueDriver) {
+    setTorqueParameters();
+    this->fieldLikeTorqueDriver = fieldLikeTorqueDriver;
+    this->dampingLikeTorqueDriver = dampingLikeTorqueDriver;
+  }
+
+  void
+  setSecondaryTorqueDrivers(const ScalarDriver<T> &fieldLikeTorqueDriver,
+                            const ScalarDriver<T> &dampingLikeTorqueDriver) {
+    setTorqueParameters();
+    this->fieldLikeTorqueDriver2 = fieldLikeTorqueDriver;
+    this->dampingLikeTorqueDriver2 = dampingLikeTorqueDriver;
   }
 
   void setAnisotropyDriver(const ScalarDriver<T> &driver) {
@@ -450,12 +474,12 @@ public:
     this->HoeDriver = driver;
   }
 
-  void setMagnetisation(CVector<T> &mag) {
-    if (mag.length() == 0) {
+  void setMagnetisation(const CVector<T> &newMag) {
+    if (newMag.length() == 0) {
       throw std::runtime_error(
           "Initial magnetisation was set to a zero vector!");
     }
-    this->mag = mag;
+    this->mag = newMag;
     this->mag.normalize();
   }
 
@@ -502,6 +526,11 @@ public:
     this->referenceType = FIXED;
   }
 
+  void setSecondaryReferenceLayer(const CVector<T> &reference) {
+    this->secondaryReferenceLayer = reference;
+    this->referenceType = FIXED;
+  }
+
   /**
    * @brief Set reference layer with enum
    * Can be used to refer to other layers in stack as reference
@@ -522,6 +551,10 @@ public:
   CVector<T> getReferenceLayer() {
     // TODO: return other mags when the reference layer is not fixed.
     return this->referenceLayer;
+  }
+
+  CVector<T> getSecondaryReferenceLayer() {
+    return this->secondaryReferenceLayer;
   }
 
   /**
@@ -721,26 +754,49 @@ public:
               fieldLike * sttTerm * this->beta) *
              convTerm;
     } else if (this->includeSOT) {
-      T Hdl, Hfl;
-      // I log current density
-      // use SOT formulation with effective DL and FL fields
+      T Hdl = 0, Hfl = 0, Hdl2 = 0, Hfl2 = 0;
+
+      // Get SOT field values - either from drivers or using current
       if (this->dynamicSOT) {
-        // dynamic SOT is set when the driver is present
         Hdl = this->dampingLikeTorqueDriver.getCurrentScalarValue(time);
         Hfl = this->fieldLikeTorqueDriver.getCurrentScalarValue(time);
+        Hdl2 = this->dampingLikeTorqueDriver2.getCurrentScalarValue(time);
+        Hfl2 = this->fieldLikeTorqueDriver2.getCurrentScalarValue(time);
       } else {
         this->I_log = this->currentDriver.getCurrentScalarValue(time);
         Hdl = this->dampingLikeTorque * this->I_log;
         Hfl = this->fieldLikeTorque * this->I_log;
       }
+
+      // Calculate field vectors
       this->Hfl_v = reference * (Hfl - this->damping * Hdl);
       this->Hdl_v = reference * (Hdl + this->damping * Hfl);
-      const CVector<T> cm = c_cross<T>(m, reference);
-      const CVector<T> ccm = c_cross<T>(m, cm);
-      const CVector<T> flTorque = cm * (Hfl - this->damping * Hdl);
-      const CVector<T> dlTorque = ccm * (Hdl + this->damping * Hfl);
-      return (dmdt + flTorque + dlTorque) * -GYRO * convTerm;
+      const CVector<T> Hfl2_v =
+          secondaryReferenceLayer * (Hfl2 - this->damping * Hdl2);
+      const CVector<T> Hdl2_v =
+          secondaryReferenceLayer * (Hdl2 + this->damping * Hfl2);
+
+      // Calculate torques
+      const CVector<T> cm_primary = c_cross<T>(m, reference);
+      const CVector<T> ccm_primary = c_cross<T>(m, cm_primary);
+      const CVector<T> cm_secondary = c_cross<T>(m, secondaryReferenceLayer);
+      const CVector<T> ccm_secondary = c_cross<T>(m, cm_secondary);
+
+      // Primary and secondary torque components
+      const CVector<T> flTorque_primary =
+          cm_primary * (Hfl - this->damping * Hdl);
+      const CVector<T> dlTorque_primary =
+          ccm_primary * (Hdl + this->damping * Hfl);
+      const CVector<T> flTorque_secondary =
+          cm_secondary * (Hfl2 - this->damping * Hdl2);
+      const CVector<T> dlTorque_secondary =
+          ccm_secondary * (Hdl2 + this->damping * Hfl2);
+
+      return (dmdt + flTorque_primary + dlTorque_primary + flTorque_secondary +
+              dlTorque_secondary) *
+             -GYRO * convTerm;
     }
+
     return dmdt * -GYRO * convTerm;
   }
 
@@ -1075,7 +1131,7 @@ public:
 
   MRmode MR_mode;
   std::vector<Layer<T>> layers;
-  T Rp, Rap = 0.0;
+  T Rp = 0.0, Rap = 0.0;
 
   std::vector<T> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
   std::unordered_map<std::string, std::vector<T>> log;
@@ -1338,6 +1394,38 @@ public:
                                      const ScalarDriver<T> &driver) {
     scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorqueDriver, driver);
   }
+
+  void setLayerSecondaryFieldLikeTorqueDriver(const std::string &layerID,
+                                              const ScalarDriver<T> &driver) {
+    scalarlayerSetter(layerID, &Layer<T>::setSecondaryFieldLikeTorqueDriver,
+                      driver);
+  }
+
+  void setLayerSecondaryDampingLikeTorqueDriver(const std::string &layerID,
+                                                const ScalarDriver<T> &driver) {
+    scalarlayerSetter(layerID, &Layer<T>::setSecondaryDampingLikeTorqueDriver,
+                      driver);
+  }
+
+  void
+  setLayerPrimaryTorqueDrivers(const std::string &layerID,
+                               const ScalarDriver<T> &fieldLikeTorqueDriver,
+                               const ScalarDriver<T> &dampingLikeTorqueDriver) {
+    scalarlayerSetter(layerID, &Layer<T>::setFieldLikeTorqueDriver,
+                      fieldLikeTorqueDriver);
+    scalarlayerSetter(layerID, &Layer<T>::setDampingLikeTorqueDriver,
+                      dampingLikeTorqueDriver);
+  }
+
+  void setLayerSecondaryTorqueDrivers(
+      const std::string &layerID, const ScalarDriver<T> &fieldLikeTorqueDriver,
+      const ScalarDriver<T> &dampingLikeTorqueDriver) {
+    scalarlayerSetter(layerID, &Layer<T>::setSecondaryFieldLikeTorqueDriver,
+                      fieldLikeTorqueDriver);
+    scalarlayerSetter(layerID, &Layer<T>::setSecondaryDampingLikeTorqueDriver,
+                      dampingLikeTorqueDriver);
+  }
+
   void setLayerReservedInteractionField(const std::string &layerID,
                                         const AxialDriver<T> &driver) {
     axiallayerSetter(layerID, &Layer<T>::setReservedInteractionField, driver);
@@ -1865,7 +1953,6 @@ public:
     auto [runner, solver, solver_mode] = getSolver(mode, totalIterations);
     T t = 0.0;
     T next_write_time = 0.0;
-    T current_timestep = timeStep;
     if (solver_mode != DORMAND_PRINCE) {
       // assign parameters
       const unsigned int totalIterations =

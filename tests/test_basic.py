@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import pytest
 import numpy as np
 from cmtj import Junction, AxialDriver, CVector, Layer, ScalarDriver
