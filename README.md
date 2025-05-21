@@ -126,6 +126,19 @@ The package requires (if `utils` subpackage is used):
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj).
 There are many examples available, check out the [examples section in the docs](https://lemurpwned.github.io/cmtj/experimental-methods/introduction/)
 
+## Gradio LLM Agent
+
+An experimental Gradio interface for generating CMTJ simulation scripts with a
+language model is provided in `view/gradio_agent.py`.
+
+```bash
+python view/gradio_agent.py
+```
+
+The agent uses `LlamaIndex` to index the repository examples and
+`memory.io` for short term memory. It iteratively verifies that the produced
+code executes without errors (up to three attempts).
+
 ## Extensions
 
 There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the _PyMag_ project. It uses CMTJ as a backend for fast computation.
