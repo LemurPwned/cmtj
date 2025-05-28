@@ -12,7 +12,7 @@ CRITICAL SIMULATION MECHANISMS:
    temperature to capture random magnetization switching events
 2. Spin-Transfer Torque (STT): Models current-induced torque with Slonczewski formalism
    including both parallel and perpendicular torque components
-3. Superparamagnetic Regime: Uses reduced magnetic volume and moderate anisotropy to
+3. Uses reduced magnetic volume and moderate anisotropy to
    enable thermal activation over energy barriers
 4. Statistical Sampling: Performs multiple simulation runs with different initial
    conditions to build statistical distributions of switching behavior
