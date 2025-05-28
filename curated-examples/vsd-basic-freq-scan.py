@@ -131,10 +131,7 @@ def simulate_lorentz(Ms, Ku, frequency, orient, alpha=1e-4, Irf=0.5e-3):
             l=[l],
             w=[w],
         )
-        if orient == "2p":
-            dynamicR = dynamicRx
-        else:
-            dynamicR = dynamicRy
+        dynamicR = dynamicRx if orient == "2p" else dynamicRy
         dynamicI = Irf * np.sin(2 * math.pi * frequency * np.asarray(log["time"]))
         vmix = compute_vsd2(dynamicR, INT_STEP, dynamicI)
         Hsweep[i] = vmix
