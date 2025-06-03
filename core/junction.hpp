@@ -1673,14 +1673,14 @@ public:
                            bool &step_accepted) {
     // Run solver for each layer and check if all steps were accepted
     step_accepted = true;
-    for (unsigned int i = 0; i < layerNo; i++) {
-      const CVector<T> bottom =
-          (i > 0) ? layers[i - 1].mag : CVector<T>(0, 0, 0);
-      const CVector<T> top =
-          (i < layerNo - 1) ? layers[i + 1].mag : CVector<T>(0, 0, 0);
+    std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
+    // the first and the last layer get 0 vector coupled
+    for (unsigned int i = 0; i < this->layerNo; i++)
+      magCopies[i + 1] = this->layers[i].mag;
 
+    for (unsigned int i = 0; i < layerNo; i++) {
       // If any layer rejects the step, the whole step is rejected
-      if (!(layers[i].*functor)(t, timeStep, bottom, top)) {
+      if (!(layers[i].*functor)(t, timeStep, magCopies[i], magCopies[i + 2])) {
         step_accepted = false;
       }
     }
