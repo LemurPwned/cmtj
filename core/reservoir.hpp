@@ -33,10 +33,11 @@ void comb(int N, int K) {
 typedef std::array<CVector<double>, 3> tensor;
 typedef std::vector<tensor> tensorList;
 template <typename T>
-using solverFn = void (Layer<T>::*)(T t, T timeStep, const CVector<T> &bottom,
+using solverFn = bool (Layer<T>::*)(T t, T &timeStep, const CVector<T> &bottom,
                                     const CVector<T> &top);
 template <typename T>
-using runnerFn = void (Junction<T>::*)(solverFn<T> &functor, T &t, T &timeStep);
+using runnerFn = void (Junction<T>::*)(solverFn<T> &functor, T &t, T &timeStep,
+                                       bool &step_accepted);
 
 const tensor getDipoleTensorFromRelPositions(const CVector<double> &r1,
                                              const CVector<double> &r2) {
@@ -131,9 +132,10 @@ class GroupInteraction {
   interactionFunction interactionFunc = computeDipoleInteraction;
   unsigned int noElements;
 
-  void stepFunctionalSolver(double time, double timeStep,
+  void stepFunctionalSolver(double time, double &timeStep,
                             interactionFunction interaction,
-                            runnerFn<double> runner, solverFn<double> solver) {
+                            runnerFn<double> runner, solverFn<double> solver,
+                            bool &step_accepted) {
     // collect all frozen states
     // for each element, compute the extra field from all other elements
     for (unsigned int i = 0; i < this->noElements; i++) {
@@ -151,7 +153,7 @@ class GroupInteraction {
     }
     // step the solver with the extra field
     for (unsigned int i = 0; i < this->noElements; i++) {
-      (this->junctionList[i].*runner)(solver, time, timeStep);
+      (this->junctionList[i].*runner)(solver, time, timeStep, step_accepted);
     }
   }
 
@@ -216,10 +218,11 @@ public:
           " Do not mix stochastic and deterministic solvers!");
     }
 
+    bool step_accepted = true;
     for (unsigned int i = 0; i < totalIterations; i++) {
       double t = i * timeStep;
       stepFunctionalSolver(t, timeStep, this->interactionFunc, localRunner,
-                           solver);
+                           solver, step_accepted);
 
       if (!(i % writeEvery)) {
         for (auto &jun : this->junctionList)

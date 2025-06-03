@@ -61,7 +61,7 @@ def compute_resistance(
     for i in range(number_of_layers):
         w_l = w[i] / l[i]
         SxAll[i] = Rx0[i] + (AMR[i] * m[i, 0] ** 2 + SMR[i] * m[i, 1] ** 2)
-        SyAll[i] = Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) * (SMR[i] - AMR[i]) * m[i, 0] * m[i, 1]
+        SyAll[i] = Ry0[i] + 0.5 * AHE[i] * m[i, 2] + (w_l) * (SMR[i] + AMR[i]) * m[i, 0] * m[i, 1]
     return SxAll, SyAll
 
 
