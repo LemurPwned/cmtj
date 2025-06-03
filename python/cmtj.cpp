@@ -254,9 +254,16 @@ PYBIND11_MODULE(cmtj, m) {
                py::overload_cast<const DVector&>(&DLayer::setReferenceLayer))
           .def("setReferenceLayer",
                py::overload_cast<Reference>(&DLayer::setReferenceLayer))
-
+          .def("setSecondaryReferenceLayer",
+               &DLayer::setSecondaryReferenceLayer)
+          // drivers
           .def("setFieldLikeTorqueDriver", &DLayer::setFieldLikeTorqueDriver)
           .def("setDampingLikeTorqueDriver", &DLayer::setDampingLikeTorqueDriver)
+          .def("setSecondaryFieldLikeTorqueDriver", &DLayer::setSecondaryFieldLikeTorqueDriver)
+          .def("setSecondaryDampingLikeTorqueDriver", &DLayer::setSecondaryDampingLikeTorqueDriver)
+          .def("setPrimaryTorqueDrivers", &DLayer::setPrimaryTorqueDrivers, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+          .def("setSecondaryTorqueDrivers", &DLayer::setSecondaryTorqueDrivers, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+
           .def("setTemperatureDriver", &DLayer::setTemperatureDriver)
           .def("setTopDipoleTensor", &DLayer::setTopDipoleTensor)
           .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor)
@@ -273,6 +280,8 @@ PYBIND11_MODULE(cmtj, m) {
           .def("setAlphaNoise", &DLayer::setAlphaNoise, "alpha"_a, "std"_a, "scale"_a, "axis"_a = Axis::all)
           .def("setOneFNoise", &DLayer::setOneFNoise)
           // getters
+          .def("getReferenceLayer", &DLayer::getReferenceLayer, py::return_value_policy::reference)
+          .def("getSecondaryReferenceLayer", &DLayer::getSecondaryReferenceLayer, py::return_value_policy::reference)
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
           .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
@@ -321,6 +330,14 @@ PYBIND11_MODULE(cmtj, m) {
                &DJunction::setLayerFieldLikeTorqueDriver)
           .def("setLayerDampingLikeTorqueDriver",
                &DJunction::setLayerDampingLikeTorqueDriver)
+          .def("setLayerSecondaryFieldLikeTorqueDriver",
+               &DJunction::setLayerSecondaryFieldLikeTorqueDriver)
+          .def("setLayerSecondaryDampingLikeTorqueDriver",
+               &DJunction::setLayerSecondaryDampingLikeTorqueDriver)
+          .def("setLayerPrimaryTorqueDrivers",
+               &DJunction::setLayerPrimaryTorqueDrivers, "layerId"_a, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+          .def("setLayerSecondaryTorqueDrivers",
+               &DJunction::setLayerSecondaryTorqueDrivers, "layerId"_a, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
           // Reference setters
           .def("setLayerReferenceType", &DJunction::setLayerReferenceType)
           .def("setLayerReferenceLayer", &DJunction::setLayerReferenceLayer)
