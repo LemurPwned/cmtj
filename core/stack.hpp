@@ -21,6 +21,9 @@ private:
   std::unordered_map<std::string, std::vector<T>> stackLog;
   bool currentDriverSet = false;
 
+  // Add function pointer for simulation method
+  void (Stack<T>::*simulationMethod)(T, T, T);
+
 protected:
   unsigned int stackSize;
   std::string topId, bottomId; // Ids of the top and bottom junctions
@@ -45,8 +48,17 @@ public:
   std::vector<Junction<T>> junctionList;
 
   Stack(std::vector<Junction<T>> inputStack, const std::string &topId,
-        const std::string &bottomId, const T phaseOffset = 0)
+        const std::string &bottomId, const T phaseOffset = 0,
+        bool useKCL = true)
       : topId(topId), bottomId(bottomId), phaseOffset(phaseOffset) {
+
+    // Set the simulation method based on constructor parameter
+    if (useKCL) {
+      simulationMethod = &Stack<T>::runSimulationKCL;
+    } else {
+      simulationMethod = &Stack<T>::runSimulationNonKCL;
+    }
+
     if (inputStack.size() < 2) {
       throw std::runtime_error("Stack must have at least 2 junctions!");
     }
@@ -211,8 +223,15 @@ public:
     return true;
   }
 
+  // Public interface method that delegates to the chosen implementation
   void runSimulation(T totalTime, T timeStep = 1e-13,
                      T writeFrequency = 1e-11) {
+    (this->*simulationMethod)(totalTime, timeStep, writeFrequency);
+  }
+
+private:
+  void runSimulationNonKCL(T totalTime, T timeStep = 1e-13,
+                           T writeFrequency = 1e-11) {
     const unsigned int writeEvery = (int)(writeFrequency / timeStep);
     const unsigned int totalIterations = (int)(totalTime / timeStep);
 
@@ -312,6 +331,89 @@ public:
       }
     }
   }
+
+  void runSimulationKCL(T totalTime, T timeStep = 1e-13,
+                        T writeFrequency = 1e-11) {
+    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
+    const unsigned int totalIterations = (int)(totalTime / timeStep);
+
+    if (timeStep > writeFrequency) {
+      throw std::runtime_error(
+          "The time step cannot be larger than write frequency!");
+    }
+
+    // pick a solver based on drivers
+    std::vector<SolverMode> modes;
+    auto localRunner = &Junction<T>::runMultiLayerSolver;
+    for (auto &j : this->junctionList) {
+      auto [runner, solver, mode] = j.getSolver(RK4, totalIterations);
+      modes.push_back(mode);
+      localRunner = runner;
+      // TODO: handle the rare case when the user mixes 1 layer with 2 layer
+      // junction in the same stack -- i.e. runner is runSingleLayerSolver and
+      // runMultiLayerSolver
+    }
+    auto solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
+    if (!std::equal(modes.begin() + 1, modes.end(), modes.begin())) {
+      throw std::runtime_error(
+          "Junctions have different solver modes!"
+          " Set the same solver mode for all junctions explicitly."
+          " Do not mix stochastic and deterministic solvers!");
+    }
+
+    std::vector<T> timeResistances(junctionList.size());
+    std::vector<T> timeCurrents(junctionList.size());
+    std::vector<CVector<T>> frozenMags(junctionList.size());
+    std::vector<CVector<T>> frozenPols(junctionList.size());
+    const bool isTwoLayerStack = this->isTwoLayerMemberStack();
+    for (unsigned int i = 0; i < totalIterations; i++) {
+      T t = i * timeStep;
+
+      // this is a base case
+      T uncoupledCurrent = this->currentDriver.getCurrentScalarValue(t);
+
+      // stash the magnetisations first
+      for (std::size_t j = 0; j < junctionList.size(); ++j) {
+        frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
+        if (isTwoLayerStack) {
+          frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
+        } else {
+          frozenPols[j] = this->getPolarisationVector();
+        }
+      }
+      T totalCurrent = uncoupledCurrent;
+      for (std::size_t j = 0; j < junctionList.size(); ++j) {
+        totalCurrent += this->getEffectiveCouplingStrength(
+                            j, frozenMags[j], frozenMags[j], frozenPols[j]) *
+                        uncoupledCurrent;
+      }
+
+      for (std::size_t j = 0; j < junctionList.size(); ++j) {
+
+        // set the current -- same for all layers
+        // copy the driver and set the current value
+        ScalarDriver<T> localDriver =
+            ScalarDriver<T>::getConstantDriver(totalCurrent);
+        localDriver.phaseShift(this->getPhaseOffset(j));
+
+        junctionList[j].setLayerCurrentDriver("all", localDriver);
+        bool step_accepted = true;
+        (junctionList[j].*localRunner)(solver, t, timeStep, step_accepted);
+        // change the instant value of the current before the
+        // the resistance is calculated
+        // compute the next j+1 input to the current.
+        const auto resistance = junctionList[j].getMagnetoresistance();
+        timeResistances[j] = resistance[0];
+        timeCurrents[j] = localDriver.getCurrentScalarValue(t);
+      }
+      if (!(i % writeEvery)) {
+        const T magRes = this->calculateStackResistance(timeResistances);
+        this->logStackData(t, magRes, timeCurrents);
+        for (auto &jun : this->junctionList)
+          jun.logLayerParams(t, timeStep, false);
+      }
+    }
+  }
 };
 template <typename T> class SeriesStack : public Stack<T> {
   T calculateStackResistance(std::vector<T> resistances) override {
@@ -336,8 +438,8 @@ public:
   explicit SeriesStack(const std::vector<Junction<T>> &jL,
                        const std::string &topId = "free",
                        const std::string &bottomId = "bottom",
-                       const T phaseOffset = 0)
-      : Stack<T>(jL, topId, bottomId, phaseOffset) {}
+                       const T phaseOffset = 0, bool useKCL = true)
+      : Stack<T>(jL, topId, bottomId, phaseOffset, useKCL) {}
 };
 
 template <typename T> class ParallelStack : public Stack<T> {
@@ -364,7 +466,8 @@ public:
   explicit ParallelStack(const std::vector<Junction<T>> &jL,
                          const std::string &topId = "free",
                          const std::string &bottomId = "bottom",
-                         const T phaseOffset = 0)
-      : Stack<T>(jL, topId, bottomId, phaseOffset) {}
+                         const T phaseOffset = 0, bool useKCL = true)
+      : Stack<T>(jL, topId, bottomId, phaseOffset, useKCL) {}
 };
+
 #endif // CORE_STACK_HPP_
