@@ -15,7 +15,7 @@ COPY third_party /scratch/third_party
 COPY cmtj /scratch/cmtj
 
 RUN python3 -m setup bdist_wheel && \
-    python3 -m pip install dist/*.whl numpy scipy tqdm
+    python3 -m pip install dist/*.whl numpy==1.26.4 scipy==1.13.1 tqdm==4.67.1 sympy==1.12
 
 WORKDIR /app
 RUN python3 -c "import cmtj; from cmtj.utils import FieldScan" && \

@@ -295,7 +295,8 @@ public:
         localDriver.phaseShift(this->getPhaseOffset(j));
 
         junctionList[j].setLayerCurrentDriver("all", localDriver);
-        (junctionList[j].*localRunner)(solver, t, timeStep);
+        bool step_accepted = true;
+        (junctionList[j].*localRunner)(solver, t, timeStep, step_accepted);
         // change the instant value of the current before the
         // the resistance is calculated
         // compute the next j+1 input to the current.

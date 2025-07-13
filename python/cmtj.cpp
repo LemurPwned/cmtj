@@ -144,8 +144,22 @@ PYBIND11_MODULE(cmtj, m) {
           .value("RK4", RK4)
           .value("Heun", HEUN)
           .value("EulerHeun", EULER_HEUN)
-          .value("DormandPrice", DORMAND_PRICE)
+          .value("DormandPrince", DORMAND_PRINCE)
           .export_values();
+
+     py::class_<AdaptiveIntegrationParams<double>>(m, "AdaptiveIntegrationParams")
+          .def(py::init<>())
+          .def_readwrite("abs_tol", &AdaptiveIntegrationParams<double>::abs_tol)
+          .def_readwrite("rel_tol", &AdaptiveIntegrationParams<double>::rel_tol)
+          .def_readwrite("max_factor", &AdaptiveIntegrationParams<double>::max_factor)
+          .def_readwrite("min_factor", &AdaptiveIntegrationParams<double>::min_factor)
+          .def_readwrite("safety_factor", &AdaptiveIntegrationParams<double>::safety_factor)
+          .def_readwrite("use_pid_control", &AdaptiveIntegrationParams<double>::use_pid_control)
+          .def_readwrite("ki", &AdaptiveIntegrationParams<double>::ki)
+          .def_readwrite("kp", &AdaptiveIntegrationParams<double>::kp)
+          .def_readwrite("kd", &AdaptiveIntegrationParams<double>::kd)
+          .def_readwrite("prev_error_ratio", &AdaptiveIntegrationParams<double>::prev_error_ratio)
+          .def_readwrite("integral_error", &AdaptiveIntegrationParams<double>::integral_error);
 
      py::enum_<UpdateType>(m, "UpdateType")
           .value("constant", constant)
@@ -231,6 +245,7 @@ PYBIND11_MODULE(cmtj, m) {
                "spinPolarisation"_a = 0.0)
           .def("setMagnetisation", &DLayer::setMagnetisation)
           .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
+          .def("setSecondOrderAnisotropyDriver", &DLayer::setSecondOrderAnisotropyDriver)
           .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
           .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
           .def("setHdmiDriver", &DLayer::setHdmiDriver)
@@ -239,9 +254,16 @@ PYBIND11_MODULE(cmtj, m) {
                py::overload_cast<const DVector&>(&DLayer::setReferenceLayer))
           .def("setReferenceLayer",
                py::overload_cast<Reference>(&DLayer::setReferenceLayer))
-
+          .def("setSecondaryReferenceLayer",
+               &DLayer::setSecondaryReferenceLayer)
+          // drivers
           .def("setFieldLikeTorqueDriver", &DLayer::setFieldLikeTorqueDriver)
           .def("setDampingLikeTorqueDriver", &DLayer::setDampingLikeTorqueDriver)
+          .def("setSecondaryFieldLikeTorqueDriver", &DLayer::setSecondaryFieldLikeTorqueDriver)
+          .def("setSecondaryDampingLikeTorqueDriver", &DLayer::setSecondaryDampingLikeTorqueDriver)
+          .def("setPrimaryTorqueDrivers", &DLayer::setPrimaryTorqueDrivers, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+          .def("setSecondaryTorqueDrivers", &DLayer::setSecondaryTorqueDrivers, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+
           .def("setTemperatureDriver", &DLayer::setTemperatureDriver)
           .def("setTopDipoleTensor", &DLayer::setTopDipoleTensor)
           .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor)
@@ -258,8 +280,11 @@ PYBIND11_MODULE(cmtj, m) {
           .def("setAlphaNoise", &DLayer::setAlphaNoise, "alpha"_a, "std"_a, "scale"_a, "axis"_a = Axis::all)
           .def("setOneFNoise", &DLayer::setOneFNoise)
           // getters
+          .def("getReferenceLayer", &DLayer::getReferenceLayer, py::return_value_policy::reference)
+          .def("getSecondaryReferenceLayer", &DLayer::getSecondaryReferenceLayer, py::return_value_policy::reference)
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
+          .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
           .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
 
      py::class_<DJunction>(m, "Junction")
@@ -278,7 +303,7 @@ PYBIND11_MODULE(cmtj, m) {
           .def("saveLog", &DJunction::saveLogs, "filename"_a)
           // main run
           .def("runSimulation", &DJunction::runSimulation, "totalTime"_a,
-               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "log"_a = false,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "verbose"_a = false,
                "calculateEnergies"_a = false, "solverMode"_a = RK4)
 
           // driver setters
@@ -287,6 +312,7 @@ PYBIND11_MODULE(cmtj, m) {
                &DJunction::setLayerExternalFieldDriver)
           .def("setLayerCurrentDriver", &DJunction::setLayerCurrentDriver)
           .def("setLayerAnisotropyDriver", &DJunction::setLayerAnisotropyDriver)
+          .def("setLayerSecondOrderAnisotropyDriver", &DJunction::setLayerSecondOrderAnisotropyDriver)
           .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
           .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
           .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
@@ -304,6 +330,14 @@ PYBIND11_MODULE(cmtj, m) {
                &DJunction::setLayerFieldLikeTorqueDriver)
           .def("setLayerDampingLikeTorqueDriver",
                &DJunction::setLayerDampingLikeTorqueDriver)
+          .def("setLayerSecondaryFieldLikeTorqueDriver",
+               &DJunction::setLayerSecondaryFieldLikeTorqueDriver)
+          .def("setLayerSecondaryDampingLikeTorqueDriver",
+               &DJunction::setLayerSecondaryDampingLikeTorqueDriver)
+          .def("setLayerPrimaryTorqueDrivers",
+               &DJunction::setLayerPrimaryTorqueDrivers, "layerId"_a, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+          .def("setLayerSecondaryTorqueDrivers",
+               &DJunction::setLayerSecondaryTorqueDrivers, "layerId"_a, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
           // Reference setters
           .def("setLayerReferenceType", &DJunction::setLayerReferenceType)
           .def("setLayerReferenceLayer", &DJunction::setLayerReferenceLayer)
@@ -460,7 +494,7 @@ PYBIND11_MODULE(cmtj, m) {
      py::class_<DLLGBJunction>(llgb_module, "LLGBJunction")
           .def(py::init<std::vector<DLLGBLayer>>(), "layers"_a)
           .def("runSimulation", &DLLGBJunction::runSimulation, "totalTime"_a,
-               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "log"_a = false,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "verbose"_a = false,
                "solverMode"_a = HEUN)
           .def("setLayerTemperatureDriver",
                &DLLGBJunction::setLayerTemperatureDriver)

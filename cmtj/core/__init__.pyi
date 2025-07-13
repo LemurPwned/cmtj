@@ -346,13 +346,6 @@ class Junction:
         """
         ...
 
-    def setLayerSecondOrderAnisotropyDriver(self, layerId: str, driver: ScalarDriver) -> None:
-        """Set second order anisotropy driver for a layer.
-        :param layerId: the id of the layer.
-        :param driver: the second order anisotropy driver to be set.
-        """
-        ...
-
     def setLayerCurrentDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set a current driver for a layer.
         :param layerId: the layer id
