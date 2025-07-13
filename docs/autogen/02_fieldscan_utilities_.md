@@ -146,26 +146,6 @@ class FieldScan:
 
 ---
 
-## 6. Visualizing the Scan
-
-```mermaid
-%% A polar slice at φ=30° showing 3 sample H vectors
-graph LR
-  Origin((0,0,0))
-  subgraph Sphere[ ]
-    direction1([θ=45°, H=0])
-    direction2([θ=45°, H=0.5Hmax])
-    direction3([θ=45°, H=Hmax])
-  end
-  Origin --> direction1
-  Origin --> direction2
-  Origin --> direction3
-```
-
-Each arrow from the origin is one of your `(Hx,Hy,Hz)` waypoints—lined up along the 45° tilt and spaced in strength.
-
----
-
 ## 7. Conclusion & Next Steps
 
 You’ve learned how **FieldScan Utilities** take simple numeric ranges and angles, and produce full Cartesian field sequences—your “waypoints” for any simulation drive. Next, we’ll see how to turn those static fields into time‑dependent pulses or sine drives with [Time‑Dependent Drivers (ScalarDriver & AxialDriver)](03_time_dependent_drivers__scalardriver___axialdriver__.md).
