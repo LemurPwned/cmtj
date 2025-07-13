@@ -118,8 +118,8 @@ PYBIND11_MODULE(cmtj, m) {
           .def("__getitem__",
                [](const DVector& v, const int key) { return v[key]; })
           .def("__len__", [](const DVector& v) { return 3; })
-          .def("__str__", [](const DVector& v) { return v.toString(); })
-          .def("__repr__", [](const DVector& v) { return v.toString(); })
+          .def("__str__", py::overload_cast<>(&DVector::toString))
+          .def("__repr__", py::overload_cast<>(&DVector::toString))
           .def_static("fromSpherical", &DVector::fromSpherical, "theta"_a, "phi"_a, "r"_a = 1.0);
 
      py::implicitly_convertible<std::list<double>, DVector>();

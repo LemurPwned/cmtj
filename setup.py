@@ -151,7 +151,7 @@ setup(
             *find_stubs(path=Path("cmtj")),
         ]
     },
-    setup_requires=["pybind11>=2.6.1"],
+    setup_requires=["pybind11>=2.6.1,<3.0.0"],
     cmdclass={"build_ext": BuildExt},
     zip_safe=False,
 )
