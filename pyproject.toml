@@ -70,8 +70,11 @@ docs = [
     "mkdocstrings[python]",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cmtj", "cmtj.*"]
+
 [tool.setuptools]
-packages = ["cmtj"]
 include-package-data = true
 
 [tool.setuptools.package-data]

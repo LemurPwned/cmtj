@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 # Define the extension module
 ext_modules = [
     Pybind11Extension(
-        "_cmtj",  # Rename to avoid conflict with the Python package
+        "cmtj._cmtj",  # Extension lives inside the package
         sorted([
             "python/cmtj.cpp",
         ]),
