@@ -1,1 +1,1 @@
-# Type stubs for reservoir C++ module
+from _cmtj.reservoir import *

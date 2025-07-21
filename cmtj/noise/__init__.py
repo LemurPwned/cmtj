@@ -1,1 +1,1 @@
-# Type stubs for noise C++ module
+from _cmtj.noise import *

@@ -1,1 +1,1 @@
-# Type stubs for llgb C++ module
+from _cmtj.llgb import *

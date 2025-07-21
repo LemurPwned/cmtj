@@ -1,1 +1,1 @@
-# Type stubs for stack C++ module
+from _cmtj.stack import *
