@@ -6,28 +6,16 @@ A Python package for magnetic tunnel junction simulations.
 
 from ._version import __version__
 
-# Import the C++ extension module
+# Import all C++ extension functionality
 try:
-    # Import the compiled C++ extension (renamed to _cmtj to avoid conflicts)
-    from .. import _cmtj
-    
-    # Import all public symbols from the C++ extension
-    for name in dir(_cmtj):
-        if not name.startswith('_'):
-            globals()[name] = getattr(_cmtj, name)
-            
-except ImportError:
-    try:
-        # Fallback: try direct import for development/testing
-        import _cmtj
-        
-        # Import all public symbols from the C++ extension
-        for name in dir(_cmtj):
-            if not name.startswith('_'):
-                globals()[name] = getattr(_cmtj, name)
-                
-    except ImportError as e:
-        import warnings
-        warnings.warn(f"Could not import C++ extension: {e}")
+    import _cmtj
+    from _cmtj import *
+    # Also make sure we have the version available
+    __all__ = ["__version__"] + [name for name in dir(_cmtj) if not name.startswith('_')]
+except ImportError as e:
+    import warnings
+    warnings.warn(f"Could not import C++ extension: {e}")
+    __all__ = ["__version__"]
 
-__all__ = ["__version__"]
+# Import Python submodules - they will be available as cmtj.models, cmtj.utils, etc.
+# The submodules are automatically available due to Python's package structure
