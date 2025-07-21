@@ -70,8 +70,11 @@ docs = [
 ]
 
 [tool.setuptools]
-packages = ["cmtj"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cmtj*"]
 
 [tool.setuptools.package-data]
 cmtj = ["py.typed", "**/*.pyi"]
