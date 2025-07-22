@@ -35,6 +35,7 @@ dependencies = [
     "numba>=0.60.0",
     "sympy>=1.14.0",
     "scipy>=1.13.1",
+    "tqdm>=4.63.3",
 ]
 dynamic = ["version"]
 
@@ -48,7 +49,6 @@ Issues = "https://github.com/LemurPwned/cmtj/issues"
 utils = [
     "matplotlib",
     "pandas",
-    "tqdm",
     "multiprocess",
 ]
 test = [
