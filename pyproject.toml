@@ -30,7 +30,12 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "numpy>=1.25.0",
+    "numba>=0.61.0",
+    "sympy>=1.14.0",
+    "scipy>=1.16.0",
+]
 dynamic = ["version"]
 
 [project.urls]
@@ -42,13 +47,9 @@ Issues = "https://github.com/LemurPwned/cmtj/issues"
 [project.optional-dependencies]
 utils = [
     "matplotlib",
-    "numpy",
-    "scipy",
     "pandas",
     "tqdm",
     "multiprocess",
-    "numba",
-    "sympy",
 ]
 test = [
     "pytest",
