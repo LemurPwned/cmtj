@@ -32,7 +32,7 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "numpy>=1.25.0",
-    "numba>=0.61.0",
+    "numba>=0.60.0",
     "sympy>=1.14.0",
     "scipy>=1.16.0",
 ]
