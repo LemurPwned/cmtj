@@ -71,7 +71,7 @@ jobs:
           CIBW_BUILD_REQUIRES: "setuptools>=61.0 setuptools-scm>=8.0 pybind11>=2.6.1 wheel"
           # Test command (optional)
           CIBW_TEST_REQUIRES: "pytest"
-          CIBW_TEST_COMMAND: "python -c 'import cmtj; from cmtj import CVector, Junction; from cmtj.utils import mu0; from cmtj.stack import SeriesStack; print(\"Import successful\")'"
+          CIBW_TEST_COMMAND: "pytest {project}/tests/ -v"
           # Use manylinux2014 for Linux builds
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
