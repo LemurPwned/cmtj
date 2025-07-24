@@ -1,2 +1,11 @@
 include cmtj/**/*.pyi
 include cmtj/py.typed
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CITATION.cff
+recursive-include core *.hpp
+recursive-include python *.cpp
+recursive-include third_party/kissfft *.h *.hh *.c *.cpp
+global-exclude *.pyc
+global-exclude __pycache__
