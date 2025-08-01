@@ -179,7 +179,10 @@ public:
     this->stackLog["Resistance"].push_back(resistance);
     for (std::size_t j = 0; j < timeCurrents.size(); ++j) {
       this->stackLog["I_" + std::to_string(j)].push_back(timeCurrents[j]);
-      this->stackLog["C_" + std::to_string(j)].push_back(effectiveCoupling[j]);
+      if (j < effectiveCoupling.size()) {
+        this->stackLog["C_" + std::to_string(j) + "_" + std::to_string(j + 1)]
+            .push_back(effectiveCoupling[j]);
+      }
     }
     this->stackLog["time"].push_back(t);
   }
@@ -264,7 +267,7 @@ private:
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
-    std::vector<T> timeEffectiveCoupling(junctionList.size());
+    std::vector<T> timeEffectiveCoupling(junctionList.size() - 1);
     std::vector<CVector<T>> frozenMags(junctionList.size());
     std::vector<CVector<T>> frozenPols(junctionList.size());
 
@@ -312,8 +315,8 @@ private:
                      junctionList[j - 1].getLayerMagnetisation(this->bottomId),
                      junctionList[j].getLayerMagnetisation(this->bottomId)));
           }
+          timeEffectiveCoupling[j - 1] = effectiveCoupling;
         }
-        timeEffectiveCoupling[j] = effectiveCoupling;
         // set the current -- same for all layers
         // copy the driver and set the current value
         ScalarDriver<T> localDriver = this->currentDriver * effectiveCoupling;
@@ -369,7 +372,7 @@ private:
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
-    std::vector<T> timeEffectiveCoupling(junctionList.size());
+    std::vector<T> timeEffectiveCoupling(junctionList.size() - 1);
     std::vector<CVector<T>> frozenMags(junctionList.size());
     std::vector<CVector<T>> frozenPols(junctionList.size());
     const bool isTwoLayerStack = this->isTwoLayerMemberStack();
