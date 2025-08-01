@@ -108,6 +108,19 @@ public:
   }
 };
 
+// Forward declarations if needed
+template <typename T> class Layer;
+template <typename T> class Junction;
+
+// Typedef declarations outside the class
+template <typename T>
+using SolverFn = bool (Layer<T>::*)(T t, T &timeStep, const CVector<T> &bottom,
+                                    const CVector<T> &top);
+
+template <typename T>
+using RunnerFn = void (Junction<T>::*)(SolverFn<T> &functor, T &t, T &timeStep,
+                                       bool &step_accepted);
+
 template <typename T> struct AdaptiveIntegrationParams {
   T abs_tol = 1e-6;             // Absolute error tolerance
   T rel_tol = 1e-3;             // Relative error tolerance
@@ -1641,10 +1654,6 @@ public:
     logFile.close();
   }
 
-  typedef bool (Layer<T>::*solverFn)(T t, T &timeStep, const CVector<T> &bottom,
-                                     const CVector<T> &top);
-  typedef void (Junction<T>::*runnerFn)(solverFn &functor, T &t, T &timeStep,
-                                        bool &step_accepted);
   /**
    * @brief Run Euler-Heun or RK4 method for a single layer.
    *
@@ -1655,7 +1664,7 @@ public:
    * @param t: current time
    * @param timeStep: integration step
    */
-  void runSingleLayerSolver(solverFn &functor, T &t, T &timeStep,
+  void runSingleLayerSolver(SolverFn<T> &functor, T &t, T &timeStep,
                             bool &step_accepted) {
     const CVector<T> dummy(0, 0, 0);
     step_accepted = (layers[0].*functor)(t, timeStep, dummy, dummy);
@@ -1669,7 +1678,7 @@ public:
    * @param t: current time
    * @param timeStep: integration step
    * */
-  void runMultiLayerSolver(solverFn &functor, T &t, T &timeStep,
+  void runMultiLayerSolver(SolverFn<T> &functor, T &t, T &timeStep,
                            bool &step_accepted) {
     // Run solver for each layer and check if all steps were accepted
     step_accepted = true;
@@ -1696,7 +1705,7 @@ public:
     }
   }
 
-  void eulerHeunSolverStep(solverFn &functor, T &t, T &timeStep,
+  void eulerHeunSolverStep(SolverFn<T> &functor, T &t, T &timeStep,
                            bool &step_accepted) {
     /*
         Euler Heun method (stochastic heun)
@@ -1743,7 +1752,7 @@ public:
     }
   }
 
-  void heunSolverStep(solverFn &functor, T &t, T &timeStep,
+  void heunSolverStep(SolverFn<T> &functor, T &t, T &timeStep,
                       bool &step_accepted) {
     /*
         Heun method
@@ -1878,7 +1887,7 @@ public:
     }
   }
 
-  std::tuple<runnerFn, solverFn, SolverMode>
+  std::tuple<RunnerFn<T>, SolverFn<T>, SolverMode>
   getSolver(SolverMode mode, unsigned int totalIterations) {
     SolverMode localMode = mode;
     for (auto &l : this->layers) {

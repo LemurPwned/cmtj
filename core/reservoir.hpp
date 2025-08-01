@@ -32,12 +32,6 @@ void comb(int N, int K) {
 
 typedef std::array<CVector<double>, 3> tensor;
 typedef std::vector<tensor> tensorList;
-template <typename T>
-using solverFn = bool (Layer<T>::*)(T t, T &timeStep, const CVector<T> &bottom,
-                                    const CVector<T> &top);
-template <typename T>
-using runnerFn = void (Junction<T>::*)(solverFn<T> &functor, T &t, T &timeStep,
-                                       bool &step_accepted);
 
 const tensor getDipoleTensorFromRelPositions(const CVector<double> &r1,
                                              const CVector<double> &r2) {
@@ -134,7 +128,7 @@ class GroupInteraction {
 
   void stepFunctionalSolver(double time, double &timeStep,
                             interactionFunction interaction,
-                            runnerFn<double> runner, solverFn<double> solver,
+                            RunnerFn<double> runner, SolverFn<double> solver,
                             bool &step_accepted) {
     // collect all frozen states
     // for each element, compute the extra field from all other elements
