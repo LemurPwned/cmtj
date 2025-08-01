@@ -9,6 +9,7 @@ class ParallelStack:
         topId: str = "free",
         bottomId: str = "bottom",
         phaseOffset: float = 0,
+        useKCL: bool = True,
     ) -> None:
         """
         Initialises a parallel connection of junctions.
@@ -104,6 +105,7 @@ class SeriesStack:
         topId: str = "free",
         bottomId: str = "bottom",
         phaseOffset: float = 0,
+        useKCL: bool = True,
     ) -> None:
         """
         Initialises a series connection of junctions.

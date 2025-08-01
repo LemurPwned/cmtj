@@ -1,5 +1,17 @@
 # Changelog
 
+# 1.8.0
+
+- Fixing bugs in electrical coupling
+- You can now have useKCL = True Stacks which will implicitly preserve Kirchoff's current law, and will simulate perfect voltage sources
+
+# 1.7.0
+
+- Adaptive simulation is now available again with Dormand-Price method
+- Adding curated simulation examples
+- Memory cells are now supported (you can specify two polarisation vectors per Layer now)
+- Import fixes and other minor bugfixes
+
 # 1.6.2-1.6.6
 
 - Fixed a bug in the `ScalarDriver` class which prevented the use of custom drivers with no arguments.
