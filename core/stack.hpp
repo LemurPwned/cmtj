@@ -24,6 +24,84 @@ private:
   // Add function pointer for simulation method
   void (Stack<T>::*simulationMethod)(T, T, T);
 
+  // Helper methods for common functionality
+  struct SimulationSetup {
+    unsigned int writeEvery;
+    unsigned int totalIterations;
+    std::vector<SolverMode> modes;
+    RunnerFn<T> localRunner;
+    SolverFn<T> solver;
+  };
+
+  SimulationSetup initializeSimulation(T totalTime, T timeStep,
+                                       T writeFrequency) {
+    SimulationSetup setup;
+    setup.writeEvery = (int)(writeFrequency / timeStep);
+    setup.totalIterations = (int)(totalTime / timeStep);
+
+    if (timeStep > writeFrequency) {
+      throw std::runtime_error(
+          "The time step cannot be larger than write frequency!");
+    }
+
+    // pick a solver based on drivers
+    setup.localRunner = &Junction<T>::runMultiLayerSolver;
+    for (auto &j : this->junctionList) {
+      auto [runner, solver, mode] = j.getSolver(RK4, setup.totalIterations);
+      setup.modes.push_back(mode);
+      setup.localRunner = runner;
+    }
+    setup.solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
+    if (!std::equal(setup.modes.begin() + 1, setup.modes.end(),
+                    setup.modes.begin())) {
+      throw std::runtime_error(
+          "Junctions have different solver modes!"
+          " Set the same solver mode for all junctions explicitly."
+          " Do not mix stochastic and deterministic solvers!");
+    }
+
+    return setup;
+  }
+
+  void storeMagnetisations(std::vector<CVector<T>> &frozenMags,
+                           std::vector<CVector<T>> &frozenPols,
+                           bool isTwoLayerStack) {
+    for (std::size_t j = 0; j < junctionList.size(); ++j) {
+      frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
+      if (isTwoLayerStack) {
+        frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
+      } else {
+        frozenPols[j] = this->getPolarisationVector();
+      }
+    }
+  }
+
+  void executeJunctionStep(std::size_t junctionIndex,
+                           ScalarDriver<T> &localDriver, SimulationSetup &setup,
+                           T t, T timeStep, std::vector<T> &timeResistances,
+                           std::vector<T> &timeCurrents) {
+    junctionList[junctionIndex].setLayerCurrentDriver("all", localDriver);
+    bool step_accepted = true;
+    (junctionList[junctionIndex].*(setup.localRunner))(setup.solver, t,
+                                                       timeStep, step_accepted);
+
+    const auto resistance = junctionList[junctionIndex].getMagnetoresistance();
+    timeResistances[junctionIndex] = resistance[0];
+    timeCurrents[junctionIndex] = localDriver.getCurrentScalarValue(t);
+  }
+
+  void logSimulationStep(unsigned int iteration, unsigned int writeEvery, T t,
+                         T timeStep, const std::vector<T> &timeResistances,
+                         const std::vector<T> &timeCurrents,
+                         const std::vector<T> &timeEffectiveCoupling) {
+    if (!(iteration % writeEvery)) {
+      const T magRes = this->calculateStackResistance(timeResistances);
+      this->logStackData(t, magRes, timeCurrents, timeEffectiveCoupling);
+      for (auto &jun : this->junctionList)
+        jun.logLayerParams(t, timeStep, false);
+    }
+  }
+
 protected:
   unsigned int stackSize;
   std::string topId, bottomId; // Ids of the top and bottom junctions
@@ -238,32 +316,8 @@ public:
 private:
   void runSimulationNonKCL(T totalTime, T timeStep = 1e-13,
                            T writeFrequency = 1e-11) {
-    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
-    const unsigned int totalIterations = (int)(totalTime / timeStep);
 
-    if (timeStep > writeFrequency) {
-      throw std::runtime_error(
-          "The time step cannot be larger than write frequency!");
-    }
-
-    // pick a solver based on drivers
-    std::vector<SolverMode> modes;
-    auto localRunner = &Junction<T>::runMultiLayerSolver;
-    for (auto &j : this->junctionList) {
-      auto [runner, solver, mode] = j.getSolver(RK4, totalIterations);
-      modes.push_back(mode);
-      localRunner = runner;
-      // TODO: handle the rare case when the user mixes 1 layer with 2 layer
-      // junction in the same stack -- i.e. runner is runSingleLayerSolver and
-      // runMultiLayerSolver
-    }
-    auto solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
-    if (!std::equal(modes.begin() + 1, modes.end(), modes.begin())) {
-      throw std::runtime_error(
-          "Junctions have different solver modes!"
-          " Set the same solver mode for all junctions explicitly."
-          " Do not mix stochastic and deterministic solvers!");
-    }
+    auto setup = initializeSimulation(totalTime, timeStep, writeFrequency);
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
@@ -272,18 +326,12 @@ private:
     std::vector<CVector<T>> frozenPols(junctionList.size());
 
     const bool isTwoLayerStack = this->isTwoLayerMemberStack();
-    for (unsigned int i = 0; i < totalIterations; i++) {
+    for (unsigned int i = 0; i < setup.totalIterations; i++) {
       T t = i * timeStep;
 
-      // stash the magnetisations first
-      for (std::size_t j = 0; j < junctionList.size(); ++j) {
-        frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
-        if (isTwoLayerStack) {
-          frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
-        } else {
-          frozenPols[j] = this->getPolarisationVector();
-        }
-      }
+      // Store magnetisations first
+      storeMagnetisations(frozenMags, frozenPols, isTwoLayerStack);
+
       T effectiveCoupling = 1;
       for (std::size_t j = 0; j < junctionList.size(); ++j) {
 
@@ -322,53 +370,18 @@ private:
         ScalarDriver<T> localDriver = this->currentDriver * effectiveCoupling;
         localDriver.phaseShift(this->getPhaseOffset(j));
 
-        junctionList[j].setLayerCurrentDriver("all", localDriver);
-        bool step_accepted = true;
-        (junctionList[j].*localRunner)(solver, t, timeStep, step_accepted);
-        // change the instant value of the current before the
-        // the resistance is calculated
-        // compute the next j+1 input to the current.
-        const auto resistance = junctionList[j].getMagnetoresistance();
-        timeResistances[j] = resistance[0];
-        timeCurrents[j] = localDriver.getCurrentScalarValue(t);
+        executeJunctionStep(j, localDriver, setup, t, timeStep, timeResistances,
+                            timeCurrents);
       }
-      if (!(i % writeEvery)) {
-        const T magRes = this->calculateStackResistance(timeResistances);
-        this->logStackData(t, magRes, timeCurrents, timeEffectiveCoupling);
-        for (auto &jun : this->junctionList)
-          jun.logLayerParams(t, timeStep, false);
-      }
+      logSimulationStep(i, setup.writeEvery, t, timeStep, timeResistances,
+                        timeCurrents, timeEffectiveCoupling);
     }
   }
 
   void runSimulationKCL(T totalTime, T timeStep = 1e-13,
                         T writeFrequency = 1e-11) {
-    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
-    const unsigned int totalIterations = (int)(totalTime / timeStep);
 
-    if (timeStep > writeFrequency) {
-      throw std::runtime_error(
-          "The time step cannot be larger than write frequency!");
-    }
-
-    // pick a solver based on drivers
-    std::vector<SolverMode> modes;
-    auto localRunner = &Junction<T>::runMultiLayerSolver;
-    for (auto &j : this->junctionList) {
-      auto [runner, solver, mode] = j.getSolver(RK4, totalIterations);
-      modes.push_back(mode);
-      localRunner = runner;
-      // TODO: handle the rare case when the user mixes 1 layer with 2 layer
-      // junction in the same stack -- i.e. runner is runSingleLayerSolver and
-      // runMultiLayerSolver
-    }
-    auto solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
-    if (!std::equal(modes.begin() + 1, modes.end(), modes.begin())) {
-      throw std::runtime_error(
-          "Junctions have different solver modes!"
-          " Set the same solver mode for all junctions explicitly."
-          " Do not mix stochastic and deterministic solvers!");
-    }
+    auto setup = initializeSimulation(totalTime, timeStep, writeFrequency);
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
@@ -376,21 +389,16 @@ private:
     std::vector<CVector<T>> frozenMags(junctionList.size());
     std::vector<CVector<T>> frozenPols(junctionList.size());
     const bool isTwoLayerStack = this->isTwoLayerMemberStack();
-    for (unsigned int i = 0; i < totalIterations; i++) {
+
+    for (unsigned int i = 0; i < setup.totalIterations; i++) {
       T t = i * timeStep;
 
       // this is a base case
       T uncoupledCurrent = this->currentDriver.getCurrentScalarValue(t);
 
-      // stash the magnetisations first
-      for (std::size_t j = 0; j < junctionList.size(); ++j) {
-        frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
-        if (isTwoLayerStack) {
-          frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
-        } else {
-          frozenPols[j] = this->getPolarisationVector();
-        }
-      }
+      // Store magnetisations first
+      storeMagnetisations(frozenMags, frozenPols, isTwoLayerStack);
+
       T totalCurrent = uncoupledCurrent;
       for (std::size_t j = 0; j < junctionList.size() - 1; ++j) {
         timeEffectiveCoupling[j] = this->getEffectiveCouplingStrength(
@@ -400,29 +408,17 @@ private:
       }
 
       for (std::size_t j = 0; j < junctionList.size(); ++j) {
-
         // set the current -- same for all layers
         // copy the driver and set the current value
         ScalarDriver<T> localDriver =
             ScalarDriver<T>::getConstantDriver(totalCurrent);
         localDriver.phaseShift(this->getPhaseOffset(j));
 
-        junctionList[j].setLayerCurrentDriver("all", localDriver);
-        bool step_accepted = true;
-        (junctionList[j].*localRunner)(solver, t, timeStep, step_accepted);
-        // change the instant value of the current before the
-        // the resistance is calculated
-        // compute the next j+1 input to the current.
-        const auto resistance = junctionList[j].getMagnetoresistance();
-        timeResistances[j] = resistance[0];
-        timeCurrents[j] = localDriver.getCurrentScalarValue(t);
+        executeJunctionStep(j, localDriver, setup, t, timeStep, timeResistances,
+                            timeCurrents);
       }
-      if (!(i % writeEvery)) {
-        const T magRes = this->calculateStackResistance(timeResistances);
-        this->logStackData(t, magRes, timeCurrents, timeEffectiveCoupling);
-        for (auto &jun : this->junctionList)
-          jun.logLayerParams(t, timeStep, false);
-      }
+      logSimulationStep(i, setup.writeEvery, t, timeStep, timeResistances,
+                        timeCurrents, timeEffectiveCoupling);
     }
   }
 };
