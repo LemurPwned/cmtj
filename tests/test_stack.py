@@ -1,14 +1,16 @@
+from regex import P
 from cmtj.stack import ParallelStack, SeriesStack
 from cmtj.utils.procedures import ResistanceParameters
-from cmtj import Layer, CVector
+from cmtj import Layer, CVector, ScalarDriver
 from typing import Tuple
 from cmtj import Junction
 import pytest
 import numpy as np
+from math import pi
 
 
 def test_invalid_stack_indices(
-    single_layer_mtj_fictious: Tuple[Junction, ResistanceParameters]
+    single_layer_mtj_fictious: Tuple[Junction, ResistanceParameters],
 ):
     junction, _ = single_layer_mtj_fictious
     with pytest.raises(RuntimeError, match="Asking for id of a non-existing junction!"):
@@ -25,7 +27,7 @@ def test_invalid_stack_indices(
 
 
 def test_invalid_stack(
-    single_layer_mtj_fictious: Tuple[Junction, ResistanceParameters]
+    single_layer_mtj_fictious: Tuple[Junction, ResistanceParameters],
 ):
     junction, _ = single_layer_mtj_fictious
     with pytest.raises(RuntimeError, match="must have at least 2 junctions"):
@@ -132,3 +134,101 @@ def test_stack_resistance_behavior(arg: Tuple[Junction, ResistanceParameters]):
 
     # Series resistance should be larger than parallel
     assert np.mean(s_log["Resistance"]) > np.mean(p_log["Resistance"])
+
+
+@pytest.mark.parametrize("stack_type", [ParallelStack, SeriesStack])
+def test_kcl_vs_non_kcl_current_behavior(stack_type):
+    """Test that KCL and non-KCL modes behave differently for current distribution"""
+    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    alpha = 0.005
+    surface = 150e-9 * 150e-9 * pi
+    Kdir = CVector(1, 0, 0)
+    l1 = Layer(
+        "free",
+        mag=CVector(0, 0, 1),
+        anis=Kdir,
+        Ms=1.65,
+        thickness=3e-9,
+        cellSurface=surface,
+        demagTensor=demag,
+        damping=alpha,
+    )
+    K1 = 1.05e3
+    l1.setReferenceLayer(CVector(1, 0, 0))
+    junction = Junction([l1], 100, 200)
+    junction.setLayerAnisotropyDriver("free", ScalarDriver.getConstantDriver(K1))
+
+    Kdir = CVector(1, 0.1, 0.3)
+    l1 = Layer(
+        "free",
+        mag=CVector(0.3, 0.2, 0.9),
+        anis=Kdir,
+        Ms=1.35,
+        thickness=3e-9,
+        cellSurface=surface,
+        demagTensor=demag,
+        damping=alpha,
+    )
+    l1.setReferenceLayer(CVector(1, 0, 0))
+    junction2 = Junction([l1], 100, 200)
+    junction2.setLayerAnisotropyDriver("free", ScalarDriver.getConstantDriver(K1 * 0.1))
+
+    test_current = 2e12
+    current_driver = ScalarDriver.getConstantDriver(test_current)
+
+    stack_non_kcl = stack_type([junction, junction2], useKCL=False)
+    stack_kcl = stack_type([junction, junction2], useKCL=True)
+
+    stack_non_kcl.setCouplingStrength(0.3)
+    stack_kcl.setCouplingStrength(0.3)
+
+    # Set the current driver for both stacks
+    stack_non_kcl.setCoupledCurrentDriver(current_driver)
+    stack_kcl.setCoupledCurrentDriver(current_driver)
+
+    # Run short simulations
+    simulation_time = 0.1e-9  # 1 ns
+    time_step = 1e-12  # 1 ps
+    write_freq = 1e-12  # 1 ps
+
+    stack_non_kcl.runSimulation(simulation_time, time_step, write_freq)
+    stack_kcl.runSimulation(simulation_time, time_step, write_freq)
+
+    # Get the logs for both stacks
+    log_non_kcl = stack_non_kcl.getLog()
+    log_kcl = stack_kcl.getLog()
+
+    # For non-KCL: current in first junction should be the same as set current
+    current_first_junction_non_kcl = np.array(log_non_kcl["I_0"]) / 1e12
+
+    # For KCL: current in first junction should be different from set current
+    current_first_junction_kcl = np.array(log_kcl["I_0"]) / 1e12
+
+    mean_I0_non_kcl = np.mean(current_first_junction_non_kcl)
+    mean_I0_kcl = np.mean(current_first_junction_kcl)
+    test_current = test_current / 1e12
+    print(mean_I0_non_kcl)
+    print(mean_I0_kcl)
+    print(test_current)
+    # Verify that non-KCL preserves the input current in the first junction
+    # (allowing for small numerical errors)
+    assert np.allclose(
+        current_first_junction_non_kcl, test_current, rtol=1e-6
+    ), f"Non-KCL mode: Expected current {test_current}, got {current_first_junction_non_kcl}"
+
+    # Verify that KCL mode changes the current distribution
+    # The current should NOT be the same as the input current
+    assert not np.allclose(
+        mean_I0_kcl, test_current, rtol=1e-6
+    ), f"KCL mode: Current should be different from input {test_current}, but got {mean_I0_kcl}"
+
+    # Verify that the two modes produce different current distributions
+    assert not np.allclose(
+        mean_I0_non_kcl, mean_I0_kcl, rtol=1e-6
+    ), "KCL and non-KCL modes should produce different current distributions"
+
+    # Additional verification: Both stacks should have the same number of logged data points
+    assert len(log_non_kcl["time"]) == len(log_kcl["time"])
+    assert (
+        "I_1" in log_non_kcl and "I_1" in log_kcl
+    )  # Both should log current for second junction

@@ -35,13 +35,14 @@ protected:
   virtual T getEffectiveCouplingStrength(const unsigned int &order,
                                          const CVector<T> &m1,
                                          const CVector<T> &m2,
-                                         const CVector<T> &p) = 0;
+                                         const CVector<T> &p1,
+                                         const CVector<T> &p2) = 0;
 
   T computeCouplingCurrentDensity(const unsigned int &order, T currentDensity,
                                   const CVector<T> &m1, const CVector<T> &m2,
-                                  const CVector<T> &p) {
+                                  const CVector<T> &p1, const CVector<T> &p2) {
     return currentDensity *
-           this->getEffectiveCouplingStrength(order, m1, m2, p);
+           this->getEffectiveCouplingStrength(order, m1, m2, p1, p2);
   }
 
 public:
@@ -173,10 +174,12 @@ public:
     this->couplingStrength = coupling;
   }
 
-  void logStackData(T t, T resistance, std::vector<T> timeCurrents) {
+  void logStackData(T t, T resistance, std::vector<T> timeCurrents,
+                    std::vector<T> effectiveCoupling) {
     this->stackLog["Resistance"].push_back(resistance);
     for (std::size_t j = 0; j < timeCurrents.size(); ++j) {
       this->stackLog["I_" + std::to_string(j)].push_back(timeCurrents[j]);
+      this->stackLog["C_" + std::to_string(j)].push_back(effectiveCoupling[j]);
     }
     this->stackLog["time"].push_back(t);
   }
@@ -261,6 +264,7 @@ private:
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
+    std::vector<T> timeEffectiveCoupling(junctionList.size());
     std::vector<CVector<T>> frozenMags(junctionList.size());
     std::vector<CVector<T>> frozenPols(junctionList.size());
 
@@ -293,21 +297,23 @@ private:
         if (j > 0) {
           if (this->delayed) {
             // accumulate coupling
-            effectiveCoupling *= (1 + this->getEffectiveCouplingStrength(
-                                          j - 1, frozenMags[j - 1],
-                                          frozenMags[j], frozenPols[j - 1]));
+            effectiveCoupling *=
+                (1 + this->getEffectiveCouplingStrength(
+                         j - 1, frozenMags[j - 1], frozenMags[j],
+                         frozenPols[j - 1], frozenPols[j]));
 
           } else {
             effectiveCoupling *=
-                (1 + this->getEffectiveCouplingStrength(
-                         j - 1,
-                         junctionList[j - 1].getLayerMagnetisation(this->topId),
-                         junctionList[j].getLayerMagnetisation(this->topId),
-                         junctionList[j - 1].getLayerMagnetisation(
-                             this->bottomId)));
+                (1 +
+                 this->getEffectiveCouplingStrength(
+                     j - 1,
+                     junctionList[j - 1].getLayerMagnetisation(this->topId),
+                     junctionList[j].getLayerMagnetisation(this->topId),
+                     junctionList[j - 1].getLayerMagnetisation(this->bottomId),
+                     junctionList[j].getLayerMagnetisation(this->bottomId)));
           }
         }
-
+        timeEffectiveCoupling[j] = effectiveCoupling;
         // set the current -- same for all layers
         // copy the driver and set the current value
         ScalarDriver<T> localDriver = this->currentDriver * effectiveCoupling;
@@ -325,7 +331,7 @@ private:
       }
       if (!(i % writeEvery)) {
         const T magRes = this->calculateStackResistance(timeResistances);
-        this->logStackData(t, magRes, timeCurrents);
+        this->logStackData(t, magRes, timeCurrents, timeEffectiveCoupling);
         for (auto &jun : this->junctionList)
           jun.logLayerParams(t, timeStep, false);
       }
@@ -363,6 +369,7 @@ private:
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
+    std::vector<T> timeEffectiveCoupling(junctionList.size());
     std::vector<CVector<T>> frozenMags(junctionList.size());
     std::vector<CVector<T>> frozenPols(junctionList.size());
     const bool isTwoLayerStack = this->isTwoLayerMemberStack();
@@ -382,10 +389,11 @@ private:
         }
       }
       T totalCurrent = uncoupledCurrent;
-      for (std::size_t j = 0; j < junctionList.size(); ++j) {
-        totalCurrent += this->getEffectiveCouplingStrength(
-                            j, frozenMags[j], frozenMags[j], frozenPols[j]) *
-                        uncoupledCurrent;
+      for (std::size_t j = 0; j < junctionList.size() - 1; ++j) {
+        timeEffectiveCoupling[j] = this->getEffectiveCouplingStrength(
+            j, frozenMags[j], frozenMags[j + 1], frozenPols[j],
+            frozenPols[j + 1]);
+        totalCurrent += timeEffectiveCoupling[j] * uncoupledCurrent;
       }
 
       for (std::size_t j = 0; j < junctionList.size(); ++j) {
@@ -408,7 +416,7 @@ private:
       }
       if (!(i % writeEvery)) {
         const T magRes = this->calculateStackResistance(timeResistances);
-        this->logStackData(t, magRes, timeCurrents);
+        this->logStackData(t, magRes, timeCurrents, timeEffectiveCoupling);
         for (auto &jun : this->junctionList)
           jun.logLayerParams(t, timeStep, false);
       }
@@ -424,9 +432,10 @@ template <typename T> class SeriesStack : public Stack<T> {
 
   T getEffectiveCouplingStrength(const unsigned int &order,
                                  const CVector<T> &m1, const CVector<T> &m2,
-                                 const CVector<T> &p) override {
-    const T m1Comp = c_dot(m1, p);
-    const T m2Comp = c_dot(m2, p);
+                                 const CVector<T> &p1,
+                                 const CVector<T> &p2) override {
+    const T m1Comp = c_dot(m1, p1);
+    const T m2Comp = c_dot(m2, p2);
     return this->getCoupling(order) * (m1Comp + m2Comp);
   }
 
@@ -452,9 +461,10 @@ template <typename T> class ParallelStack : public Stack<T> {
 
   T getEffectiveCouplingStrength(const unsigned int &order,
                                  const CVector<T> &m1, const CVector<T> &m2,
-                                 const CVector<T> &p) override {
-    const T m1Comp = c_dot(m1, p);
-    const T m2Comp = c_dot(m2, p);
+                                 const CVector<T> &p1,
+                                 const CVector<T> &p2) override {
+    const T m1Comp = c_dot(m1, p1);
+    const T m2Comp = c_dot(m2, p2);
     return this->getCoupling(order) * (m1Comp - m2Comp);
   }
 
