@@ -1,4 +1,3 @@
-from regex import P
 from cmtj.stack import ParallelStack, SeriesStack
 from cmtj.utils.procedures import ResistanceParameters
 from cmtj import Layer, CVector, ScalarDriver
@@ -206,10 +205,8 @@ def test_kcl_vs_non_kcl_current_behavior(stack_type):
 
     mean_I0_non_kcl = np.mean(current_first_junction_non_kcl)
     mean_I0_kcl = np.mean(current_first_junction_kcl)
-    test_current = test_current / 1e12
-    print(mean_I0_non_kcl)
-    print(mean_I0_kcl)
-    print(test_current)
+    test_current /= 1e12
+
     # Verify that non-KCL preserves the input current in the first junction
     # (allowing for small numerical errors)
     assert np.allclose(
