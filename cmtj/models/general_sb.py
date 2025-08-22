@@ -1,11 +1,11 @@
 import math
 import time
 import warnings
+import copy
 from collections.abc import Iterable
 from dataclasses import dataclass
-from functools import lru_cache
-from typing import Union
-
+from functools import lru_cache, wraps
+from typing import Literal, Union
 import numpy as np
 import sympy as sym
 from numba import njit
@@ -24,6 +24,42 @@ def real_deocrator(fn):
         return np.real(fn(*args))
 
     return wrap_fn
+
+
+def coordinate(require: Literal["spherical", "cartesian"]):
+    """Decorator to ensure layers use the required coordinate system."""
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self: "Solver", *args, **kwargs):
+            systems = {layer.coordinate_system for layer in self.layers}
+
+            if len(systems) > 1:
+                raise ValueError(f"Mixed coordinate systems: {systems}")
+
+            if require in systems:
+                return func(self, *args, **kwargs)
+
+            # Convert temporarily
+            original_layers = self.layers
+            self.layers = [_convert_layer(layer, require) for layer in self.layers]
+
+            try:
+                return func(self, *args, **kwargs)
+            finally:
+                self.layers = original_layers
+
+        return wrapper
+
+    return decorator
+
+
+def _convert_layer(layer, target_system):
+    """Convert layer coordinate system."""
+    new_layer = copy.deepcopy(layer)
+    new_layer.coordinate_system = target_system
+    new_layer.__post_init__()
+    return new_layer
 
 
 @njit
@@ -168,6 +204,7 @@ class LayerSB:
     Ms: float
     Hdmi: VectorObj = None  # TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))
     Ndemag: VectorObj = VectorObj.from_cartesian(0, 0, 1)
+    coordinate_system: Literal["spherical", "cartesian"] = "spherical"
 
     def __post_init__(self):
         if self._id > 9:
@@ -178,19 +215,38 @@ class LayerSB:
             self.Hdmi = sym.ImmutableMatrix(self.Hdmi.get_cartesian())
         self.Ndemag = sym.ImmutableMatrix(self.Ndemag.get_cartesian())
 
-        self.theta = sym.Symbol(r"\theta_" + str(self._id))
-        self.phi = sym.Symbol(r"\phi_" + str(self._id))
-        self.m = sym.ImmutableMatrix(
-            [
-                sym.sin(self.theta) * sym.cos(self.phi),
-                sym.sin(self.theta) * sym.sin(self.phi),
-                sym.cos(self.theta),
-            ]
-        )
+        self.anisotropy_axis = sym.ImmutableMatrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
+        if self.coordinate_system == "spherical":
+            self.phi = sym.Symbol(r"\phi_" + str(self._id))
+            self.theta = sym.Symbol(r"\theta_" + str(self._id))
+            self.m = sym.ImmutableMatrix(
+                [
+                    sym.sin(self.theta) * sym.cos(self.phi),
+                    sym.sin(self.theta) * sym.sin(self.phi),
+                    sym.cos(self.theta),
+                ]
+            )
+            self.get_coord_sym = self.get_coord_sym_spherical
+        elif self.coordinate_system == "cartesian":
+            self.x = sym.Symbol("m_{" + "x," + f"{self._id}}}")
+            self.y = sym.Symbol("m_{" + "y," + f"{self._id}}}")
+            self.z = sym.Symbol("m_{" + "z," + f"{self._id}}}")
+            self.m = sym.ImmutableMatrix(
+                [
+                    self.x,
+                    self.y,
+                    self.z,
+                ]
+            )
+            self.get_coord_sym = self.get_coord_sym_cartesian
 
-    def get_coord_sym(self):
+    def get_coord_sym_spherical(self):
         """Returns the symbolic coordinates of the layer."""
         return self.theta, self.phi
+
+    def get_coord_sym_cartesian(self):
+        """Returns the symbolic coordinates of the layer."""
+        return self.x, self.y, self.z
 
     def get_m_sym(self):
         """Returns the magnetisation vector."""
@@ -363,7 +419,7 @@ class Solver:
         id_sets = {layer._id for layer in self.layers}
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
-            raise ValueError("Layer ids must be 0, 1, 2, ... and unique." "Ids must start from 0.")
+            raise ValueError("Layer ids must be 0, 1, 2, ... and unique.Ids must start from 0.")
 
     def get_layer_references(self, layer_indx: int, interaction_constant: list[float]):
         """Returns the references to the layers above and below the layer
@@ -381,19 +437,76 @@ class Solver:
             interaction_constant[layer_indx],
         )
 
-    def compose_llg_jacobian(self, H: VectorObj):
-        """Create a symbolic jacobian of the LLG equation in spherical coordinates."""
-        # has order theta0, phi0, theta1, phi1, ...
+    def _heff_per_m(self, e, m):
+        """Effective field H_eff = -∂e/∂m, with e = E/(μ0 Ms_i t_i)."""
+        return -sym.Matrix([sym.diff(e, mi) for mi in m])
+
+    def compose_llg_jacobian(self, H, form: Literal["energy", "field"] = "energy"):
+        if form not in ("energy", "field"):
+            raise ValueError("form must be either 'energy' or 'field'")
         if isinstance(H, VectorObj):
             H = sym.ImmutableMatrix(H.get_cartesian())
 
-        symbols, fns = [], []
-        U = self.create_energy(H=H, volumetric=False)
+        symbols, vecs = [], []
+        U = self.create_energy(H=H, volumetric=False)  # energy per area
+        # mu0, gamma_rad = sym.Symbol(r"\mu_0"), sym.Symbol(r"\gamma")
         for layer in self.layers:
-            symbols.extend((layer.theta, layer.phi))
-            fns.append(layer.rhs_spherical_llg(U / layer.thickness, osc=False))
-        jac = sym.ImmutableMatrix(fns).jacobian(symbols)
-        return jac, symbols
+            if form == "energy":
+                symbols.extend((layer.theta, layer.phi))
+                expr = layer.rhs_spherical_llg(U / layer.thickness, osc=False)
+            else:
+                m = layer.get_m_sym()  # (x,y,z) 3×1
+                symbols.extend((layer.x, layer.y, layer.z))
+                # e_i = E/(μ0 Ms_i t_i) in field units
+                e_i = U / (mu0 * layer.thickness * layer.Ms)
+                H_eff_i = self._heff_per_m(e_i, m)  # 3×1
+                expr = -mu0 * gamma_rad * m.cross(H_eff_i)  # 3×1: F_i(m)
+            vecs.append(expr)
+
+        F = sym.Matrix.vstack(*vecs)  # 3N × 1
+        J = F.jacobian(symbols)  # 3N × 3N
+        return J, symbols
+
+    @coordinate(require="cartesian")
+    def linearised_frequencies(self, H, linearisation_axis: Literal["x", "y", "z"]):
+        J, symbols, U, _ = self.compose_llg_jacobian(H=None, form="field")
+
+        # partition symbols by axis and indices by axis
+        axis_pos = {"x": 0, "y": 1, "z": 2}
+        by_axis_syms = {a: [s for i, s in enumerate(symbols) if i % 3 == p] for a, p in axis_pos.items()}
+        by_axis_idx = {a: [i for i in range(len(symbols)) if i % 3 == p] for a, p in axis_pos.items()}
+        n = len(self.layers)
+
+        # evaluate at equilibrium: set non-linearised axes to 0, linearised axis to ±1
+        hold = linearisation_axis
+        subs_zero = {s: 0 for a, syms in by_axis_syms.items() if a != hold for s in syms}
+        J0 = J.subs(subs_zero)
+
+        if hold == "z":
+            P_vals = {by_axis_syms["z"][i]: 1 for i in range(n)}
+            AP_vals = {by_axis_syms["z"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+            drop = by_axis_idx["z"]
+        elif hold == "x":
+            P_vals = {by_axis_syms["x"][i]: 1 for i in range(n)}
+            AP_vals = {by_axis_syms["x"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+            drop = by_axis_idx["x"]
+        else:  # hold == "y"
+            P_vals = {by_axis_syms["y"][i]: 1 for i in range(n)}
+            AP_vals = {by_axis_syms["y"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+            drop = by_axis_idx["y"]
+
+        J0_P = J0.subs(P_vals)
+        J0_AP = J0.subs(AP_vals)
+
+        # remove the fixed-axis rows/cols (those components are second-order small)
+        keep = [i for i in range(J0.shape[0]) if i not in drop]
+        J0_P = J0_P.extract(keep, keep)
+        J0_AP = J0_AP.extract(keep, keep)
+
+        omega = sym.Symbol(r"\omega", complex=True)
+        char_P = sym.I * omega * sym.eye(J0_P.shape[0]) - J0_P
+        char_AP = sym.I * omega * sym.eye(J0_AP.shape[0]) - J0_AP
+        return char_P, char_AP, J0_P, J0_AP
 
     @lru_cache(3)  # cache for 3 calls
     def create_energy(
@@ -604,6 +717,29 @@ class Solver:
         fmr = np.sqrt(float(fmr)) * gamma_rad / (2 * np.pi)
         return fmr
 
+    @coordinate(require="cartesian")
+    def solve_linearised_frequencies(self, H: VectorObj, linearisation_axis: Literal["x", "y", "z"]):
+        """Solves the linearised frequencies of the system.
+        Select linearisation axis and solve characteristic equation to get the frequencies.
+        Requires the system to be in cartesian coordinates.
+
+        WARNING: This circumvents gradient descent and solves the system analytically
+        and is only valid for small amplitudes (e.g. when the system is close to equilibrium along
+        the linearised axis).
+
+        :param H: the magnetic field.
+        :param linearisation_axis: the axis to linearise around.
+        :return: the solutions for the frequencies in the P and AP states.
+        """
+        char_P, char_AP, _, _ = self.linearised_frequencies(H=H, linearisation_axis=linearisation_axis)
+        omega = sym.Symbol(r"\omega", complex=True)
+        poly_P = sym.factor(char_P.det(method="berkowitz"))
+        poly_AP = sym.factor(char_AP.det(method="berkowitz"))
+
+        sol_P = sym.solve(poly_P, omega)
+        sol_AP = sym.solve(poly_AP, omega)
+        return sol_P, sol_AP
+
     def solve(
         self,
         init_position: np.ndarray,
@@ -644,9 +780,9 @@ class Solver:
         """
         if self.H is None:
             raise ValueError("H must be set before solving the system numerically.")
-        assert len(init_position) == 2 * len(
-            self.layers
-        ), f"Incorrect initial position size. Given: {len(init_position)}, expected: {2 * len(self.layers)}"
+        assert len(init_position) == 2 * len(self.layers), (
+            f"Incorrect initial position size. Given: {len(init_position)}, expected: {2 * len(self.layers)}"
+        )
         eq = self.adam_gradient_descent(
             init_position=init_position,
             max_steps=max_steps,
