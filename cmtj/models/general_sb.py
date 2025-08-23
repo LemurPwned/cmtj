@@ -9,33 +9,18 @@ from typing import Literal, Union
 import numpy as np
 import sympy as sym
 from numba import njit
-from sympy.combinatorics import Permutation
 from tqdm import tqdm
 
-from ..utils import VectorObj, gamma_rad, mu0, perturb_position
-from ..utils.solvers import RootFinder
-
-EPS = np.finfo("float64").resolution
-OMEGA = sym.Symbol(r"\omega", complex=True)
-
-
-def _default_matrix_conversion(
-    vector_or_matrix: Union[VectorObj, list[float], sym.Matrix],
-) -> sym.ImmutableMatrix:
-    if isinstance(vector_or_matrix, VectorObj):
-        vector_or_matrix = vector_or_matrix.get_cartesian()
-    elif isinstance(vector_or_matrix, list):
-        vector_or_matrix = sym.ImmutableMatrix(vector_or_matrix)
-    return sym.ImmutableMatrix(vector_or_matrix)
-
-
-def real_deocrator(fn):
-    """Using numpy real cast is way faster than sympy."""
-
-    def wrap_fn(*args):
-        return np.real(fn(*args))
-
-    return wrap_fn
+from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
+from .analytical_utils import (
+    EPS,
+    OMEGA,
+    _berkowitz_det,
+    _default_matrix_conversion,
+    _lu_decomposition_det,
+    _root_solver_analytical,
+    _root_solver_numerical,
+)
 
 
 def coordinate(require: Literal["spherical", "cartesian"]):
@@ -336,8 +321,15 @@ class LayerSB:
         return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy + demagnetisation_energy
 
     def sb_correction(self):
-        omega = OMEGA
-        return (omega / gamma_rad) * self.Ms * sym.sin(self.theta) * self.thickness
+        """
+        Using gamma here instead of gamma_rad for two reason:
+        1. It seems to provide more stable solutinos
+        2. Root finding needs to be done over smaller range of frequencies
+            (gamma_rad is 2pi times larger than gamma) which is faster
+
+        Just remember NOT to divide by 2pi when returning the roots!
+        """
+        return (OMEGA / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
 
     def __hash__(self) -> int:
         return hash(str(self))
@@ -435,35 +427,6 @@ class Solver:
     prefer_numerical_roots: bool = field(default=True, kw_only=True)
     use_LU_decomposition: bool = field(default=True, kw_only=True)
 
-    def _lu_decomposition_det(self, matrix: sym.Matrix):
-        _, U, perm = matrix.LUdecomposition()
-        sgn = Permutation(perm).signature()
-        return sgn * U.det()
-
-    def _berkowitz_det(self, matrix: sym.Matrix):
-        return matrix.det(method="berkowitz")
-
-    def _root_solver_numerical(self, root_expr, ftol=0.01e9, max_freq=80e9):
-        xtol = 1e-8
-        if len(self.layers) <= 3:
-            # makes it faster for small systems, otherise jit cost too high
-            y = real_deocrator(njit(sym.lambdify(OMEGA, root_expr, "math")))
-        else:
-            y = real_deocrator(sym.lambdify(OMEGA, root_expr, "math"))
-        r = RootFinder(xtol, max_freq, step=ftol, xtol=xtol, root_dtype="float16")
-        roots = r.find(y)
-        # convert to GHz
-        # reduce unique solutions to 2 decimal places
-        return np.unique(np.around(roots / 1e9, 2)) / (2.0 * np.pi)
-
-    def _root_solver_analytical(self, root_expr, *args):
-        # args are to make the signature compatible with numerical solver
-        factorised = sym.factor(root_expr)
-        solutions = sym.solve(factorised, OMEGA)
-        # Convert SymPy solutions to float before creating numpy array
-        numeric_solutions = [float(sol.evalf()) for sol in solutions]
-        return np.asarray(numeric_solutions) / (2.0 * np.pi) / 1e9
-
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
             raise ValueError("Number of layers must be 1 more than J1.")
@@ -491,15 +454,16 @@ class Solver:
 
         self.det_solver: callable = None
         self.root_solver: callable = None
-        if self.use_LU_decomposition:
-            self.det_solver = self._lu_decomposition_det
-        else:
-            self.det_solver = self._berkowitz_det
 
-        if self.prefer_numerical_roots:
-            self.root_solver = self._root_solver_numerical
-        else:
-            self.root_solver = self._root_solver_analytical
+        if not self.prefer_numerical_roots and self.use_LU_decomposition:
+            warnings.warn(
+                "LU sometimes causes slow numerical convergence for analytical solve. "
+                "Setting use_LU_decomposition to False.",
+                stacklevel=2,
+            )
+            self.use_LU_decomposition = False
+        self.root_solver = _root_solver_numerical if self.prefer_numerical_roots else _root_solver_analytical
+        self.det_solver = _lu_decomposition_det if self.use_LU_decomposition else _berkowitz_det
 
     def get_layer_references(self, layer_indx: int, interaction_constant: list[float]):
         """Returns the references to the layers above and below the layer
@@ -813,8 +777,8 @@ class Solver:
         char_P, char_AP, _, _ = self.linearised_frequencies(H=H, linearisation_axis=linearisation_axis)
         poly_P = self.det_solver(char_P)
         poly_AP = self.det_solver(char_AP)
-        roots_P = self.root_solver(poly_P)
-        roots_AP = self.root_solver(poly_AP)
+        roots_P = self.root_solver(poly_P, n_layers=len(self.layers), normalise_roots_by_2pi=True)
+        roots_AP = self.root_solver(poly_AP, n_layers=len(self.layers), normalise_roots_by_2pi=True)
         return roots_P, roots_AP
 
     def solve(
@@ -900,7 +864,14 @@ class Solver:
     def hessian_to_roots(self, eq: list[float], ftol: float = 0.01e9, max_freq: float = 80e9):
         hes, subs = self.create_energy_hessian(eq)
         omega_expr = self.det_solver(hes).subs(subs)
-        roots = self.root_solver(omega_expr, ftol, max_freq)
+        # We do not normalise the roots by 2pi here because of the SB correction
+        roots = self.root_solver(
+            omega_expr,
+            n_layers=len(self.layers),
+            normalise_roots_by_2pi=False,
+            ftol=ftol,
+            max_freq=max_freq,
+        )
         return eq, roots
 
     def analytical_roots(self):
@@ -1002,6 +973,7 @@ class Solver:
             step_subs.update(self.get_ms_subs())
             step_subs.update({Hsym[0]: hx, Hsym[1]: hy, Hsym[2]: hz})
             roots = [s.subs(step_subs) for s in global_roots]
+            # TODO fix scaling by gamma below
             roots = np.asarray(roots, dtype=np.float32) * gamma_rad / (2.0 * np.pi) / 1e9
             yield eq, roots, Hvalue
             current_position = eq
