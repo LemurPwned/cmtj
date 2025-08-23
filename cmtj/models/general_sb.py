@@ -424,8 +424,8 @@ class Solver:
     Ndipole: list[list[VectorObj]] = None
 
     # Configuration options as regular fields
-    prefer_numerical_roots: bool = field(default=True, kw_only=True)
-    use_LU_decomposition: bool = field(default=True, kw_only=True)
+    prefer_numerical_roots: bool = True
+    use_LU_decomposition: bool = True
 
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
