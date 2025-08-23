@@ -1,0 +1,812 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="LemurPwned" name="author"/>
+<link href="https://lemurpwned.github.io/cmtj/autogen/08_signal_filters_/" rel="canonical"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.5.3, mkdocs-material-9.4.10" name="generator"/>
+<title>Chapter 8: Signal Filters - CMTJ</title>
+<link href="../../assets/stylesheets/main.fad675c6.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.356b1318.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#chapter-8-signal-filters">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<div data-md-color-scheme="default" data-md-component="outdated" hidden="">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="CMTJ" class="md-header__button md-logo" data-md-component="logo" href="../.." title="CMTJ">
+<img alt="logo" src="../../assets/icon.svg"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            CMTJ
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Chapter 8: Signal Filters
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+</label>
+</form>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/LemurPwned/cmtj" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"></path></svg>
+</div>
+<div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="CMTJ" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="CMTJ">
+<img alt="logo" src="../../assets/icon.svg"/>
+</a>
+    CMTJ
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/LemurPwned/cmtj" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"></path></svg>
+</div>
+<div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../overview/">
+<span class="md-ellipsis">
+    Start here!
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../changelog/">
+<span class="md-ellipsis">
+    Changelog
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tipsandtricks/">
+<span class="md-ellipsis">
+    Tips &amp; Tricks
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Theory
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Theory
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/contributions/">
+<span class="md-ellipsis">
+    Macromagnetic contributions
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/macromagnetic_models/">
+<span class="md-ellipsis">
+    LLG Equation &amp; solvers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/sb-model/">
+<span class="md-ellipsis">
+    Symbolic models
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/linearisation/">
+<span class="md-ellipsis">
+    Linearisation
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    Experimental
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Experimental
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/introduction/">
+<span class="md-ellipsis">
+    Introduction
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/CIMS/">
+<span class="md-ellipsis">
+    CIMS Tutorial
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/HarmonicsFits/">
+<span class="md-ellipsis">
+    Harmonic Fits
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/examples/">
+<span class="md-ellipsis">
+    Advanced examples
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/VoltageSpinDiodeFits/">
+<span class="md-ellipsis">
+    Voltage Spin Diode
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/paralellism/">
+<span class="md-ellipsis">
+    Parallelism
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    Tutorial (LLM-generated)
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            Tutorial (LLM-generated)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    Index
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../01_pimm___vsd_procedures_/">
+<span class="md-ellipsis">
+    Procedures
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../02_fieldscan_utilities_/">
+<span class="md-ellipsis">
+    Utilities
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../03_time_dependent_drivers__scalardriver___axialdriver__/">
+<span class="md-ellipsis">
+    Drivers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../04_magnetic_layer_models__layersb___layerdynamic__/">
+<span class="md-ellipsis">
+    Layers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../05_domain_wall_dynamics__domainwalldynamics___multilayerwalldynamics__/">
+<span class="md-ellipsis">
+    Domain models
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../07_noise_generation_models_/">
+<span class="md-ellipsis">
+    Noise
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../09_vector_objects__cvector___vectorobj__/">
+<span class="md-ellipsis">
+    Vector objects
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../10_sb_solver__solver__/">
+<span class="md-ellipsis">
+    Energy solvers
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    API
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/core/">
+<span class="md-ellipsis">
+    Core
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/drivers/">
+<span class="md-ellipsis">
+    Drivers
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Models
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_9_3">
+<span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/models/sb-general-reference/">
+<span class="md-ellipsis">
+    Smit-Beljers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/models/dw-reference/">
+<span class="md-ellipsis">
+    Domain wall
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9_4" id="__nav_9_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Utils
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_9_4">
+<span class="md-nav__icon md-icon"></span>
+            Utils
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/resistance-reference/">
+<span class="md-ellipsis">
+    Resistance
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/linear-reference/">
+<span class="md-ellipsis">
+    Linear
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/filters-reference/">
+<span class="md-ellipsis">
+    Filters
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/energy-reference/">
+<span class="md-ellipsis">
+    Energy
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/plotting-reference/">
+<span class="md-ellipsis">
+    Plotting
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/procedures-reference/">
+<span class="md-ellipsis">
+    Procedures
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/parallel-reference/">
+<span class="md-ellipsis">
+    Parallel
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/optimization-reference/">
+<span class="md-ellipsis">
+    Optimization
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/ensemble-reference/">
+<span class="md-ellipsis">
+    Ensemble models
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/general-reference/">
+<span class="md-ellipsis">
+    Miscellanous
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/stack/">
+<span class="md-ellipsis">
+    Stack
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/noise/">
+<span class="md-ellipsis">
+    Noise
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/llgb/">
+<span class="md-ellipsis">
+    LLGB
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/reservoir/">
+<span class="md-ellipsis">
+    Group interactions
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    Examples
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/CMTJBindingsTutorial/">
+<span class="md-ellipsis">
+    Library introduction
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/trajectory/">
+<span class="md-ellipsis">
+    Generating trajectories
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/SBModel/">
+<span class="md-ellipsis">
+    Smit-Beljers model for ferromagnetic resonance
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/interactions/">
+<span class="md-ellipsis">
+    Group interactions
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/simpler_harmonics/">
+<span class="md-ellipsis">
+    Simple harmonic Hall voltage detection
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-motivation-central-use-case">
+<span class="md-ellipsis">
+      1. Motivation &amp; Central Use Case
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-key-concepts">
+<span class="md-ellipsis">
+      2. Key Concepts
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-how-to-use-filters-a-minimal-example">
+<span class="md-ellipsis">
+      3. How to Use Filters: A Minimal Example
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-under-the-hood-what-happens-when-you-call-a-filter">
+<span class="md-ellipsis">
+      4. Under the Hood: What Happens When You Call a Filter
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-peeking-into-the-implementation">
+<span class="md-ellipsis">
+      5. Peeking into the Implementation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-conclusion-next-steps">
+<span class="md-ellipsis">
+      6. Conclusion &amp; Next Steps
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="chapter-8-signal-filters">Chapter 8: Signal Filters</h1>
+<p>Welcome back! In <a href="../07_noise_generation_models_/">Chapter 7: Noise Generation Models</a> we added realistic thermal or pink‐noise fluctuations to our simulations. Now these time‐series can be quite messy. In this chapter, we’ll learn how to <strong>clean</strong> and <strong>focus</strong> on the frequencies you care about by using <strong>signal filters</strong>—much like an audio equalizer weeds out hiss or hum so you only hear the melody.</p>
+<hr/>
+<h2 id="1-motivation-central-use-case">1. Motivation &amp; Central Use Case</h2>
+<p>Imagine you’ve recorded a voltage signal from your junction and the raw trace looks like this:</p>
+<ul>
+<li>A slow drift (baseline)</li>
+<li>A 50 Hz pickup from the power line</li>
+<li>High‑frequency thermal jitters</li>
+</ul>
+<p>You want to:</p>
+<ol>
+<li><strong>Remove</strong> the slow drift.</li>
+<li><strong>Suppress</strong> the 50 Hz hum.</li>
+<li><strong>Keep</strong> the dynamic response between 100 Hz and 10 kHz.</li>
+</ol>
+<p>With <strong>signal filters</strong> you can do all three in just a few lines of code.</p>
+<hr/>
+<h2 id="2-key-concepts">2. Key Concepts</h2>
+<ol>
+<li><strong>Butterworth Band‑Pass Filter</strong></li>
+<li>A smooth filter that only passes a frequency band you choose (e.g. 100 Hz–10 kHz).</li>
+<li><strong>Butterworth Low‑Pass Filter</strong></li>
+<li>Lets through frequencies below a cutoff (e.g. remove everything above 20 kHz).</li>
+<li><strong>Detrending</strong></li>
+<li>Removes slow drifts or offsets by subtracting the median or linear trend.</li>
+</ol>
+<p>Think of your raw data as a tangled rope.</p>
+<ul>
+<li><strong>Band‑pass</strong> picks out only the middle section you care about.</li>
+<li><strong>Low‑pass</strong> chops off the noisy high‑frequency ends.</li>
+<li><strong>Detrend</strong> straightens the rope so its middle is level.</li>
+</ul>
+<hr/>
+<h2 id="3-how-to-use-filters-a-minimal-example">3. How to Use Filters: A Minimal Example</h2>
+<p>Below is a simple workflow. Suppose you have:</p>
+<ul>
+<li><code>raw_signal</code>: a NumPy array of voltage vs. time</li>
+<li><code>fs</code>: sampling frequency in Hz (e.g. 50 000 Hz)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filters</span>
+
+<span class="c1"># 1) Create a noisy test signal</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50000</span><span class="p">)</span>  <span class="c1"># 1 s at 50 kHz</span>
+<span class="n">clean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1000</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>          <span class="c1"># 1 kHz tone</span>
+<span class="n">hum</span>   <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">50</span>  <span class="o">*</span><span class="n">t</span><span class="p">)</span>      <span class="c1"># 50 Hz hum</span>
+<span class="n">noise</span> <span class="o">=</span> <span class="mf">0.2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>     <span class="c1"># white noise</span>
+<span class="n">raw_signal</span> <span class="o">=</span> <span class="n">clean</span> <span class="o">+</span> <span class="n">hum</span> <span class="o">+</span> <span class="n">noise</span>
+
+<span class="c1"># 2) Apply a band‑pass from 100 Hz to 10 kHz</span>
+<span class="n">bp</span> <span class="o">=</span> <span class="n">Filters</span><span class="o">.</span><span class="n">butter_bandpass_filter</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">raw_signal</span><span class="p">,</span>
+    <span class="n">pass_freq</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span>
+    <span class="n">fs</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span>
+    <span class="n">order</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">)</span>
+
+<span class="c1"># 3) Detrend to remove baseline drift</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">Filters</span><span class="o">.</span><span class="n">detrend_axis</span><span class="p">(</span><span class="n">bp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 4) Plot raw vs filtered</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">raw_signal</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">filtered</span><span class="p">,</span>     <span class="n">label</span><span class="o">=</span><span class="s2">"filtered"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p>Explanation:</p>
+<ol>
+<li>We build a synthetic signal with a 1 kHz tone, 50 Hz hum, and random noise.</li>
+<li><code>butter_bandpass_filter</code> keeps only 100 Hz–10 kHz.</li>
+<li><code>detrend_axis</code> subtracts the median so the baseline sits at zero.</li>
+<li>The final plot shows the clean 1 kHz oscillation without drift or hum.</li>
+</ol>
+<hr/>
+<h2 id="4-under-the-hood-what-happens-when-you-call-a-filter">4. Under the Hood: What Happens When You Call a Filter</h2>
+<p>Here’s a high‑level view of <code>butter_bandpass_filter</code>:</p>
+<pre class="mermaid"><code>sequenceDiagram
+  participant U as User Code
+  participant F as Filters.butter_bandpass_filter
+  participant S as scipy.signal.butter
+  participant L as scipy.signal.lfilter
+
+  U-&gt;&gt;F: call butter_bandpass_filter(data, pass_freq, fs, order)
+  F-&gt;&gt;S: design filter coefficients (b, a)
+  F-&gt;&gt;L: apply filter to data
+  L--&gt;&gt;F: return filtered data
+  F--&gt;&gt;U: provide filtered time‐series
+</code></pre>
+<ol>
+<li><strong>Design</strong>: Butterworth analog prototype → digital coefficients <code>b, a</code>.</li>
+<li><strong>Apply</strong>: <code>lfilter(b, a, data)</code> runs the filter over your array.</li>
+<li><strong>Return</strong>: You get back a cleaned array of the same length.</li>
+</ol>
+<hr/>
+<h2 id="5-peeking-into-the-implementation">5. Peeking into the Implementation</h2>
+<p>All of this lives in <code>cmtj/utils/filters.py</code>. Here are the core pieces, simplified:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># File: cmtj/utils/filters.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span><span class="p">,</span> <span class="n">lfilter</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Filters</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">butter_bandpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
+        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">pass_freq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">nyq</span><span class="p">,</span> <span class="n">pass_freq</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">nyq</span>
+        <span class="c1"># design band‑pass filter</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="p">[</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">],</span> <span class="n">btype</span><span class="o">=</span><span class="s2">"bandpass"</span><span class="p">)</span>
+        <span class="c1"># apply filter</span>
+        <span class="k">return</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">butter_lowpass_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">nyq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fs</span>
+        <span class="n">norm_cut</span> <span class="o">=</span> <span class="n">cutoff</span> <span class="o">/</span> <span class="n">nyq</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">butter</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">norm_cut</span><span class="p">,</span> <span class="n">btype</span><span class="o">=</span><span class="s2">"low"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lfilter</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detrend_axis</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+        <span class="n">med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+        <span class="c1"># subtract median along the chosen axis</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">med</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="k">if</span> <span class="n">axis</span> <span class="k">else</span> <span class="n">arr</span> <span class="o">-</span> <span class="n">med</span>
+</code></pre></div>
+<ul>
+<li>We first <strong>normalize</strong> frequencies by the Nyquist rate (<code>fs/2</code>).</li>
+<li>We call SciPy’s <code>butter</code> to get filter polynomials.</li>
+<li>Then <code>lfilter</code> runs the actual smoothing.</li>
+<li><code>detrend_axis</code> subtracts the median to remove slow drifts.</li>
+</ul>
+<hr/>
+<h2 id="6-conclusion-next-steps">6. Conclusion &amp; Next Steps</h2>
+<p>You’ve now learned how to:</p>
+<ul>
+<li>Apply <strong>Butterworth band‑pass</strong> and <strong>low‑pass</strong> filters to isolate your frequency band of interest.</li>
+<li><strong>Detrend</strong> your data to remove baseline drifts.</li>
+<li>Peek under the hood at how these filters are designed and applied in <code>cmtj</code>.</li>
+</ul>
+<p>With your signals now clean and focused, the next chapter will introduce <strong>Vector Objects</strong>—a handy way to manipulate multi‑component data like 3D field arrays. Onward to <a href="../09_vector_objects__cvector___vectorobj__/">Chapter 9: Vector Objects (CVector &amp; VectorObj)</a>!</p>
+<hr/>
+<p>Generated by <a href="https://github.com/The-Pocket/Tutorial-Codebase-Knowledge">AI Codebase Knowledge Builder</a></p>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+<script src="../../javascripts/config.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>

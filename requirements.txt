@@ -4,6 +4,7 @@ mkdocs-autorefs==0.2.1
 mkdocs-jupyter==0.17.3
 mkdocs-material==7.1.11
 mkdocs-material-extensions==1.0.1
+mkdocs-mermaid2-plugin==1.2.1
 mkdocstrings==0.15.2
 numpy==1.22.0
 readthedocs-sphinx-search==0.3.2

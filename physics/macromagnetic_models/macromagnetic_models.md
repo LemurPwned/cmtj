@@ -15,27 +15,27 @@ allows us to solve it numerically (no implicit term on $\frac{dm}{dt}$).
 
 Standard form of the LLG-SOT equation:
 
-$$\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma\tau_{fl}\textbf{m} \times \bm{\sigma}-\gamma\tau_{dl}\textbf{m}\times\textbf{m}\times \bm{\sigma}$$
+$$\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma\tau_{fl}\textbf{m} \times \sigma-\gamma\tau_{dl}\textbf{m}\times\textbf{m}\times \sigma$$
 
 Multiply that
 equation $\times m$:
 
 $$
 \begin{gathered}
-       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma\tau_{fl} \textbf{m} \times \textbf{m} \times \bm{\sigma}-   \gamma\tau_{dl}\textbf{m} \times \textbf{m}\times\textbf{m}\times \bm{\sigma} \\
-   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma\tau_{fl} (\textbf{m}(\textbf{m}\cdot\bm{\sigma}) - \bm{\sigma}) +   \gamma\tau_{dl}\textbf{m}\times \bm{\sigma}\end{gathered}
+       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma\tau_{fl} \textbf{m} \times \textbf{m} \times \sigma-   \gamma\tau_{dl}\textbf{m} \times \textbf{m}\times\textbf{m}\times \sigma \\
+   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma\tau_{fl} (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) +   \gamma\tau_{dl}\textbf{m}\times \sigma\end{gathered}
 $$
 
 Substitute RHS of the derived equation above into $\textbf{m}\times \frac{d\textbf{m}}{dt}$:
 
 $$
 \begin{gathered}
-  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma\tau_{fl} (\textbf{m}(\textbf{m}\cdot\bm{\sigma}) - \bm{\sigma}) +   \gamma\tau_{dl}\textbf{m}\times \bm{\sigma}] \\ -
-   \gamma\tau_{fl}\textbf{m} \times \bm{\sigma} \\ -
-    \gamma\tau_{dl}\textbf{m}\times\textbf{m}\times \bm{\sigma} \\
+  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma\tau_{fl} (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) +   \gamma\tau_{dl}\textbf{m}\times \sigma] \\ -
+   \gamma\tau_{fl}\textbf{m} \times \sigma \\ -
+    \gamma\tau_{dl}\textbf{m}\times\textbf{m}\times \sigma \\
      \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\
-     - \gamma\tau_{fl}[\textbf{m} \times \bm{\sigma}  + \alpha (\textbf{m}(\textbf{m}\cdot\bm{\sigma}) - \bm{\sigma}) ] \\
-     -  \gamma\tau_{dl}[\textbf{m}\times\textbf{m}\times \bm{\sigma} - \alpha\textbf{m}\times \bm{\sigma}]\end{gathered}
+     - \gamma\tau_{fl}[\textbf{m} \times \sigma  + \alpha (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) ] \\
+     -  \gamma\tau_{dl}[\textbf{m}\times\textbf{m}\times \sigma - \alpha\textbf{m}\times \sigma]\end{gathered}
 $$
 
 Rearranging the terms gives:
@@ -43,8 +43,8 @@ Rearranging the terms gives:
 $$
 \begin{aligned}
     \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &\\
-     + \tau_{fl}[\textbf{m} \times \bm{\sigma}  + \alpha (\textbf{m}(\textbf{m}\cdot\bm{\sigma}) - \bm{\sigma}) ] &\\
-     +  \tau_{dl}[\textbf{m}\times\textbf{m}\times \bm{\sigma} - \alpha\textbf{m}\times \bm{\sigma}]]\end{aligned}
+     + \tau_{fl}[\textbf{m} \times \sigma  + \alpha (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) ] &\\
+     +  \tau_{dl}[\textbf{m}\times\textbf{m}\times \sigma - \alpha\textbf{m}\times \sigma]]\end{aligned}
 $$
 
 In this form, $\gamma$ is the gyromagnetic ratio and is equal to $\gamma \approx 2.2e5 \frac{m}{As}$.
@@ -53,8 +53,8 @@ The last part can be re-arranged to:
 $$
 \begin{aligned}
 \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} ]&\\
-+ \tau_{fl}[\textbf{m} \times \bm{\sigma}  + \alpha (\textbf{m}(\textbf{m}\cdot\bm{\sigma}) - \bm{\sigma}) ] + \tau_{dl}[\textbf{m}\times\textbf{m}\times\bm{\sigma} - \alpha\textbf{m}\times \bm{\sigma}]&\\ 
-\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  + \textbf{m} \times \bm{\sigma}(\tau_{fl} - \alpha\tau_{dl}) + \textbf{m}\times\textbf{m}\times\bm{\sigma}(\tau_{dl} + \alpha\tau_{fl})]
++ \tau_{fl}[\textbf{m} \times \sigma  + \alpha (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) ] + \tau_{dl}[\textbf{m}\times\textbf{m}\times\sigma - \alpha\textbf{m}\times \sigma]&\\
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  + \textbf{m} \times \sigma(\tau_{fl} - \alpha\tau_{dl}) + \textbf{m}\times\textbf{m}\times\sigma(\tau_{dl} + \alpha\tau_{fl})]
 \end{aligned}
 $$
 
@@ -65,15 +65,15 @@ LL-form of the LLGS equation is:
 
 $$
 (...)+ \frac{-\gamma}{1 + \alpha^2}[
-    \tau'_1 \textbf{m}\times(\textbf{m}\times \bm{\sigma})
-    + \tau'_2 \textbf{m}\times \bm{\sigma}]
+    \tau'_1 \textbf{m}\times(\textbf{m}\times \sigma)
+    + \tau'_2 \textbf{m}\times \sigma]
 $$
 
 It is worth nothing that eliminating the field-like torque magnitude, $\tau_{fl}$ **does not** eliminate the field-like term in the equation. See below for $\tau_{fl} = 0$:
 
-$$ 
+$$
 \begin{aligned}
-\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  - \alpha\textbf{m} \times \bm{\sigma}\tau_{dl} + \textbf{m}\times\textbf{m}\times\bm{\sigma}\tau_{dl}]
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  - \alpha\textbf{m} \times \sigma\tau_{dl} + \textbf{m}\times\textbf{m}\times\sigma\tau_{dl}]
 \end{aligned}
 $$
 
@@ -83,9 +83,10 @@ Similarly, when $\tau_{dl} = 0$ there is still field-like part:
 
 $$
 \begin{aligned}
-\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  + \textbf{m} \times \bm{\sigma}\tau_{fl} + \alpha\textbf{m}\times\textbf{m}\times\bm{\sigma}\tau_{fl}]
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  + \textbf{m} \times \sigma\tau_{fl} + \alpha\textbf{m}\times\textbf{m}\times\sigma\tau_{fl}]
 \end{aligned}
 $$
+
 ## STT interaction
 
 The origin of STT is different, thus, we use a different set of
@@ -95,12 +96,12 @@ $$
 \begin{gathered}
     |H_{dl}| = \beta |H_{fl}|, \quad \beta \in [0, 1] \\
     a_j = \frac{\hbar j_e}{eM_s t_{FM}} \\
-    \eta = \frac{\bm{\sigma} \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\bm{\sigma}}\end{gathered}
+    \eta = \frac{\sigma \Lambda^2}{\Lambda^2 + 1 + (\Lambda^2 -1)\textbf{m}\cdot\sigma}\end{gathered}
 $$
 
 Given those two terms above, the non-torque part remains the same:
 
-$$... +  a_j\eta\beta\textbf{m} \times \bm{\sigma} + a_j\eta\textbf{m}\times\textbf{m}\times \bm{\sigma}$$
+$$... +  a_j\eta\beta\textbf{m} \times \sigma + a_j\eta\textbf{m}\times\textbf{m}\times \sigma$$
 
 Then, equation only changes the coefficients scaling the
 damping-like and field-like torques.
@@ -135,10 +136,10 @@ fluctuations $\mathbf{H}_{\mathrm{eff}} \rightarrow \mathbf{H}_{\mathrm{eff}} + 
 we transform the standard LLGS equation into the form that fits
 Stratonovich SDE. The thermal fluctuations have zero mean and a preset standard deviation:
 
-$$\bm{\sigma}(t) = \sqrt{\frac{4\alpha k_bT(t)}{\mu_0 M_s V\gamma_0}}    \quad (1)$$
+$$\sigma(t) = \sqrt{\frac{4\alpha k_bT(t)}{\mu_0 M_s V\gamma_0}}    \quad (1)$$
 
 where $V$ is the volume of the cell (layer), and $k_bT(t)$ is the thermal energy of the system. As a
-result, $\bm{\sigma}(t)$ should be dimensionless.
+result, $\sigma(t)$ should be dimensionless.
 
 To convince ourselves that this is the correct form, one can take a look at the units.
 In the standard LLG, let's take a term $\frac{dm}{dt} = -\gamma\mathbf{m}\times\mathbf{H}_{\mathrm{eff}}$.
@@ -190,7 +191,7 @@ following:
 
 $$
 \mathbf{g}(\mathbf{m}_t, t)\circ\mathrm{d}W  =
-    - \frac{\bm{\sigma}\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
+    - \frac{\sigma\gamma}{1+\alpha^2}[\mathbf{m}\times\mathrm{d}W + \alpha\mathbf{m}\times(\mathbf{m}\times\mathrm{d}W)]
 $$
 
 with $\mathrm{d}W \in \mathbf{R}^3 \sim \sqrt{t}\mathcal{N}(0, 1)$, a

@@ -1,0 +1,922 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="LemurPwned" name="author"/>
+<link href="https://lemurpwned.github.io/cmtj/autogen/05_domain_wall_dynamics__domainwalldynamics___multilayerwalldynamics__/" rel="canonical"/>
+<link href="../04_magnetic_layer_models__layersb___layerdynamic__/" rel="prev"/>
+<link href="../07_noise_generation_models_/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.5.3, mkdocs-material-9.4.10" name="generator"/>
+<title>Domain models - CMTJ</title>
+<link href="../../assets/stylesheets/main.fad675c6.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.356b1318.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#chapter-5-domain-wall-dynamics-domainwalldynamics-multilayerwalldynamics">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<div data-md-color-scheme="default" data-md-component="outdated" hidden="">
+</div>
+<header class="md-header md-header--shadow" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="CMTJ" class="md-header__button md-logo" data-md-component="logo" href="../.." title="CMTJ">
+<img alt="logo" src="../../assets/icon.svg"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            CMTJ
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Domain models
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: light)" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+</label>
+</form>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/LemurPwned/cmtj" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"></path></svg>
+</div>
+<div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="CMTJ" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="CMTJ">
+<img alt="logo" src="../../assets/icon.svg"/>
+</a>
+    CMTJ
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/LemurPwned/cmtj" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"></path></svg>
+</div>
+<div class="md-source__repository">
+    LemurPwned/cmtj
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../overview/">
+<span class="md-ellipsis">
+    Start here!
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../changelog/">
+<span class="md-ellipsis">
+    Changelog
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tipsandtricks/">
+<span class="md-ellipsis">
+    Tips &amp; Tricks
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Theory
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Theory
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/contributions/">
+<span class="md-ellipsis">
+    Macromagnetic contributions
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/macromagnetic_models/">
+<span class="md-ellipsis">
+    LLG Equation &amp; solvers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/sb-model/">
+<span class="md-ellipsis">
+    Symbolic models
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/linearisation/">
+<span class="md-ellipsis">
+    Linearisation
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    Experimental
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Experimental
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/introduction/">
+<span class="md-ellipsis">
+    Introduction
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/CIMS/">
+<span class="md-ellipsis">
+    CIMS Tutorial
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/HarmonicsFits/">
+<span class="md-ellipsis">
+    Harmonic Fits
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/examples/">
+<span class="md-ellipsis">
+    Advanced examples
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../experimental-methods/VoltageSpinDiodeFits/">
+<span class="md-ellipsis">
+    Voltage Spin Diode
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../physics/paralellism/">
+<span class="md-ellipsis">
+    Parallelism
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+    Tutorial (LLM-generated)
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+            Tutorial (LLM-generated)
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    Index
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../01_pimm___vsd_procedures_/">
+<span class="md-ellipsis">
+    Procedures
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../02_fieldscan_utilities_/">
+<span class="md-ellipsis">
+    Utilities
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../03_time_dependent_drivers__scalardriver___axialdriver__/">
+<span class="md-ellipsis">
+    Drivers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../04_magnetic_layer_models__layersb___layerdynamic__/">
+<span class="md-ellipsis">
+    Layers
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Domain models
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Domain models
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-motivation-central-use-case">
+<span class="md-ellipsis">
+      1. Motivation &amp; Central Use Case
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-key-concepts">
+<span class="md-ellipsis">
+      2. Key Concepts
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-how-to-use-simple-example">
+<span class="md-ellipsis">
+      3. How to Use: Simple Example
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-under-the-hood-what-happens-when-you-call-run">
+<span class="md-ellipsis">
+      4. Under the Hood: What Happens When You Call run()
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-peeking-at-the-core-implementation">
+<span class="md-ellipsis">
+      5. Peeking at the Core Implementation
+    </span>
+</a>
+<nav aria-label="5. Peeking at the Core Implementation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-the-singlewall-ode-compute_dynamics">
+<span class="md-ellipsis">
+      5.1 The single‑wall ODE (compute_dynamics)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-coupling-walls-multilayer_dw_llg">
+<span class="md-ellipsis">
+      5.2 Coupling walls (multilayer_dw_llg)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-visualizing-coupled-walls-trainofcars-analogy">
+<span class="md-ellipsis">
+      6. Visualizing Coupled Walls (Train‑of‑Cars Analogy)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-conclusion-next-steps">
+<span class="md-ellipsis">
+      7. Conclusion &amp; Next Steps
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../07_noise_generation_models_/">
+<span class="md-ellipsis">
+    Noise
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../09_vector_objects__cvector___vectorobj__/">
+<span class="md-ellipsis">
+    Vector objects
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../10_sb_solver__solver__/">
+<span class="md-ellipsis">
+    Energy solvers
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+    API
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/core/">
+<span class="md-ellipsis">
+    Core
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/drivers/">
+<span class="md-ellipsis">
+    Drivers
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9_3" id="__nav_9_3_label" tabindex="0">
+<span class="md-ellipsis">
+    Models
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_9_3">
+<span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/models/sb-general-reference/">
+<span class="md-ellipsis">
+    Smit-Beljers
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/models/dw-reference/">
+<span class="md-ellipsis">
+    Domain wall
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9_4" id="__nav_9_4_label" tabindex="0">
+<span class="md-ellipsis">
+    Utils
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_9_4">
+<span class="md-nav__icon md-icon"></span>
+            Utils
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/resistance-reference/">
+<span class="md-ellipsis">
+    Resistance
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/linear-reference/">
+<span class="md-ellipsis">
+    Linear
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/filters-reference/">
+<span class="md-ellipsis">
+    Filters
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/energy-reference/">
+<span class="md-ellipsis">
+    Energy
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/plotting-reference/">
+<span class="md-ellipsis">
+    Plotting
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/procedures-reference/">
+<span class="md-ellipsis">
+    Procedures
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/parallel-reference/">
+<span class="md-ellipsis">
+    Parallel
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/optimization-reference/">
+<span class="md-ellipsis">
+    Optimization
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/ensemble-reference/">
+<span class="md-ellipsis">
+    Ensemble models
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/general-reference/">
+<span class="md-ellipsis">
+    Miscellanous
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/stack/">
+<span class="md-ellipsis">
+    Stack
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/noise/">
+<span class="md-ellipsis">
+    Noise
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/llgb/">
+<span class="md-ellipsis">
+    LLGB
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/reservoir/">
+<span class="md-ellipsis">
+    Group interactions
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_10" type="checkbox"/>
+<label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+<span class="md-ellipsis">
+    Examples
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_10_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_10">
+<span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/CMTJBindingsTutorial/">
+<span class="md-ellipsis">
+    Library introduction
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/trajectory/">
+<span class="md-ellipsis">
+    Generating trajectories
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/SBModel/">
+<span class="md-ellipsis">
+    Smit-Beljers model for ferromagnetic resonance
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/interactions/">
+<span class="md-ellipsis">
+    Group interactions
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tutorials/simpler_harmonics/">
+<span class="md-ellipsis">
+    Simple harmonic Hall voltage detection
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-motivation-central-use-case">
+<span class="md-ellipsis">
+      1. Motivation &amp; Central Use Case
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-key-concepts">
+<span class="md-ellipsis">
+      2. Key Concepts
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-how-to-use-simple-example">
+<span class="md-ellipsis">
+      3. How to Use: Simple Example
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-under-the-hood-what-happens-when-you-call-run">
+<span class="md-ellipsis">
+      4. Under the Hood: What Happens When You Call run()
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-peeking-at-the-core-implementation">
+<span class="md-ellipsis">
+      5. Peeking at the Core Implementation
+    </span>
+</a>
+<nav aria-label="5. Peeking at the Core Implementation" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-the-singlewall-ode-compute_dynamics">
+<span class="md-ellipsis">
+      5.1 The single‑wall ODE (compute_dynamics)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-coupling-walls-multilayer_dw_llg">
+<span class="md-ellipsis">
+      5.2 Coupling walls (multilayer_dw_llg)
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-visualizing-coupled-walls-trainofcars-analogy">
+<span class="md-ellipsis">
+      6. Visualizing Coupled Walls (Train‑of‑Cars Analogy)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-conclusion-next-steps">
+<span class="md-ellipsis">
+      7. Conclusion &amp; Next Steps
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="chapter-5-domain-wall-dynamics-domainwalldynamics-multilayerwalldynamics">Chapter 5: Domain Wall Dynamics (DomainWallDynamics &amp; MultilayerWallDynamics)</h1>
+<p>Welcome back! In <a href="../04_magnetic_layer_models__layersb___layerdynamic__/">Chapter 4: Magnetic Layer Models (LayerSB &amp; LayerDynamic)</a> we learned how to describe uniform films and compute their FMR. Now we turn our attention to <strong>domain walls</strong>—the boundaries between “up” and “down” regions in a magnet—and see how to simulate their motion under fields, currents, pinning, and interlayer coupling.</p>
+<hr/>
+<h2 id="1-motivation-central-use-case">1. Motivation &amp; Central Use Case</h2>
+<p>Imagine you have a nanowire with a single domain wall and you want to know:</p>
+<ol>
+<li>How fast the wall moves when you apply a spin‑Hall current pulse.</li>
+<li>How its internal angle (<code>φ</code>) tilts over time.</li>
+<li>How the wall width (<code>δ</code>) adapts dynamically (or is pinned by imperfections).</li>
+</ol>
+<p>Or imagine two walls in adjacent layers that interact like <strong>train cars</strong>—the front car pulls the next one via an interlayer coupling <code>J</code>.</p>
+<p>With <code>DomainWallDynamics</code> and <code>MultilayerWallDynamics</code> you get a <strong>1D “collective coordinate”</strong> model: each wall is just three numbers—position <code>X</code>, angle <code>φ</code>, width <code>δ</code>—and a set of ODEs describes how they evolve. <code>MultilayerWallDynamics</code> then glues one or two walls together and integrates them via an adaptive Runge–Kutta solver (<code>RK45</code>).</p>
+<p>Here’s how to solve our single‑wall use case in just a few lines of code.</p>
+<hr/>
+<h2 id="2-key-concepts">2. Key Concepts</h2>
+<p>• <strong>X</strong>, <strong>φ</strong>, <strong>δ</strong></p>
+<ul>
+<li>X: center of the wall along the wire</li>
+<li>φ: internal magnetization angle (e.g. Néel or Bloch type)</li>
+<li>δ: domain‑wall width</li>
+</ul>
+<p>• <strong>DomainWallDynamics</strong></p>
+<ul>
+<li>Holds all material parameters (Ms, α, DMI, anisotropies, pinning strength…)</li>
+<li>Knows the external field <strong>H</strong> and any time‑dependent current via <code>set_current_function</code></li>
+<li>Computes <code>dX/dt</code>, <code>dφ/dt</code>, <code>dδ/dt</code> at each time</li>
+</ul>
+<p>• <strong>MultilayerWallDynamics</strong></p>
+<ul>
+<li>Takes one or two <code>DomainWallDynamics</code> objects</li>
+<li>Adds an interlayer coupling term <code>J</code> (zero for single wall)</li>
+<li>Packs all <code>X</code>, <code>φ</code>, <code>δ</code> into one big state vector</li>
+<li>Uses SciPy’s <code>RK45</code> to step the ODEs and record trajectories</li>
+</ul>
+<hr/>
+<h2 id="3-how-to-use-simple-example">3. How to Use: Simple Example</h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.models.domain_dynamics</span><span class="w"> </span><span class="kn">import</span> <span class="n">DomainWallDynamics</span><span class="p">,</span> <span class="n">MultilayerWallDynamics</span><span class="p">,</span> <span class="n">DW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cmtj.utils.general</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorObj</span>
+
+<span class="c1"># 1) Define an external field along +z (100 kA/m)</span>
+<span class="n">H_ext</span> <span class="o">=</span> <span class="n">VectorObj</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e5</span><span class="p">)</span>
+
+<span class="c1"># 2) Create a single-wall dynamics object</span>
+<span class="n">dw</span> <span class="o">=</span> <span class="n">DomainWallDynamics</span><span class="p">(</span>
+    <span class="n">H</span><span class="o">=</span><span class="n">H_ext</span><span class="p">,</span>         <span class="c1"># applied field</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>      <span class="c1"># damping</span>
+    <span class="n">Ms</span><span class="o">=</span><span class="mf">8e5</span><span class="p">,</span>          <span class="c1"># A/m</span>
+    <span class="n">thickness</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>  <span class="c1"># m</span>
+    <span class="n">SHE_angle</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>   <span class="c1"># spin Hall angle</span>
+    <span class="n">D</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>          <span class="c1"># DMI constant</span>
+    <span class="n">Ku</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span>          <span class="c1"># perpendicular anisotropy</span>
+    <span class="n">Kp</span><span class="o">=</span><span class="mf">1e4</span><span class="p">,</span>          <span class="c1"># in‑plane anisotropy</span>
+<span class="p">)</span>
+
+<span class="c1"># 3) (Optional) set a current pulse: 1e12 A/m² after t&gt;1 ns</span>
+<span class="n">dw</span><span class="o">.</span><span class="n">set_current_function</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mf">1e12</span> <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="mf">1e-9</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 4) Wrap into a Multilayer solver (J=0 for uncoupled)</span>
+<span class="n">mlw</span> <span class="o">=</span> <span class="n">MultilayerWallDynamics</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="n">dw</span><span class="p">],</span> <span class="n">J</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 5) Run for 5 ns, starting at X=0, φ=Néel-right, δ=natural width</span>
+<span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">DW</span><span class="o">.</span><span class="n">NEEL_RIGHT</span><span class="p">,</span> <span class="n">dw</span><span class="o">.</span><span class="n">dw0</span><span class="p">]</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">mlw</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sim_time</span><span class="o">=</span><span class="mf">5e-9</span><span class="p">,</span> <span class="n">starting_conditions</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
+
+<span class="c1"># Result is a dict of time‑series:</span>
+<span class="c1">#  res["t"]     → times</span>
+<span class="c1">#  res["x_0"]   → wall position</span>
+<span class="c1">#  res["phi_0"] → wall angle</span>
+<span class="c1">#  res["dw_0"]  → wall width</span>
+</code></pre></div>
+<p>After running, you can plot <code>res["x_0"]</code> vs <code>res["t"]</code> to see how fast your wall moves under the current pulse.</p>
+<hr/>
+<h2 id="4-under-the-hood-what-happens-when-you-call-run">4. Under the Hood: What Happens When You Call <code>run()</code></h2>
+<p>Here’s a high‑level sequence of events:</p>
+<pre class="mermaid"><code>sequenceDiagram
+  participant U as User Code
+  participant MLW as MultilayerWallDynamics
+  participant RK as RK45 Integrator
+  participant DW as DomainWallDynamics
+
+  U-&gt;&gt;MLW: run(sim_time, start_cond)
+  MLW-&gt;&gt;RK: initialize with multilayer_dw_llg()
+  RK-&gt;&gt;DW: at each t, call compute_dynamics(...)
+  DW--&gt;&gt;RK: return dX/dt, dφ/dt, dδ/dt
+  RK--&gt;&gt;MLW: update state vector, record results
+  MLW--&gt;&gt;U: return collected time series
+</code></pre>
+<ol>
+<li><strong>Initialization</strong>: <code>RK45</code> is set up with your custom ODE function <code>multilayer_dw_llg</code>.</li>
+<li><strong>ODE Function</strong>: For each step in time, <code>multilayer_dw_llg(t, y)</code> unpacks each wall’s <code>X, φ, δ</code> and calls a Numba‑accelerated <code>compute_dynamics(...)</code> to get the derivatives.</li>
+<li><strong>Coupling</strong>: If you have two walls, an extra <code>J</code> term couples their angles like springs between train cars.</li>
+<li><strong>Recording</strong>: After every successful step, <code>run()</code> records <code>t</code>, each <code>x_i</code>, <code>φ_i</code>, <code>δ_i</code>, velocity, and instantaneous current <code>je_i</code>.</li>
+</ol>
+<hr/>
+<h2 id="5-peeking-at-the-core-implementation">5. Peeking at the Core Implementation</h2>
+<p>File: <code>cmtj/models/domain_dynamics.py</code></p>
+<h3 id="51-the-singlewall-ode-compute_dynamics">5.1 The single‑wall ODE (<code>compute_dynamics</code>)</h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_dynamics</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">hx</span><span class="p">,</span> <span class="n">hy</span><span class="p">,</span> <span class="n">hz</span><span class="p">,</span> <span class="n">hk</span><span class="p">,</span> <span class="n">hdmi</span><span class="p">,</span> <span class="n">hr</span><span class="p">,</span>
+                     <span class="n">hshe</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">bj</span><span class="p">,</span> <span class="n">Ms</span><span class="p">,</span> <span class="n">Lx</span><span class="p">,</span> <span class="n">Ly</span><span class="p">,</span> <span class="n">Lz</span><span class="p">,</span> <span class="n">V0_pin</span><span class="p">,</span> <span class="n">V0_edge</span><span class="p">,</span>
+                     <span class="n">pinning</span><span class="p">,</span> <span class="n">IECterm</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">Ku</span><span class="p">,</span> <span class="n">Kp</span><span class="p">):</span>
+    <span class="c1"># (1) compute torque terms γₐ, γ_b</span>
+    <span class="c1"># (2) build dXdt, dPhidt, dDeltadt</span>
+    <span class="k">return</span> <span class="n">dXdt</span><span class="p">,</span> <span class="n">dPhidt</span><span class="p">,</span> <span class="n">dDeltadt</span>
+</code></pre></div>
+<p>– <code>Q</code> selects up–down or down–up wall.
+– <code>hx,hy,hz</code> are the external field components.
+– <code>bj</code> and <code>hshe</code> scale with the current density you set.</p>
+<h3 id="52-coupling-walls-multilayer_dw_llg">5.2 Coupling walls (<code>multilayer_dw_llg</code>)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">multilayer_dw_llg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">vec</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">delt</span> <span class="o">=</span> <span class="n">vec</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">3</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
+        <span class="c1"># compute interlayer term Jterm if 2 walls</span>
+        <span class="n">dX</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">ddelt</span> <span class="o">=</span> <span class="n">compute_dynamics</span><span class="p">(</span> <span class="n">X</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">delt</span><span class="p">,</span> <span class="err">…</span><span class="p">,</span> <span class="n">IECterm</span> <span class="p">)</span>
+        <span class="n">results</span> <span class="o">+=</span> <span class="p">[</span><span class="n">dX</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">ddelt</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+<p>– Loops over each wall, unpacks its state, calls <code>compute_dynamics</code>, then packs all derivatives into one list for RK45.</p>
+<hr/>
+<h2 id="6-visualizing-coupled-walls-trainofcars-analogy">6. Visualizing Coupled Walls (Train‑of‑Cars Analogy)</h2>
+<pre class="mermaid"><code>graph LR
+  subgraph Wall 1
+    X1[ X 1, phi 1, delta 1 ]
+  end
+  subgraph Wall 2
+    X2[ X 2, phi 2, delta 2 ]
+  end
+  X1 -- J coupling --&gt; X2
+  click X1 href "#"
+  click X2 href "#"
+</code></pre>
+<p>Each “car” (wall) has its own state, but the coupling <code>J</code> acts like a spring linking their angles.</p>
+<hr/>
+<h2 id="7-conclusion-next-steps">7. Conclusion &amp; Next Steps</h2>
+<p>You’ve now learned how to simulate <strong>domain‑wall dynamics</strong> in <code>cmtj</code>:</p>
+<ul>
+<li><strong>DomainWallDynamics</strong> holds material &amp; field parameters, computes <code>dX/dt</code>, <code>dφ/dt</code>, <code>dδ/dt</code>.</li>
+<li><strong>MultilayerWallDynamics</strong> couples one or two walls, runs them with <code>RK45</code>, and returns full time‑series of positions, angles, widths, velocities, and currents.</li>
+</ul>
+<p>With this in hand, you can explore domain‑wall velocity under different pulses, pinning landscapes, or layer couplings. Up next, we’ll dive into the details of how to calculate <strong>Oersted fields</strong> and <strong>pinning potentials</strong> in <a href="../06_oersted_field___pinning_calculations_/">Chapter 6: Oersted Field &amp; Pinning Calculations</a>.</p>
+<hr/>
+<p>Generated by <a href="https://github.com/The-Pocket/Tutorial-Codebase-Knowledge">AI Codebase Knowledge Builder</a></p>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+<script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+<script src="../../javascripts/config.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@10.4.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>
