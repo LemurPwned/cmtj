@@ -12,13 +12,13 @@ hooks:
 
 nav:
   - Home: index.md
-  - Overview: overview.md
+  - Start here!: overview.md
   - Changelog: changelog.md
   - Tips & Tricks: tipsandtricks.md
   - Theory:
       - Macromagnetic contributions: physics/contributions.md
       - LLG Equation & solvers: physics/macromagnetic_models.md
-      - Static Smit-Beljers model: physics/sb-model.md
+      - Symbolic models: physics/sb-model.md
       - Linearisation: physics/linearisation.md
   - Experimental:
       - Introduction: experimental-methods/introduction.md

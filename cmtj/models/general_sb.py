@@ -2,7 +2,7 @@ import math
 import time
 import warnings
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import lru_cache, wraps
 from typing import Literal, Union
 
@@ -513,7 +513,7 @@ class Solver:
 
     @coordinate(require="cartesian")
     def linearised_frequencies(self, H, linearisation_axis: Literal["x", "y", "z"]):
-        J, symbols = self.compose_llg_jacobian(H=None, form="field")
+        J, symbols = self.compose_llg_jacobian(H=H, form="field")
 
         # partition symbols by axis and indices by axis
         axis_pos = {"x": 0, "y": 1, "z": 2}

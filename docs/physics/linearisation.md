@@ -16,12 +16,10 @@ Here we assume a 2-layer FM system that is stable along $z$ axis with $m_z = \pm
 We start out with the effective field:
 
 $$
-\mathbf{H}_j = \frac{1}{\mu_0\mathrm{M}_\mathrm{s} t}\nabla_\mathbf{m} \mathcal{F}
-
-\tag{1}
+\mathbf{H}_j = \frac{1}{\mu_0\mathrm{M}_\mathrm{s} t}\nabla_\mathbf{m} \mathcal{F} \tag{1}
 $$
 
-where $t$ is the thickness, $\mathrm{M}_\mathrm{s}$ is the magnetisation saturation and $\mathcal{F}$ is the energy expression. For details on how to construct $F$ you can check out [Smit-Beljers model descrition](sb-model.md). Index $j$ denotes the layer.
+where $t$ is the thickness, $\mathrm{M}_\mathrm{s}$ is the magnetisation saturation and $\mathcal{F}$ is the energy expression. For details on how to construct $F$ you can check out [Smit-Beljers model description](sb-model.md). Index $j$ denotes the layer.
 
 The stable oscillation LLG form is given by:
 
@@ -57,9 +55,7 @@ To expand the $\mathrm{d}_t \mathbf{m}_j$ we can compute the Jacobian matrix. So
 $$
   \partial\,(\mathbf{m}_j \times \mathbf{H}_j) =  (
     \,\partial\mathbf{m}_j \times \mathbf{H}_j +  \mathbf{m}_{j,0} \times \left(\frac{\partial\mathbf{H}_{j,0}}{\partial\mathbf{m_j}}\right)_0 \partial \mathbf{m}_j
-)
-
-\tag{3}
+) \tag{3}
 $$
 
 We can define the corresponding Jacobian **operator** with the help of 3x3 $\mathcal{E}(x)$ matrix which means "cross with x" and later substitutions which cause the higher olders to be neglected.
