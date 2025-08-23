@@ -11,7 +11,7 @@ import sympy as sym
 from numba import njit
 from tqdm import tqdm
 
-from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
+from ..utils import Constants, VectorObj, perturb_position
 from .analytical_utils import (
     EPS,
     OMEGA,
@@ -309,27 +309,27 @@ class LayerSB:
 
         alpha = sym.ImmutableMatrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
 
-        field_energy = -mu0 * self.Ms * m.dot(H)
-        hdmi_energy = -mu0 * self.Ms * m.dot(self.Hdmi)
+        field_energy = -Constants.mu0() * self.Ms * m.dot(H)
+        hdmi_energy = -Constants.mu0() * self.Ms * m.dot(self.Hdmi)
         # old surface anisotropy only took into account the thin slab demag
         # surface_anistropy = (-self.Ks + (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1] ** 2)
         surface_anistropy = -self.Ks * (m[-1] ** 2)
         volume_anisotropy = -self.Kv.mag * (m.dot(alpha) ** 2)
         m_2 = sym.ImmutableMatrix([m_i**2 for m_i in m])
-        demagnetisation_energy = 0.5 * mu0 * (self.Ms**2) * m_2.dot(self.Ndemag)
+        demagnetisation_energy = 0.5 * Constants.mu0() * (self.Ms**2) * m_2.dot(self.Ndemag)
 
         return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy + demagnetisation_energy
 
     def sb_correction(self):
         """
-        Using gamma here instead of gamma_rad for two reason:
+        Using gamma here instead of Constants.gamma_rad() for two reason:
         1. It seems to provide more stable solutinos
         2. Root finding needs to be done over smaller range of frequencies
-            (gamma_rad is 2pi times larger than gamma) which is faster
+            (Constants.gamma_rad() is 2pi times larger than gamma) which is faster
 
         Just remember NOT to divide by 2pi when returning the roots!
         """
-        return (OMEGA / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
+        return (OMEGA / Constants.gamma()) * self.Ms * sym.sin(self.theta) * self.thickness
 
     def __hash__(self) -> int:
         return hash(str(self))
@@ -370,7 +370,7 @@ class LayerDynamic(LayerSB):
         :param U: energy expression of the layer
         """
         # sum all components
-        prefac = gamma_rad / (1.0 + self.alpha**2)
+        prefac = Constants.gamma_rad() / (1.0 + self.alpha**2)
         inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
         dUdtheta = sym.diff(U, self.theta)
         dUdphi = sym.diff(U, self.phi)
@@ -493,7 +493,7 @@ class Solver:
 
         symbols, vecs = [], []
         U = self.create_energy(H=H, volumetric=False)  # energy per area
-        # mu0, gamma_rad = sym.Symbol(r"\mu_0"), sym.Symbol(r"\gamma")
+        # mu0, Constants.gamma_rad() = sym.Symbol(r"\mu_0"), sym.Symbol(r"\gamma")
         for layer in self.layers:
             if form == "energy":
                 symbols.extend((layer.theta, layer.phi))
@@ -502,9 +502,9 @@ class Solver:
                 m = layer.get_m_sym()  # (x,y,z) 3×1
                 symbols.extend((layer.x, layer.y, layer.z))
                 # e_i = E/(μ0 Ms_i t_i) in field units
-                e_i = U / (mu0 * layer.thickness * layer.Ms)
+                e_i = U / (Constants.mu0() * layer.thickness * layer.Ms)
                 H_eff_i = self._heff_per_m(e_i, m)  # 3×1
-                expr = -mu0 * gamma_rad * m.cross(H_eff_i)  # 3×1: F_i(m)
+                expr = -Constants.mu0() * Constants.gamma_rad() * m.cross(H_eff_i)  # 3×1: F_i(m)
             vecs.append(expr)
 
         F = sym.Matrix.vstack(*vecs)  # 3N × 1
@@ -590,14 +590,14 @@ class Solver:
                 mat = self.dipoleMatrix[i]
                 # is positive, just like demag
                 energy += (
-                    (mu0 / 2.0)
+                    (Constants.mu0() / 2.0)
                     * l1m.dot(mat * l2m)
                     * self.layers[i].Ms
                     * self.layers[i + 1].Ms
                     * self.layers[i].thickness
                 )
                 energy += (
-                    (mu0 / 2.0)
+                    (Constants.mu0() / 2.0)
                     * l2m.dot(mat * l1m)
                     * self.layers[i].Ms
                     * self.layers[i + 1].Ms
@@ -757,7 +757,7 @@ class Solver:
         vareps = 1e-18
 
         fmr = (d2Edtheta2 * d2Edphi2 - d2Edthetaphi**2) / np.power(np.sin(theta_eq + vareps) * layer.Ms, 2)
-        fmr = np.sqrt(float(fmr)) * gamma_rad / (2 * np.pi)
+        fmr = np.sqrt(float(fmr)) * Constants.gamma_rad() / (2 * np.pi)
         return fmr
 
     @coordinate(require="cartesian")
@@ -774,6 +774,7 @@ class Solver:
         :param linearisation_axis: the axis to linearise around.
         :return: the solutions for the frequencies in the P and AP states.
         """
+
         char_P, char_AP, _, _ = self.linearised_frequencies(H=H, linearisation_axis=linearisation_axis)
         poly_P = self.det_solver(char_P)
         poly_AP = self.det_solver(char_AP)
@@ -974,7 +975,7 @@ class Solver:
             step_subs.update({Hsym[0]: hx, Hsym[1]: hy, Hsym[2]: hz})
             roots = [s.subs(step_subs) for s in global_roots]
             # TODO fix scaling by gamma below
-            roots = np.asarray(roots, dtype=np.float32) * gamma_rad / (2.0 * np.pi) / 1e9
+            roots = np.asarray(roots, dtype=np.float32) * Constants.gamma_rad() / (2.0 * np.pi) / 1e9
             yield eq, roots, Hvalue
             current_position = eq
 
