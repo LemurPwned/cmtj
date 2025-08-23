@@ -112,15 +112,6 @@ for tau_scale in tqdm(tau_scales, desc="tau_scales"):
                         cellSurface=cell_surface,
                         demagTensor=demag,
                     )
-                    adaptive_params = AdaptiveIntegrationParams()
-                    adaptive_params.abs_tol = 1e-12  # Very small tolerance
-                    adaptive_params.rel_tol = 1e-12  # Very small tolerance
-                    adaptive_params.max_factor = 100.0  # Prevent step size increases
-                    adaptive_params.min_factor = 1  # Prevent step size decreases
-                    adaptive_params.safety_factor = 0.9  # No safety factor adjustment
-                    adaptive_params.use_pid_control = False
-
-                    # free.setAdaptiveParams(adaptive_params)
 
                     free.setReferenceLayer(CVector(0, 0, 1))
                     free.setSecondOrderAnisotropyDriver(constantDriver(FL_Ku2))
