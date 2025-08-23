@@ -1,20 +1,32 @@
 import math
 import time
 import warnings
-import copy
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache, wraps
 from typing import Literal, Union
+
 import numpy as np
 import sympy as sym
 from numba import njit
+from sympy.combinatorics import Permutation
 from tqdm import tqdm
 
-from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
+from ..utils import VectorObj, gamma_rad, mu0, perturb_position
 from ..utils.solvers import RootFinder
 
 EPS = np.finfo("float64").resolution
+OMEGA = sym.Symbol(r"\omega", complex=True)
+
+
+def _default_matrix_conversion(
+    vector_or_matrix: Union[VectorObj, list[float], sym.Matrix],
+) -> sym.ImmutableMatrix:
+    if isinstance(vector_or_matrix, VectorObj):
+        vector_or_matrix = vector_or_matrix.get_cartesian()
+    elif isinstance(vector_or_matrix, list):
+        vector_or_matrix = sym.ImmutableMatrix(vector_or_matrix)
+    return sym.ImmutableMatrix(vector_or_matrix)
 
 
 def real_deocrator(fn):
@@ -55,11 +67,34 @@ def coordinate(require: Literal["spherical", "cartesian"]):
 
 
 def _convert_layer(layer, target_system):
-    """Convert layer coordinate system."""
-    new_layer = copy.deepcopy(layer)
-    new_layer.coordinate_system = target_system
-    new_layer.__post_init__()
-    return new_layer
+    """Convert layer coordinate system by recreating the layer."""
+    if isinstance(layer, LayerDynamic):
+        return LayerDynamic(
+            _id=layer._id,
+            thickness=layer.thickness,
+            Kv=layer.Kv,
+            Ks=layer.Ks,
+            Ms=layer.Ms,
+            Hdmi=layer.Hdmi,
+            Ndemag=layer.Ndemag,
+            coordinate_system=target_system,
+            alpha=layer.alpha,
+            torque_par=layer.torque_par,
+            torque_perp=layer.torque_perp,
+        )
+    elif isinstance(layer, LayerSB):
+        return LayerSB(
+            _id=layer._id,
+            thickness=layer.thickness,
+            Kv=layer.Kv,
+            Ks=layer.Ks,
+            Ms=layer.Ms,
+            Hdmi=layer.Hdmi,
+            Ndemag=layer.Ndemag,
+            coordinate_system=target_system,
+        )
+    else:
+        raise ValueError(f"Unknown layer type: {type(layer)}")
 
 
 @njit
@@ -106,7 +141,7 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
         # z = sym.Symbol("Z")
         # these here must match the Ms symbols!
         z = (
-            sym.Symbol(r"\omega")
+            OMEGA
             * sym.Symbol(r"M_{" + indx_i + "}")
             * sym.sin(sym.Symbol(r"\theta_" + indx_i))
             * sym.Symbol(r"t_{" + indx_i + "}")
@@ -161,7 +196,7 @@ def solve_for_determinant(N: int):
 @lru_cache
 def find_analytical_roots(N: int):
     det_expr, energy_functional_expr = solve_for_determinant(N)
-    solutions = sym.solve(sym.simplify(det_expr), sym.Symbol(r"\omega"))
+    solutions = sym.solve(sym.simplify(det_expr), OMEGA)
     return solutions, energy_functional_expr
 
 
@@ -210,16 +245,16 @@ class LayerSB:
         if self._id > 9:
             raise ValueError("Only up to 10 layers supported.")
         if self.Hdmi is None:
-            self.Hdmi = sym.Matrix([0, 0, 0])
-        else:
-            self.Hdmi = sym.ImmutableMatrix(self.Hdmi.get_cartesian())
-        self.Ndemag = sym.ImmutableMatrix(self.Ndemag.get_cartesian())
+            self.Hdmi = [0, 0, 0]
+        self.Hdmi = _default_matrix_conversion(self.Hdmi)
+        self.Ndemag = _default_matrix_conversion(self.Ndemag)
 
-        self.anisotropy_axis = sym.ImmutableMatrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
+        self.anisotropy_axis = _default_matrix_conversion([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
+
         if self.coordinate_system == "spherical":
             self.phi = sym.Symbol(r"\phi_" + str(self._id))
             self.theta = sym.Symbol(r"\theta_" + str(self._id))
-            self.m = sym.ImmutableMatrix(
+            self.m = _default_matrix_conversion(
                 [
                     sym.sin(self.theta) * sym.cos(self.phi),
                     sym.sin(self.theta) * sym.sin(self.phi),
@@ -228,10 +263,10 @@ class LayerSB:
             )
             self.get_coord_sym = self.get_coord_sym_spherical
         elif self.coordinate_system == "cartesian":
-            self.x = sym.Symbol("m_{" + "x," + f"{self._id}}}")
-            self.y = sym.Symbol("m_{" + "y," + f"{self._id}}}")
-            self.z = sym.Symbol("m_{" + "z," + f"{self._id}}}")
-            self.m = sym.ImmutableMatrix(
+            self.x = sym.Symbol("m_{" + "x," + f"{self._id}" + "}")
+            self.y = sym.Symbol("m_{" + "y," + f"{self._id}" + "}")
+            self.z = sym.Symbol("m_{" + "z," + f"{self._id}" + "}")
+            self.m = _default_matrix_conversion(
                 [
                     self.x,
                     self.y,
@@ -301,8 +336,8 @@ class LayerSB:
         return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy + demagnetisation_energy
 
     def sb_correction(self):
-        omega = sym.Symbol(r"\omega")
-        return (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
+        omega = OMEGA
+        return (omega / gamma_rad) * self.Ms * sym.sin(self.theta) * self.thickness
 
     def __hash__(self) -> int:
         return hash(str(self))
@@ -396,6 +431,39 @@ class Solver:
     ilD: list[VectorObj] = None
     Ndipole: list[list[VectorObj]] = None
 
+    # Configuration options as regular fields
+    prefer_numerical_roots: bool = field(default=True, kw_only=True)
+    use_LU_decomposition: bool = field(default=True, kw_only=True)
+
+    def _lu_decomposition_det(self, matrix: sym.Matrix):
+        _, U, perm = matrix.LUdecomposition()
+        sgn = Permutation(perm).signature()
+        return sgn * U.det()
+
+    def _berkowitz_det(self, matrix: sym.Matrix):
+        return matrix.det(method="berkowitz")
+
+    def _root_solver_numerical(self, root_expr, ftol=0.01e9, max_freq=80e9):
+        xtol = 1e-8
+        if len(self.layers) <= 3:
+            # makes it faster for small systems, otherise jit cost too high
+            y = real_deocrator(njit(sym.lambdify(OMEGA, root_expr, "math")))
+        else:
+            y = real_deocrator(sym.lambdify(OMEGA, root_expr, "math"))
+        r = RootFinder(xtol, max_freq, step=ftol, xtol=xtol, root_dtype="float16")
+        roots = r.find(y)
+        # convert to GHz
+        # reduce unique solutions to 2 decimal places
+        return np.unique(np.around(roots / 1e9, 2)) / (2.0 * np.pi)
+
+    def _root_solver_analytical(self, root_expr, *args):
+        # args are to make the signature compatible with numerical solver
+        factorised = sym.factor(root_expr)
+        solutions = sym.solve(factorised, OMEGA)
+        # Convert SymPy solutions to float before creating numpy array
+        numeric_solutions = [float(sol.evalf()) for sol in solutions]
+        return np.asarray(numeric_solutions) / (2.0 * np.pi) / 1e9
+
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
             raise ValueError("Number of layers must be 1 more than J1.")
@@ -420,6 +488,18 @@ class Solver:
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
             raise ValueError("Layer ids must be 0, 1, 2, ... and unique.Ids must start from 0.")
+
+        self.det_solver: callable = None
+        self.root_solver: callable = None
+        if self.use_LU_decomposition:
+            self.det_solver = self._lu_decomposition_det
+        else:
+            self.det_solver = self._berkowitz_det
+
+        if self.prefer_numerical_roots:
+            self.root_solver = self._root_solver_numerical
+        else:
+            self.root_solver = self._root_solver_analytical
 
     def get_layer_references(self, layer_indx: int, interaction_constant: list[float]):
         """Returns the references to the layers above and below the layer
@@ -469,7 +549,7 @@ class Solver:
 
     @coordinate(require="cartesian")
     def linearised_frequencies(self, H, linearisation_axis: Literal["x", "y", "z"]):
-        J, symbols, U, _ = self.compose_llg_jacobian(H=None, form="field")
+        J, symbols = self.compose_llg_jacobian(H=None, form="field")
 
         # partition symbols by axis and indices by axis
         axis_pos = {"x": 0, "y": 1, "z": 2}
@@ -597,8 +677,7 @@ class Solver:
                     hessian[2 * j][2 * i + 1] = expr
 
         hes = sym.ImmutableMatrix(hessian)
-        _, U, _ = hes.LUdecomposition()
-        return U.det().subs(subs)
+        return hes, subs
 
     def get_gradient_expr(self, accel="math"):
         """Returns the symbolic gradient of the energy expression."""
@@ -732,13 +811,11 @@ class Solver:
         :return: the solutions for the frequencies in the P and AP states.
         """
         char_P, char_AP, _, _ = self.linearised_frequencies(H=H, linearisation_axis=linearisation_axis)
-        omega = sym.Symbol(r"\omega", complex=True)
-        poly_P = sym.factor(char_P.det(method="berkowitz"))
-        poly_AP = sym.factor(char_AP.det(method="berkowitz"))
-
-        sol_P = sym.solve(poly_P, omega)
-        sol_AP = sym.solve(poly_AP, omega)
-        return sol_P, sol_AP
+        poly_P = self.det_solver(char_P)
+        poly_AP = self.det_solver(char_AP)
+        roots_P = self.root_solver(poly_P)
+        roots_AP = self.root_solver(poly_AP)
+        return roots_P, roots_AP
 
     def solve(
         self,
@@ -804,7 +881,7 @@ class Solver:
                 frequency = self.single_layer_resonance(indx, eq) / 1e9
                 frequencies.append(frequency)
             return eq, frequencies
-        return self.num_solve(eq, ftol=ftol, max_freq=max_freq)
+        return self.hessian_to_roots(eq, ftol=ftol, max_freq=max_freq)
 
     def dynamic_layer_solve(self, eq: list[float]):
         """Return the FMR frequencies and modes for N layers using the
@@ -820,20 +897,11 @@ class Solver:
         indx = np.argwhere(eigvals_im > 0).ravel()
         return eigvals_im[indx], eigvecs[indx]
 
-    def num_solve(self, eq: list[float], ftol: float = 0.01e9, max_freq: float = 80e9):
-        hes = self.create_energy_hessian(eq)
-        omega = sym.Symbol(r"\omega")
-        if len(self.layers) <= 3:
-            y = real_deocrator(njit(sym.lambdify(omega, hes, "math")))
-        else:
-            y = real_deocrator(sym.lambdify(omega, hes, "math"))
-        r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
-        roots = r.find(y)
-        # convert to GHz
-        # reduce unique solutions to 2 decimal places
-        # don't divide by 2pi, we used gamma instead of gamma / 2pi
-        f = np.unique(np.around(roots / 1e9, 2))
-        return eq, f
+    def hessian_to_roots(self, eq: list[float], ftol: float = 0.01e9, max_freq: float = 80e9):
+        hes, subs = self.create_energy_hessian(eq)
+        omega_expr = self.det_solver(hes).subs(subs)
+        roots = self.root_solver(omega_expr, ftol, max_freq)
+        return eq, roots
 
     def analytical_roots(self):
         """Find & cache the analytical roots of the system.
@@ -934,7 +1002,7 @@ class Solver:
             step_subs.update(self.get_ms_subs())
             step_subs.update({Hsym[0]: hx, Hsym[1]: hy, Hsym[2]: hz})
             roots = [s.subs(step_subs) for s in global_roots]
-            roots = np.asarray(roots, dtype=np.float32) * gamma / 1e9
+            roots = np.asarray(roots, dtype=np.float32) * gamma_rad / (2.0 * np.pi) / 1e9
             yield eq, roots, Hvalue
             current_position = eq
 
@@ -969,7 +1037,7 @@ class Solver:
         )
         subs = {
             Vdc_ex_variable: Vdc_ex_value,
-            sym.Symbol(r"\omega"): 2 * sym.pi * frequency,
+            OMEGA: 2 * sym.pi * frequency,
             sym.Symbol(r"H_{x}"): H[0],
             sym.Symbol(r"H_{y}"): H[1],
             sym.Symbol(r"H_{z}"): H[2],
@@ -1001,7 +1069,7 @@ class Solver:
         A_matrix = sym.zeros(2 * n, 2 * n)
         V_matrix = sym.zeros(2 * n, 1)
         U = self.create_energy(H=H, volumetric=False)
-        omega = sym.Symbol(r"\omega") if frequency is None else 2 * sym.pi * frequency
+        omega = OMEGA if frequency is None else 2 * sym.pi * frequency
         for i, layer in enumerate(self.layers):
             rhs = layer.rhs_spherical_llg(U / layer.thickness, osc=True)
             alpha_factor = 1 + layer.alpha**2
@@ -1026,7 +1094,7 @@ class Solver:
         A_matrix = sym.zeros(2 * n, 2 * n)
         V_matrix = sym.zeros(2 * n, 1)
         U = self.create_energy(H=H, volumetric=False)
-        omega = sym.Symbol(r"\omega") if frequency is None else 2 * sym.pi * frequency
+        omega = OMEGA if frequency is None else 2 * sym.pi * frequency
         for i, layer in enumerate(self.layers):
             rhs = layer.rhs_spherical_llg(U / layer.thickness, osc=True)
             V_matrix[2 * i] = sym.diff(rhs[0], Vdc_ex_variable)
@@ -1081,7 +1149,7 @@ class Solver:
         elif cache_var == "f":
             extra_args["H"] = H
             extra_subs = {
-                sym.Symbol(r"\omega"): 2 * sym.pi * frequency,
+                OMEGA: 2 * sym.pi * frequency,
             }
 
         A_matrix, V_matrix = self._independent_linearised_jacobian_expr(
