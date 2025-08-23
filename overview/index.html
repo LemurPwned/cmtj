@@ -1732,7 +1732,7 @@
 
 
 <h1 id="overview">Overview</h1>
-<p>The <code>cmtj</code> library is a macrospin library. That means that it is efficient and easy to use. It is also a collection of utilities that are useful for macrospin analysis, such as selected procedures, energy calculations, and parallelization. </p>
+<p>The <code>cmtj</code> library is a macrospin library. That means that it is efficient and easy to use. It is also a collection of utilities that are useful for macrospin analysis, such as selected procedures, energy calculations, and parallelization.</p>
 <h2 id="installation">Installation</h2>
 <p>Installation is as easy as doing:</p>
 <div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>cmtj
@@ -1741,7 +1741,7 @@
 <p>The best way to get started is to modify one of the examples in the <a href="#CMTJBindingsTutorial">Examples</a> section.
 If you're looking for a more in-depth look at the library, please see the <a href="#API">API</a> section.</p>
 <p>There are also some examples in the repository under <a href="https://github.com/LemurPwned/cmtj/tree/master/curated-examples">curated-examples folder</a>. These are less described</p>
-<p>Remember to check out <a href="../tipsandtricks/">#tips-and-trics</a> section for some tips on how to improve your simulations. </p>
+<p>Remember to check out <a href="../tipsandtricks/">#tips-and-trics</a> section for some tips on how to improve your simulations.</p>
 <h3 id="functionalities">Functionalities</h3>
 <h4 id="junction-system">Junction system</h4>
 <p>Primarily you will be using the <code>Junction</code> class to create a multilayer device. This need not to be an MTJ, it can be of any ferromagnetic (FM) type. Remember, that the FM type is solely dependent on the parameters you pass to the constructor of the <code>Layer</code> class, such as <span class="arithmatex">\(M_\textrm{s}\)</span> or <span class="arithmatex">\(K_\textrm{s}\)</span> (magnetisation saturation and anisotropy respectively).</p>
@@ -1755,17 +1755,17 @@ If you're looking for a more in-depth look at the library, please see the <a hre
 </ul>
 <h4 id="stack-system">Stack system</h4>
 <p>The junctions can be further stacked to create a stack of junctions. The stacking is done by creating a <code>Stack</code> object which can either be <code>Parallel</code> stack or <code>Series</code> stack. The type depends on the electrical connection between the junctions.</p>
-<p>Find more in the examples. </p>
+<p>Find more in the examples.</p>
 <h4 id="group-interaction-system">Group interaction system</h4>
 <p>Another way to define 1-1 interaction matrix, also based on distance is <code>GroupInteraction</code> system. For example you can use it to define dipolar interaction in an array of devices. The interaction can also be custom, as long as it matches the signature -- for more, check out the <a href="../tutorials/interactions/"><code>interactions</code> tutorial</a></p>
 <h4 id="symbolic-models">Symbolic models</h4>
-<p>There is a plethora of symbolic computation that can solve energy-based systems of FM layers, SAFs and so on. </p>
+<p>There is a plethora of symbolic computation that can solve energy-based systems of FM layers, SAFs and so on.</p>
 <p>For theory on how those models work visit <a href="../physics/sb-model/">Smit-Beljers</a> and <a href="../physics/linearisation/">linearisation sections</a>. The corresponding API is given in <a href="../api/models/sb-general-reference/">Symbolic models</a> section.</p>
 <p>Things they allow for:</p>
 <ul>
 <li>linearised frequency computation</li>
 <li>native Smit-Beljers model</li>
-<li>linearised Voltage Spin Diode </li>
+<li>linearised Voltage Spin Diode</li>
 </ul>
 <p>Check out the examples in <a href="../tutorials/SBModel/">SBModel tutorial</a> and there are other examples scattered here and there.</p>
 
