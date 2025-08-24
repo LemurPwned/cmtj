@@ -36,7 +36,7 @@ public:
 };
 
 // Initialize static members with default values
-double PhysicalConstants::MAGNETIC_PERMEABILITY = 12.57e-7;
+double PhysicalConstants::MAGNETIC_PERMEABILITY = 12.566e-7;
 double PhysicalConstants::GYRO = 220880.0; // rad/Ts converted to m/As
 double PhysicalConstants::TtoAm = 795774.715459;
 double PhysicalConstants::HBAR = 6.62607015e-34 / (2. * M_PI);

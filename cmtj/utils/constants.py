@@ -104,19 +104,14 @@ class Constants:
     @classmethod
     def gamma(cls) -> float:
         """Get gamma factor [Hz/T]."""
-        if cls._use_cpp():
-            # Convert from the C++ value if needed
-            return _cpp_constants.PhysicalConstants.gyromagnetic_ratio() * cls.mu0()
         return cls._python_constants["gamma"]
 
     @classmethod
     def set_gamma(cls, value: float) -> None:
         """Set gamma factor [Hz/T]."""
         if cls._use_cpp():
-            # Note: This affects gyromagnetic_ratio in C++
-            _cpp_constants.PhysicalConstants.set_gyromagnetic_ratio(value / cls.mu0())
-        else:
-            cls._python_constants["gamma"] = value
+            _cpp_constants.PhysicalConstants.set_gyromagnetic_ratio(value)
+        cls._python_constants["gamma"] = value
 
     # Gamma (angular frequency)
     @classmethod
@@ -126,7 +121,10 @@ class Constants:
 
     @classmethod
     def set_gamma_rad(cls, value: float) -> None:
-        """Set gamma factor [rad/(s*T)]."""
+        """Set gamma factor [rad/(s*T)].
+        In CPP we use m/As, so we need to convert to rad/(s*T)
+        by multiplying by 2*pi
+        """
         cls._python_constants["gamma_rad"] = value
 
     # Tesla to A/m conversion
