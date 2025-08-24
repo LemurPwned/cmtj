@@ -12,6 +12,7 @@
 #define CORE_JUNCTION_HPP_
 
 #define _USE_MATH_DEFINES
+#include "constants.hpp"
 #include "cvector.hpp"   // for CVector
 #include "drivers.hpp"   // for ScalarDriver, AxialDriver
 #include "noise.hpp"     // for OneFNoise
@@ -29,12 +30,12 @@
 #include <unordered_map> // for unordered_map
 #include <vector>        // for vector, __vector_base<>::value_type
 
-#define MAGNETIC_PERMEABILITY 12.57e-7
-#define GYRO 220880.0 // rad/Ts converted to m/As
-#define TtoAm 795774.715459
-#define HBAR 6.62607015e-34 / (2. * M_PI)
-#define ELECTRON_CHARGE 1.60217662e-19
-#define BOLTZMANN_CONST 1.380649e-23
+#define MAGNETIC_PERMEABILITY PhysicalConstants::MAGNETIC_PERMEABILITY
+#define GYRO PhysicalConstants::GYRO
+#define TtoAm PhysicalConstants::TtoAm
+#define HBAR PhysicalConstants::HBAR
+#define ELECTRON_CHARGE PhysicalConstants::ELECTRON_CHARGE
+#define BOLTZMANN_CONST PhysicalConstants::BOLTZMANN_CONST
 
 typedef CVector<double> DVector;
 typedef CVector<float> FVector;
