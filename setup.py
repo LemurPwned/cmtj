@@ -6,7 +6,7 @@ import setuptools
 from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 """
 As per

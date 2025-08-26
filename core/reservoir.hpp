@@ -36,7 +36,7 @@ typedef std::vector<tensor> tensorList;
 const tensor getDipoleTensorFromRelPositions(const CVector<double> &r1,
                                              const CVector<double> &r2) {
   const CVector<double> rij = r1 - r2; // 1-2 distance vector
-  if (rij.length() < 1e-10) {
+  if (rij.length() < 1e-14) {
     throw std::runtime_error(
         "Points are too close for stable dipole calculation");
   }
