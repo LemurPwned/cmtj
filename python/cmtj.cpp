@@ -10,6 +10,7 @@
 #include "../core/noise.hpp"
 #include "../core/reservoir.hpp"
 #include "../core/stack.hpp"
+#include "../core/constants.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -491,4 +492,22 @@ PYBIND11_MODULE(cmtj, m) {
           .def("saveLogs", &DLLGBJunction::saveLogs)
           .def("getLog", &DLLGBJunction::getLog)
           .def("clearLog", &DLLGBJunction::clearLog);
+
+     // constants module
+     py::module constants_module = m.def_submodule("constants", "A submodule for physical constants");
+     py::class_<PhysicalConstants>(constants_module, "PhysicalConstants")
+          .def_static("set_magnetic_permeability", &PhysicalConstants::setMagneticPermeability, "value"_a)
+          .def_static("set_gyromagnetic_ratio", &PhysicalConstants::setGyro, "value"_a)
+          .def_static("set_TtoAm", &PhysicalConstants::setTtoAm, "value"_a)
+          .def_static("set_hbar", &PhysicalConstants::setHbar, "value"_a)
+          .def_static("set_elementary_charge", &PhysicalConstants::setElectronCharge, "value"_a)
+          .def_static("set_boltzmann_constant", &PhysicalConstants::setBoltzmannConst, "value"_a)
+          .def_static("magnetic_permeability", &PhysicalConstants::getMagneticPermeability)
+          .def_static("gyromagnetic_ratio", &PhysicalConstants::getGyro)
+          .def_static("TtoAm", &PhysicalConstants::getTtoAm)
+          .def_static("hbar", &PhysicalConstants::getHbar)
+          .def_static("elementary_charge", &PhysicalConstants::getElectronCharge)
+          .def_static("boltzmann_constant", &PhysicalConstants::getBoltzmannConst)
+          .def_static("resetToDefaults", &PhysicalConstants::resetToDefaults);
+
 }

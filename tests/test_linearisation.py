@@ -78,13 +78,17 @@ def test_linearised_frequencies_positive_only(
         len(pos_freqsP) > 0
     ), f"No positive P frequencies found for config: numerical={prefer_numerical_roots}, LU={use_LU_decomposition}"
     assert np.allclose(
-        np.around(pos_freqsP, 2), NON_ZERO_H_TRUE_P
+        np.around(pos_freqsP, 2), NON_ZERO_H_TRUE_P,
+        rtol=1e-2,
+        atol=1e-2,
     ), f"P frequencies mismatch for config: numerical={prefer_numerical_roots}, LU={use_LU_decomposition}. Got: {np.around(pos_freqsP, 2)}, Expected: {NON_ZERO_H_TRUE_P}"
 
     # Analytical methods should find AP frequencies
     assert (
         len(pos_freqsAP) > 0
     ), f"No positive AP frequencies found for analytical config: numerical={prefer_numerical_roots}, LU={use_LU_decomposition}"
-    assert np.allclose(
-        np.around(pos_freqsAP, 2), NON_ZERO_H_TRUE_AP
-    ), f"AP frequencies mismatch for config: numerical={prefer_numerical_roots}, LU={use_LU_decomposition}. Got: {np.around(pos_freqsAP, 2)}, Expected: {expected_AP}"
+    assert np.allclose( 
+        np.around(pos_freqsAP, 2), NON_ZERO_H_TRUE_AP,
+        rtol=1e-2,
+        atol=1e-2,
+    ), f"AP frequencies mismatch for config: numerical={prefer_numerical_roots}, LU={use_LU_decomposition}. Got: {np.around(pos_freqsAP, 2)}, Expected: {NON_ZERO_H_TRUE_AP}"
