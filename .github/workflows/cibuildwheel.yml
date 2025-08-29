@@ -58,7 +58,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel pytest pytest-xdist
+        run: python -m pip install cibuildwheel
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
@@ -68,9 +68,9 @@ jobs:
           # Skip PyPy builds and 32-bit builds
           CIBW_SKIP: "pp* *-win32 *-manylinux_i686"
           # Install build dependencies
-          CIBW_BUILD_REQUIRES: "setuptools>=61.0 setuptools-scm>=8.0 pybind11>=2.6.1 wheel pytest-xdist"
+          CIBW_BUILD_REQUIRES: "setuptools>=61.0 setuptools-scm>=8.0 pybind11>=2.6.1 wheel"
           # Test command (optional)
-          CIBW_TEST_REQUIRES: "pytest"
+          CIBW_TEST_REQUIRES: "pytest pytest-xdist"
           CIBW_TEST_COMMAND: "pytest {project}/tests/ -v"
           # Use manylinux2014 for Linux builds
           CIBW_TEST_SKIP: "*-musllinux*"
