@@ -358,9 +358,9 @@ PYBIND11_MODULE(_cmtj, m) {
           m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
 
      py::class_<DSeriesStack>(stack_module, "SeriesStack")
-          .def(py::init<std::vector<DJunction>, std::string, std::string, double>(),
+          .def(py::init<std::vector<DJunction>, std::string, std::string, double, bool>(),
                "junctionList"_a, "topId_a"_a = "free", "bottomId"_a = "bottom",
-               "phaseOffset"_a = 0.0)
+               "phaseOffset"_a = 0.0, "useKCL"_a = true)
           .def("runSimulation", &DSeriesStack::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11)
           .def("setMagnetisation", &DSeriesStack::setMagnetisation, "junction"_a,
@@ -391,9 +391,9 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("getLog", py::overload_cast<>(&DSeriesStack::getLog));
 
      py::class_<DParallelStack>(stack_module, "ParallelStack")
-          .def(py::init<std::vector<DJunction>, std::string, std::string, double>(),
+          .def(py::init<std::vector<DJunction>, std::string, std::string, double, bool>(),
                "junctionList"_a, "topId_a"_a = "free", "bottomId"_a = "bottom",
-               "phaseOffset"_a = 0.0)
+               "phaseOffset"_a = 0.0, "useKCL"_a = true)
           .def("runSimulation", &DParallelStack::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11)
           .def("setMagnetisation", &DParallelStack::setMagnetisation, "junction"_a,
@@ -442,18 +442,6 @@ PYBIND11_MODULE(_cmtj, m) {
                py::overload_cast<unsigned int>(&GroupInteraction::getLog))
           .def("getLog", py::overload_cast<unsigned int>(&GroupInteraction::getLog),
                py::return_value_policy::reference);
-
-     py::class_<Reservoir>(reservoir_module, "Reservoir")
-          .def(py::init<DVectorMatrix, DLayerMatrix>(), "coordinateMatrix"_a,
-               "layerMatrix"_a)
-          .def("runSimulation", &Reservoir::runSimulation)
-          .def("clearLogs", &Reservoir::clearLogs)
-          .def("saveLogs", &Reservoir::saveLogs)
-          .def("getLayer", &Reservoir::getLayer)
-          .def("setAllExternalField", &Reservoir::setAllExternalField)
-          .def("setLayerAnisotropy", &Reservoir::setLayerAnisotropy)
-          .def("setLayerExternalField", &Reservoir::setLayerExternalField)
-          .def("getMagnetisation", &Reservoir::getMagnetisation);
 
 
      // generator module

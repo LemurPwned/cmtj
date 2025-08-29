@@ -14,3 +14,4 @@ This is a loose collection of observations and tips that may help you in your wo
 - Try out integration times no lower than $10^{-12}$. For large IEC coupling values (in the ballpark of $10^{-4}$ or larger than that) you may need to go even much lower. You can always start up higher and then reduce step size to confirm that it has no effect on the results and convergence.
 - Use `junction.clearLog()` and `stack.clearLogs()` to clear the log of the junction and stack. This will save you a lot of memory if you're doing a lot of scans and will vastly speed up the processing.
 - You can define your own drivers! See the [API documentation](api/drivers.md) for more information.
+- In models from `cmtj.models`, in the [`Solver`](api/models/sb-general-reference.md) class you can pass `prefer_numerical_roots=False` to the solver can speed up your computation, depending on the complexity of your model!

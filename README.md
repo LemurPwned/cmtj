@@ -7,7 +7,7 @@
 [![Version](https://img.shields.io/pypi/v/cmtj)](https://pypi.org/project/cmtj/)
 [![License](https://img.shields.io/pypi/l/cmtj.svg)](https://github.com/LemurPwned/cmtj/blob/master/LICENSE)
 [![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cmtj-app.streamlit.app/spectrum)
-![Downloads](https://img.shields.io/pypi/dm/cmtj.svg)
+[![PyPI Downloads](https://static.pepy.tech/badge/cmtj/month)](https://pepy.tech/projects/cmtj)
 
 ## Table of contents
 
