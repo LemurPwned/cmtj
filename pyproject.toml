@@ -81,7 +81,7 @@ include = ["cmtj*"]
 cmtj = ["py.typed", "**/*.pyi"]
 
 [tool.setuptools_scm]
-version_scheme = "no-guess-dev"
+version_scheme = "post-release"
 local_scheme = "no-local-version"
 write_to = "cmtj/_version.py"
 
