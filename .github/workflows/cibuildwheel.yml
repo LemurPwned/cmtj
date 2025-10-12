@@ -1,6 +1,10 @@
 name: Build wheels with cibuildwheel
 
 on:
+  push:
+    tags:
+      - 'v*'
+
   pull_request:
     branches: [master]
     paths:
@@ -22,16 +26,58 @@ on:
       - 'setup.py'
       - 'setup.cfg'
       - 'pyproject.toml'
-      
+
   workflow_dispatch:
     inputs:
-      dry-run:
-        description: 'Dry run (no actual upload to PyPI)'
-        type: boolean
-        default: true
+      version:
+        description: 'Version to release (without the leading v)'
+        required: true
+        type: string
 
 jobs:
+  create_release_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.set_version.outputs.value }}
+    steps:
+      - id: set_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -z "${{ github.event.inputs.version }}" ]; then
+              echo "Version input is required" >&2
+              exit 1
+            fi
+            echo "value=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          VERSION: ${{ steps.set_version.outputs.value }}
+        run: |
+          git fetch --tags --force
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists" >&2
+            exit 1
+          fi
+          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          git push origin "refs/tags/v${VERSION}"
+
   build_wheels:
+    needs: create_release_tag
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -39,7 +85,9 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     env:
       TWINE_USERNAME: __token__
-      IS_DRY_RUN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) }}
+      RELEASE_VERSION: ${{ needs.create_release_tag.outputs.release_version }}
+      IS_RELEASE_RUN: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
+      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +98,11 @@ jobs:
         id: get_version
         run: |
           python -m pip install setuptools-scm
-          echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> $GITHUB_OUTPUT
+          if [ -n "${RELEASE_VERSION}" ]; then
+            echo "version=${RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -86,7 +138,7 @@ jobs:
         run: python -m twine check wheelhouse/*
 
       - name: Upload wheels to Test PyPI (dry run)
-        if: env.IS_DRY_RUN == 'true'
+        if: env.IS_RELEASE_RUN != 'true' && env.IS_PULL_REQUEST != 'true'
         env:
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
@@ -94,7 +146,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload wheels to PyPI (production)
-        if: env.IS_DRY_RUN == 'false'
+        if: env.IS_RELEASE_RUN == 'true'
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
@@ -108,11 +160,14 @@ jobs:
           retention-days: 30
 
   build_sdist:
+    needs: create_release_tag
     name: Build source distribution
     runs-on: ubuntu-latest
     env:
       TWINE_USERNAME: __token__
-      IS_DRY_RUN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) }}
+      RELEASE_VERSION: ${{ needs.create_release_tag.outputs.release_version }}
+      IS_RELEASE_RUN: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
+      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -123,7 +178,11 @@ jobs:
         id: get_version
         run: |
           python -m pip install setuptools-scm
-          echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> $GITHUB_OUTPUT
+          if [ -n "${RELEASE_VERSION}" ]; then
+            echo "version=${RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -142,7 +201,7 @@ jobs:
         run: python -m twine check dist/*
 
       - name: Upload sdist to Test PyPI (dry run)
-        if: env.IS_DRY_RUN == 'true'
+        if: env.IS_RELEASE_RUN != 'true' && env.IS_PULL_REQUEST != 'true'
         env:
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
@@ -150,7 +209,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload sdist to PyPI (production)
-        if: env.IS_DRY_RUN == 'false'
+        if: env.IS_RELEASE_RUN == 'true'
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
@@ -165,17 +224,23 @@ jobs:
 
   release-build:
     name: Create GitHub Release
-    needs: [build_wheels, build_sdist]
-    if: (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true)
+    needs: [create_release_tag, build_wheels, build_sdist]
+    if: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get version
         id: get_version
         run: |
           python -m pip install setuptools-scm
-          echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> $GITHUB_OUTPUT
+          if [ -n "${{ needs.create_release_tag.outputs.release_version }}" ]; then
+            echo "version=${{ needs.create_release_tag.outputs.release_version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
