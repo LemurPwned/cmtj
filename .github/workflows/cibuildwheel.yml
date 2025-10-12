@@ -5,28 +5,6 @@ on:
     tags:
       - 'v*'
 
-  pull_request:
-    branches: [master]
-    paths:
-      - '**.cpp'
-      - '**.hpp'
-      - '**.py'
-      - 'setup.py'
-      - 'setup.cfg'
-      - 'pyproject.toml'
-      - '**.yml'
-
-  pull_request_target:
-    types: [closed]
-    branches: [master]
-    paths:
-      - '**.cpp'
-      - '**.hpp'
-      - '**.py'
-      - 'setup.py'
-      - 'setup.cfg'
-      - 'pyproject.toml'
-
   workflow_dispatch:
     inputs:
       version:
@@ -87,7 +65,6 @@ jobs:
       TWINE_USERNAME: __token__
       RELEASE_VERSION: ${{ needs.create_release_tag.outputs.release_version }}
       IS_RELEASE_RUN: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
-      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -137,14 +114,6 @@ jobs:
       - name: Check wheels
         run: python -m twine check wheelhouse/*
 
-      - name: Upload wheels to Test PyPI (dry run)
-        if: env.IS_RELEASE_RUN != 'true' && env.IS_PULL_REQUEST != 'true'
-        env:
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: |
-          python -m twine upload --repository testpypi wheelhouse/* --verbose
-        continue-on-error: true
-
       - name: Upload wheels to PyPI (production)
         if: env.IS_RELEASE_RUN == 'true'
         env:
@@ -167,7 +136,6 @@ jobs:
       TWINE_USERNAME: __token__
       RELEASE_VERSION: ${{ needs.create_release_tag.outputs.release_version }}
       IS_RELEASE_RUN: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
-      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -199,14 +167,6 @@ jobs:
 
       - name: Check sdist
         run: python -m twine check dist/*
-
-      - name: Upload sdist to Test PyPI (dry run)
-        if: env.IS_RELEASE_RUN != 'true' && env.IS_PULL_REQUEST != 'true'
-        env:
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: |
-          python -m twine upload --repository testpypi dist/* --verbose
-        continue-on-error: true
 
       - name: Upload sdist to PyPI (production)
         if: env.IS_RELEASE_RUN == 'true'
