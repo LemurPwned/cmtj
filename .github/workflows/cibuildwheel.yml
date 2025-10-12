@@ -87,7 +87,7 @@ jobs:
       TWINE_USERNAME: __token__
       RELEASE_VERSION: ${{ needs.create_release_tag.outputs.release_version }}
       IS_RELEASE_RUN: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
-      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
+      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -167,7 +167,7 @@ jobs:
       TWINE_USERNAME: __token__
       RELEASE_VERSION: ${{ needs.create_release_tag.outputs.release_version }}
       IS_RELEASE_RUN: ${{ (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch' && needs.create_release_tag.outputs.release_version != '') }}
-      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
+      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
 
     steps:
       - uses: actions/checkout@v4
