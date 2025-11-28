@@ -7,7 +7,7 @@ try:
     from hebo.optimizers.hebo import HEBO
 
     is_optimiser_imported = True
-except (ImportError, AttributeError) as e:
+except (ImportError, AttributeError):
     is_optimiser_imported = False
 from helpers import plot_optim, read_data
 from simulation_fns import compute_sb_mse, simulate_sb_wrapper
