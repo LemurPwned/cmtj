@@ -322,10 +322,10 @@ class LayerSB:
 
     def sb_correction(self):
         """
-        Using gamma here instead of Constants.gamma_rad() for two reason:
+        Using gamma here instead of gamma_rad for two reason:
         1. It seems to provide more stable solutinos
         2. Root finding needs to be done over smaller range of frequencies
-            (Constants.gamma_rad() is 2pi times larger than gamma) which is faster
+            (gamma_rad is 2pi times larger than gamma) which is faster
 
         Just remember NOT to divide by 2pi when returning the roots!
         """
@@ -512,7 +512,12 @@ class Solver:
         return J, symbols
 
     @coordinate(require="cartesian")
-    def linearised_frequencies(self, H, linearisation_axis: Literal["x", "y", "z"]):
+    def linearised_frequencies(
+        self,
+        H,
+        linearisation_axis: Literal["x", "y", "z"],
+        configuration: Union[list[float], None] = None,
+    ):
         J, symbols = self.compose_llg_jacobian(H=H, form="field")
 
         # partition symbols by axis and indices by axis
@@ -526,19 +531,27 @@ class Solver:
         subs_zero = {s: 0 for a, syms in by_axis_syms.items() if a != hold for s in syms}
         J0 = J.subs(subs_zero)
 
-        if hold == "z":
-            P_vals = {by_axis_syms["z"][i]: 1 for i in range(n)}
-            AP_vals = {by_axis_syms["z"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
-            drop = by_axis_idx["z"]
-        elif hold == "x":
-            P_vals = {by_axis_syms["x"][i]: 1 for i in range(n)}
-            AP_vals = {by_axis_syms["x"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
-            drop = by_axis_idx["x"]
-        else:  # hold == "y"
-            P_vals = {by_axis_syms["y"][i]: 1 for i in range(n)}
-            AP_vals = {by_axis_syms["y"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
-            drop = by_axis_idx["y"]
+        if configuration is None:
+            if hold == "z":
+                P_vals = {by_axis_syms["z"][i]: 1 for i in range(n)}
+                AP_vals = {by_axis_syms["z"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+                drop = by_axis_idx["z"]
+            elif hold == "x":
+                P_vals = {by_axis_syms["x"][i]: 1 for i in range(n)}
+                AP_vals = {by_axis_syms["x"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+                drop = by_axis_idx["x"]
+            else:  # hold == "y"
+                P_vals = {by_axis_syms["y"][i]: 1 for i in range(n)}
+                AP_vals = {by_axis_syms["y"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+                drop = by_axis_idx["y"]
 
+        else:
+            assert len(configuration) == n, f"Incorrect configuration size. Given: {len(configuration)}, expected: {n}"
+            P_vals = {by_axis_syms[linearisation_axis][i]: configuration[i] for i in range(n)}
+            AP_vals = {
+                by_axis_syms[linearisation_axis][i]: (1 if i % 2 == 0 else -1) * configuration[i] for i in range(n)
+            }
+            drop = by_axis_idx[linearisation_axis]
         J0_P = J0.subs(P_vals)
         J0_AP = J0.subs(AP_vals)
 
@@ -761,7 +774,12 @@ class Solver:
         return fmr
 
     @coordinate(require="cartesian")
-    def solve_linearised_frequencies(self, H: VectorObj, linearisation_axis: Literal["x", "y", "z"]):
+    def solve_linearised_frequencies(
+        self,
+        H: VectorObj,
+        linearisation_axis: Literal["x", "y", "z"],
+        configuration: Union[list[float], None] = None,
+    ):
         """Solves the linearised frequencies of the system.
         Select linearisation axis and solve characteristic equation to get the frequencies.
         Requires the system to be in cartesian coordinates.
@@ -772,10 +790,14 @@ class Solver:
 
         :param H: the magnetic field.
         :param linearisation_axis: the axis to linearise around.
+        :param configuration: the configuration of the layers along the linearisation axis. Optional.
+            Defaults to P and AP (alternating).
         :return: the solutions for the frequencies in the P and AP states.
         """
 
-        char_P, char_AP, _, _ = self.linearised_frequencies(H=H, linearisation_axis=linearisation_axis)
+        char_P, char_AP, _, _ = self.linearised_frequencies(
+            H=H, linearisation_axis=linearisation_axis, configuration=configuration
+        )
         poly_P = self.det_solver(char_P)
         poly_AP = self.det_solver(char_AP)
         roots_P = self.root_solver(poly_P, n_layers=len(self.layers), normalise_roots_by_2pi=True)

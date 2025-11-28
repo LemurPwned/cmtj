@@ -184,6 +184,17 @@ with st.sidebar:
                 format="%.4f",
                 help="Biquadratic interlayer exchange coupling constant",
             )
+
+            st.number_input(
+                f"ilD ({j+1}<-->{j+2}) (uJ/m^2)",
+                min_value=GENERIC_BOUNDS["ilD"][0],
+                max_value=GENERIC_BOUNDS["ilD"][1],
+                value=0.0,
+                key=f"ilD{j}",
+                format="%.4f",
+                help="Interlayer DMI constant (D vector along z axis)",
+            )
+
     with st.expander("Simulation & control parameters"):
         st.selectbox(
             "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0

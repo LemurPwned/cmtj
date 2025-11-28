@@ -1,5 +1,3 @@
-import math
-
 # Import constants from the unified constants module
 from .constants import (
     AmtoOe,
