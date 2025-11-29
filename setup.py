@@ -6,10 +6,21 @@ from pathlib import Path
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup, find_packages
 
+# Get version from setuptools_scm
+try:
+    from setuptools_scm import get_version
+    version = get_version(root=".", relative_to=__file__)
+except (ImportError, LookupError):
+    # Fallback: try to read from _version.py if it exists
+    try:
+        from cmtj._version import version
+    except ImportError:
+        version = "dev"
+
 # Handle platform-specific compilation issues
 extra_compile_args = []
 extra_link_args = []
-define_macros = [("VERSION_INFO", '"dev"')]
+define_macros = [("VERSION_INFO", f'"{version}"')]
 
 if sys.platform == 'darwin':
     # macOS-specific flags
