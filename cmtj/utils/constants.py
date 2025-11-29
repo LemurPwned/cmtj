@@ -253,10 +253,10 @@ class Constants:
     @classmethod
     def reset_to_defaults(cls) -> None:
         """Reset all constants to their default values."""
+        # Always reset Python constants since some getters read from it
+        cls._python_constants = cls._FALLBACK_CONSTANTS.copy()
         if cls._use_cpp():
             _cpp_constants.PhysicalConstants.resetToDefaults()
-        else:
-            cls._python_constants = cls._FALLBACK_CONSTANTS.copy()
 
     @classmethod
     def get_all_constants(cls) -> dict[str, float]:
