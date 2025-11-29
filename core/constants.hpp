@@ -44,7 +44,7 @@ double PhysicalConstants::ELECTRON_CHARGE = 1.60217662e-19;
 double PhysicalConstants::BOLTZMANN_CONST = 1.380649e-23;
 
 void PhysicalConstants::resetToDefaults() {
-  MAGNETIC_PERMEABILITY = 12.57e-7;
+  MAGNETIC_PERMEABILITY = 12.566e-7;
   GYRO = 220880.0;
   TtoAm = 795774.715459;
   HBAR = 6.62607015e-34 / (2. * M_PI);

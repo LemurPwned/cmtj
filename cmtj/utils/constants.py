@@ -253,10 +253,9 @@ class Constants:
     @classmethod
     def reset_to_defaults(cls) -> None:
         """Reset all constants to their default values."""
+        cls._python_constants = cls._FALLBACK_CONSTANTS.copy()
         if cls._use_cpp():
             _cpp_constants.PhysicalConstants.resetToDefaults()
-        else:
-            cls._python_constants = cls._FALLBACK_CONSTANTS.copy()
 
     @classmethod
     def get_all_constants(cls) -> dict[str, float]:
@@ -315,6 +314,20 @@ def __getattr__(name: str):
         raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
+gyromagnetic_ratio = Constants.gyromagnetic_ratio()
+gamma = Constants.gamma()
+gamma_rad = Constants.gamma_rad()
+TtoAm = Constants.TtoAm()
+AmtoT = Constants.AmtoT()
+OetoAm = Constants.OetoAm()
+AmtoOe = Constants.AmtoOe()
+hplanck = Constants.hplanck()
+hbar = Constants.hbar()
+echarge = Constants.echarge()
+me = Constants.me()
+boltzmann = Constants.boltzmann()
+bohr_magneton = Constants.bohr_magneton()
+mu0 = Constants.mu0()
 # Export the Constants class and backward compatibility names
 __all__ = [
     "Constants",
