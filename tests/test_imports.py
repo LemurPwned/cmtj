@@ -1,4 +1,3 @@
-import importlib
 
 def test_import_cvector():
     from cmtj import CVector
