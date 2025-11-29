@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.12
 
 # let's copy all the necessary files
 # we install our only 2 dependencies :) and vim for nice workflow

@@ -32,7 +32,7 @@ using DLLGBLayer = LLGBLayer<double>;
 using DLLGBJunction = LLGBJunction<double>;
 
 #define USING_PY true
-PYBIND11_MODULE(cmtj, m) {
+PYBIND11_MODULE(_cmtj, m) {
      // helpers
      m.def("c_dot", &c_dot<double>);
      m.doc() = "Python binding for C++ CMTJ Library.";
