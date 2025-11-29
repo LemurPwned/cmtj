@@ -53,6 +53,7 @@ jobs:
 
       - name: Validate version input
         if: github.event_name == 'workflow_dispatch' && inputs.dry-run == false
+        shell: bash
         run: |
           if [ -z "${{ inputs.version }}" ]; then
             echo "Error: Version is required when dry-run is false"
@@ -61,6 +62,7 @@ jobs:
 
       - name: Get version
         id: get_version
+        shell: bash
         run: |
           python -m pip install setuptools-scm
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry-run }}" = "false" ]; then
@@ -104,6 +106,7 @@ jobs:
 
       - name: Upload wheels to Test PyPI (dry run)
         if: env.IS_DRY_RUN == 'true'
+        shell: bash
         env:
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
@@ -112,6 +115,7 @@ jobs:
 
       - name: Upload wheels to PyPI (production)
         if: env.IS_DRY_RUN == 'false'
+        shell: bash
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
@@ -139,6 +143,7 @@ jobs:
 
       - name: Validate version input
         if: github.event_name == 'workflow_dispatch' && inputs.dry-run == false
+        shell: bash
         run: |
           if [ -z "${{ inputs.version }}" ]; then
             echo "Error: Version is required when dry-run is false"
@@ -147,6 +152,7 @@ jobs:
 
       - name: Get version
         id: get_version
+        shell: bash
         run: |
           python -m pip install setuptools-scm
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry-run }}" = "false" ]; then
@@ -173,6 +179,7 @@ jobs:
 
       - name: Upload sdist to Test PyPI (dry run)
         if: env.IS_DRY_RUN == 'true'
+        shell: bash
         env:
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
         run: |
@@ -181,6 +188,7 @@ jobs:
 
       - name: Upload sdist to PyPI (production)
         if: env.IS_DRY_RUN == 'false'
+        shell: bash
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
@@ -205,6 +213,7 @@ jobs:
 
       - name: Get version
         id: get_version
+        shell: bash
         run: |
           echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
 
@@ -214,6 +223,7 @@ jobs:
           path: artifacts
 
       - name: Create release
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
