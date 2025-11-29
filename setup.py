@@ -2,7 +2,6 @@
 Modern setup.py for CMTJ using pybind11 helpers
 """
 import sys
-import os
 from pathlib import Path
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup, find_packages
