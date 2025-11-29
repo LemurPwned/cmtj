@@ -1,5 +1,7 @@
 import numpy as np
 import streamlit as st
+from helpers import plot_optim, read_data
+from simulation_fns import compute_sb_mse, simulate_sb_wrapper
 
 is_optimiser_imported = False
 try:
@@ -9,8 +11,6 @@ try:
     is_optimiser_imported = True
 except (ImportError, AttributeError):
     is_optimiser_imported = False
-from helpers import plot_optim, read_data
-from simulation_fns import compute_sb_mse, simulate_sb_wrapper
 
 
 def get_fixed_arguments_from_state():

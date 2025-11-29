@@ -1,17 +1,6 @@
 name: Build wheels with cibuildwheel
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - '**.cpp'
-      - '**.hpp'
-      - '**.py'
-      - 'setup.py'
-      - 'setup.cfg'
-      - 'pyproject.toml'
-      - '**.yml'
-
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
@@ -84,7 +73,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           # Build for Python 3.9, 3.10, 3.11, 3.12
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_BUILD: "cp311-* cp312-* cp313-*"
           # Skip PyPy builds and 32-bit builds
           CIBW_SKIP: "pp* *-win32 *-manylinux_i686"
           # Install build dependencies
