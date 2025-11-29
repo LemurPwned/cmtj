@@ -1,15 +1,11 @@
 from collections import defaultdict
 from itertools import groupby
-from typing import List
-from venv import create
-
-from colorama import init
 
 from new_sb import LayerDynamic
 import numpy as np
 import streamlit as st
 
-from cmtj import *
+from cmtj import Layer, CVector, constantDriver, Junction, Axis, AxialDriver
 from cmtj.models import LayerSB, Solver
 from cmtj.utils import FieldScan, VectorObj, mu0
 from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters, VSD_procedure
@@ -18,9 +14,7 @@ from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters, VSD_proc
 def create_single_domain(id_: str) -> Layer:
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
     # Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
-    Kdir = FieldScan.angle2vector(
-        theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
-    )
+    Kdir = FieldScan.angle2vector(theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"])
     layer = Layer(
         id=f"domain_{id_}",
         mag=Kdir,
@@ -31,9 +25,7 @@ def create_single_domain(id_: str) -> Layer:
         demagTensor=demag,
         damping=st.session_state["alpha_shared"],
     )
-    layer.setAnisotropyDriver(
-        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"] * 1e3)
-    )
+    layer.setAnisotropyDriver(constantDriver(st.session_state[f"K{id_}"] * 1e3))
     return layer
 
 
@@ -49,12 +41,8 @@ def create_single_layer(id_: str) -> tuple:
     ]
     demag_sum = nxx + nyy + nzz
     if abs(demag_sum - 1.0) > 1e-5:
-        st.warning(
-            f"Warning: Demagnetization tensor components should sum to 1.0 (Layer {id_})"
-        )
-    Kdir = FieldScan.angle2vector(
-        theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
-    )
+        st.warning(f"Warning: Demagnetization tensor components should sum to 1.0 (Layer {id_})")
+    Kdir = FieldScan.angle2vector(theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"])
     layer = Layer(
         id=f"layer_{id_}",
         mag=Kdir,
@@ -65,9 +53,7 @@ def create_single_layer(id_: str) -> tuple:
         demagTensor=demag,
         damping=st.session_state[f"alpha{id_}"],
     )
-    layer.setAnisotropyDriver(
-        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"] * 1e3)
-    )
+    layer.setAnisotropyDriver(constantDriver(st.session_state[f"K{id_}"] * 1e3))
     rp = ResistanceParameters(
         Rxx0=100,
         Rxy0=1,
@@ -159,10 +145,12 @@ def prepare_simulation():
     for jvals in range(N - 1):
         J = st.session_state[f"J{jvals}"] * 1e-6  # rescale GUI units
         J2 = st.session_state[f"J2{jvals}"] * 1e-6  # rescale GUI units
+        ilD = st.session_state[f"ilD{jvals}"] * 1e-6  # rescale GUI units
         l1_name = layers[jvals].id
         l2_name = layers[jvals + 1].id
-        j.setIECDriver(l1_name, l2_name, ScalarDriver.getConstantDriver(J))
-        j.setQuadIECDriver(l2_name, l1_name, ScalarDriver.getConstantDriver(J2))
+        j.setIECDriver(l1_name, l2_name, constantDriver(J))
+        j.setQuadIECDriver(l2_name, l1_name, constantDriver(J2))
+        j.setIDMIDriver(l1_name, l2_name, AxialDriver(0, 0, ilD))
     return j, rparams
 
 
@@ -294,9 +282,7 @@ def compute_sb_mse(target, data):
         return float("inf")
 
     mse = 0
-    for i, (_, f) in enumerate(
-        groupby(zip(data["Hmag"], data["frequency"]), key=lambda x: x[0])
-    ):
+    for i, (_, f) in enumerate(groupby(zip(data["Hmag"], data["frequency"]), key=lambda x: x[0])):
         # f is a list of tuples (Hmag, frequency)
         contrib = min(((target[i] / 1e9 - f_[1]) ** 2).sum() for f_ in f)
         mse += contrib
@@ -304,7 +290,7 @@ def compute_sb_mse(target, data):
     return mse
 
 
-def simulate_sb(hvals: List[float]):
+def simulate_sb(hvals: list[float]):
     layers = []
     N = st.session_state.N
     init_pos = []
@@ -356,10 +342,10 @@ def kwargs_to_list(kwargs: dict, N: int):
 
 
 def simulate_sb_wrapper(
-    hvals: List[float],
+    hvals: list[float],
     N: int,
-    thickness: List[float],
-    anisotropy_axis: List[str],
+    thickness: list[float],
+    anisotropy_axis: list[str],
     H_axis: str,
     **kwargs,
 ):
