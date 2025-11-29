@@ -53,6 +53,7 @@ jobs:
 
       - name: Validate version input
         if: github.event_name == 'workflow_dispatch' && inputs.dry-run == false
+        shell: bash
         run: |
           if [ -z "${{ inputs.version }}" ]; then
             echo "Error: Version is required when dry-run is false"
@@ -61,6 +62,7 @@ jobs:
 
       - name: Get version
         id: get_version
+        shell: bash
         run: |
           python -m pip install setuptools-scm
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry-run }}" = "false" ]; then
