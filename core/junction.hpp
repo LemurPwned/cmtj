@@ -29,12 +29,12 @@
 #include <unordered_map> // for unordered_map
 #include <vector>        // for vector, __vector_base<>::value_type
 
-#define MAGNETIC_PERMEABILITY 12.57e-7
-#define GYRO 220880.0 // rad/Ts converted to m/As
-#define TtoAm 795774.715459
-#define HBAR 6.62607015e-34 / (2. * M_PI)
-#define ELECTRON_CHARGE 1.60217662e-19
-#define BOLTZMANN_CONST 1.380649e-23
+constexpr double MAGNETIC_PERMEABILITY = 12.57e-7;
+constexpr double GYRO = 220880.0; // rad/Ts converted to m/As
+constexpr double TtoAm = 795774.715459;
+constexpr double HBAR = 6.62607015e-34 / (2. * M_PI);
+constexpr double ELECTRON_CHARGE = 1.60217662e-19;
+constexpr double BOLTZMANN_CONST = 1.380649e-23;
 
 typedef CVector<double> DVector;
 typedef CVector<float> FVector;
@@ -53,55 +53,66 @@ double operator"" _mT(long double tesla) { return ((double)tesla) / 1000.0; }
 template <typename T>
 inline CVector<T> calculate_tensor_interaction(
     const CVector<T> &m, const std::vector<CVector<T>> &tensor, const T &Ms) {
-  CVector<T> res(
-      tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
-      tensor[1][0] * m[0] + tensor[1][1] * m[1] + tensor[1][2] * m[2],
-      tensor[2][0] * m[0] + tensor[2][1] * m[1] + tensor[2][2] * m[2]);
-  return res * (Ms / MAGNETIC_PERMEABILITY);
+  // Cache magnetization components for better register usage
+  const T m0 = m[0], m1 = m[1], m2 = m[2];
+  const T scale = Ms / MAGNETIC_PERMEABILITY;
+  
+  // Compute matrix-vector product with fewer temporary objects
+  return CVector<T>(
+      (tensor[0][0] * m0 + tensor[0][1] * m1 + tensor[0][2] * m2) * scale,
+      (tensor[1][0] * m0 + tensor[1][1] * m1 + tensor[1][2] * m2) * scale,
+      (tensor[2][0] * m0 + tensor[2][1] * m1 + tensor[2][2] * m2) * scale);
 }
 
 template <typename T>
 inline CVector<T> calculate_tensor_interaction(
     const CVector<T> &m, const std::array<CVector<T>, 3> &tensor, const T &Ms) {
-  CVector<T> res(
-      tensor[0][0] * m[0] + tensor[0][1] * m[1] + tensor[0][2] * m[2],
-      tensor[1][0] * m[0] + tensor[1][1] * m[1] + tensor[1][2] * m[2],
-      tensor[2][0] * m[0] + tensor[2][1] * m[1] + tensor[2][2] * m[2]);
-  return res * (Ms / MAGNETIC_PERMEABILITY);
+  // Cache magnetization components for better register usage
+  const T m0 = m[0], m1 = m[1], m2 = m[2];
+  const T scale = Ms / MAGNETIC_PERMEABILITY;
+  
+  // Compute matrix-vector product with fewer temporary objects
+  return CVector<T>(
+      (tensor[0][0] * m0 + tensor[0][1] * m1 + tensor[0][2] * m2) * scale,
+      (tensor[1][0] * m0 + tensor[1][1] * m1 + tensor[1][2] * m2) * scale,
+      (tensor[2][0] * m0 + tensor[2][1] * m1 + tensor[2][2] * m2) * scale);
 }
 
 template <typename T>
 inline CVector<T> c_cross(const CVector<T> &a, const CVector<T> &b) {
-  CVector<T> res(a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
-                 a[0] * b[1] - a[1] * b[0]);
-
-  return res;
+  // Cache array accesses for better performance
+  const T a0 = a[0], a1 = a[1], a2 = a[2];
+  const T b0 = b[0], b1 = b[1], b2 = b[2];
+  
+  return CVector<T>(a1 * b2 - a2 * b1, a2 * b0 - a0 * b2, a0 * b1 - a1 * b0);
 }
 
-template <typename T> inline T c_dot(const CVector<T> &a, const CVector<T> &b) {
+template <typename T> 
+constexpr inline T c_dot(const CVector<T> &a, const CVector<T> &b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 template <typename T> class EnergyDriver {
 public:
-  static T calculateZeemanEnergy(CVector<T> mag, CVector<T> Hext, T cellVolume,
+  static inline T calculateZeemanEnergy(const CVector<T> &mag, const CVector<T> &Hext, T cellVolume,
                                  T Ms) {
     return -MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hext) * cellVolume;
   }
 
-  static T calculateAnisotropyEnergy(CVector<T> mag, CVector<T> anis, T K,
+  static inline T calculateAnisotropyEnergy(const CVector<T> &mag, const CVector<T> &anis, T K,
                                      T cellVolume) {
-    const T sinSq =
-        1.0 - pow(c_dot<T>(mag, anis) / (anis.length() * mag.length()), 2);
+    const T dot = c_dot<T>(mag, anis);
+    const T normProd = anis.length() * mag.length();
+    const T sinSq = 1.0 - (dot * dot) / (normProd * normProd);
     return K * sinSq * cellVolume;
   }
 
-  static T calculateIECEnergy(CVector<T> mag, CVector<T> other, T J,
+  static inline T calculateIECEnergy(const CVector<T> &mag, const CVector<T> &other, T J,
                               T cellSurface) {
     return -c_dot<T>(mag, other) * J * cellSurface;
   }
 
-  static T calculateDemagEnergy(CVector<T> mag, CVector<T> Hdemag, T Ms,
+  static inline T calculateDemagEnergy(const CVector<T> &mag, const CVector<T> &Hdemag, T Ms,
                                 T cellVolume) {
     return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hdemag) *
            cellVolume;
@@ -180,8 +191,10 @@ private:
         T SlonczewskiSpacerLayerParameter, T beta, T spinPolarisation)
       : id(id), mag(mag), anis(anis), Ms(Ms), thickness(thickness),
         cellSurface(cellSurface), demagTensor(demagTensor), damping(damping),
+        dampingSq(damping * damping),
         fieldLikeTorque(fieldLikeTorque), dampingLikeTorque(dampingLikeTorque),
         SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
+        SlonczewskiSpacerLayerParameterSq(SlonczewskiSpacerLayerParameter * SlonczewskiSpacerLayerParameter),
         beta(beta), spinPolarisation(spinPolarisation) {
     if (mag.length() == 0) {
       throw std::runtime_error(
@@ -243,6 +256,7 @@ public:
 
   // LLG params
   T damping;
+  T dampingSq; // cached damping^2 for performance
 
   // SOT params
   bool dynamicSOT = true;
@@ -251,6 +265,7 @@ public:
 
   // STT params
   T SlonczewskiSpacerLayerParameter;
+  T SlonczewskiSpacerLayerParameterSq; // cached for performance
   T beta;      // usually either set to 0 or to damping
   T kappa = 1; // for damping-like off -turning torque
   T spinPolarisation;
@@ -575,7 +590,7 @@ public:
    */
   Reference getReferenceType() { return this->referenceType; }
 
-  const CVector<T>
+  inline const CVector<T>
   calculateHeff(T time, T timeStep, const CVector<T> &stepMag,
                 const CVector<T> &bottom, const CVector<T> &top,
                 const CVector<T> &Hfluctuation = CVector<T>()) {
@@ -620,47 +635,46 @@ public:
     return Heff;
   }
 
-  CVector<T> calculateHOeField(const T &time) {
+  inline CVector<T> calculateHOeField(const T &time) {
     this->Hoe_log = this->HoeDriver.getCurrentAxialDrivers(time);
     return this->Hoe_log;
   }
 
-  CVector<T> calculateHdmiField(const T &time) {
+  inline CVector<T> calculateHdmiField(const T &time) {
     return this->HdmiDriver.getCurrentAxialDrivers(time);
   }
 
-  CVector<T> calculateExternalField(const T &time) {
+  inline CVector<T> calculateExternalField(const T &time) {
     this->H_log = this->externalFieldDriver.getCurrentAxialDrivers(time);
     return this->H_log;
   }
 
-  CVector<T> calculateAnisotropy(const CVector<T> &stepMag, T &time) {
+  inline CVector<T> calculateAnisotropy(const CVector<T> &stepMag, T &time) {
     this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
-    const T nom =
-        (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / (this->Ms);
+    const T nom = (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / this->Ms;
     return this->anis * nom;
   }
 
-  CVector<T> calculateSecondOrderAnisotropy(const CVector<T> &stepMag,
+  inline CVector<T> calculateSecondOrderAnisotropy(const CVector<T> &stepMag,
                                             T &time) {
     this->K2_log =
         this->secondOrderAnisotropyDriver.getCurrentScalarValue(time);
-    const T nom =
-        (4 * this->K2_log) * pow(c_dot<T>(this->anis, stepMag), 3) / (this->Ms);
+    const T dot = c_dot<T>(this->anis, stepMag);
+    const T nom = (4 * this->K2_log) * dot * dot * dot / this->Ms;
     return this->anis * nom;
   }
 
-  CVector<T> calculateIEC_(const T J, const T J2, const CVector<T> &stepMag,
+  inline CVector<T> calculateIEC_(const T J, const T J2, const CVector<T> &stepMag,
                            const CVector<T> &coupledMag) {
     // below an alternative method for computing J -- it's here for reference
     // only. const T nom = J / (this->Ms * this->thickness); return (coupledMag
     // - stepMag) * nom; // alternative form return (coupledMag + coupledMag * 2
     // * J2 * c_dot(coupledMag, stepMag)) * nom;
-    return coupledMag * (J + 2 * J2 * c_dot(coupledMag, stepMag)) /
-           (this->Ms * this->thickness);
+    const T scale = (J + 2 * J2 * c_dot(coupledMag, stepMag)) / (this->Ms * this->thickness);
+    return coupledMag * scale;
   }
 
-  CVector<T> calculateIEC(T time, const CVector<T> &stepMag,
+  inline CVector<T> calculateIEC(T time, const CVector<T> &stepMag,
                           const CVector<T> &bottom, const CVector<T> &top) {
     this->Jbottom_log = this->IECDriverBottom.getCurrentScalarValue(time);
     this->Jtop_log = this->IECDriverTop.getCurrentScalarValue(time);
@@ -673,7 +687,7 @@ public:
            calculateIEC_(this->Jtop_log, this->J2top_log, stepMag, top);
   }
 
-  CVector<T> calculateIDMI_(const CVector<T> &Dvector,
+  inline CVector<T> calculateIDMI_(const CVector<T> &Dvector,
                             const CVector<T> &stepMag,
                             const CVector<T> &coupledMag) {
     // D * [(dm1/dm1x x m2) + (m1 x dm2/dm2x)]
@@ -682,8 +696,8 @@ public:
     // dm1/dm1z x m2 = (-my, mx, 0)
     // E = D z * (m1 x m2) == D m1 (m2 x z)
     // dE/dm1 = D m2 x z
-    const CVector<T> dm1crossm2 = -1.0 * c_cross<T>(Dvector, coupledMag);
-    return dm1crossm2 / (this->Ms * this->thickness);
+    const T scale = -1.0 / (this->Ms * this->thickness);
+    return c_cross<T>(Dvector, coupledMag) * scale;
     // const CVector<T> dm1crossm2(
     //     c_dot(Dvector, CVector<T>(0, -coupledMag.z, coupledMag.y)),
     //     c_dot(Dvector, CVector<T>(coupledMag.z, 0, -coupledMag.x)),
@@ -691,7 +705,7 @@ public:
     // return dm1crossm2 / (this->Ms * this->thickness);
   }
 
-  CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
+  inline CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
                            const CVector<T> &bottom, const CVector<T> &top) {
     return calculateIDMI_(this->IDMIDriverBottom.getCurrentAxialDrivers(time),
                           stepMag, bottom) +
@@ -717,7 +731,7 @@ public:
                             const CVector<T> &heff) {
     const CVector<T> prod = c_cross<T>(m, heff);
     const CVector<T> prod2 = c_cross<T>(m, prod);
-    const T convTerm = 1 / (1 + pow(this->damping, 2)); // LLGS -> LL form
+    const T convTerm = 1 / (1 + this->dampingSq); // LLGS -> LL form
     const CVector<T> dmdt = prod + prod2 * this->damping;
     CVector<T> reference;
 
@@ -755,7 +769,7 @@ public:
                this->SlonczewskiSpacerLayerParameter * c_dot<T>(m, reference));
       } else {
         // this is more complex model (classical STT)
-        const T slonSq = pow(this->SlonczewskiSpacerLayerParameter, 2);
+        const T slonSq = this->SlonczewskiSpacerLayerParameterSq;
         eta = (this->spinPolarisation * slonSq) /
               (slonSq + 1 + (slonSq - 1) * c_dot<T>(m, reference));
       }
@@ -820,10 +834,10 @@ public:
    * @param dW - stochastic vector already scaled properly
    * @return CVector<T>
    */
-  CVector<T> stochasticTorque(const CVector<T> &currentMag,
+  inline CVector<T> stochasticTorque(const CVector<T> &currentMag,
                               const CVector<T> &dW) {
 
-    const T convTerm = -GYRO / (1. + pow(this->damping, 2));
+    const T convTerm = -GYRO / (1. + this->dampingSq);
     const CVector<T> thcross = c_cross(currentMag, dW);
     const CVector<T> thcross2 = c_cross(currentMag, thcross);
     return (thcross + thcross2 * this->damping) * convTerm;
@@ -851,7 +865,7 @@ public:
    * m). For IEC interaction.
    * @param timeStep: RK45 integration step.
    */
-  const CVector<T>
+  inline const CVector<T>
   calculateLLGWithFieldTorque(T time, const CVector<T> &m,
                               const CVector<T> &bottom, const CVector<T> &top,
                               T timeStep,
@@ -1076,28 +1090,28 @@ public:
     this->mag = m_t;
   }
 
-  CVector<T> stochastic_llg(const CVector<T> &cm, T time, T timeStep,
+  inline CVector<T> stochastic_llg(const CVector<T> &cm, T time, T timeStep,
                             const CVector<T> &bottom, const CVector<T> &top,
                             const CVector<T> &dW, const CVector<T> &dW2,
                             const T &HoneF) {
     // compute the Langevin fluctuations -- this is the sigma
-    const T convTerm = -GYRO / (1 + pow(this->damping, 2));
+    const T convTerm = -GYRO / (1 + this->dampingSq);
     const T Hthermal_temp =
         this->getLangevinStochasticStandardDeviation(time, timeStep);
     const CVector<T> thcross = c_cross(cm, dW);
-    const CVector<T> thcross2 = c_cross(thcross, dW);
+    const CVector<T> thcross2 = c_cross(cm, thcross);
     const T scalingTh = Hthermal_temp * convTerm;
 
     // compute 1/f noise term
     const CVector<T> onefcross = c_cross(cm, dW2);
-    const CVector<T> onefcross2 = c_cross(onefcross, dW2);
+    const CVector<T> onefcross2 = c_cross(cm, onefcross);
     const T scalingOneF = HoneF * convTerm;
 
     return (thcross + thcross2 * this->damping) * scalingTh +
            (onefcross + onefcross2 * this->damping) * scalingOneF;
   }
 
-  const T getStochasticOneFNoise(T time) {
+  inline const T getStochasticOneFNoise(T time) {
     if (!this->pinkNoiseSet)
       return 0;
     else if (this->noiseParams.scaleNoise != 0) {
@@ -1107,7 +1121,7 @@ public:
     return this->ofn->tick();
   }
 
-  T getLangevinStochasticStandardDeviation(T time, T timeStep) {
+  inline T getLangevinStochasticStandardDeviation(T time, T timeStep) {
     if (this->cellVolume == 0.0)
       throw std::runtime_error(
           "Cell surface cannot be 0 during temp. calculations!");
@@ -1117,16 +1131,15 @@ public:
     return sqrt(mainFactor);
   }
 
-  CVector<T> getStochasticLangevinVector(const T &time, const T &timeStep) {
+  inline CVector<T> getStochasticLangevinVector(const T &time, const T &timeStep) {
     if (!this->temperatureSet)
       return CVector<T>();
     const T Hthermal_temp =
         this->getLangevinStochasticStandardDeviation(time, timeStep);
-    const CVector<T> dW = CVector<T>(this->distribution);
-    return dW * Hthermal_temp;
+    return CVector<T>(this->distribution) * Hthermal_temp;
   }
 
-  CVector<T> getOneFVector() {
+  inline CVector<T> getOneFVector() {
     if (this->noiseParams.scaleNoise != 0) {
       // use buffered noise if available
       return this->bfn->tickVector();
@@ -1160,10 +1173,8 @@ public:
    * No magnetoresistance is calculated.
    * @param layersToSet: layers that compose the junction
    */
-  explicit Junction(const std::vector<Layer<T>> &layersToSet) {
-    this->MR_mode = NONE;
-    this->layers = layersToSet;
-    this->layerNo = this->layers.size();
+  explicit Junction(std::vector<Layer<T>> layersToSet) 
+      : layers(std::move(layersToSet)), MR_mode(NONE), layerNo(layers.size()) {
     if (this->layerNo == 0) {
       throw std::invalid_argument("Passed a zero length Layer vector!");
     }
@@ -1176,8 +1187,8 @@ public:
       _ids.insert(layer.id);
     }
   }
-  explicit Junction(const std::vector<Layer<T>> &layersToSet, T Rp, T Rap)
-      : Junction(layersToSet) {
+  explicit Junction(std::vector<Layer<T>> layersToSet, T Rp, T Rap)
+      : Junction(std::move(layersToSet)) {
     if (this->layerNo == 1) {
       // we need to check if this layer has a reference layer.
       if (!this->layers[0].referenceLayer.length()) {
@@ -1212,17 +1223,17 @@ public:
    * @param SMR_Y
    * @param AHE
    */
-  explicit Junction(const std::vector<Layer<T>> &layersToSet,
+  explicit Junction(std::vector<Layer<T>> layersToSet,
                     std::vector<T> Rx0, std::vector<T> Ry0,
                     std::vector<T> AMR_X, std::vector<T> AMR_Y,
                     std::vector<T> SMR_X, std::vector<T> SMR_Y,
                     std::vector<T> AHE)
-      : Rx0(std::move(Rx0)), Ry0(std::move(Ry0)), AMR_X(std::move(AMR_X)),
+      : layers(std::move(layersToSet)), 
+        Rx0(std::move(Rx0)), Ry0(std::move(Ry0)), AMR_X(std::move(AMR_X)),
         AMR_Y(std::move(AMR_Y)), SMR_X(std::move(SMR_X)),
         SMR_Y(std::move(SMR_Y)), AHE(std::move(AHE))
 
   {
-    this->layers = std::move(layersToSet);
     this->layerNo = this->layers.size();
     if (this->layerNo == 0) {
       throw std::invalid_argument("Passed a zero length Layer vector!");
@@ -1245,8 +1256,9 @@ public:
    * @brief Get Ids of the layers in the junction.
    * @return vector of layer ids.
    */
-  const std::vector<std::string> getLayerIds() const {
+  std::vector<std::string> getLayerIds() const {
     std::vector<std::string> ids;
+    ids.reserve(this->layers.size());
     std::transform(this->layers.begin(), this->layers.end(),
                    std::back_inserter(ids),
                    [](const Layer<T> &layer) { return layer.id; });
@@ -1682,10 +1694,13 @@ public:
                            bool &step_accepted) {
     // Run solver for each layer and check if all steps were accepted
     step_accepted = true;
-    std::vector<CVector<T>> magCopies(this->layerNo + 2, CVector<T>());
+    std::vector<CVector<T>> magCopies;
+    magCopies.reserve(this->layerNo + 2);
+    magCopies.emplace_back(); // First layer gets 0 vector coupled
     // the first and the last layer get 0 vector coupled
     for (unsigned int i = 0; i < this->layerNo; i++)
-      magCopies[i + 1] = this->layers[i].mag;
+      magCopies.emplace_back(this->layers[i].mag);
+    magCopies.emplace_back(); // Last layer gets 0 vector coupled
 
     for (unsigned int i = 0; i < layerNo; i++) {
       // If any layer rejects the step, the whole step is rejected
@@ -1717,7 +1732,8 @@ public:
         with f being the non-stochastic part and g the stochastic part
     */
     // draw the noise for each layer, dW
-    std::vector<CVector<T>> mPrime(this->layerNo, CVector<T>());
+    std::vector<CVector<T>> mPrime;
+    mPrime.reserve(this->layerNo);
     for (unsigned int i = 0; i < this->layerNo; i++) {
       // todo: after you're done, double check the thermal magnitude and dt
       // scaling there
@@ -1742,8 +1758,8 @@ public:
       const CVector<T> mNext = this->layers[i].mag + gnApprox * sqrt(timeStep);
       const CVector<T> gnPrimeApprox =
           this->layers[i].stochasticTorque(mNext, dW);
-      mPrime[i] = this->layers[i].mag + fnApprox * timeStep +
-                  0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep);
+      mPrime.emplace_back(this->layers[i].mag + fnApprox * timeStep +
+                  0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep));
     }
 
     for (unsigned int i = 0; i < this->layerNo; i++) {
@@ -1767,10 +1783,11 @@ public:
         f' = f(y, )
         y(t+1) = y + dt*f(y,t) + .5*(g(y,t,dW)+g_sp)*sqrt(dt)
     */
-    std::vector<CVector<T>> fn(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> gn(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> dW(this->layerNo, CVector<T>());
-    std::vector<CVector<T>> mNext(this->layerNo, CVector<T>());
+    std::vector<CVector<T>> fn, gn, dW, mNext;
+    fn.reserve(this->layerNo);
+    gn.reserve(this->layerNo);
+    dW.reserve(this->layerNo);
+    mNext.reserve(this->layerNo);
     // first approximation
 
     // make sure that
@@ -1784,16 +1801,16 @@ public:
       const CVector<T> top =
           (i == this->layerNo - 1) ? CVector<T>() : this->layers[i + 1].mag;
 
-      fn[i] = this->layers[i].calculateLLGWithFieldTorque(
-          t, this->layers[i].mag, bottom, top, timeStep);
+      fn.emplace_back(this->layers[i].calculateLLGWithFieldTorque(
+          t, this->layers[i].mag, bottom, top, timeStep));
 
       // draw the noise for each layer, dW
-      dW[i] = this->layers[i].getStochasticLangevinVector(t, timeStep) +
-              this->layers[i].getOneFVector();
-      gn[i] = this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]);
+      dW.emplace_back(this->layers[i].getStochasticLangevinVector(t, timeStep) +
+              this->layers[i].getOneFVector());
+      gn.emplace_back(this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]));
 
-      mNext[i] =
-          this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep);
+      mNext.emplace_back(
+          this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep));
     }
     // second approximation
     for (unsigned int i = 0; i < this->layerNo; i++) {
@@ -1831,28 +1848,27 @@ public:
    * @param SMR_Y
    * @param AHE
    */
-  std::vector<T> stripMagnetoResistance(const std::vector<T> &Rx0,
+  inline std::vector<T> stripMagnetoResistance(const std::vector<T> &Rx0,
                                         const std::vector<T> &Ry0,
                                         const std::vector<T> &AMR_X,
                                         const std::vector<T> &SMR_X,
                                         const std::vector<T> &AMR_Y,
                                         const std::vector<T> &SMR_Y,
-                                        const std::vector<T> &AHE) {
+                                        const std::vector<T> &AHE) const {
     T Rx_acc = 0.0;
     T Ry_acc = 0.0;
 
     for (unsigned int i = 0; i < this->layers.size(); i++) {
-      const T Rx = Rx0[i] +
-                   AMR_X[i] * (this->layers[i].mag.x * this->layers[i].mag.x) +
-                   SMR_X[i] * (this->layers[i].mag.y * this->layers[i].mag.y);
-      const T Ry =
-          Ry0[i] + 0.5 * AHE[i] * this->layers[i].mag.z +
-          (AMR_Y[i] + SMR_Y[i]) * this->layers[i].mag.x * this->layers[i].mag.y;
+      const T mx = this->layers[i].mag.x;
+      const T my = this->layers[i].mag.y;
+      const T mz = this->layers[i].mag.z;
+      const T Rx = Rx0[i] + AMR_X[i] * mx * mx + SMR_X[i] * my * my;
+      const T Ry = Ry0[i] + 0.5 * AHE[i] * mz + (AMR_Y[i] + SMR_Y[i]) * mx * my;
       Rx_acc += 1. / Rx;
       Ry_acc += 1. / Ry;
     }
 
-    return {1 / Rx_acc, 1 / Ry_acc, 0.};
+    return {1. / Rx_acc, 1. / Ry_acc, 0.};
   }
 
   /**
@@ -1861,8 +1877,8 @@ public:
    * used when MR_MODE == CLASSIC
    * @param cosTheta: cosine between two layers.
    */
-  T calculateMagnetoresistance(T cosTheta) {
-    return this->Rp + (((this->Rap - this->Rp) / 2.0) * (1.0 - cosTheta));
+  inline T calculateMagnetoresistance(T cosTheta) const {
+    return this->Rp + (((this->Rap - this->Rp) * 0.5) * (1.0 - cosTheta));
   }
 
   std::vector<T> getMagnetoresistance() {
