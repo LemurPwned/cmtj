@@ -1,0 +1,14 @@
+
+[test]
+pytest
+pytest-xdist
+
+[utils]
+matplotlib
+multiprocess
+numba
+numpy
+pandas
+scipy
+sympy
+tqdm

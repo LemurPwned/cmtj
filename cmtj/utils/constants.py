@@ -255,8 +255,9 @@ class Constants:
         """Reset all constants to their default values."""
         if cls._use_cpp():
             _cpp_constants.PhysicalConstants.resetToDefaults()
-        else:
-            cls._python_constants = cls._FALLBACK_CONSTANTS.copy()
+        # Always reset Python constants since some getters (gamma, gamma_rad, OetoAm, me)
+        # always read from _python_constants regardless of C++ availability
+        cls._python_constants = cls._FALLBACK_CONSTANTS.copy()
 
     @classmethod
     def get_all_constants(cls) -> dict[str, float]:
