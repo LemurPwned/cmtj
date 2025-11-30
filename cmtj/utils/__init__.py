@@ -1,5 +1,21 @@
-import math
-
+# Import constants from the unified constants module
+from .constants import (
+    AmtoOe,
+    AmtoT,
+    Constants,
+    OetoAm,
+    TtoAm,
+    bohr_magneton,
+    boltzmann,
+    echarge,
+    gamma,
+    gamma_rad,
+    gyromagnetic_ratio,
+    hbar,
+    hplanck,
+    me,
+    mu0,
+)
 from .filters import Filters
 from .general import VectorObj, box_muller_random, perturb_position
 from .linear import FieldScan
@@ -11,21 +27,6 @@ from .resistance import (
     compute_resistance,
     compute_sd,
 )
-
-# constants
-OetoAm = 79.57747
-AmtoOe = 1.0 / OetoAm
-TtoAm = 795774.715459
-AmtoT = 1.0 / TtoAm
-echarge = -1.602e-19
-mu0 = 12.566e-7
-hplanck = 6.6260e-34
-hbar = hplanck / (2 * math.pi)
-gyromagnetic_ratio = 2.211e5  # m/As
-gamma = 28024e6  # Hz/T
-gamma_rad = 1.76e11  # rad / (s * T)
-me = 9.109e-31
-bohr_magneton = echarge * hbar / (2 * me)
 
 __all__ = [
     "Filters",
@@ -39,4 +40,20 @@ __all__ = [
     "box_muller_random",
     "perturb_position",
     "compute_gmr",
+    # Constants
+    "Constants",
+    "mu0",
+    "gyromagnetic_ratio",
+    "gamma",
+    "gamma_rad",
+    "TtoAm",
+    "AmtoT",
+    "OetoAm",
+    "AmtoOe",
+    "hplanck",
+    "hbar",
+    "echarge",
+    "me",
+    "boltzmann",
+    "bohr_magneton",
 ]

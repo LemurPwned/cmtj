@@ -13,6 +13,9 @@ def export_session_state():
     opts = ["_btn", "_file", "_state", "low_", "up_", "check_", "upload"]
     for k, v in st.session_state.items():
         skip = any(forb_opts in k for forb_opts in opts)
+        # Skip pimm_history as it contains bytes that aren't JSON serializable
+        if k == "pimm_history":
+            skip = True
         if not skip:
             export_dict[k] = v
 
@@ -184,6 +187,17 @@ with st.sidebar:
                 format="%.4f",
                 help="Biquadratic interlayer exchange coupling constant",
             )
+
+            st.number_input(
+                f"ilD ({j+1}<-->{j+2}) (uJ/m^2)",
+                min_value=GENERIC_BOUNDS["ilD"][0],
+                max_value=GENERIC_BOUNDS["ilD"][1],
+                value=0.0,
+                key=f"ilD{j}",
+                format="%.4f",
+                help="Interlayer DMI constant (D vector along z axis)",
+            )
+
     with st.expander("Simulation & control parameters"):
         st.selectbox(
             "H axis", options=["x", "y", "z", "xy", "xz", "yz"], key="H_axis", index=0
@@ -363,3 +377,38 @@ with pimm_tab:
         index=1,
         help="Direction of the Oersted field impulse",
     )
+
+    # History settings
+    st.markdown("---")
+    st.markdown("### Simulation History")
+    st.number_input(
+        "Max history size",
+        min_value=1,
+        max_value=20,
+        value=5,
+        key="pimm_max_history",
+        format="%d",
+        help="Maximum number of past simulations to keep in history",
+    )
+
+    # Display history gallery
+    if "pimm_history" in st.session_state and len(st.session_state.pimm_history) > 0:
+        st.markdown("#### Past Simulations")
+        history = st.session_state.pimm_history
+
+        # Display in a grid layout (3 columns for smaller images)
+        n_cols = min(4, len(history))
+        cols = st.columns(n_cols)
+
+        for idx, entry in enumerate(history):
+            col_idx = idx % n_cols
+            with cols[col_idx]:
+                st.image(entry["image_bytes"], width=600)
+                st.caption(f"Sim {idx + 1} - {entry['timestamp']}")
+
+        # Clear history button
+        if st.button("Clear History", key="clear_history_btn"):
+            st.session_state.pimm_history = []
+            st.rerun()
+    else:
+        st.info("No simulation history yet. Run a PIMM simulation to see it here.")

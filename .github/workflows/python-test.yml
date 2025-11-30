@@ -15,6 +15,7 @@ on:
       - tests/*.py
 
   pull_request:
+    types: [opened, synchronize, reopened]
     branches: [ "master" ]
     paths-ignore:
       - '**.yaml'

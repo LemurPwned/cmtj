@@ -107,9 +107,10 @@ python3 -m pip install git+https://github.com/LemurPwned/cmtj.git
 4. Clone the repository:
 
 ```bash
-git clone https://github.com/LemurPwned/cmtj.git
+git clone --recurse-submodules https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
 ```
+if your git is older, you may need to use `--recursive` instead of `--recurse-submodules`.
 
 #### Extra dependencies
 

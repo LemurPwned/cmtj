@@ -1,18 +1,21 @@
-from typing import List
-
 import numpy as np
 import streamlit as st
-from hebo.design_space.design_space import DesignSpace
-from hebo.optimizers.hebo import HEBO
 from helpers import plot_optim, read_data
 from simulation_fns import compute_sb_mse, simulate_sb_wrapper
+
+is_optimiser_imported = False
+try:
+    from hebo.design_space.design_space import DesignSpace
+    from hebo.optimizers.hebo import HEBO
+
+    is_optimiser_imported = True
+except (ImportError, AttributeError):
+    is_optimiser_imported = False
 
 
 def get_fixed_arguments_from_state():
     thickness = [st.session_state[f"thickness{i}"] for i in range(st.session_state.N)]
-    anisotropy_axis = [
-        st.session_state[f"anisotropy_axis{i}"] for i in range(st.session_state.N)
-    ]
+    anisotropy_axis = [st.session_state[f"anisotropy_axis{i}"] for i in range(st.session_state.N)]
     return {
         "thickness": thickness,
         "anisotropy_axis": anisotropy_axis,
@@ -22,8 +25,8 @@ def get_fixed_arguments_from_state():
 
 
 def hebo_fit(
-    hvals: List[float],
-    y: List[float],
+    hvals: list[float],
+    y: list[float],
 ):
     """Optimizes the parameters of a function using HEBO."""
     N = st.session_state.n_iters
@@ -51,9 +54,7 @@ def hebo_fit(
 
             """Multiprocess is not really stable, so we use a single process instead"""
             for param_set in param_values:
-                result_dictionary = simulate_sb_wrapper(
-                    hvals=hvals, **param_set, **all_fixed
-                )
+                result_dictionary = simulate_sb_wrapper(hvals=hvals, **param_set, **all_fixed)
                 errors.append(compute_sb_mse(target=y, data=result_dictionary))
             errors = np.asarray(errors)
             opt.observe(rec, errors)
@@ -88,9 +89,7 @@ def get_config():
                 continue
             if st.session_state[f"check_{param_name}{i}"]:
                 # take lower bound
-                fixed_parameters[f"{param_name}{i}"] = float(
-                    st.session_state[f"low_{param_name}{i}"]
-                )
+                fixed_parameters[f"{param_name}{i}"] = float(st.session_state[f"low_{param_name}{i}"])
             else:
                 ub = float(st.session_state[f"up_{param_name}{i}"])
                 lb = float(st.session_state[f"low_{param_name}{i}"])
@@ -115,6 +114,9 @@ def get_config():
 
 
 def autofit(placeholder=None):
+    if not is_optimiser_imported:
+        st.toast("Hebo optimiser failed to import. Please report the issue to the developer!")
+        return
     try:
         target_data = read_data()
         h, f = target_data
@@ -131,9 +133,7 @@ def autofit(placeholder=None):
             return
         else:
             # turn dict into list
-            out_params = "\n".join(
-                f"\t{k}: {v}" for k, v in result.best_x.iloc[0].to_dict().items()
-            )
+            out_params = "\n".join(f"\t{k}: {v}" for k, v in result.best_x.iloc[0].to_dict().items())
             msg = f"""## OPTIMISATION COMPLETE\n
                 Best MSE: {result.y.min():.2f}\n{out_params}
                 """
