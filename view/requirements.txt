@@ -1,9 +1,9 @@
+numpy==1.24.0
 git+https://github.com/huawei-noah/HEBO.git#subdirectory=HEBO
-git+https://github.com/lemurpwned/cmtj.git@streamlit/ui
+cmtj
 matplotlib
 networkx
 numba
-numpy
 scipy
 setuptools
 streamlit
