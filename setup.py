@@ -1,157 +1,98 @@
-import contextlib
-import os
+"""
+Modern setup.py for CMTJ using pybind11 helpers
+"""
+import sys
 from pathlib import Path
+from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools import setup, find_packages
 
-import setuptools
-from setuptools import Extension, find_namespace_packages, setup
-from setuptools.command.build_ext import build_ext
+# Get version from setuptools_scm
+try:
+    from setuptools_scm import get_version
+    version = get_version(root=".", relative_to=__file__)
+except (ImportError, LookupError):
+    # Fallback: try to read from _version.py if it exists
+    try:
+        from cmtj._version import version
+    except ImportError:
+        version = "dev"
 
-__version__ = "1.6.2"
-"""
-As per
-https://github.com/pybind/python_example
-"""
+# Handle platform-specific compilation issues
+extra_compile_args = []
+extra_link_args = []
+define_macros = [("VERSION_INFO", f'"{version}"')]
 
-# if sys.platform == 'darwin':
-#     # use g++ instead of clang on Mac
-#     os.environ["CXX"] = "g++"
-#     os.environ['CC'] = "g++"
+if sys.platform == 'darwin':
+    # macOS-specific flags
+    extra_compile_args.extend([
+        '-mmacosx-version-min=10.9',  # Ensure compatibility
+        '-stdlib=libc++',  # Use libc++ on macOS
+        '-fvisibility=hidden',  # Hide symbols by default
+        '-Wno-unused-variable',  # Suppress warnings that might be errors
+        '-Wno-deprecated-declarations',  # Handle deprecated API warnings
+    ])
+elif sys.platform == 'win32':
+    # Windows-specific flags
+    extra_compile_args.extend([
+        '/EHsc',  # Enable exception handling
+        '/bigobj',  # Allow large object files
+        '/wd4244',  # Disable conversion warnings
+        '/wd4267',  # Disable size_t conversion warnings
+    ])
+    define_macros.extend([
+        ('WIN32_LEAN_AND_MEAN', None),
+        ('NOMINMAX', None),  # Prevent Windows.h from defining min/max macros
+        ('_USE_MATH_DEFINES', None),  # Enable M_PI and other math constants
+    ])
+else:
+    # Linux/Unix flags
+    extra_compile_args.extend([
+        '-fvisibility=hidden',
+        '-Wno-unused-variable',
+    ])
 
+# Define the extension module with cross-platform include paths
+# Use absolute paths and ensure they exist
+try:
+    project_root = Path(__file__).parent.resolve()
+except NameError:
+    # Fallback when __file__ is not available (e.g., in some build environments)
+    project_root = Path(".").resolve()
 
-class get_pybind_include(object):
-    """
-    Helper class to determine the pybind11 include path
-    The purpose of this class is to postpone importing pybind11
-    until it is actually installed, so that the ``get_include()``
-    method can be invoked.
-    """
+include_dirs = [
+    str(project_root),  # Project root for relative includes
+    str(project_root / "core"),  # Core headers
+    str(project_root / "third_party"),  # Third party headers root
+    str(project_root / "third_party" / "kissfft"),  # Specific kissfft path
+]
 
-    def __str__(self):
-        import pybind11
-
-        return pybind11.get_include()
-
+# Verify all include directories exist
+for inc_dir in include_dirs:
+    if not Path(inc_dir).exists():
+        print(f"Warning: Include directory does not exist: {inc_dir}")
 
 ext_modules = [
-    Extension(
-        "cmtj",
-        # Sort input source files to ensure bit-for-bit reproducible builds
-        # (https://github.com/pybind/python_example/pull/53)
-        sorted([os.path.join("python", "cmtj.cpp")]),
-        include_dirs=[
-            # Path to pybind11 headers
-            get_pybind_include(),
-        ],
-        libraries=[],
-        library_dirs=[
-            "/usr/local/lib",
-        ],
-        extra_compile_args=["-O3", "-v", "-shared"],
+    Pybind11Extension(
+        "_cmtj",  # Internal C++ extension name
+        sorted([
+            "python/cmtj.cpp",  # Use relative path as required by setuptools
+        ]),
+        include_dirs=include_dirs,
+        define_macros=define_macros,
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        cxx_std=17,
         language="c++",
     ),
 ]
 
-
-# cf http://bugs.python.org/issue26689
-def has_flag(compiler, flagname):
-    """
-    Return a boolean indicating whether a flag name is supported on
-    the specified compiler.
-    """
-    import os
-    import tempfile
-
-    with tempfile.NamedTemporaryFile("w", suffix=".cpp", delete=False) as f:
-        f.write("int main (int argc, char **argv) { return 0; }")
-        fname = f.name
-    try:
-        compiler.compile([fname], extra_postargs=[flagname])
-    except setuptools.distutils.errors.CompileError:
-        return False
-    finally:
-        with contextlib.suppress(OSError):
-            os.remove(fname)
-    return True
-
-
-def cpp_flag(compiler):
-    """
-    Return the -std=c++[11/14/17/20] compiler flag.
-    The newer version is prefered over c++11 (when it is available).
-    """
-    flags = ["-std=c++20", "-std=c++17"]
-
-    for flag in flags:
-        if has_flag(compiler, flag):
-            return flag
-
-    raise RuntimeError("Unsupported compiler -- at least C++17 support " "is needed!")
-
-
-class BuildExt(build_ext):
-    """
-    A custom build extension for adding compiler-specific options.
-    """
-
-    c_opts = {
-        "msvc": ["/EHsc", "/std:c++17"],
-        "unix": [],
-    }
-    l_opts = {
-        "msvc": [],
-        "unix": [],
-    }
-    """
-    TBD if below is a problem for some. Leaving JIC
-    """
-
-    # if sys.platform == 'darwin':
-    # darwin_opts = [, '-mmacosx-version-min=10.7']
-    # c_opts['unix'] += darwin_opts
-    # l_opts['unix'] += darwin_opts
-
-    def build_extensions(self):
-        ct = self.compiler.compiler_type
-        opts = self.c_opts.get(ct, [])
-        link_opts = self.l_opts.get(ct, [])
-        if ct == "unix":
-            opts.append(cpp_flag(self.compiler))
-            if has_flag(self.compiler, "-fvisibility=hidden"):
-                opts.append("-fvisibility=hidden")
-
-        for ext in self.extensions:
-            ext.define_macros = [
-                ("VERSION_INFO", f'"{self.distribution.get_version()}"')
-            ]
-            ext.extra_compile_args = opts
-            ext.extra_link_args = link_opts
-        build_ext.build_extensions(self)
-
-
-def find_stubs(path: Path):
-    """Actually only MANIFEST.in is needed for this. Leaving JIC."""
-    return [str(pyi.relative_to(path)) for pyi in path.rglob("*.pyi")]
-
-
 setup(
-    name="cmtj",
-    version=__version__,
-    author="Jakub",
-    keywords=["magnetics", "physics", "simulation", "spintronics"],
-    author_email="mojsieju@agh.edu.pl",
-    url="https://github.com/LemurPwned/cmtj",
-    description="CMTJ - C Magnetic Tunnel Junctions.",
     ext_modules=ext_modules,
-    include_package_data=True,
-    namespace_packages=["cmtj"],
-    packages=find_namespace_packages(include=["cmtj", "cmtj.*"]),
+    cmdclass={"build_ext": build_ext},
+    packages=find_packages(include=["cmtj", "cmtj.*"]),
     package_data={
-        "cmtj": [
-            "py.typed",
-            *find_stubs(path=Path("cmtj")),
-        ]
+        "cmtj": ["py.typed", "**/*.pyi"],
     },
-    setup_requires=["pybind11>=2.6.1"],
-    cmdclass={"build_ext": BuildExt},
+    include_package_data=True,
     zip_safe=False,
 )

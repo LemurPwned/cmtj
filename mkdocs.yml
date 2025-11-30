@@ -12,13 +12,14 @@ hooks:
 
 nav:
   - Home: index.md
-  - Overview: overview.md
+  - Start here!: overview.md
   - Changelog: changelog.md
   - Tips & Tricks: tipsandtricks.md
   - Theory:
       - Macromagnetic contributions: physics/contributions.md
       - LLG Equation & solvers: physics/macromagnetic_models.md
-      - Static Smit-Beljers model: physics/sb-model.md
+      - Symbolic models: physics/sb-model.md
+      - Linearisation: physics/linearisation.md
   - Experimental:
       - Introduction: experimental-methods/introduction.md
       - CIMS: experimental-methods/CIMS.ipynb
@@ -26,6 +27,17 @@ nav:
       - Misc experiments: experimental-methods/examples.ipynb
       - Spin Diode experiments: experimental-methods/VoltageSpinDiodeFits.ipynb
   - Parallelism: physics/paralellism.md
+  - Tutorial (LLM-generated):
+      - Index: autogen/index.md
+      - Procedures: autogen/01_pimm___vsd_procedures_.md
+      - Utilities: autogen/02_fieldscan_utilities_.md
+      - Drivers: autogen/03_time_dependent_drivers__scalardriver___axialdriver__.md
+      - Layers: autogen/04_magnetic_layer_models__layersb___layerdynamic__.md
+      - Domain models: autogen/05_domain_wall_dynamics__domainwalldynamics___multilayerwalldynamics__.md
+      - Noise: autogen/07_noise_generation_models_.md
+      - Vector objects: autogen/09_vector_objects__cvector___vectorobj__.md
+      - Energy solvers: autogen/10_sb_solver__solver__.md
+
   - API:
       - Core: api/core.md
       - Drivers: api/drivers.md
@@ -46,10 +58,13 @@ nav:
       - Stack: api/stack.md
       - Noise: api/noise.md
       - LLGB: api/llgb.md
+      - Group interactions: api/reservoir.md
   - Examples:
       - Library introduction: tutorials/CMTJBindingsTutorial.ipynb
       - Trajectories: tutorials/trajectory.ipynb
       - Smit-Beljers: tutorials/SBModel.ipynb
+      - Interactions: tutorials/interactions.ipynb
+      - Simple Harmonic Hall voltage detection: tutorials/simpler_harmonics.ipynb
 
 theme:
   icon:
@@ -70,6 +85,7 @@ theme:
 
 plugins:
   - search
+  - mermaid2
   - mkdocstrings:
       handlers:
         python:
@@ -87,8 +103,12 @@ markdown_extensions:
       generic: true
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
-
+  - pymdownx.superfences:
+      # make exceptions to highlighting of code:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
 extra_javascript:
   - javascripts/config.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6

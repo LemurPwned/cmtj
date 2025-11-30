@@ -15,27 +15,27 @@ allows us to solve it numerically (no implicit term on $\frac{dm}{dt}$).
 
 Standard form of the LLG-SOT equation:
 
-$$\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma|\tau_{fl}|\textbf{m} \times \phi-\gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi$$
+$$\frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m}\times \frac{d\textbf{m}}{dt} -\gamma\tau_{fl}\textbf{m} \times \sigma-\gamma\tau_{dl}\textbf{m}\times\textbf{m}\times \sigma$$
 
 Multiply that
 equation $\times m$:
 
 $$
 \begin{gathered}
-       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma|\tau_{fl}| \textbf{m} \times \textbf{m} \times \phi-   \gamma|\tau_{dl}|\textbf{m} \times \textbf{m}\times\textbf{m}\times \phi \\
-   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi\end{gathered}
+       \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha \textbf{m} \times \textbf{m}\times \frac{d\textbf{m}}{dt}  -   \gamma\tau_{fl} \textbf{m} \times \textbf{m} \times \sigma-   \gamma\tau_{dl}\textbf{m} \times \textbf{m}\times\textbf{m}\times \sigma \\
+   \textbf{m} \times \frac{d\textbf{m}}{dt} = -\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma\tau_{fl} (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) +   \gamma\tau_{dl}\textbf{m}\times \sigma\end{gathered}
 $$
 
 Substitute RHS of the derived equation above into $\textbf{m}\times \frac{d\textbf{m}}{dt}$:
 
 $$
 \begin{gathered}
-  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma|\tau_{fl}| (\textbf{m}(\textbf{m}\cdot\phi) - \phi) +   \gamma|\tau_{dl}|\textbf{m}\times \phi] \\ -
-   \gamma|\tau_{fl}|\textbf{m} \times \phi \\ -
-    \gamma|\tau_{dl}|\textbf{m}\times\textbf{m}\times \phi \\
+  \frac{d\textbf{m}}{dt} = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha [-\gamma  \textbf{m} \times\textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha \frac{d\textbf{m}}{dt}  -  \gamma\tau_{fl} (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) +   \gamma\tau_{dl}\textbf{m}\times \sigma] \\ -
+   \gamma\tau_{fl}\textbf{m} \times \sigma \\ -
+    \gamma\tau_{dl}\textbf{m}\times\textbf{m}\times \sigma \\
      \frac{d\textbf{m}}{dt}(1 + \alpha^2)  = -\gamma \textbf{m} \times \textbf{H}_{\mathrm{eff}} - \alpha\gamma\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} \\
-     - \gamma|\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] \\
-     -  \gamma|\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]\end{gathered}
+     - \gamma\tau_{fl}[\textbf{m} \times \sigma  + \alpha (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) ] \\
+     -  \gamma\tau_{dl}[\textbf{m}\times\textbf{m}\times \sigma - \alpha\textbf{m}\times \sigma]\end{gathered}
 $$
 
 Rearranging the terms gives:
@@ -43,8 +43,8 @@ Rearranging the terms gives:
 $$
 \begin{aligned}
     \frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} &\\
-     + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] &\\
-     +  |\tau_{dl}|[\textbf{m}\times\textbf{m}\times \phi - \alpha\textbf{m}\times \phi]]\end{aligned}
+     + \tau_{fl}[\textbf{m} \times \sigma  + \alpha (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) ] &\\
+     +  \tau_{dl}[\textbf{m}\times\textbf{m}\times \sigma - \alpha\textbf{m}\times \sigma]]\end{aligned}
 $$
 
 In this form, $\gamma$ is the gyromagnetic ratio and is equal to $\gamma \approx 2.2e5 \frac{m}{As}$.
@@ -52,18 +52,39 @@ The last part can be re-arranged to:
 
 $$
 \begin{aligned}
-(...) + |\tau_{fl}|[\textbf{m} \times \phi  + \alpha (\textbf{m}(\textbf{m}\cdot\phi) - \phi) ] + |\tau_{dl}|[\textbf{m}\times\textbf{m}\times\phi - \alpha\textbf{m}\times \phi]]&\\ = \textbf{m} \times \phi(|\tau_{fl}| - \alpha|\tau_{dl}|) + \textbf{m}\times\textbf{m}\times\phi(|\tau_{dl}| + \alpha|\tau_{fl}|)\end{aligned}
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}} ]&\\
++ \tau_{fl}[\textbf{m} \times \sigma  + \alpha (\textbf{m}(\textbf{m}\cdot\sigma) - \sigma) ] + \tau_{dl}[\textbf{m}\times\textbf{m}\times\sigma - \alpha\textbf{m}\times \sigma]&\\
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  + \textbf{m} \times \sigma(\tau_{fl} - \alpha\tau_{dl}) + \textbf{m}\times\textbf{m}\times\sigma(\tau_{dl} + \alpha\tau_{fl})]
+\end{aligned}
 $$
 
 What is evident in this form of LL form of the LLG equation is the
 mixing of the torques with damping as the scaling factor (the field-like
-term for instance now becomes $|\tau_{fl}| - \alpha|\tau_{dl}|$). Proper
+term for instance now becomes $\tau_{fl} - \alpha\tau_{dl}$). Proper
 LL-form of the LLGS equation is:
 
 $$
 (...)+ \frac{-\gamma}{1 + \alpha^2}[
-    \tau'_1 \textbf{m}\times(\textbf{m}\times \phi)
-    + \tau'_2 \textbf{m}\times \phi]
+    \tau'_1 \textbf{m}\times(\textbf{m}\times \sigma)
+    + \tau'_2 \textbf{m}\times \sigma]
+$$
+
+It is worth nothing that eliminating the field-like torque magnitude, $\tau_{fl}$ **does not** eliminate the field-like term in the equation. See below for $\tau_{fl} = 0$:
+
+$$
+\begin{aligned}
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  - \alpha\textbf{m} \times \sigma\tau_{dl} + \textbf{m}\times\textbf{m}\times\sigma\tau_{dl}]
+\end{aligned}
+$$
+
+Note that in this case, since there's no $\tau_{fl}$ competing with $\tau_{dl}$, the field-like torque **changes sign in effect.**
+
+Similarly, when $\tau_{dl} = 0$ there is still field-like part:
+
+$$
+\begin{aligned}
+\frac{d\textbf{m}}{dt} = \frac{-\gamma}{1 + \alpha^2}[\textbf{m} \times \textbf{H}_{\mathrm{eff}} + \alpha\textbf{m}\times\textbf{m}\times\textbf{H}_{\mathrm{eff}}  + \textbf{m} \times \sigma\tau_{fl} + \alpha\textbf{m}\times\textbf{m}\times\sigma\tau_{fl}]
+\end{aligned}
 $$
 
 ## STT interaction

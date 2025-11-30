@@ -3,27 +3,83 @@ import time
 import warnings
 from collections.abc import Iterable
 from dataclasses import dataclass
-from functools import lru_cache
-from typing import Union
+from functools import lru_cache, wraps
+from typing import Literal, Union
 
 import numpy as np
 import sympy as sym
 from numba import njit
 from tqdm import tqdm
 
-from ..utils import VectorObj, gamma, gamma_rad, mu0, perturb_position
-from ..utils.solvers import RootFinder
+from ..utils import Constants, VectorObj, perturb_position
+from .analytical_utils import (
+    EPS,
+    OMEGA,
+    _berkowitz_det,
+    _default_matrix_conversion,
+    _lu_decomposition_det,
+    _root_solver_analytical,
+    _root_solver_numerical,
+)
 
-EPS = np.finfo("float64").resolution
+
+def coordinate(require: Literal["spherical", "cartesian"]):
+    """Decorator to ensure layers use the required coordinate system."""
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self: "Solver", *args, **kwargs):
+            systems = {layer.coordinate_system for layer in self.layers}
+
+            if len(systems) > 1:
+                raise ValueError(f"Mixed coordinate systems: {systems}")
+
+            if require in systems:
+                return func(self, *args, **kwargs)
+
+            # Convert temporarily
+            original_layers = self.layers
+            self.layers = [_convert_layer(layer, require) for layer in self.layers]
+
+            try:
+                return func(self, *args, **kwargs)
+            finally:
+                self.layers = original_layers
+
+        return wrapper
+
+    return decorator
 
 
-def real_deocrator(fn):
-    """Using numpy real cast is way faster than sympy."""
-
-    def wrap_fn(*args):
-        return np.real(fn(*args))
-
-    return wrap_fn
+def _convert_layer(layer, target_system):
+    """Convert layer coordinate system by recreating the layer."""
+    if isinstance(layer, LayerDynamic):
+        return LayerDynamic(
+            _id=layer._id,
+            thickness=layer.thickness,
+            Kv=layer.Kv,
+            Ks=layer.Ks,
+            Ms=layer.Ms,
+            Hdmi=layer.Hdmi,
+            Ndemag=layer.Ndemag,
+            coordinate_system=target_system,
+            alpha=layer.alpha,
+            torque_par=layer.torque_par,
+            torque_perp=layer.torque_perp,
+        )
+    elif isinstance(layer, LayerSB):
+        return LayerSB(
+            _id=layer._id,
+            thickness=layer.thickness,
+            Kv=layer.Kv,
+            Ks=layer.Ks,
+            Ms=layer.Ms,
+            Hdmi=layer.Hdmi,
+            Ndemag=layer.Ndemag,
+            coordinate_system=target_system,
+        )
+    else:
+        raise ValueError(f"Unknown layer type: {type(layer)}")
 
 
 @njit
@@ -70,7 +126,7 @@ def get_hessian_from_energy_expr(N: int, energy_functional_expr: sym.Expr):
         # z = sym.Symbol("Z")
         # these here must match the Ms symbols!
         z = (
-            sym.Symbol(r"\omega")
+            OMEGA
             * sym.Symbol(r"M_{" + indx_i + "}")
             * sym.sin(sym.Symbol(r"\theta_" + indx_i))
             * sym.Symbol(r"t_{" + indx_i + "}")
@@ -125,7 +181,7 @@ def solve_for_determinant(N: int):
 @lru_cache
 def find_analytical_roots(N: int):
     det_expr, energy_functional_expr = solve_for_determinant(N)
-    solutions = sym.solve(sym.simplify(det_expr), sym.Symbol(r"\omega"))
+    solutions = sym.solve(sym.simplify(det_expr), OMEGA)
     return solutions, energy_functional_expr
 
 
@@ -168,29 +224,49 @@ class LayerSB:
     Ms: float
     Hdmi: VectorObj = None  # TODO: change when we support py3.10 upwards (field(kw_only=True, default=None))
     Ndemag: VectorObj = VectorObj.from_cartesian(0, 0, 1)
+    coordinate_system: Literal["spherical", "cartesian"] = "spherical"
 
     def __post_init__(self):
         if self._id > 9:
             raise ValueError("Only up to 10 layers supported.")
         if self.Hdmi is None:
-            self.Hdmi = sym.Matrix([0, 0, 0])
-        else:
-            self.Hdmi = sym.ImmutableMatrix(self.Hdmi.get_cartesian())
-        self.Ndemag = sym.ImmutableMatrix(self.Ndemag.get_cartesian())
+            self.Hdmi = [0, 0, 0]
+        self.Hdmi = _default_matrix_conversion(self.Hdmi)
+        self.Ndemag = _default_matrix_conversion(self.Ndemag)
 
-        self.theta = sym.Symbol(r"\theta_" + str(self._id))
-        self.phi = sym.Symbol(r"\phi_" + str(self._id))
-        self.m = sym.ImmutableMatrix(
-            [
-                sym.sin(self.theta) * sym.cos(self.phi),
-                sym.sin(self.theta) * sym.sin(self.phi),
-                sym.cos(self.theta),
-            ]
-        )
+        self.anisotropy_axis = _default_matrix_conversion([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
 
-    def get_coord_sym(self):
+        if self.coordinate_system == "spherical":
+            self.phi = sym.Symbol(r"\phi_" + str(self._id))
+            self.theta = sym.Symbol(r"\theta_" + str(self._id))
+            self.m = _default_matrix_conversion(
+                [
+                    sym.sin(self.theta) * sym.cos(self.phi),
+                    sym.sin(self.theta) * sym.sin(self.phi),
+                    sym.cos(self.theta),
+                ]
+            )
+            self.get_coord_sym = self.get_coord_sym_spherical
+        elif self.coordinate_system == "cartesian":
+            self.x = sym.Symbol("m_{" + "x," + f"{self._id}" + "}")
+            self.y = sym.Symbol("m_{" + "y," + f"{self._id}" + "}")
+            self.z = sym.Symbol("m_{" + "z," + f"{self._id}" + "}")
+            self.m = _default_matrix_conversion(
+                [
+                    self.x,
+                    self.y,
+                    self.z,
+                ]
+            )
+            self.get_coord_sym = self.get_coord_sym_cartesian
+
+    def get_coord_sym_spherical(self):
         """Returns the symbolic coordinates of the layer."""
         return self.theta, self.phi
+
+    def get_coord_sym_cartesian(self):
+        """Returns the symbolic coordinates of the layer."""
+        return self.x, self.y, self.z
 
     def get_m_sym(self):
         """Returns the magnetisation vector."""
@@ -233,20 +309,27 @@ class LayerSB:
 
         alpha = sym.ImmutableMatrix([sym.cos(self.Kv.phi), sym.sin(self.Kv.phi), 0])
 
-        field_energy = -mu0 * self.Ms * m.dot(H)
-        hdmi_energy = -mu0 * self.Ms * m.dot(self.Hdmi)
+        field_energy = -Constants.mu0() * self.Ms * m.dot(H)
+        hdmi_energy = -Constants.mu0() * self.Ms * m.dot(self.Hdmi)
         # old surface anisotropy only took into account the thin slab demag
         # surface_anistropy = (-self.Ks + (1.0 / 2.0) * mu0 * self.Ms**2) * (m[-1] ** 2)
         surface_anistropy = -self.Ks * (m[-1] ** 2)
         volume_anisotropy = -self.Kv.mag * (m.dot(alpha) ** 2)
         m_2 = sym.ImmutableMatrix([m_i**2 for m_i in m])
-        demagnetisation_energy = 0.5 * mu0 * (self.Ms**2) * m_2.dot(self.Ndemag)
+        demagnetisation_energy = 0.5 * Constants.mu0() * (self.Ms**2) * m_2.dot(self.Ndemag)
 
         return field_energy + surface_anistropy + volume_anisotropy + hdmi_energy + demagnetisation_energy
 
     def sb_correction(self):
-        omega = sym.Symbol(r"\omega")
-        return (omega / gamma) * self.Ms * sym.sin(self.theta) * self.thickness
+        """
+        Using gamma here instead of gamma_rad for two reason:
+        1. It seems to provide more stable solutinos
+        2. Root finding needs to be done over smaller range of frequencies
+            (gamma_rad is 2pi times larger than gamma) which is faster
+
+        Just remember NOT to divide by 2pi when returning the roots!
+        """
+        return (OMEGA / Constants.gamma()) * self.Ms * sym.sin(self.theta) * self.thickness
 
     def __hash__(self) -> int:
         return hash(str(self))
@@ -287,7 +370,7 @@ class LayerDynamic(LayerSB):
         :param U: energy expression of the layer
         """
         # sum all components
-        prefac = gamma_rad / (1.0 + self.alpha**2)
+        prefac = Constants.gamma_rad() / (1.0 + self.alpha**2)
         inv_sin = 1.0 / (sym.sin(self.theta) + EPS)
         dUdtheta = sym.diff(U, self.theta)
         dUdphi = sym.diff(U, self.phi)
@@ -340,6 +423,10 @@ class Solver:
     ilD: list[VectorObj] = None
     Ndipole: list[list[VectorObj]] = None
 
+    # Configuration options as regular fields
+    prefer_numerical_roots: bool = True
+    use_LU_decomposition: bool = True
+
     def __post_init__(self):
         if len(self.layers) != len(self.J1) + 1:
             raise ValueError("Number of layers must be 1 more than J1.")
@@ -363,7 +450,20 @@ class Solver:
         id_sets = {layer._id for layer in self.layers}
         ideal_set = set(range(len(self.layers)))
         if id_sets != ideal_set:
-            raise ValueError("Layer ids must be 0, 1, 2, ... and unique." "Ids must start from 0.")
+            raise ValueError("Layer ids must be 0, 1, 2, ... and unique.Ids must start from 0.")
+
+        self.det_solver: callable = None
+        self.root_solver: callable = None
+
+        if not self.prefer_numerical_roots and self.use_LU_decomposition:
+            warnings.warn(
+                "LU sometimes causes slow numerical convergence for analytical solve. "
+                "Setting use_LU_decomposition to False.",
+                stacklevel=2,
+            )
+            self.use_LU_decomposition = False
+        self.root_solver = _root_solver_numerical if self.prefer_numerical_roots else _root_solver_analytical
+        self.det_solver = _lu_decomposition_det if self.use_LU_decomposition else _berkowitz_det
 
     def get_layer_references(self, layer_indx: int, interaction_constant: list[float]):
         """Returns the references to the layers above and below the layer
@@ -381,19 +481,89 @@ class Solver:
             interaction_constant[layer_indx],
         )
 
-    def compose_llg_jacobian(self, H: VectorObj):
-        """Create a symbolic jacobian of the LLG equation in spherical coordinates."""
-        # has order theta0, phi0, theta1, phi1, ...
+    def _heff_per_m(self, e, m):
+        """Effective field H_eff = -∂e/∂m, with e = E/(μ0 Ms_i t_i)."""
+        return -sym.Matrix([sym.diff(e, mi) for mi in m])
+
+    def compose_llg_jacobian(self, H, form: Literal["energy", "field"] = "energy"):
+        if form not in ("energy", "field"):
+            raise ValueError("form must be either 'energy' or 'field'")
         if isinstance(H, VectorObj):
             H = sym.ImmutableMatrix(H.get_cartesian())
 
-        symbols, fns = [], []
-        U = self.create_energy(H=H, volumetric=False)
+        symbols, vecs = [], []
+        U = self.create_energy(H=H, volumetric=False)  # energy per area
+        # mu0, Constants.gamma_rad() = sym.Symbol(r"\mu_0"), sym.Symbol(r"\gamma")
         for layer in self.layers:
-            symbols.extend((layer.theta, layer.phi))
-            fns.append(layer.rhs_spherical_llg(U / layer.thickness, osc=False))
-        jac = sym.ImmutableMatrix(fns).jacobian(symbols)
-        return jac, symbols
+            if form == "energy":
+                symbols.extend((layer.theta, layer.phi))
+                expr = layer.rhs_spherical_llg(U / layer.thickness, osc=False)
+            else:
+                m = layer.get_m_sym()  # (x,y,z) 3×1
+                symbols.extend((layer.x, layer.y, layer.z))
+                # e_i = E/(μ0 Ms_i t_i) in field units
+                e_i = U / (Constants.mu0() * layer.thickness * layer.Ms)
+                H_eff_i = self._heff_per_m(e_i, m)  # 3×1
+                expr = -Constants.mu0() * Constants.gamma_rad() * m.cross(H_eff_i)  # 3×1: F_i(m)
+            vecs.append(expr)
+
+        F = sym.Matrix.vstack(*vecs)  # 3N × 1
+        J = F.jacobian(symbols)  # 3N × 3N
+        return J, symbols
+
+    @coordinate(require="cartesian")
+    def linearised_frequencies(
+        self,
+        H,
+        linearisation_axis: Literal["x", "y", "z"],
+        configuration: Union[list[float], None] = None,
+    ):
+        J, symbols = self.compose_llg_jacobian(H=H, form="field")
+
+        # partition symbols by axis and indices by axis
+        axis_pos = {"x": 0, "y": 1, "z": 2}
+        by_axis_syms = {a: [s for i, s in enumerate(symbols) if i % 3 == p] for a, p in axis_pos.items()}
+        by_axis_idx = {a: [i for i in range(len(symbols)) if i % 3 == p] for a, p in axis_pos.items()}
+        n = len(self.layers)
+
+        # evaluate at equilibrium: set non-linearised axes to 0, linearised axis to ±1
+        hold = linearisation_axis
+        subs_zero = {s: 0 for a, syms in by_axis_syms.items() if a != hold for s in syms}
+        J0 = J.subs(subs_zero)
+
+        if configuration is None:
+            if hold == "z":
+                P_vals = {by_axis_syms["z"][i]: 1 for i in range(n)}
+                AP_vals = {by_axis_syms["z"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+                drop = by_axis_idx["z"]
+            elif hold == "x":
+                P_vals = {by_axis_syms["x"][i]: 1 for i in range(n)}
+                AP_vals = {by_axis_syms["x"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+                drop = by_axis_idx["x"]
+            else:  # hold == "y"
+                P_vals = {by_axis_syms["y"][i]: 1 for i in range(n)}
+                AP_vals = {by_axis_syms["y"][i]: (1 if i % 2 == 0 else -1) for i in range(n)}
+                drop = by_axis_idx["y"]
+
+        else:
+            assert len(configuration) == n, f"Incorrect configuration size. Given: {len(configuration)}, expected: {n}"
+            P_vals = {by_axis_syms[linearisation_axis][i]: configuration[i] for i in range(n)}
+            AP_vals = {
+                by_axis_syms[linearisation_axis][i]: (1 if i % 2 == 0 else -1) * configuration[i] for i in range(n)
+            }
+            drop = by_axis_idx[linearisation_axis]
+        J0_P = J0.subs(P_vals)
+        J0_AP = J0.subs(AP_vals)
+
+        # remove the fixed-axis rows/cols (those components are second-order small)
+        keep = [i for i in range(J0.shape[0]) if i not in drop]
+        J0_P = J0_P.extract(keep, keep)
+        J0_AP = J0_AP.extract(keep, keep)
+
+        omega = sym.Symbol(r"\omega", complex=True)
+        char_P = sym.I * omega * sym.eye(J0_P.shape[0]) - J0_P
+        char_AP = sym.I * omega * sym.eye(J0_AP.shape[0]) - J0_AP
+        return char_P, char_AP, J0_P, J0_AP
 
     @lru_cache(3)  # cache for 3 calls
     def create_energy(
@@ -433,14 +603,14 @@ class Solver:
                 mat = self.dipoleMatrix[i]
                 # is positive, just like demag
                 energy += (
-                    (mu0 / 2.0)
+                    (Constants.mu0() / 2.0)
                     * l1m.dot(mat * l2m)
                     * self.layers[i].Ms
                     * self.layers[i + 1].Ms
                     * self.layers[i].thickness
                 )
                 energy += (
-                    (mu0 / 2.0)
+                    (Constants.mu0() / 2.0)
                     * l2m.dot(mat * l1m)
                     * self.layers[i].Ms
                     * self.layers[i + 1].Ms
@@ -484,8 +654,7 @@ class Solver:
                     hessian[2 * j][2 * i + 1] = expr
 
         hes = sym.ImmutableMatrix(hessian)
-        _, U, _ = hes.LUdecomposition()
-        return U.det().subs(subs)
+        return hes, subs
 
     def get_gradient_expr(self, accel="math"):
         """Returns the symbolic gradient of the energy expression."""
@@ -601,8 +770,39 @@ class Solver:
         vareps = 1e-18
 
         fmr = (d2Edtheta2 * d2Edphi2 - d2Edthetaphi**2) / np.power(np.sin(theta_eq + vareps) * layer.Ms, 2)
-        fmr = np.sqrt(float(fmr)) * gamma_rad / (2 * np.pi)
+        fmr = np.sqrt(float(fmr)) * Constants.gamma_rad() / (2 * np.pi)
         return fmr
+
+    @coordinate(require="cartesian")
+    def solve_linearised_frequencies(
+        self,
+        H: VectorObj,
+        linearisation_axis: Literal["x", "y", "z"],
+        configuration: Union[list[float], None] = None,
+    ):
+        """Solves the linearised frequencies of the system.
+        Select linearisation axis and solve characteristic equation to get the frequencies.
+        Requires the system to be in cartesian coordinates.
+
+        WARNING: This circumvents gradient descent and solves the system analytically
+        and is only valid for small amplitudes (e.g. when the system is close to equilibrium along
+        the linearised axis).
+
+        :param H: the magnetic field.
+        :param linearisation_axis: the axis to linearise around.
+        :param configuration: the configuration of the layers along the linearisation axis. Optional.
+            Defaults to P and AP (alternating).
+        :return: the solutions for the frequencies in the P and AP states.
+        """
+
+        char_P, char_AP, _, _ = self.linearised_frequencies(
+            H=H, linearisation_axis=linearisation_axis, configuration=configuration
+        )
+        poly_P = self.det_solver(char_P)
+        poly_AP = self.det_solver(char_AP)
+        roots_P = self.root_solver(poly_P, n_layers=len(self.layers), normalise_roots_by_2pi=True)
+        roots_AP = self.root_solver(poly_AP, n_layers=len(self.layers), normalise_roots_by_2pi=True)
+        return roots_P, roots_AP
 
     def solve(
         self,
@@ -644,9 +844,9 @@ class Solver:
         """
         if self.H is None:
             raise ValueError("H must be set before solving the system numerically.")
-        assert len(init_position) == 2 * len(
-            self.layers
-        ), f"Incorrect initial position size. Given: {len(init_position)}, expected: {2 * len(self.layers)}"
+        assert len(init_position) == 2 * len(self.layers), (
+            f"Incorrect initial position size. Given: {len(init_position)}, expected: {2 * len(self.layers)}"
+        )
         eq = self.adam_gradient_descent(
             init_position=init_position,
             max_steps=max_steps,
@@ -668,7 +868,7 @@ class Solver:
                 frequency = self.single_layer_resonance(indx, eq) / 1e9
                 frequencies.append(frequency)
             return eq, frequencies
-        return self.num_solve(eq, ftol=ftol, max_freq=max_freq)
+        return self.hessian_to_roots(eq, ftol=ftol, max_freq=max_freq)
 
     def dynamic_layer_solve(self, eq: list[float]):
         """Return the FMR frequencies and modes for N layers using the
@@ -684,20 +884,18 @@ class Solver:
         indx = np.argwhere(eigvals_im > 0).ravel()
         return eigvals_im[indx], eigvecs[indx]
 
-    def num_solve(self, eq: list[float], ftol: float = 0.01e9, max_freq: float = 80e9):
-        hes = self.create_energy_hessian(eq)
-        omega = sym.Symbol(r"\omega")
-        if len(self.layers) <= 3:
-            y = real_deocrator(njit(sym.lambdify(omega, hes, "math")))
-        else:
-            y = real_deocrator(sym.lambdify(omega, hes, "math"))
-        r = RootFinder(0, max_freq, step=ftol, xtol=1e-8, root_dtype="float16")
-        roots = r.find(y)
-        # convert to GHz
-        # reduce unique solutions to 2 decimal places
-        # don't divide by 2pi, we used gamma instead of gamma / 2pi
-        f = np.unique(np.around(roots / 1e9, 2))
-        return eq, f
+    def hessian_to_roots(self, eq: list[float], ftol: float = 0.01e9, max_freq: float = 80e9):
+        hes, subs = self.create_energy_hessian(eq)
+        omega_expr = self.det_solver(hes).subs(subs)
+        # We do not normalise the roots by 2pi here because of the SB correction
+        roots = self.root_solver(
+            omega_expr,
+            n_layers=len(self.layers),
+            normalise_roots_by_2pi=False,
+            ftol=ftol,
+            max_freq=max_freq,
+        )
+        return eq, roots
 
     def analytical_roots(self):
         """Find & cache the analytical roots of the system.
@@ -798,7 +996,8 @@ class Solver:
             step_subs.update(self.get_ms_subs())
             step_subs.update({Hsym[0]: hx, Hsym[1]: hy, Hsym[2]: hz})
             roots = [s.subs(step_subs) for s in global_roots]
-            roots = np.asarray(roots, dtype=np.float32) * gamma / 1e9
+            # TODO fix scaling by gamma below
+            roots = np.asarray(roots, dtype=np.float32) * Constants.gamma_rad() / (2.0 * np.pi) / 1e9
             yield eq, roots, Hvalue
             current_position = eq
 
@@ -833,7 +1032,7 @@ class Solver:
         )
         subs = {
             Vdc_ex_variable: Vdc_ex_value,
-            sym.Symbol(r"\omega"): 2 * sym.pi * frequency,
+            OMEGA: 2 * sym.pi * frequency,
             sym.Symbol(r"H_{x}"): H[0],
             sym.Symbol(r"H_{y}"): H[1],
             sym.Symbol(r"H_{z}"): H[2],
@@ -861,12 +1060,36 @@ class Solver:
         A_inv_np = np.linalg.inv(A_np)
         return sym.Matrix(A_inv_np)
 
-    @lru_cache(maxsize=1000)  # noqa: B019
     def _compute_A_and_V_matrices(self, n, Vdc_ex_variable, H, frequency):
         A_matrix = sym.zeros(2 * n, 2 * n)
         V_matrix = sym.zeros(2 * n, 1)
         U = self.create_energy(H=H, volumetric=False)
-        omega = sym.Symbol(r"\omega") if frequency is None else 2 * sym.pi * frequency
+        omega = OMEGA if frequency is None else 2 * sym.pi * frequency
+        for i, layer in enumerate(self.layers):
+            rhs = layer.rhs_spherical_llg(U / layer.thickness, osc=True)
+            alpha_factor = 1 + layer.alpha**2
+            V_matrix[2 * i] = sym.diff(rhs[0] * alpha_factor, Vdc_ex_variable)
+            V_matrix[2 * i + 1] = sym.diff(rhs[1] * alpha_factor, Vdc_ex_variable)
+            theta, phi = layer.get_coord_sym()
+            fn_theta = (omega * sym.I * theta - rhs[0]) * alpha_factor
+            fn_phi = (omega * sym.I * phi - rhs[1]) * alpha_factor
+            # the functions are only valid for that row i (theta) and i + 1 (phi)
+            # so we only need to compute the derivatives for the other layers
+            # for the other layers, the derivatives are zero
+            for j, layer_j in enumerate(self.layers):
+                theta_, phi_ = layer_j.get_coord_sym()
+                A_matrix[2 * i, 2 * j] = sym.diff(fn_theta, theta_)
+                A_matrix[2 * i, 2 * j + 1] = sym.diff(fn_theta, phi_)
+                A_matrix[2 * i + 1, 2 * j] = sym.diff(fn_phi, theta_)
+                A_matrix[2 * i + 1, 2 * j + 1] = sym.diff(fn_phi, phi_)
+        return A_matrix, V_matrix
+
+    @lru_cache(maxsize=1000)  # noqa: B019
+    def _compute_A_and_V_matrices_old(self, n, Vdc_ex_variable, H, frequency):
+        A_matrix = sym.zeros(2 * n, 2 * n)
+        V_matrix = sym.zeros(2 * n, 1)
+        U = self.create_energy(H=H, volumetric=False)
+        omega = OMEGA if frequency is None else 2 * sym.pi * frequency
         for i, layer in enumerate(self.layers):
             rhs = layer.rhs_spherical_llg(U / layer.thickness, osc=True)
             V_matrix[2 * i] = sym.diff(rhs[0], Vdc_ex_variable)
@@ -921,7 +1144,7 @@ class Solver:
         elif cache_var == "f":
             extra_args["H"] = H
             extra_subs = {
-                sym.Symbol(r"\omega"): 2 * sym.pi * frequency,
+                OMEGA: 2 * sym.pi * frequency,
             }
 
         A_matrix, V_matrix = self._independent_linearised_jacobian_expr(

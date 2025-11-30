@@ -10,6 +10,7 @@
 #include "../core/noise.hpp"
 #include "../core/reservoir.hpp"
 #include "../core/stack.hpp"
+#include "../core/constants.hpp"
 #include <stdio.h>
 #include <vector>
 
@@ -31,7 +32,7 @@ using DLLGBLayer = LLGBLayer<double>;
 using DLLGBJunction = LLGBJunction<double>;
 
 #define USING_PY true
-PYBIND11_MODULE(cmtj, m) {
+PYBIND11_MODULE(_cmtj, m) {
      // helpers
      m.def("c_dot", &c_dot<double>);
      m.doc() = "Python binding for C++ CMTJ Library.";
@@ -119,7 +120,8 @@ PYBIND11_MODULE(cmtj, m) {
                [](const DVector& v, const int key) { return v[key]; })
           .def("__len__", [](const DVector& v) { return 3; })
           .def("__str__", py::overload_cast<>(&DVector::toString))
-          .def("__repr__", py::overload_cast<>(&DVector::toString));
+          .def("__repr__", py::overload_cast<>(&DVector::toString))
+          .def_static("fromSpherical", &DVector::fromSpherical, "theta"_a, "phi"_a, "r"_a = 1.0);
 
      py::implicitly_convertible<std::list<double>, DVector>();
      py::implicitly_convertible<std::vector<double>, DVector>();
@@ -143,9 +145,35 @@ PYBIND11_MODULE(cmtj, m) {
           .value("RK4", RK4)
           .value("Heun", HEUN)
           .value("EulerHeun", EULER_HEUN)
-          .value("DormandPrice", DORMAND_PRICE)
+          .value("DormandPrince", DORMAND_PRINCE)
           .export_values();
 
+     py::class_<AdaptiveIntegrationParams<double>>(m, "AdaptiveIntegrationParams")
+          .def(py::init<>())
+          .def_readwrite("abs_tol", &AdaptiveIntegrationParams<double>::abs_tol)
+          .def_readwrite("rel_tol", &AdaptiveIntegrationParams<double>::rel_tol)
+          .def_readwrite("max_factor", &AdaptiveIntegrationParams<double>::max_factor)
+          .def_readwrite("min_factor", &AdaptiveIntegrationParams<double>::min_factor)
+          .def_readwrite("safety_factor", &AdaptiveIntegrationParams<double>::safety_factor)
+          .def_readwrite("use_pid_control", &AdaptiveIntegrationParams<double>::use_pid_control)
+          .def_readwrite("ki", &AdaptiveIntegrationParams<double>::ki)
+          .def_readwrite("kp", &AdaptiveIntegrationParams<double>::kp)
+          .def_readwrite("kd", &AdaptiveIntegrationParams<double>::kd)
+          .def_readwrite("prev_error_ratio", &AdaptiveIntegrationParams<double>::prev_error_ratio)
+          .def_readwrite("integral_error", &AdaptiveIntegrationParams<double>::integral_error);
+
+     py::enum_<UpdateType>(m, "UpdateType")
+          .value("constant", constant)
+          .value("pulse", pulse)
+          .value("sine", sine)
+          .value("step", step)
+          .value("posine", posine)
+          .value("halfsine", halfsine)
+          .value("trapezoid", trapezoid)
+          .value("gaussimpulse", gaussimpulse)
+          .value("gaussstep", gaussstep)
+          .value("custom", custom)
+          .export_values();
      // Driver Class
      py::class_<DScalarDriver>(m, "ScalarDriver")
           .def(py::init<>())
@@ -173,7 +201,9 @@ PYBIND11_MODULE(cmtj, m) {
                "amplitude"_a, "t0"_a, "sigma"_a)
           .def_static("getGaussianStepDriver",
                &DScalarDriver::getGaussianStepDriver, "constantValue"_a,
-               "amplitude"_a, "t0"_a, "sigma"_a);
+               "amplitude"_a, "t0"_a, "sigma"_a)
+          .def_static("getCustomDriver", &DScalarDriver::getCustomDriver,
+               "callback"_a);
 
      py::class_<DNullDriver, DScalarDriver>(m, "NullDriver")
           .def(py::init<>())
@@ -216,6 +246,7 @@ PYBIND11_MODULE(cmtj, m) {
                "spinPolarisation"_a = 0.0)
           .def("setMagnetisation", &DLayer::setMagnetisation)
           .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
+          .def("setSecondOrderAnisotropyDriver", &DLayer::setSecondOrderAnisotropyDriver)
           .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
           .def("setOerstedFieldDriver", &DLayer::setOerstedFieldDriver)
           .def("setHdmiDriver", &DLayer::setHdmiDriver)
@@ -224,9 +255,16 @@ PYBIND11_MODULE(cmtj, m) {
                py::overload_cast<const DVector&>(&DLayer::setReferenceLayer))
           .def("setReferenceLayer",
                py::overload_cast<Reference>(&DLayer::setReferenceLayer))
-
+          .def("setSecondaryReferenceLayer",
+               &DLayer::setSecondaryReferenceLayer)
+          // drivers
           .def("setFieldLikeTorqueDriver", &DLayer::setFieldLikeTorqueDriver)
           .def("setDampingLikeTorqueDriver", &DLayer::setDampingLikeTorqueDriver)
+          .def("setSecondaryFieldLikeTorqueDriver", &DLayer::setSecondaryFieldLikeTorqueDriver)
+          .def("setSecondaryDampingLikeTorqueDriver", &DLayer::setSecondaryDampingLikeTorqueDriver)
+          .def("setPrimaryTorqueDrivers", &DLayer::setPrimaryTorqueDrivers, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+          .def("setSecondaryTorqueDrivers", &DLayer::setSecondaryTorqueDrivers, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+
           .def("setTemperatureDriver", &DLayer::setTemperatureDriver)
           .def("setTopDipoleTensor", &DLayer::setTopDipoleTensor)
           .def("setBottomDipoleTensor", &DLayer::setBottomDipoleTensor)
@@ -240,11 +278,14 @@ PYBIND11_MODULE(cmtj, m) {
           .def_readonly("cellSurface", &DLayer::cellSurface)
           .def_readonly("demagTensor", &DLayer::demagTensor)
           // noise
-          .def("setAlphaNoise", &DLayer::setAlphaNoise)
+          .def("setAlphaNoise", &DLayer::setAlphaNoise, "alpha"_a, "std"_a, "scale"_a, "axis"_a = Axis::all)
           .def("setOneFNoise", &DLayer::setOneFNoise)
           // getters
+          .def("getReferenceLayer", &DLayer::getReferenceLayer, py::return_value_policy::reference)
+          .def("getSecondaryReferenceLayer", &DLayer::getSecondaryReferenceLayer, py::return_value_policy::reference)
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
+          .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
           .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
 
      py::class_<DJunction>(m, "Junction")
@@ -263,7 +304,7 @@ PYBIND11_MODULE(cmtj, m) {
           .def("saveLog", &DJunction::saveLogs, "filename"_a)
           // main run
           .def("runSimulation", &DJunction::runSimulation, "totalTime"_a,
-               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "log"_a = false,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "verbose"_a = false,
                "calculateEnergies"_a = false, "solverMode"_a = RK4)
 
           // driver setters
@@ -272,6 +313,7 @@ PYBIND11_MODULE(cmtj, m) {
                &DJunction::setLayerExternalFieldDriver)
           .def("setLayerCurrentDriver", &DJunction::setLayerCurrentDriver)
           .def("setLayerAnisotropyDriver", &DJunction::setLayerAnisotropyDriver)
+          .def("setLayerSecondOrderAnisotropyDriver", &DJunction::setLayerSecondOrderAnisotropyDriver)
           .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
           .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
           .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
@@ -289,6 +331,14 @@ PYBIND11_MODULE(cmtj, m) {
                &DJunction::setLayerFieldLikeTorqueDriver)
           .def("setLayerDampingLikeTorqueDriver",
                &DJunction::setLayerDampingLikeTorqueDriver)
+          .def("setLayerSecondaryFieldLikeTorqueDriver",
+               &DJunction::setLayerSecondaryFieldLikeTorqueDriver)
+          .def("setLayerSecondaryDampingLikeTorqueDriver",
+               &DJunction::setLayerSecondaryDampingLikeTorqueDriver)
+          .def("setLayerPrimaryTorqueDrivers",
+               &DJunction::setLayerPrimaryTorqueDrivers, "layerId"_a, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
+          .def("setLayerSecondaryTorqueDrivers",
+               &DJunction::setLayerSecondaryTorqueDrivers, "layerId"_a, "fieldLikeTorque"_a, "dampingLikeTorque"_a)
           // Reference setters
           .def("setLayerReferenceType", &DJunction::setLayerReferenceType)
           .def("setLayerReferenceLayer", &DJunction::setLayerReferenceLayer)
@@ -309,9 +359,9 @@ PYBIND11_MODULE(cmtj, m) {
           m.def_submodule("stack", "A stack submodule for joining MTJ junctions");
 
      py::class_<DSeriesStack>(stack_module, "SeriesStack")
-          .def(py::init<std::vector<DJunction>, std::string, std::string, double>(),
+          .def(py::init<std::vector<DJunction>, std::string, std::string, double, bool>(),
                "junctionList"_a, "topId_a"_a = "free", "bottomId"_a = "bottom",
-               "phaseOffset"_a = 0.0)
+               "phaseOffset"_a = 0.0, "useKCL"_a = true)
           .def("runSimulation", &DSeriesStack::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11)
           .def("setMagnetisation", &DSeriesStack::setMagnetisation, "junction"_a,
@@ -342,9 +392,9 @@ PYBIND11_MODULE(cmtj, m) {
           .def("getLog", py::overload_cast<>(&DSeriesStack::getLog));
 
      py::class_<DParallelStack>(stack_module, "ParallelStack")
-          .def(py::init<std::vector<DJunction>, std::string, std::string, double>(),
+          .def(py::init<std::vector<DJunction>, std::string, std::string, double, bool>(),
                "junctionList"_a, "topId_a"_a = "free", "bottomId"_a = "bottom",
-               "phaseOffset"_a = 0.0)
+               "phaseOffset"_a = 0.0, "useKCL"_a = true)
           .def("runSimulation", &DParallelStack::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11)
           .def("setMagnetisation", &DParallelStack::setMagnetisation, "junction"_a,
@@ -394,18 +444,6 @@ PYBIND11_MODULE(cmtj, m) {
           .def("getLog", py::overload_cast<unsigned int>(&GroupInteraction::getLog),
                py::return_value_policy::reference);
 
-     py::class_<Reservoir>(reservoir_module, "Reservoir")
-          .def(py::init<DVectorMatrix, DLayerMatrix>(), "coordinateMatrix"_a,
-               "layerMatrix"_a)
-          .def("runSimulation", &Reservoir::runSimulation)
-          .def("clearLogs", &Reservoir::clearLogs)
-          .def("saveLogs", &Reservoir::saveLogs)
-          .def("getLayer", &Reservoir::getLayer)
-          .def("setAllExternalField", &Reservoir::setAllExternalField)
-          .def("setLayerAnisotropy", &Reservoir::setLayerAnisotropy)
-          .def("setLayerExternalField", &Reservoir::setLayerExternalField)
-          .def("getMagnetisation", &Reservoir::getMagnetisation);
-
 
      // generator module
      py::module generator_module =
@@ -445,7 +483,7 @@ PYBIND11_MODULE(cmtj, m) {
      py::class_<DLLGBJunction>(llgb_module, "LLGBJunction")
           .def(py::init<std::vector<DLLGBLayer>>(), "layers"_a)
           .def("runSimulation", &DLLGBJunction::runSimulation, "totalTime"_a,
-               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "log"_a = false,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11, "verbose"_a = false,
                "solverMode"_a = HEUN)
           .def("setLayerTemperatureDriver",
                &DLLGBJunction::setLayerTemperatureDriver)
@@ -454,4 +492,22 @@ PYBIND11_MODULE(cmtj, m) {
           .def("saveLogs", &DLLGBJunction::saveLogs)
           .def("getLog", &DLLGBJunction::getLog)
           .def("clearLog", &DLLGBJunction::clearLog);
+
+     // constants module
+     py::module constants_module = m.def_submodule("constants", "A submodule for physical constants");
+     py::class_<PhysicalConstants>(constants_module, "PhysicalConstants")
+          .def_static("set_magnetic_permeability", &PhysicalConstants::setMagneticPermeability, "value"_a)
+          .def_static("set_gyromagnetic_ratio", &PhysicalConstants::setGyro, "value"_a)
+          .def_static("set_TtoAm", &PhysicalConstants::setTtoAm, "value"_a)
+          .def_static("set_hbar", &PhysicalConstants::setHbar, "value"_a)
+          .def_static("set_elementary_charge", &PhysicalConstants::setElectronCharge, "value"_a)
+          .def_static("set_boltzmann_constant", &PhysicalConstants::setBoltzmannConst, "value"_a)
+          .def_static("magnetic_permeability", &PhysicalConstants::getMagneticPermeability)
+          .def_static("gyromagnetic_ratio", &PhysicalConstants::getGyro)
+          .def_static("TtoAm", &PhysicalConstants::getTtoAm)
+          .def_static("hbar", &PhysicalConstants::getHbar)
+          .def_static("elementary_charge", &PhysicalConstants::getElectronCharge)
+          .def_static("boltzmann_constant", &PhysicalConstants::getBoltzmannConst)
+          .def_static("resetToDefaults", &PhysicalConstants::resetToDefaults);
+
 }

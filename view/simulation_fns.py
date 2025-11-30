@@ -1,11 +1,11 @@
 from collections import defaultdict
 from itertools import groupby
-from typing import List
 
+from new_sb import LayerDynamic
 import numpy as np
 import streamlit as st
 
-from cmtj import *
+from cmtj import Layer, CVector, constantDriver, Junction, Axis, AxialDriver
 from cmtj.models import LayerSB, Solver
 from cmtj.utils import FieldScan, VectorObj, mu0
 from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters, VSD_procedure
@@ -14,9 +14,7 @@ from cmtj.utils.procedures import PIMM_procedure, ResistanceParameters, VSD_proc
 def create_single_domain(id_: str) -> Layer:
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
     # Kdir1 = get_axis_cvector(st.session_state[f"anisotropy_axis{id_}"])
-    Kdir = FieldScan.angle2vector(
-        theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
-    )
+    Kdir = FieldScan.angle2vector(theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"])
     layer = Layer(
         id=f"domain_{id_}",
         mag=Kdir,
@@ -27,9 +25,7 @@ def create_single_domain(id_: str) -> Layer:
         demagTensor=demag,
         damping=st.session_state["alpha_shared"],
     )
-    layer.setAnisotropyDriver(
-        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"] * 1e3)
-    )
+    layer.setAnisotropyDriver(constantDriver(st.session_state[f"K{id_}"] * 1e3))
     return layer
 
 
@@ -46,9 +42,7 @@ def create_single_layer(id_: str) -> tuple:
     demag_sum = nxx + nyy + nzz
     if abs(demag_sum - 1.0) > 1e-5:
         st.warning(f"Warning: Demagnetization tensor components should sum to 1.0 (Layer {id_})")
-    Kdir = FieldScan.angle2vector(
-        theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"]
-    )
+    Kdir = FieldScan.angle2vector(theta=st.session_state[f"theta_K{id_}"], phi=st.session_state[f"phi_K{id_}"])
     layer = Layer(
         id=f"layer_{id_}",
         mag=Kdir,
@@ -59,9 +53,7 @@ def create_single_layer(id_: str) -> tuple:
         demagTensor=demag,
         damping=st.session_state[f"alpha{id_}"],
     )
-    layer.setAnisotropyDriver(
-        ScalarDriver.getConstantDriver(st.session_state[f"K{id_}"] * 1e3)
-    )
+    layer.setAnisotropyDriver(constantDriver(st.session_state[f"K{id_}"] * 1e3))
     rp = ResistanceParameters(
         Rxx0=100,
         Rxy0=1,
@@ -72,6 +64,27 @@ def create_single_layer(id_: str) -> tuple:
         w=st.session_state[f"width{id_}"] * 1e-6,
     )
     return layer, rp
+
+
+def create_sb_layer(id_: str) -> tuple[LayerDynamic, list[float]]:
+    nxx = st.session_state[f"Nxx{id_}"]
+    nyy = st.session_state[f"Nyy{id_}"]
+    nzz = st.session_state[f"Nzz{id_}"]
+    Ks = st.session_state[f"Ks{id_}"]
+    Kv = st.session_state[f"Kv{id_}"]
+    kphi = st.session_state[f"phi_K{id_}"]
+    demag = VectorObj.from_cartesian(nxx, nyy, nzz)
+    layer = LayerDynamic(
+        _id=int(id_),
+        thickness=st.session_state[f"thickness{id_}"] * 1e-9,
+        Kv=VectorObj(np.deg2rad(0.0), np.deg2rad(kphi), Kv),
+        Ks=Ks,
+        Ms=st.session_state[f"Ms{id_}"] / mu0,
+        demagTensor=demag,
+        damping=st.session_state[f"alpha{id_}"],
+    )
+    ktheta = 90 if Kv > Ks else 0  # if Kv is smaller than Ks, assume in plane
+    return layer, [np.deg2rad(ktheta), np.deg2rad(kphi)]
 
 
 def get_axis_cvector(axis: str):
@@ -131,10 +144,68 @@ def prepare_simulation():
     j = Junction(layers=layers)
     for jvals in range(N - 1):
         J = st.session_state[f"J{jvals}"] * 1e-6  # rescale GUI units
+        J2 = st.session_state[f"J2{jvals}"] * 1e-6  # rescale GUI units
+        ilD = st.session_state[f"ilD{jvals}"] * 1e-6  # rescale GUI units
         l1_name = layers[jvals].id
         l2_name = layers[jvals + 1].id
-        j.setIECDriver(l1_name, l2_name, ScalarDriver.getConstantDriver(J))
+        j.setIECDriver(l1_name, l2_name, constantDriver(J))
+        j.setQuadIECDriver(l2_name, l1_name, constantDriver(J2))
+        j.setIDMIDriver(l1_name, l2_name, AxialDriver(0, 0, ilD))
     return j, rparams
+
+
+def prepare_sb_simulation() -> tuple:
+    layers = []
+    init_pos = []
+    N = st.session_state["N"]
+    for i in range(N):
+        layer, init_pos_i = create_sb_layer(i)
+        layers.append(layer)
+        init_pos.append(init_pos_i)
+    Js = []
+    Js2 = []
+    for jvals in range(N - 1):
+        J = st.session_state[f"J{jvals}"] * 1e-6  # rescale GUI units
+        J2 = st.session_state[f"J2{jvals}"] * 1e-6  # rescale GUI units
+        Js.append(J)
+        Js2.append(J2)
+    return layers, init_pos, Js, Js2
+
+
+def get_spectrum_sb_data(H_axis, Hmin, Hmax, Hsteps, run_vsd: bool = False):
+    layers, init_pos, Js, Js2 = prepare_sb_simulation()
+
+    htheta, hphi = get_axis_angles(H_axis)
+    hmin, hmax = min([Hmin, Hmax]), max([Hmin, Hmax])  # fix user input
+    _, Hvecs = FieldScan.amplitude_scan(hmin, hmax, Hsteps, htheta, hphi)
+    force_single_layer = not any(Js) and not any(Js2)
+    all_sb_data = defaultdict(list)
+    for H in Hvecs:
+        Hvec = VectorObj.from_cartesian(*H)
+        solver = Solver(layers=layers, J1=Js, J2=Js2, H=Hvec)
+        eq, frequencies = solver.solve(
+            init_position=init_pos,
+            perturbation=1e-4,
+            force_single_layer=force_single_layer,
+        )
+        for freq in frequencies:
+            all_sb_data["Hmag"].append(Hvec.mag / 1e3)
+            all_sb_data["frequency"].append(freq)
+
+        if run_vsd:
+            res = solver.linearised_N_spin_diode(
+                H=Hvec,
+                frequency=freq * 1e9,
+                Vdc_ex_variable=LayerDynamic.get_Vp_symbol(),
+                Vdc_ex_value=st.session_state["Hoe_mag"] * 1e3,
+                zero_pos=eq.tolist(),
+                phase_shift=0,
+                cache_var="H",
+            )
+
+        all_sb_data["pos"].append(eq.tolist())
+        init_pos = eq.tolist()
+    return all_sb_data
 
 
 # @st.cache_data
@@ -211,9 +282,7 @@ def compute_sb_mse(target, data):
         return float("inf")
 
     mse = 0
-    for i, (_, f) in enumerate(
-        groupby(zip(data["Hmag"], data["frequency"]), key=lambda x: x[0])
-    ):
+    for i, (_, f) in enumerate(groupby(zip(data["Hmag"], data["frequency"]), key=lambda x: x[0])):
         # f is a list of tuples (Hmag, frequency)
         contrib = min(((target[i] / 1e9 - f_[1]) ** 2).sum() for f_ in f)
         mse += contrib
@@ -221,7 +290,7 @@ def compute_sb_mse(target, data):
     return mse
 
 
-def simulate_sb(hvals: List[float]):
+def simulate_sb(hvals: list[float]):
     layers = []
     N = st.session_state.N
     init_pos = []
@@ -273,10 +342,10 @@ def kwargs_to_list(kwargs: dict, N: int):
 
 
 def simulate_sb_wrapper(
-    hvals: List[float],
+    hvals: list[float],
     N: int,
-    thickness: List[float],
-    anisotropy_axis: List[str],
+    thickness: list[float],
+    anisotropy_axis: list[str],
     H_axis: str,
     **kwargs,
 ):

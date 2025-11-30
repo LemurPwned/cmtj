@@ -1,6 +1,8 @@
-from cmtj import AxialDriver, CVector, Junction, Layer
+from cmtj import AxialDriver, CVector, Junction, Layer, ScalarDriver
 from cmtj import constantDriver, sineDriver
 import pytest
+import math
+
 
 def test_cvector_operators():
     vec1 = (1.0, 2.0, 3.0)
@@ -84,3 +86,51 @@ def test_junction_with_driver():
         AxialDriver(constantDriver(0), constantDriver(0), sineDriver(0, 1e3, 7e9, 0)),
     )
     junction.runSimulation(10e-9, 1e-13, 1e-13)
+
+
+def test_custom_driver():
+    def my_custom_function(time: float) -> float:
+        return math.sqrt(time)
+
+    driver = ScalarDriver.getCustomDriver(my_custom_function)
+    assert driver.getCurrentScalarValue(1e-9) == math.sqrt(1e-9)
+    assert driver.getCurrentScalarValue(3e-9) == math.sqrt(3e-9)
+
+    # Test with zero time value
+    assert my_custom_function(0) == 0, "Zero time value should return 0"
+
+    # Test error condition: Passing None should raise a TypeError (since None cannot be multiplied by an int)
+    with pytest.raises(TypeError):
+        my_custom_function(None)
+
+
+def test_custom_driver_exception():
+    # Test error condition: A callback that raises an exception
+    def faulty_callback(time: float) -> float:
+        raise ValueError("Intentional exception")
+
+    driver = ScalarDriver.getCustomDriver(faulty_callback)
+    with pytest.raises(RuntimeError):
+        driver.getCurrentScalarValue(1e-9)
+
+
+def test_no_argument_callback():
+    # Test error condition: A callback that raises an exception
+    def faulty_callback():
+        raise ValueError("Intentional exception")
+
+    with pytest.raises(RuntimeError):
+        driver = ScalarDriver.getCustomDriver(faulty_callback)
+
+
+def test_custom_on_junction(single_layer_mtj):
+    junction, _ = single_layer_mtj
+
+    def my_custom_function(time: float) -> float:
+        return 12345
+
+    driver = ScalarDriver.getCustomDriver(my_custom_function)
+    junction.setLayerAnisotropyDriver("all", driver)
+    junction.runSimulation(10e-9, 1e-13, 1e-13, calculateEnergies=True)
+    log = junction.getLog()
+    assert all(x == 12345 for x in log["free_K"])

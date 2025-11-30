@@ -1,6 +1,32 @@
 # Changelog
 
-# 1.6.0
+## 1.9.0
+
+- Added generalised linearisation options for frequency computing in linear models
+- Revamped SB modelling for better processing and analytical roots + code cleanup
+
+## 1.8.0
+
+- Fixing bugs in electrical coupling
+- You can now have useKCL = True Stacks which will implicitly preserve Kirchoff's current law, and will simulate perfect voltage sources
+
+## 1.7.0
+
+- Adaptive simulation is now available again with Dormand-Price method
+- Adding curated simulation examples
+- Memory cells are now supported (you can specify two polarisation vectors per Layer now)
+- Import fixes and other minor bugfixes
+
+## 1.6.2-1.6.6
+
+- Fixed a bug in the `ScalarDriver` class which prevented the use of custom drivers with no arguments.
+
+## 1.6.1
+
+- Small fixes to the noise interfaces and resistance functions.
+- Documentation updates: added a tutorial on custom dipole interactions + interface fixes and typing.
+
+## 1.6.0
 
 - Extended the `Stack` models allowing for non-symmetric coupling between devices.
   `Stack` current drivers can now be of any type and are adequately scaled.
@@ -10,7 +36,7 @@
 - Added `getLayer` method to the `Junction` class and `getJunction` method to the `Stack` class that return a reference to the object.
 - Fixed and expanded the `reservoir` module. Now, `GroupInteraction` can use any dipole interaction function, with 3 provided as default: `computeDipoleInteraction`, `computeDipoleInteractionNoumra` and `nullDipoleInteraction` (0 dipole tensor).
 
-# 1.5.0-1.5.4
+## 1.5.0-1.5.4
 
 - Dipole interaction added to the `SB Model`
 - Kasdin 1/f noise generator added to the `noise` module and to the solvers
@@ -20,12 +46,12 @@
 - Added aliases for `ScalarDriver` -- for example, instead of calling `ScalarDriver.getConstantDriver`, you can now call `constantDriver` directly to create a constant driver.
 - Improve stub detection across editors and IDEs
 
-# 1.4.1
+## 1.4.1
 
 - Adding a basic optimisation script in the `optimization` module.
 - Streamlit optimization updates.
 
-# 1.4.0
+## 1.4.0
 
 - Adding new, dynamic symbolic model compatible with `Solver` class. It is now possible to use the `Solver` class with `LayerDynamic` to solve the LLG equation.
 - Added tests for procedures and operators.
@@ -36,11 +62,11 @@
 - Added some optimization utilities like `coordinate_descent`.
 - Added a `streamlit` service for an example PIMM simulation.
 
-# 1.3.2
+## 1.3.2
 
 - Added new `ScalarDrivers` -- Gaussian impulse and Gaussian step.
 
-# 1.3.1
+## 1.3.1
 
 - `CVector` got extra functionality in Python bindings. Operators are now supported.
 - Domain Wall dynamics is now also for 2 layer systems. Added edge potential.

@@ -21,6 +21,87 @@ private:
   std::unordered_map<std::string, std::vector<T>> stackLog;
   bool currentDriverSet = false;
 
+  // Add function pointer for simulation method
+  void (Stack<T>::*simulationMethod)(T, T, T);
+
+  // Helper methods for common functionality
+  struct SimulationSetup {
+    unsigned int writeEvery;
+    unsigned int totalIterations;
+    std::vector<SolverMode> modes;
+    RunnerFn<T> localRunner;
+    SolverFn<T> solver;
+  };
+
+  SimulationSetup initializeSimulation(T totalTime, T timeStep,
+                                       T writeFrequency) {
+    SimulationSetup setup;
+    setup.writeEvery = (int)(writeFrequency / timeStep);
+    setup.totalIterations = (int)(totalTime / timeStep);
+
+    if (timeStep > writeFrequency) {
+      throw std::runtime_error(
+          "The time step cannot be larger than write frequency!");
+    }
+
+    // pick a solver based on drivers
+    setup.localRunner = &Junction<T>::runMultiLayerSolver;
+    for (auto &j : this->junctionList) {
+      auto [runner, solver, mode] = j.getSolver(RK4, setup.totalIterations);
+      setup.modes.push_back(mode);
+      setup.localRunner = runner;
+    }
+    setup.solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
+    if (!std::equal(setup.modes.begin() + 1, setup.modes.end(),
+                    setup.modes.begin())) {
+      throw std::runtime_error(
+          "Junctions have different solver modes!"
+          " Set the same solver mode for all junctions explicitly."
+          " Do not mix stochastic and deterministic solvers!");
+    }
+
+    return setup;
+  }
+
+  void storeMagnetisations(std::vector<CVector<T>> &frozenMags,
+                           std::vector<CVector<T>> &frozenPols,
+                           bool isTwoLayerStack) {
+    for (std::size_t j = 0; j < junctionList.size(); ++j) {
+      frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
+      if (isTwoLayerStack) {
+        frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
+      } else {
+        frozenPols[j] = this->getPolarisationVector();
+      }
+    }
+  }
+
+  void executeJunctionStep(std::size_t junctionIndex,
+                           ScalarDriver<T> &localDriver, SimulationSetup &setup,
+                           T t, T timeStep, std::vector<T> &timeResistances,
+                           std::vector<T> &timeCurrents) {
+    junctionList[junctionIndex].setLayerCurrentDriver("all", localDriver);
+    bool step_accepted = true;
+    (junctionList[junctionIndex].*(setup.localRunner))(setup.solver, t,
+                                                       timeStep, step_accepted);
+
+    const auto resistance = junctionList[junctionIndex].getMagnetoresistance();
+    timeResistances[junctionIndex] = resistance[0];
+    timeCurrents[junctionIndex] = localDriver.getCurrentScalarValue(t);
+  }
+
+  void logSimulationStep(unsigned int iteration, unsigned int writeEvery, T t,
+                         T timeStep, const std::vector<T> &timeResistances,
+                         const std::vector<T> &timeCurrents,
+                         const std::vector<T> &timeEffectiveCoupling) {
+    if (!(iteration % writeEvery)) {
+      const T magRes = this->calculateStackResistance(timeResistances);
+      this->logStackData(t, magRes, timeCurrents, timeEffectiveCoupling);
+      for (auto &jun : this->junctionList)
+        jun.logLayerParams(t, timeStep, false);
+    }
+  }
+
 protected:
   unsigned int stackSize;
   std::string topId, bottomId; // Ids of the top and bottom junctions
@@ -32,21 +113,31 @@ protected:
   virtual T getEffectiveCouplingStrength(const unsigned int &order,
                                          const CVector<T> &m1,
                                          const CVector<T> &m2,
-                                         const CVector<T> &p) = 0;
+                                         const CVector<T> &p1,
+                                         const CVector<T> &p2) = 0;
 
   T computeCouplingCurrentDensity(const unsigned int &order, T currentDensity,
                                   const CVector<T> &m1, const CVector<T> &m2,
-                                  const CVector<T> &p) {
+                                  const CVector<T> &p1, const CVector<T> &p2) {
     return currentDensity *
-           this->getEffectiveCouplingStrength(order, m1, m2, p);
+           this->getEffectiveCouplingStrength(order, m1, m2, p1, p2);
   }
 
 public:
   std::vector<Junction<T>> junctionList;
 
   Stack(std::vector<Junction<T>> inputStack, const std::string &topId,
-        const std::string &bottomId, const T phaseOffset = 0)
+        const std::string &bottomId, const T phaseOffset = 0,
+        bool useKCL = true)
       : topId(topId), bottomId(bottomId), phaseOffset(phaseOffset) {
+
+    // Set the simulation method based on constructor parameter
+    if (useKCL) {
+      simulationMethod = &Stack<T>::runSimulationKCL;
+    } else {
+      simulationMethod = &Stack<T>::runSimulationNonKCL;
+    }
+
     if (inputStack.size() < 2) {
       throw std::runtime_error("Stack must have at least 2 junctions!");
     }
@@ -161,10 +252,15 @@ public:
     this->couplingStrength = coupling;
   }
 
-  void logStackData(T t, T resistance, std::vector<T> timeCurrents) {
+  void logStackData(T t, T resistance, std::vector<T> timeCurrents,
+                    std::vector<T> effectiveCoupling) {
     this->stackLog["Resistance"].push_back(resistance);
     for (std::size_t j = 0; j < timeCurrents.size(); ++j) {
       this->stackLog["I_" + std::to_string(j)].push_back(timeCurrents[j]);
+      if (j < effectiveCoupling.size()) {
+        this->stackLog["C_" + std::to_string(j) + "_" + std::to_string(j + 1)]
+            .push_back(effectiveCoupling[j]);
+      }
     }
     this->stackLog["time"].push_back(t);
   }
@@ -211,53 +307,31 @@ public:
     return true;
   }
 
+  // Public interface method that delegates to the chosen implementation
   void runSimulation(T totalTime, T timeStep = 1e-13,
                      T writeFrequency = 1e-11) {
-    const unsigned int writeEvery = (int)(writeFrequency / timeStep);
-    const unsigned int totalIterations = (int)(totalTime / timeStep);
+    (this->*simulationMethod)(totalTime, timeStep, writeFrequency);
+  }
 
-    if (timeStep > writeFrequency) {
-      throw std::runtime_error(
-          "The time step cannot be larger than write frequency!");
-    }
+private:
+  void runSimulationNonKCL(T totalTime, T timeStep = 1e-13,
+                           T writeFrequency = 1e-11) {
 
-    // pick a solver based on drivers
-    std::vector<SolverMode> modes;
-    auto localRunner = &Junction<T>::runMultiLayerSolver;
-    for (auto &j : this->junctionList) {
-      auto [runner, solver, mode] = j.getSolver(RK4, totalIterations);
-      modes.push_back(mode);
-      localRunner = runner;
-      // TODO: handle the rare case when the user mixes 1 layer with 2 layer
-      // junction in the same stack -- i.e. runner is runSingleLayerSolver and
-      // runMultiLayerSolver
-    }
-    auto solver = &Layer<T>::rk4_step; // legacy, this actually doesn't matter
-    if (!std::equal(modes.begin() + 1, modes.end(), modes.begin())) {
-      throw std::runtime_error(
-          "Junctions have different solver modes!"
-          " Set the same solver mode for all junctions explicitly."
-          " Do not mix stochastic and deterministic solvers!");
-    }
+    auto setup = initializeSimulation(totalTime, timeStep, writeFrequency);
 
     std::vector<T> timeResistances(junctionList.size());
     std::vector<T> timeCurrents(junctionList.size());
+    std::vector<T> timeEffectiveCoupling(junctionList.size() - 1);
     std::vector<CVector<T>> frozenMags(junctionList.size());
     std::vector<CVector<T>> frozenPols(junctionList.size());
 
     const bool isTwoLayerStack = this->isTwoLayerMemberStack();
-    for (unsigned int i = 0; i < totalIterations; i++) {
+    for (unsigned int i = 0; i < setup.totalIterations; i++) {
       T t = i * timeStep;
 
-      // stash the magnetisations first
-      for (std::size_t j = 0; j < junctionList.size(); ++j) {
-        frozenMags[j] = junctionList[j].getLayerMagnetisation(this->topId);
-        if (isTwoLayerStack) {
-          frozenPols[j] = junctionList[j].getLayerMagnetisation(this->bottomId);
-        } else {
-          frozenPols[j] = this->getPolarisationVector();
-        }
-      }
+      // Store magnetisations first
+      storeMagnetisations(frozenMags, frozenPols, isTwoLayerStack);
+
       T effectiveCoupling = 1;
       for (std::size_t j = 0; j < junctionList.size(); ++j) {
 
@@ -274,41 +348,77 @@ public:
         if (j > 0) {
           if (this->delayed) {
             // accumulate coupling
-            effectiveCoupling *= (1 + this->getEffectiveCouplingStrength(
-                                          j - 1, frozenMags[j - 1],
-                                          frozenMags[j], frozenPols[j - 1]));
+            effectiveCoupling *=
+                (1 + this->getEffectiveCouplingStrength(
+                         j - 1, frozenMags[j - 1], frozenMags[j],
+                         frozenPols[j - 1], frozenPols[j]));
 
           } else {
             effectiveCoupling *=
-                (1 + this->getEffectiveCouplingStrength(
-                         j - 1,
-                         junctionList[j - 1].getLayerMagnetisation(this->topId),
-                         junctionList[j].getLayerMagnetisation(this->topId),
-                         junctionList[j - 1].getLayerMagnetisation(
-                             this->bottomId)));
+                (1 +
+                 this->getEffectiveCouplingStrength(
+                     j - 1,
+                     junctionList[j - 1].getLayerMagnetisation(this->topId),
+                     junctionList[j].getLayerMagnetisation(this->topId),
+                     junctionList[j - 1].getLayerMagnetisation(this->bottomId),
+                     junctionList[j].getLayerMagnetisation(this->bottomId)));
           }
+          timeEffectiveCoupling[j - 1] = effectiveCoupling;
         }
-
         // set the current -- same for all layers
         // copy the driver and set the current value
         ScalarDriver<T> localDriver = this->currentDriver * effectiveCoupling;
         localDriver.phaseShift(this->getPhaseOffset(j));
 
-        junctionList[j].setLayerCurrentDriver("all", localDriver);
-        (junctionList[j].*localRunner)(solver, t, timeStep);
-        // change the instant value of the current before the
-        // the resistance is calculated
-        // compute the next j+1 input to the current.
-        const auto resistance = junctionList[j].getMagnetoresistance();
-        timeResistances[j] = resistance[0];
-        timeCurrents[j] = localDriver.getCurrentScalarValue(t);
+        executeJunctionStep(j, localDriver, setup, t, timeStep, timeResistances,
+                            timeCurrents);
       }
-      if (!(i % writeEvery)) {
-        const T magRes = this->calculateStackResistance(timeResistances);
-        this->logStackData(t, magRes, timeCurrents);
-        for (auto &jun : this->junctionList)
-          jun.logLayerParams(t, timeStep, false);
+      logSimulationStep(i, setup.writeEvery, t, timeStep, timeResistances,
+                        timeCurrents, timeEffectiveCoupling);
+    }
+  }
+
+  void runSimulationKCL(T totalTime, T timeStep = 1e-13,
+                        T writeFrequency = 1e-11) {
+
+    auto setup = initializeSimulation(totalTime, timeStep, writeFrequency);
+
+    std::vector<T> timeResistances(junctionList.size());
+    std::vector<T> timeCurrents(junctionList.size());
+    std::vector<T> timeEffectiveCoupling(junctionList.size() - 1);
+    std::vector<CVector<T>> frozenMags(junctionList.size());
+    std::vector<CVector<T>> frozenPols(junctionList.size());
+    const bool isTwoLayerStack = this->isTwoLayerMemberStack();
+
+    for (unsigned int i = 0; i < setup.totalIterations; i++) {
+      T t = i * timeStep;
+
+      // this is a base case
+      T uncoupledCurrent = this->currentDriver.getCurrentScalarValue(t);
+
+      // Store magnetisations first
+      storeMagnetisations(frozenMags, frozenPols, isTwoLayerStack);
+
+      T totalCurrent = uncoupledCurrent;
+      for (std::size_t j = 0; j < junctionList.size() - 1; ++j) {
+        timeEffectiveCoupling[j] = this->getEffectiveCouplingStrength(
+            j, frozenMags[j], frozenMags[j + 1], frozenPols[j],
+            frozenPols[j + 1]);
+        totalCurrent += timeEffectiveCoupling[j] * uncoupledCurrent;
       }
+
+      for (std::size_t j = 0; j < junctionList.size(); ++j) {
+        // set the current -- same for all layers
+        // copy the driver and set the current value
+        ScalarDriver<T> localDriver =
+            ScalarDriver<T>::getConstantDriver(totalCurrent);
+        localDriver.phaseShift(this->getPhaseOffset(j));
+
+        executeJunctionStep(j, localDriver, setup, t, timeStep, timeResistances,
+                            timeCurrents);
+      }
+      logSimulationStep(i, setup.writeEvery, t, timeStep, timeResistances,
+                        timeCurrents, timeEffectiveCoupling);
     }
   }
 };
@@ -321,9 +431,10 @@ template <typename T> class SeriesStack : public Stack<T> {
 
   T getEffectiveCouplingStrength(const unsigned int &order,
                                  const CVector<T> &m1, const CVector<T> &m2,
-                                 const CVector<T> &p) override {
-    const T m1Comp = c_dot(m1, p);
-    const T m2Comp = c_dot(m2, p);
+                                 const CVector<T> &p1,
+                                 const CVector<T> &p2) override {
+    const T m1Comp = c_dot(m1, p1);
+    const T m2Comp = c_dot(m2, p2);
     return this->getCoupling(order) * (m1Comp + m2Comp);
   }
 
@@ -335,8 +446,8 @@ public:
   explicit SeriesStack(const std::vector<Junction<T>> &jL,
                        const std::string &topId = "free",
                        const std::string &bottomId = "bottom",
-                       const T phaseOffset = 0)
-      : Stack<T>(jL, topId, bottomId, phaseOffset) {}
+                       const T phaseOffset = 0, bool useKCL = true)
+      : Stack<T>(jL, topId, bottomId, phaseOffset, useKCL) {}
 };
 
 template <typename T> class ParallelStack : public Stack<T> {
@@ -349,9 +460,10 @@ template <typename T> class ParallelStack : public Stack<T> {
 
   T getEffectiveCouplingStrength(const unsigned int &order,
                                  const CVector<T> &m1, const CVector<T> &m2,
-                                 const CVector<T> &p) override {
-    const T m1Comp = c_dot(m1, p);
-    const T m2Comp = c_dot(m2, p);
+                                 const CVector<T> &p1,
+                                 const CVector<T> &p2) override {
+    const T m1Comp = c_dot(m1, p1);
+    const T m2Comp = c_dot(m2, p2);
     return this->getCoupling(order) * (m1Comp - m2Comp);
   }
 
@@ -363,7 +475,8 @@ public:
   explicit ParallelStack(const std::vector<Junction<T>> &jL,
                          const std::string &topId = "free",
                          const std::string &bottomId = "bottom",
-                         const T phaseOffset = 0)
-      : Stack<T>(jL, topId, bottomId, phaseOffset) {}
+                         const T phaseOffset = 0, bool useKCL = true)
+      : Stack<T>(jL, topId, bottomId, phaseOffset, useKCL) {}
 };
+
 #endif // CORE_STACK_HPP_

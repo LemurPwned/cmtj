@@ -212,6 +212,11 @@ public:
     ss << "[x:" << this->x << ", y:" << this->y << ", z:" << this->z << "]";
     return ss.str();
   }
+
+  static CVector<T> fromSpherical(T theta, T phi, T r = 1.0) {
+    return CVector<T>(r * sin(theta) * cos(phi), r * sin(theta) * sin(phi),
+                      r * cos(theta));
+  }
 };
 
 #endif // CORE_CVECTOR_HPP_

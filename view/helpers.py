@@ -1,6 +1,8 @@
+import io
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
+from datetime import datetime
 from simulation_fns import get_pimm_data, get_vsd_data
 
 from cmtj.utils import Filters
@@ -52,7 +54,7 @@ def plot_optim(hvals, target, simulation, title="Optimisation"):
 
 
 def plot_data(
-    Hscan, freqs, spec, mag=None, title: str = "Resonance spectrum", mode: str = "none"
+    Hscan, freqs, spec, mag=None, title: str = "Resonance spectrum", mode: str = "none", return_fig: bool = False
 ):
     Hscan_spec = Hscan
     if st.session_state["Hreturn"] and mode.lower() == "pimm":
@@ -117,6 +119,9 @@ def plot_data(
         except (ValueError, AttributeError) as e:
             print(f"Error plotting data: {e}")
         st.pyplot(fig)
+        if return_fig:
+            return fig
+        return None
 
 
 def simulate_vsd():
@@ -139,6 +144,35 @@ def simulate_vsd():
     plot_data(Hscan, freqs, spec, title="VSD spectrum", mode="vsd")
 
 
+def fig_to_bytes(fig):
+    """Convert matplotlib figure to PNG bytes."""
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+    buf.seek(0)
+    return buf.getvalue()
+
+
+def add_to_history(fig, max_history: int):
+    """Add figure to history in session state."""
+    if "pimm_history" not in st.session_state:
+        st.session_state.pimm_history = []
+
+    # Convert figure to bytes
+    fig_bytes = fig_to_bytes(fig)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Add to history (most recent first)
+    history_entry = {
+        "timestamp": timestamp,
+        "image_bytes": fig_bytes,
+    }
+    st.session_state.pimm_history.insert(0, history_entry)
+
+    # Keep only max_history entries
+    if len(st.session_state.pimm_history) > max_history:
+        st.session_state.pimm_history = st.session_state.pimm_history[:max_history]
+
+
 def simulate_pimm():
     with st.spinner("Simulating PIMM..."):
         spec, freqs, output, Hscan = get_pimm_data(
@@ -150,4 +184,10 @@ def simulate_pimm():
             sim_time=st.session_state.sim_time * 1e-9,
         )
     mag = np.asarray(output["m_avg"])
-    plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum", mode="pimm")
+    fig = plot_data(Hscan, freqs, spec, mag=mag, title="PIMM spectrum", mode="pimm", return_fig=True)
+
+    # Save to history before closing
+    if fig is not None:
+        max_history = st.session_state.get("pimm_max_history", 5)
+        add_to_history(fig, max_history)
+        plt.close(fig)  # Close to free memory

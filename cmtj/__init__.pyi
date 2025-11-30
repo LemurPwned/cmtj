@@ -201,6 +201,15 @@ class CVector:
         """Converts the vector to a list."""
         ...
 
+    @staticmethod
+    def fromSpherical(theta: float, phi: float, r: float = 1.0) -> CVector:
+        """Create a vector from spherical coordinates.
+        :param theta: polar angle in radians
+        :param phi: azimuthal angle in radians
+        :param r: radius of the vector
+        """
+        ...
+
     def __add__(self, arg0: CVector) -> CVector: ...
     def __eq__(self, arg0: CVector) -> bool: ...
     def __getitem__(self, arg0: int) -> float: ...
@@ -334,6 +343,13 @@ class Junction:
         """Set anisotropy driver for a layer.
         :param layerId: the id of the layer.
         :param driver: the anisotropy driver to be set.
+        """
+        ...
+
+    def setLayerSecondOrderAnisotropyDriver(self, layerId: str, driver: ScalarDriver) -> None:
+        """Set second order anisotropy driver for a layer.
+        :param layerId: the id of the layer.
+        :param driver: the second order anisotropy driver to be set.
         """
         ...
 
