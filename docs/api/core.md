@@ -1,1 +1,1 @@
-::: cmtj
+::: cmtj.core

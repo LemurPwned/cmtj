@@ -45,14 +45,11 @@ from cmtj import (
 import numpy as np
 
 
-class MyDriver(ScalarDriver):
-    def getCurrentScalarValue(self, time: float) -> float:
-        return time * np.random.choice([-1, 1])
+def my_custom_function(time: float) -> float:
+    return time * np.random.choice([-1, 1])
 
-
-driver = MyDriver()
-for i in range(10):
-    print(driver.getCurrentScalarValue(i * 1e-9))
+# Create a driver with this function
+driver = ScalarDriver.getCustomDriver(my_custom_function)
 
 demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
 layer = Layer(

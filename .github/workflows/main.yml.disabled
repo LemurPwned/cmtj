@@ -1,0 +1,134 @@
+name: Python Package Publication
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '**.py'
+      - 'setup.py'
+      - 'setup.cfg'
+      - 'pyproject.toml'
+      - '**.yml'
+
+  pull_request_target:
+    types: [closed]
+    branches: [master]
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '**.py'
+      - 'setup.py'
+      - 'setup.cfg'
+      - 'pyproject.toml'
+      
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run (no actual upload to PyPI)'
+        type: boolean
+        default: true
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: __token__
+      IS_DRY_RUN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - name: Get version
+        id: get_version
+        run: |
+          python -m pip install setuptools-scm
+          echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> $GITHUB_OUTPUT
+      - name: Python wheels manylinux stable build
+        uses: RalfG/python-wheels-manylinux-build@v0.5.0
+        with:
+          python-versions: 'cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312'
+      - name: Upload wheel testpypi
+        if: env.IS_DRY_RUN == 'true'
+        env:
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: |
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload --repository testpypi dist/*-manylinux*.whl --verbose
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}
+      - name: Upload wheel to production
+        if: env.IS_DRY_RUN == 'false'
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload dist/*-manylinux*.whl
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}  
+    
+  other-os-build:
+    runs-on: ${{ matrix.os }}
+    env:
+      TWINE_USERNAME: __token__
+      IS_DRY_RUN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - name: Get version
+        id: get_version
+        run: |
+          python -m pip install setuptools-scm
+          echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> $GITHUB_OUTPUT
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: build wheel
+        run: |
+          python -m pip install build wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m build
+      - name: Upload wheel testpypi
+        if: env.IS_DRY_RUN == 'true'
+        env:
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: |
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload --repository testpypi dist/* --verbose
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}
+      - name: Upload wheel to production
+        if: env.IS_DRY_RUN == 'false'
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python -m pip install wheel setuptools twine packaging
+          python -m pip install --upgrade twine packaging
+          python -m twine upload dist/*
+        continue-on-error: ${{ env.IS_DRY_RUN == 'true' }}    
+  release-build:
+    needs: [ linux-build, other-os-build ]
+    if: (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version
+        id: get_version
+        run: |
+          python -m pip install setuptools-scm
+          echo "version=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())")" >> $GITHUB_OUTPUT
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ steps.get_version.outputs.version }}" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${{ steps.get_version.outputs.version }}" \
+              --generate-notes
