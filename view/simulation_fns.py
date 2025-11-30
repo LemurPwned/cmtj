@@ -1,7 +1,7 @@
 from collections import defaultdict
 from itertools import groupby
 
-from new_sb import LayerDynamic
+from cmtj.models.general_sb import LayerDynamic
 import numpy as np
 import streamlit as st
 
