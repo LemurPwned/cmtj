@@ -36,7 +36,7 @@
 #define HBAR PhysicalConstants::HBAR
 #define ELECTRON_CHARGE PhysicalConstants::ELECTRON_CHARGE
 #define BOLTZMANN_CONST PhysicalConstants::BOLTZMANN_CONST
-rm
+
 typedef CVector<double> DVector;
 typedef CVector<float> FVector;
 
