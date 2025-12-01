@@ -36,16 +36,16 @@ repos:
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.12.3
+    rev: v0.14.0
     hooks:
       # Run the linter.
       - id: ruff
-        files: ^cmtj
+        files: ^(cmtj|curated-examples)/
         args: ["--fix"]
         types_or: [python, pyi]
       # Run the formatter.
       - id: ruff-format
-        files: ^cmtj
+        files: ^(cmtj|curated-examples)/
         types_or: [python, pyi]
 
   - repo: https://github.com/pocc/pre-commit-hooks

@@ -28,17 +28,17 @@ thresholds, coercive currents, and the influence of Oersted fields on switching
 efficiency, providing insights for optimizing SOT-based memory devices.
 """
 
+import contextlib
 from collections import defaultdict
-from cmtj import *
-from cmtj.utils import compute_gmr
-import numpy as np
+
 import matplotlib.pyplot as plt
-from cmtj.utils import TtoAm
+import numpy as np
 from tqdm import tqdm
 
-try:
-    import scienceplots
-except ImportError:
+from cmtj import AxialDriver, CVector, Junction, Layer, ScalarDriver, constantDriver, stepDriver
+from cmtj.utils import TtoAm, compute_gmr
+
+with contextlib.suppress(ImportError):
     pass
 
 
@@ -141,12 +141,7 @@ for i, Hoescale in tqdm(enumerate(Hoescales), total=len(Hoescales)):
         )
         j.runSimulation(sim_time, tstep, tstep)
         log = j.getLog()
-        m = np.asarray(
-            [
-                [log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]]
-                for str_ in ("free",)
-            ]
-        )
+        m = np.asarray([[log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]] for str_ in ("free",)])
 
         Rstable = compute_gmr(
             Rp=100,
@@ -185,19 +180,20 @@ with plt.style.context(["nature"]):
     ax.set_xlabel(r"$\mathrm{j}$ ($\mathrm{TA/m^2}$)")
     ax.set_ylabel(r"$\mathrm{R}_\mathrm{stable}$ ($\Omega$)")
     cbar = plt.colorbar(
-        plt.cm.ScalarMappable(
-            norm=plt.Normalize(min(Hoescales), max(Hoescales)), cmap=plt.cm.viridis
-        ),
+        plt.cm.ScalarMappable(norm=plt.Normalize(min(Hoescales), max(Hoescales)), cmap=plt.cm.viridis),
         ax=ax,
         label="Hoe",
     )
     cbar.set_ticks(Hoescales)
     ax.set_title(
-        rf"$H_\mathrm{{ext}} = 0, \alpha = {alpha}, \mu_0 M_\mathrm{{s}} = {Ms} \, \mathrm{{T}}$"
+        rf"$H_\mathrm{{ext}} = 0, \alpha = {alpha}, \mu_0 "
+        rf"M_\mathrm{{s}} = {Ms} \, \mathrm{{T}}$"
         "\n"
-        rf"$H_\mathrm{{dl}} = {Hdl:.2f} \, \mathrm{{A/m}}, H_\mathrm{{fl}} = {Hfl:.2f} \, \mathrm{{A/m}}$"
+        rf"$H_\mathrm{{dl}} = {Hdl:.2f} \, \mathrm{{A/m}}, "
+        rf"H_\mathrm{{fl}} = {Hfl:.2f} \, \mathrm{{A/m}}$"
         "\n"
-        rf"$t_\mathrm{{fm}} = {t_fm*1e9:.0f}\,  \mathrm{{nm}}, j_\mathrm{{den}} = {jden1/1e12:.2f} \, \mathrm{{TA/m^2}}$"
+        rf"$t_\mathrm{{fm}} = {t_fm * 1e9:.0f}\,  \mathrm{{nm}}, j_\mathrm{{den}} = "
+        rf"{jden1 / 1e12:.2f} \, \mathrm{{TA/m^2}}$"
     )
     fig.savefig(
         "./curated-examples/figures/cims-hysteresis.png",

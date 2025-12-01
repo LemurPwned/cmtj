@@ -26,22 +26,21 @@ The simulation generates field-dependent voltage curves that exhibit resonance p
 corresponding to ferromagnetic resonance conditions.
 """
 
-from cmtj import CVector, Layer, Junction, ScalarDriver, AxialDriver, NullDriver
-from cmtj.utils.resistance import calculate_resistance_parallel
-from cmtj import constantDriver, sineDriver
+import contextlib
+import math
 from collections import defaultdict
-from cmtj.utils import Filters
-from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
-import cmtj
-import math
+from tqdm import tqdm
 
-try:
-    import scienceplots
-except ImportError:
+import cmtj
+from cmtj import AxialDriver, CVector, Junction, Layer, NullDriver, constantDriver, sineDriver
+from cmtj.utils import Filters
+from cmtj.utils.resistance import calculate_resistance_parallel
+
+with contextlib.suppress(ImportError):
     pass
 
 
@@ -110,7 +109,7 @@ def simulate_lorentz(Ms, Ku, frequency, orient, alpha=1e-4, Irf=0.5e-3):
     else:
         raise ValueError("Unknown orient")
     phi = np.deg2rad(phideg)
-    Hsweep = np.zeros((Hspace.shape[0]))
+    Hsweep = np.zeros(Hspace.shape[0])
     for i, H in enumerate(Hspace):
         junction.clearLog()
         HDriver = AxialDriver(
@@ -129,12 +128,7 @@ def simulate_lorentz(Ms, Ku, frequency, orient, alpha=1e-4, Irf=0.5e-3):
         junction.runSimulation(40e-9, INT_STEP, INT_STEP, solverMode=cmtj.RK4)
 
         log = junction.getLog()
-        m = np.asarray(
-            [
-                [log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]]
-                for str_ in ["free"]
-            ]
-        )
+        m = np.asarray([[log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]] for str_ in ["free"]])
         dynamicRx, dynamicRy = calculate_resistance_parallel(
             Rx0=[Rx0],
             Ry0=[Ry0],
@@ -145,17 +139,12 @@ def simulate_lorentz(Ms, Ku, frequency, orient, alpha=1e-4, Irf=0.5e-3):
             l=[l],
             w=[w],
         )
-        if orient == "2p":
-            dynamicR = dynamicRx
-        else:
-            dynamicR = dynamicRy
+        dynamicR = dynamicRx if orient == "2p" else dynamicRy
         dynamicI = Irf * np.sin(2 * math.pi * frequency * np.asarray(log["time"]))
         vmix = compute_vsd2(dynamicR, INT_STEP, dynamicI)
         Hsweep[i] = vmix
     return Hspace, Hsweep
 
-
-from tqdm import tqdm
 
 data = defaultdict(list)
 hscans = []
@@ -168,9 +157,7 @@ Ms = 0.525
 Ku = 1.54e5
 for orient, irf in zip(("4p", "2p"), (0.75e-3, 0.4e-3)):
     for f in tqdm(fscan):
-        hscan, vscan = simulate_lorentz(
-            Ms, Ku, f * 1e9, orient=orient, alpha=alpha, Irf=irf
-        )
+        hscan, vscan = simulate_lorentz(Ms, Ku, f * 1e9, orient=orient, alpha=alpha, Irf=irf)
         if orient == "2p":
             vscan -= vscan.max()
         data[f"{orient}"].append(vscan)
