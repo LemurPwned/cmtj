@@ -52,7 +52,7 @@ from cmtj import (
 from cmtj.utils import FieldScan, TtoAm
 
 with contextlib.suppress(ImportError):
-    pass
+    import scienceplots  # noqa: F401
 
 Kdir_FL = CVector(0.0, 0.0, 1.0)
 

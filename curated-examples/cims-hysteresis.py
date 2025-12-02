@@ -39,7 +39,7 @@ from cmtj import AxialDriver, CVector, Junction, Layer, ScalarDriver, constantDr
 from cmtj.utils import TtoAm, compute_gmr
 
 with contextlib.suppress(ImportError):
-    pass
+    import scienceplots  # noqa: F401
 
 
 demagTensor = [CVector(0.0, 0.0, 0.0), CVector(0.0, 0.0, 0.0), CVector(0.0, 0.0, 1)]

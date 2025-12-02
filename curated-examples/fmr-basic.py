@@ -26,26 +26,27 @@ enabling determination of layer-specific magnetic parameters (Ms, Ku, damping) a
 characterization of interlayer coupling strength.
 """
 
+import contextlib
+
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.fft import fft, fftfreq
+from scipy.ndimage import uniform_filter
+from tqdm import tqdm
+
 from cmtj import (
     AxialDriver,
-    Layer,
-    Junction,
     CVector,
+    Junction,
+    Layer,
     NullDriver,
     constantDriver,
     stepDriver,
 )
 from cmtj.utils import FieldScan
-from scipy.fft import fft, fftfreq
-from tqdm import tqdm
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.ndimage import uniform_filter
 
-try:
-    import scienceplots
-except ImportError:
-    pass
+with contextlib.suppress(ImportError):
+    import scienceplots  # noqa: F401
 
 Ms1 = 1.03
 Ms2 = 1.03
@@ -138,9 +139,7 @@ def extract_fft(log: dict[str, list[float]], dt: float, wait_time: float) -> np.
 for Hv in tqdm(Hvecs):
     j.clearLog()
     j.setLayerExternalFieldDriver("all", AxialDriver(*Hv))
-    j.setLayerOerstedFieldDriver(
-        "all", AxialDriver(NullDriver(), stepDriver(0, ampl, 0, dur), NullDriver())
-    )
+    j.setLayerOerstedFieldDriver("all", AxialDriver(NullDriver(), stepDriver(0, ampl, 0, dur), NullDriver()))
     j.runSimulation(sim_time, dt, dt)
     log = j.getLog()
     fft_mixed, ffreqs = extract_fft(log, dt, wait_time)
@@ -151,9 +150,7 @@ if back:
     for i, Hv in tqdm(enumerate(Hvecs[::-1])):
         j.clearLog()
         j.setLayerExternalFieldDriver("all", AxialDriver(*Hv))
-        j.setLayerOerstedFieldDriver(
-            "all", AxialDriver(NullDriver(), stepDriver(0, ampl, 0, dur), NullDriver())
-        )
+        j.setLayerOerstedFieldDriver("all", AxialDriver(NullDriver(), stepDriver(0, ampl, 0, dur), NullDriver()))
         j.runSimulation(sim_time, dt, dt)
         log = j.getLog()
         fft_mixed, ffreqs = extract_fft(log, dt, wait_time)
@@ -165,16 +162,16 @@ spectrum = np.array(spectrum) / 2.0
 
 with plt.style.context(["science", "nature"]):
     fig, ax = plt.subplots(dpi=300)
-    ax.pcolormesh(
-        Hscan / 1e3, ffreqs / 1e9, 10 * np.log10(uniform_filter(spectrum.T, size=1))
-    )
+    ax.pcolormesh(Hscan / 1e3, ffreqs / 1e9, 10 * np.log10(uniform_filter(spectrum.T, size=1)))
     ax.set_xlabel(r"$\mathrm{H}$ ($\mathrm{kA/m}$)")
     ax.set_ylabel(r"$f$ ($\mathrm{GHz}$)")
     ax.legend(loc="upper right", fontsize=6)
     fig.suptitle(
-        rf"$\mu_0 M_\mathrm{{s,1}}$ = {Ms1:.2f} T, $\mu_0 M_\mathrm{{s,2}}$ = {Ms2:.2f} T, $\mu_0 M_\mathrm{{s,3}}$ = {Ms3:.2f} T"
+        rf"$\mu_0 M_\mathrm{{s,1}}$ = {Ms1:.2f} T, $\mu_0 M_\mathrm{{s,2}}$ = {Ms2:.2f} T, "
+        rf"$\mu_0 M_\mathrm{{s,3}}$ = {Ms3:.2f} T"
         "\n"
-        rf"$K_\mathrm{{u,1}}$ = {Ku1/1e3:.1f} kA/m, $K_\mathrm{{u,2}}$ = {Ku2/1e3:.1f} kA/m, $K_\mathrm{{u,3}}$ = {Ku3/1e3:.1f} kA/m",
+        rf"$K_\mathrm{{u,1}}$ = {Ku1 / 1e3:.1f} kA/m, $K_\mathrm{{u,2}}$ = {Ku2 / 1e3:.1f} kA/m, "
+        rf"$K_\mathrm{{u,3}}$ = {Ku3 / 1e3:.1f} kA/m",
         fontsize=6,
     )
     fig.savefig(
