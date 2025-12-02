@@ -31,23 +31,28 @@ providing guidance on required current densities, field assistance, and material
 parameter optimization for reliable SOT-based memory and logic devices.
 """
 
+import contextlib
+from collections import defaultdict
+from copy import deepcopy
+
+import matplotlib.pyplot as plt
+import multiprocess as mp
+import numpy as np
+from tqdm import tqdm
+
 from cmtj import (
     AxialDriver,
-    Layer,
-    Junction,
     CVector,
+    Junction,
+    Layer,
+    SolverMode,
     constantDriver,
     stepDriver,
-    AdaptiveIntegrationParams,
-    SolverMode,
 )
 from cmtj.utils import FieldScan, TtoAm
-from tqdm import tqdm
-import numpy as np
-from collections import defaultdict
-import multiprocess as mp
-from copy import deepcopy
-import matplotlib.pyplot as plt
+
+with contextlib.suppress(ImportError):
+    import scienceplots  # noqa: F401
 
 Kdir_FL = CVector(0.0, 0.0, 1.0)
 
@@ -77,6 +82,9 @@ cell_surface = np.power(300e-9, 2) * np.pi
 # Store all results for final plotting
 all_results = {}
 
+wf = 1e-11
+integration_time = 1e-12
+pulse_len = 10e-9
 for tau_scale in tqdm(tau_scales, desc="tau_scales"):
     for theta in tqdm(thetas, desc="Thetas"):
         for FL_Ku2 in tqdm(Ku2s, desc="Ku2s"):
@@ -87,10 +95,6 @@ for tau_scale in tqdm(tau_scales, desc="tau_scales"):
                 theta=theta,
                 phi=0,
             )
-
-            wf = 1e-11
-            integration_time = 1e-12
-            pulse_len = 10e-9
 
             # Define a function to process a single field vector
             def process_field_vector(field_data):
@@ -141,19 +145,13 @@ for tau_scale in tqdm(tau_scales, desc="tau_scales"):
                         j.clearLog()
                         j.setLayerFieldLikeTorqueDriver(
                             "free",
-                            stepDriver(
-                                0, tau_scale * TtoAm * 1e-3 * (jden**2), 0, pulse_len
-                            ),
+                            stepDriver(0, tau_scale * TtoAm * 1e-3 * (jden**2), 0, pulse_len),
                         )
                         j.setLayerDampingLikeTorqueDriver(
                             "free",
-                            stepDriver(
-                                0, tau_scale * TtoAm * 16e-3 * jden, 0, pulse_len
-                            ),
+                            stepDriver(0, tau_scale * TtoAm * 16e-3 * jden, 0, pulse_len),
                         )
-                        j.runSimulation(
-                            2 * pulse_len, integration_time, wf, solverMode=solver
-                        )
+                        j.runSimulation(2 * pulse_len, integration_time, wf, solverMode=solver)
                         log = j.getLog()
                         # check mz
                         mz = np.mean(log["free_mz"][-100:])
@@ -179,9 +177,7 @@ for tau_scale in tqdm(tau_scales, desc="tau_scales"):
                     # averaged_voltage_dict[f"{jden}_std"] = np.std(mz_values)
 
                 # sort voltage_dict by voltage
-                averaged_voltage_dict = dict(
-                    sorted(averaged_voltage_dict.items(), key=lambda x: x[0])
-                )
+                averaged_voltage_dict = dict(sorted(averaged_voltage_dict.items(), key=lambda x: x[0]))
                 return (
                     idx,
                     list(averaged_voltage_dict.values()),
@@ -282,13 +278,13 @@ with plt.style.context(["science", "nature"]):
     cbar = fig.colorbar(im, cax=cbar_ax)
     cbar.set_label("$m_z$", rotation=270, labelpad=15)
 
-    for i, tau_scale in enumerate(tau_scales):
+    for i, _ in enumerate(tau_scales):
         axes[i, 0].set_ylabel("V (V)")
 
     for j, FL_Ku2 in enumerate(Ku2s):
         axes[-1, j].set_xlabel("H ($\\mathrm{{kA/m}}$)")
         axes[0, j].set_title(
-            f"$\\mathrm{{K}}_\\mathrm{{u2}}$ = {FL_Ku2/1e3:.0f} $\\mathrm{{kJ/m^3}}$",
+            f"$\\mathrm{{K}}_\\mathrm{{u2}}$ = {FL_Ku2 / 1e3:.0f} $\\mathrm{{kJ/m^3}}$",
             fontsize=6,
         )
     fig.subplots_adjust(wspace=0.05, hspace=0.05)

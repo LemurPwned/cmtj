@@ -24,22 +24,22 @@ resonance (FMR) characteristics and can be used to extract material parameters l
 damping, anisotropy, and saturation magnetization.
 """
 
-from cmtj import CVector, Layer, Junction, AxialDriver, NullDriver
-from cmtj.utils.resistance import calculate_resistance_parallel
-from cmtj import constantDriver, sineDriver
-from collections import defaultdict
-from cmtj.utils import Filters
-from tqdm import tqdm
-import matplotlib.transforms as mtransforms
-import matplotlib.pyplot as plt
-import numpy as np
-import cmtj
+import contextlib
 import math
+from collections import defaultdict
 
-try:
-    import scienceplots
-except ImportError:
-    pass
+import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
+import numpy as np
+from tqdm import tqdm
+
+import cmtj
+from cmtj import AxialDriver, CVector, Junction, Layer, NullDriver, constantDriver, sineDriver
+from cmtj.utils import Filters
+from cmtj.utils.resistance import calculate_resistance_parallel
+
+with contextlib.suppress(ImportError):
+    import scienceplots  # noqa: F401
 
 OeToAm = 79.57747
 
@@ -96,7 +96,7 @@ def simulate_lorentz(Ms, Ku, frequency, orient, alpha=1e-4, Irf=0.5e-3):
     else:
         raise ValueError("Unknown orient")
     phi = np.deg2rad(phideg)
-    Hsweep = np.zeros((Hspace.shape[0]))
+    Hsweep = np.zeros(Hspace.shape[0])
     for i, H in enumerate(Hspace):
         junction.clearLog()
         HDriver = AxialDriver(
@@ -115,12 +115,7 @@ def simulate_lorentz(Ms, Ku, frequency, orient, alpha=1e-4, Irf=0.5e-3):
         junction.runSimulation(40e-9, INT_STEP, INT_STEP, solverMode=cmtj.RK4)
 
         log = junction.getLog()
-        m = np.asarray(
-            [
-                [log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]]
-                for str_ in ["free"]
-            ]
-        )
+        m = np.asarray([[log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]] for str_ in ["free"]])
         dynamicRx, dynamicRy = calculate_resistance_parallel(
             Rx0=[Rx0],
             Ry0=[Ry0],
@@ -169,7 +164,7 @@ def simulate_lorentz_freq_scan(Ms, Ku, Hvalue, orient, alpha=1e-4, Irf=0.5e-3):
         raise ValueError("Unknown orient")
     phi = np.deg2rad(phideg)
     fspace = np.arange(2, 18, 0.1) * 1e9
-    fsweep = np.zeros((fspace.shape[0]))
+    fsweep = np.zeros(fspace.shape[0])
     for i, f in enumerate(fspace):
         junction.clearLog()
         HDriver = AxialDriver(
@@ -188,12 +183,7 @@ def simulate_lorentz_freq_scan(Ms, Ku, Hvalue, orient, alpha=1e-4, Irf=0.5e-3):
         junction.runSimulation(40e-9, INT_STEP, INT_STEP, solverMode=cmtj.RK4)
 
         log = junction.getLog()
-        m = np.asarray(
-            [
-                [log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]]
-                for str_ in ["free"]
-            ]
-        )
+        m = np.asarray([[log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]] for str_ in ["free"]])
         dynamicRx, dynamicRy = calculate_resistance_parallel(
             Rx0=[Rx0],
             Ry0=[Ry0],
@@ -222,9 +212,7 @@ Ms = 0.525
 Ku = 1.54e5
 for orient, irf in zip(("4p", "2p"), (0.75e-3, 0.4e-3)):
     for f in tqdm(fscan):
-        hscan, vscan = simulate_lorentz(
-            Ms, Ku, f * 1e9, orient=orient, alpha=alpha, Irf=irf
-        )
+        hscan, vscan = simulate_lorentz(Ms, Ku, f * 1e9, orient=orient, alpha=alpha, Irf=irf)
         if orient == "2p":
             vscan -= vscan.max()
         data[f"{orient}"].append(vscan)
