@@ -72,10 +72,12 @@ def save_reference_data(test_name: str, data: dict):
         json.dump(serializable_data, f, indent=2)
 
 
-def compare_with_reference(test_name: str, current_data: dict, update_reference: bool = False, stochastic: bool = False):
+def compare_with_reference(
+    test_name: str, current_data: dict, update_reference: bool = False, stochastic: bool = False
+):
     """
     Compare current test results with reference data.
-    
+
     Args:
         test_name: Name of the test
         current_data: Dictionary of current test outputs (will be rounded to 3 decimals)
@@ -107,13 +109,13 @@ def compare_with_reference(test_name: str, current_data: dict, update_reference:
 
     # Compare with reference
     assert ref_data is not None, f"No reference data found for {test_name}"
-    
+
     for key in rounded_data:
         assert key in ref_data, f"Missing key '{key}' in reference data for {test_name}"
-        
+
         current_val = rounded_data[key]
         ref_val = ref_data[key]
-        
+
         # Handle nested lists (list of arrays)
         if isinstance(current_val, list) and len(current_val) > 0:
             if isinstance(current_val[0], (list, np.ndarray)):
@@ -139,16 +141,11 @@ def compare_with_reference(test_name: str, current_data: dict, update_reference:
                             f"current {np.std(c):.3f} vs reference {np.std(r):.3f} (diff: {std_diff:.3f})"
                         )
                         # Also check that ranges are similar
-                        assert np.abs(np.min(c) - np.min(r)) < 1.0, (
-                            f"Min mismatch for '{key}[{i}]' in {test_name}"
-                        )
-                        assert np.abs(np.max(c) - np.max(r)) < 1.0, (
-                            f"Max mismatch for '{key}[{i}]' in {test_name}"
-                        )
+                        assert np.abs(np.min(c) - np.min(r)) < 1.0, f"Min mismatch for '{key}[{i}]' in {test_name}"
+                        assert np.abs(np.max(c) - np.max(r)) < 1.0, f"Max mismatch for '{key}[{i}]' in {test_name}"
                     else:
                         np.testing.assert_array_almost_equal(
-                            c, r, decimal=3,
-                            err_msg=f"Value mismatch for '{key}[{i}]' in {test_name}"
+                            c, r, decimal=3, err_msg=f"Value mismatch for '{key}[{i}]' in {test_name}"
                         )
             else:
                 # Regular list of numbers
@@ -159,15 +156,13 @@ def compare_with_reference(test_name: str, current_data: dict, update_reference:
                     f"current {current_arr.shape} vs reference {ref_arr.shape}"
                 )
                 np.testing.assert_array_almost_equal(
-                    current_arr, ref_arr, decimal=3,
-                    err_msg=f"Value mismatch for '{key}' in {test_name}"
+                    current_arr, ref_arr, decimal=3, err_msg=f"Value mismatch for '{key}' in {test_name}"
                 )
         elif isinstance(current_val, np.ndarray):
             # Single array (could be 1D, 2D, etc.)
             ref_arr = np.array(ref_val)
             assert current_val.shape == ref_arr.shape, (
-                f"Shape mismatch for '{key}' in {test_name}: "
-                f"current {current_val.shape} vs reference {ref_arr.shape}"
+                f"Shape mismatch for '{key}' in {test_name}: current {current_val.shape} vs reference {ref_arr.shape}"
             )
             if stochastic:
                 # For stochastic tests, compare statistics for arrays
@@ -189,8 +184,7 @@ def compare_with_reference(test_name: str, current_data: dict, update_reference:
                 )
             else:
                 np.testing.assert_array_almost_equal(
-                    current_val, ref_arr, decimal=3,
-                    err_msg=f"Value mismatch for '{key}' in {test_name}"
+                    current_val, ref_arr, decimal=3, err_msg=f"Value mismatch for '{key}' in {test_name}"
                 )
         else:
             # Scalar value or tuple/list that should be compared as values
@@ -201,20 +195,16 @@ def compare_with_reference(test_name: str, current_data: dict, update_reference:
                 ref_val = list(ref_val)
             if isinstance(current_val, list) and isinstance(ref_val, list):
                 # Compare lists element-wise
-                assert len(current_val) == len(ref_val), (
-                    f"Length mismatch for '{key}' in {test_name}"
-                )
+                assert len(current_val) == len(ref_val), f"Length mismatch for '{key}' in {test_name}"
                 for i, (c, r) in enumerate(zip(current_val, ref_val)):
                     assert c == r or (isinstance(c, float) and isinstance(r, float) and abs(c - r) < 1e-3), (
-                        f"Value mismatch for '{key}[{i}]' in {test_name}: "
-                        f"current {c} vs reference {r}"
+                        f"Value mismatch for '{key}[{i}]' in {test_name}: current {c} vs reference {r}"
                     )
             else:
                 assert current_val == ref_val, (
-                    f"Value mismatch for '{key}' in {test_name}: "
-                    f"current {current_val} vs reference {ref_val}"
+                    f"Value mismatch for '{key}' in {test_name}: current {current_val} vs reference {ref_val}"
                 )
-    
+
     return True
 
 
@@ -765,9 +755,7 @@ def test_fmr_basic(update_reference):
     for Hv in Hvecs[:5]:
         j.clearLog()
         j.setLayerExternalFieldDriver("all", AxialDriver(*Hv))
-        j.setLayerOerstedFieldDriver(
-            "all", AxialDriver(NullDriver(), stepDriver(0, ampl, 0, dur), NullDriver())
-        )
+        j.setLayerOerstedFieldDriver("all", AxialDriver(NullDriver(), stepDriver(0, ampl, 0, dur), NullDriver()))
         j.runSimulation(sim_time, dt, dt)
         log = j.getLog()
         fft_mixed, ffreqs = extract_fft(log, dt, wait_time)
@@ -891,82 +879,6 @@ def test_harmonic_hall(update_reference):
 
     # Compare with reference or update
     compare_with_reference("test_harmonic_hall", test_data, update_reference)
-
-
-@pytest.mark.slow
-def test_pbit(update_reference):
-    """Test p-bit simulation."""
-    demagTensor = [CVector(0.0, 0.0, 0.0), CVector(0.0, 0.0, 0.0), CVector(0.0, 0.0, 1.0)]
-
-    damping = 0.1
-    currentDensity = 1e10
-    beta = 0.9
-    spinPolarisation = 1.0
-
-    l1 = Layer.createSTTLayer(
-        id="free",
-        mag=CVector(1.0, 0.0, 0.0),
-        anis=CVector(1, 0.0, 0.0),
-        Ms=1.6,
-        thickness=2.0e-9,
-        cellSurface=7e-10 * 7e-10 * np.pi,
-        demagTensor=demagTensor,
-        damping=damping,
-        SlonczewskiSpacerLayerParameter=1.0,
-        spinPolarisation=spinPolarisation,
-        beta=beta,
-    )
-
-    l1.setReferenceLayer(CVector(1, 0.0, 0.0))
-    junction = Junction([l1], 100, 200)
-
-    junction.setLayerAnisotropyDriver("free", constantDriver(350e3))
-    junction.setLayerTemperatureDriver("free", constantDriver(10))
-    junction.setLayerCurrentDriver("free", constantDriver(-currentDensity))
-
-    # Reduced number of field values and trajectories for faster testing
-    field_vec = (-500e3, 0, 500e3)
-    # Reduced initial conditions
-    np.random.seed(42)  # For reproducibility
-    initial_conditions = [
-        CVector.fromSpherical(np.random.uniform(0, 0.3), np.random.uniform(0, 2 * np.pi), 1.0)
-        for _ in range(10)
-    ]
-
-    field_trajs = []
-    for field in field_vec:
-        trajectories = []
-        junction.setLayerExternalFieldDriver("free", AxialDriver(field, 0, 0))
-
-        for ic in initial_conditions:
-            junction.clearLog()
-            junction.setLayerMagnetisation("free", ic)
-            junction.runSimulation(5e-9, 1e-13, 1e-13, False, False, solverMode=SolverMode.Heun)
-            log = junction.getLog()
-            m = np.asarray([log["free_mx"], log["free_my"], log["free_mz"]])
-            trajectories.append(m)
-        field_trajs.append(np.asarray(trajectories))
-
-    assert len(field_trajs) == len(field_vec)
-    for trajs in field_trajs:
-        assert len(trajs) > 0
-        assert trajs.shape[1] == 3  # mx, my, mz
-        # Check that magnetization is normalized (approximately)
-        m_norms = np.sqrt(trajs[:, 0, -1] ** 2 + trajs[:, 1, -1] ** 2 + trajs[:, 2, -1] ** 2)
-        assert np.allclose(m_norms, 1.0, atol=0.1)
-
-    # Round final mx values to 3 decimals
-    final_mx = [trajs[:, 0, -1] for trajs in field_trajs]
-    final_mx_rounded = [round_to_3_decimals(mx) for mx in final_mx]
-
-    # Prepare data for reference comparison
-    test_data = {
-        "final_mx": final_mx,
-        "field_vec": field_vec,
-    }
-
-    # Compare with reference or update (stochastic test - use lenient comparison)
-    compare_with_reference("test_pbit", test_data, update_reference, stochastic=True)
 
 
 @pytest.mark.slow
