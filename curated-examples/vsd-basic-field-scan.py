@@ -41,7 +41,7 @@ from cmtj.utils import Filters
 from cmtj.utils.resistance import calculate_resistance_parallel
 
 with contextlib.suppress(ImportError):
-    pass
+    import scienceplots  # noqa: F401
 
 
 OeToAm = 79.57747

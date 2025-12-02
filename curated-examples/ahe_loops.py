@@ -12,7 +12,7 @@ from cmtj import AxialDriver, CVector, Junction, Layer, constantDriver
 from cmtj.utils import FieldScan, OetoAm, calculate_resistance_series
 
 with contextlib.suppress(ImportError):
-    pass
+    import scienceplots  # noqa: F401
 
 
 def AHE_simulate(

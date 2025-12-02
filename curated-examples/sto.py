@@ -24,16 +24,15 @@ sources, frequency synthesizers, and neuromorphic computing where controlled osc
 behavior is essential.
 """
 
-from typing import List, Dict
+import contextlib
 
-import numpy as np
 import matplotlib.pyplot as plt
-from cmtj import CVector, Layer, Junction, constantDriver
+import numpy as np
 
-try:
-    import scienceplots
-except ImportError:
-    pass
+from cmtj import CVector, Junction, Layer, constantDriver
+
+with contextlib.suppress(ImportError):
+    import scienceplots  # noqa: F401
 
 r = 1
 pi = np.pi
@@ -45,7 +44,7 @@ y = r * sin(phi) * sin(theta)
 z = r * cos(phi)
 
 
-def plot_trajectories(log: Dict[str, List[float]], title: str):
+def plot_trajectories(log: dict[str, list[float]], title: str):
     with plt.style.context(["science", "no-latex"]):
         fig = plt.figure(figsize=(12, 6))
         ax = fig.add_subplot(1, 2, 1, projection="3d")

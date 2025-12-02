@@ -30,26 +30,26 @@ randomness and tunable switching probabilities are essential for implementing
 probabilistic algorithms and neural network functions.
 """
 
-from typing import List, Dict
+import contextlib
+
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
+import mpl_toolkits.mplot3d.art3d as art3d
+import numpy as np
+from matplotlib.patches import Circle
+from tqdm import tqdm
+
 from cmtj import (
-    CVector,
-    Layer,
-    Junction,
     AxialDriver,
+    CVector,
+    Junction,
+    Layer,
     SolverMode,
     constantDriver,
 )
-from matplotlib.patches import Circle
-import mpl_toolkits.mplot3d.art3d as art3d
-import matplotlib.transforms as mtransforms
-from tqdm import tqdm
-import numpy as np
 
-try:
-    import scienceplots
-except ImportError:
-    pass
+with contextlib.suppress(ImportError):
+    import scienceplots  # noqa: F401
 
 r = 1
 pi = np.pi
@@ -61,16 +61,14 @@ y = r * sin(phi) * sin(theta)
 z = r * cos(phi)
 
 
-def plot_trajectories(log: Dict[str, List[float]], title: str):
+def plot_trajectories(log: dict[str, list[float]], title: str):
     with plt.style.context(["science", "no-latex"]):
         fig = plt.figure(figsize=(12, 6))
         ax = fig.add_subplot(1, 2, 1, projection="3d")
         m = np.asarray([log["free_mx"], log["free_my"], log["free_mz"]])
         ax.plot3D(m[0], m[1], m[2], color="blue")
         ax.set_axis_off()
-        ax.plot_surface(
-            x, y, z, rstride=2, cstride=2, color="c", alpha=0.3, linewidth=0.1
-        )
+        ax.plot_surface(x, y, z, rstride=2, cstride=2, color="c", alpha=0.3, linewidth=0.1)
         ax.scatter([0], [0], [1], color="crimson", alpha=1.0, s=50)
         ax2 = fig.add_subplot(1, 2, 2)
         R = np.asarray(log["R"])
@@ -90,9 +88,7 @@ def measure_event_time(series):
     pos_event_times, neg_event_times = [], []
     cumevent = 0
     for n in range(len(series) - 1):
-        if series[n] == series[n + 1] == 1:
-            cumevent += 1
-        elif series[n] == series[n + 1] == 0:
+        if series[n] == series[n + 1] == 1 or series[n] == series[n + 1] == 0:
             cumevent += 1
         elif series[n] == 1 and series[n + 1] == 0:
             # transition 1->0
@@ -228,9 +224,7 @@ for field in field_vec:
     for ic in tqdm(initial_conditions):
         junction.clearLog()
         junction.setLayerMagnetisation("free", ic)
-        junction.runSimulation(
-            5e-9, 1e-13, 1e-13, False, False, solverMode=SolverMode.Heun
-        )
+        junction.runSimulation(5e-9, 1e-13, 1e-13, False, False, solverMode=SolverMode.Heun)
         log = junction.getLog()
         m = np.asarray([log["free_mx"], log["free_my"], log["free_mz"]])
         trajectories.append(m)
@@ -238,7 +232,6 @@ for field in field_vec:
 
 
 with plt.style.context(["science", "nature"]):
-
     fig, ax = plt.subplots(
         1,
         len(field_vec),
@@ -275,15 +268,11 @@ with plt.style.context(["science", "nature"]):
         ax[i].set_xlim([-1.1, 1.1])
 
         # 3D plot inset
-        inset = ax[i].inset_axes(
-            [-1.1, 0, 2.2, 100], transform=ax[i].transData, projection="3d"
-        )
+        inset = ax[i].inset_axes([-1.1, 0, 2.2, 100], transform=ax[i].transData, projection="3d")
         inset.set_axis_off()
         inset.patch.set_alpha(0.0)
-        inset.plot_surface(
-            x, y, z, rstride=1, cstride=1, color="azure", alpha=0.1, linewidth=0.1
-        )
-        ax[i].set_title(rf"$\mathrm{{H}}_\mathrm{{x}} = $" + f"{field_vec[i]/1e3} kA/m")
+        inset.plot_surface(x, y, z, rstride=1, cstride=1, color="azure", alpha=0.1, linewidth=0.1)
+        ax[i].set_title(r"$\mathrm{H}_\mathrm{x} = $" + f"{field_vec[i] / 1e3} kA/m")
         for m in field_trajs[i][::kspace]:
             colors = cmap(norm(m[0][-1]))
             inset.scatter(

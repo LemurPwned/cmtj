@@ -32,23 +32,21 @@ The harmonic analysis technique is particularly powerful for distinguishing betw
 bulk and interface contributions to magnetoresistance.
 """
 
+import contextlib
 from collections import defaultdict
 
-from cmtj import CVector, Layer, Junction, ScalarDriver, AxialDriver, NullDriver
-from cmtj.utils.linear import FieldScan
-from tqdm import tqdm
-import numpy as np
-
 import matplotlib as mpl
-from cmtj.utils.resistance import calculate_resistance_parallel
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+import numpy as np
+from tqdm import tqdm
 
-try:
-    # depends on scienceplots version
-    import scienceplots
-except ImportError:
-    pass
+from cmtj import AxialDriver, CVector, Junction, Layer, NullDriver, ScalarDriver
+from cmtj.utils.linear import FieldScan
+from cmtj.utils.resistance import calculate_resistance_parallel
+
+with contextlib.suppress(ImportError):
+    import scienceplots  # noqa: F401
 
 OeToAm = 79.57747
 
@@ -94,12 +92,7 @@ def run_simulation(junction: Junction, Hvecs: np.ndarray, mode: str, int_time=1e
             mags[i] = junction.getLayerMagnetisation(str_)
 
         log = junction.getLog()
-        m = np.asarray(
-            [
-                [log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]]
-                for str_ in layer_str
-            ]
-        )
+        m = np.asarray([[log[f"{str_}_mx"], log[f"{str_}_my"], log[f"{str_}_mz"]] for str_ in layer_str])
         dynamicRx, dynamicRy = calculate_resistance_parallel(
             [Rx0],
             [0],
@@ -156,7 +149,6 @@ with plt.style.context(["science", "nature"]):
 
     for i, field in enumerate(tqdm(["hx", "h45"])):
         for j, res_mode in enumerate(("rxx", "rxy")):
-
             flabel = field.capitalize()
             if field == "hx":
                 phi = 1
@@ -197,14 +189,14 @@ with plt.style.context(["science", "nature"]):
         ax[i, 1].yaxis.set_label_position("right")
         ax[i, 1].set_ylabel(rf"{res_mode.capitalize()} $(\Omega)$", rotation=270)
 
-    for label, ax in zip(["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"], ax.flatten()):
+    for label, ax_ in zip(["(a)", "(b)", "(c)", "(d)", "(e)", "(f)"], ax.flatten()):
         # label physical distance in and down:
         trans = mtransforms.ScaledTranslation(10 / 72, -5 / 72, fig.dpi_scale_trans)
-        ax.text(
+        ax_.text(
             0.0,
             1.0,
             label,
-            transform=ax.transAxes + trans,
+            transform=ax_.transAxes + trans,
             fontsize="medium",
             verticalalignment="top",
             bbox=dict(facecolor="none", edgecolor="none", pad=3.0),
