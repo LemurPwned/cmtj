@@ -86,7 +86,7 @@ jobs:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           # Environment variables
-          CIBW_ENVIRONMENT: "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.get_version.outputs.version }}"
+          CIBW_ENVIRONMENT: "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.get_version.outputs.version }} CXXFLAGS='-O2' LDFLAGS='-O2'"
 
       - name: Install twine
         run: python -m pip install twine

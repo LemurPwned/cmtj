@@ -1,6 +1,7 @@
 """
 Modern setup.py for CMTJ using pybind11 helpers
 """
+import os
 import sys
 from pathlib import Path
 from pybind11.setup_helpers import Pybind11Extension, build_ext
@@ -21,6 +22,12 @@ except (ImportError, LookupError):
 extra_compile_args = []
 extra_link_args = []
 define_macros = [("VERSION_INFO", f'"{version}"')]
+
+
+if 'CXXFLAGS' not in os.environ:
+    extra_compile_args.extend(['-O2']) # we avoid -ffastmath and native here
+if 'LDFLAGS' not in os.environ:
+    extra_link_args.extend(['-O2'])
 
 if sys.platform == 'darwin':
     # macOS-specific flags

@@ -143,7 +143,7 @@ def get_full_demag_tensor(n, dx):
     # 0  1  2
     # 1  3  4
     # 2  4  5
-    tensor = np.zeros_like(*n, 3, 3, dtype=n_demag.dtype)
+    tensor = np.zeros_like((*n, 3, 3), dtype=n_demag.dtype)
     tensor[..., 0, 0] = n_demag[..., 0]
     tensor[..., 0, 1] = n_demag[..., 1]
     tensor[..., 0, 2] = n_demag[..., 2]
