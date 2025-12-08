@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.11.0 
+
+- Run of the mill optmisations + benchmarks. Even up to 40% speedup (best results with maximum optmisation flags, see README.md)
+
+## 1.10.0 
+
+- Added generalised constants which an be modified via the interface
+- BREAKING: _dropped Python3.9-3.10_ support
+
+## 1.9.1
+
+- Switched to more modern builds with multilinux
+
 ## 1.9.0
 
 - Added generalised linearisation options for frequency computing in linear models
