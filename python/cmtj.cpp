@@ -5,6 +5,7 @@
 
 #include "../core/cvector.hpp"
 #include "../core/drivers.hpp"
+#include "../core/fdm.hpp"
 #include "../core/junction.hpp"
 #include "../core/llgb.hpp"
 #include "../core/noise.hpp"
@@ -30,6 +31,10 @@ using DLayerMatrix = std::vector<std::vector<DLayer>>;
 using DVectorMatrix = std::vector<std::vector<DVector>>;
 using DLLGBLayer = LLGBLayer<double>;
 using DLLGBJunction = LLGBJunction<double>;
+using DFDMGridSpec = FDMGridSpec<double>;
+using DFDMGrid = FDMGrid<double>;
+using DFDMLayer = FDMLayer<double>;
+using DFDMJunction = FDMJunction<double>;
 
 #define USING_PY true
 PYBIND11_MODULE(_cmtj, m) {
@@ -425,9 +430,91 @@ PYBIND11_MODULE(_cmtj, m) {
                py::overload_cast<unsigned int>(&ParallelStack<double>::getLog))
           .def("getLog", py::overload_cast<>(&ParallelStack<double>::getLog));
 
+     // fdm module
+     py::module fdm_module = m.def_submodule("fdm", "Finite difference module");
+     py::class_<DFDMGridSpec>(fdm_module, "FDMGridSpec")
+          .def(py::init<double, double, double, double, unsigned int, double>(),
+               "width"_a, "length"_a, "thickness"_a, "cellSizeXY"_a,
+               "nz"_a = 1, "cellSizeZ"_a = 0.0)
+          .def_readonly("width", &DFDMGridSpec::width)
+          .def_readonly("length", &DFDMGridSpec::length)
+          .def_readonly("thickness", &DFDMGridSpec::thickness)
+          .def_readonly("cellSizeXY", &DFDMGridSpec::cellSizeXY)
+          .def_readonly("cellSizeZ", &DFDMGridSpec::cellSizeZ)
+          .def_readonly("nx", &DFDMGridSpec::nx)
+          .def_readonly("ny", &DFDMGridSpec::ny)
+          .def_readonly("nz", &DFDMGridSpec::nz)
+          .def_readonly("dx", &DFDMGridSpec::dx)
+          .def_readonly("dy", &DFDMGridSpec::dy)
+          .def_readonly("dz", &DFDMGridSpec::dz);
+
+     py::class_<DFDMGrid>(fdm_module, "FDMGrid")
+          .def("cellCount", &DFDMGrid::cellCount)
+          .def_readonly("nx", &DFDMGrid::nx)
+          .def_readonly("ny", &DFDMGrid::ny)
+          .def_readonly("nz", &DFDMGrid::nz)
+          .def_readonly("dx", &DFDMGrid::dx)
+          .def_readonly("dy", &DFDMGrid::dy)
+          .def_readonly("dz", &DFDMGrid::dz);
+
+     py::class_<DFDMLayer>(fdm_module, "FDMLayer")
+          .def(py::init<const DLayer&, const DFDMGridSpec&>(), "layer"_a,
+               "gridSpec"_a)
+          .def("getId", &DFDMLayer::getId)
+          .def("getGrid", &DFDMLayer::getGrid, py::return_value_policy::reference)
+          .def("getMagnetisationGrid", &DFDMLayer::getMagnetisationGrid)
+          .def("setMagnetisation", &DFDMLayer::setMagnetisation)
+          .def("setMagnetisationGrid", &DFDMLayer::setMagnetisationGrid)
+          .def("setDemagTensor", &DFDMLayer::setDemagTensor)
+          .def("setExchangeStiffness", &DFDMLayer::setExchangeStiffness, "A"_a)
+          .def("getExchangeStiffness", &DFDMLayer::getExchangeStiffness)
+          .def("getBaseLayer",
+               static_cast<DLayer& (DFDMLayer::*)()>(&DFDMLayer::getBaseLayer),
+               py::return_value_policy::reference);
+
+     py::class_<DFDMJunction>(fdm_module, "FDMJunction")
+          .def(py::init<std::vector<DFDMLayer>>(), "layers"_a)
+          .def("runSimulation", &DFDMJunction::runSimulation, "totalTime"_a,
+               "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11,
+               "verbose"_a = false, "solverMode"_a = RK4)
+          .def("getLayerIds", &DFDMJunction::getLayerIds)
+          .def("getLayer",
+               static_cast<DFDMLayer& (DFDMJunction::*)(const std::string&)>(&DFDMJunction::getLayer),
+               "layerId"_a, py::return_value_policy::reference)
+          .def("getLayerMagnetisationGrid",
+               &DFDMJunction::getLayerMagnetisationGrid, "layerId"_a)
+          .def("setLayerMagnetisation", &DFDMJunction::setLayerMagnetisation)
+          .def("setLayerMagnetisationGrid",
+               &DFDMJunction::setLayerMagnetisationGrid)
+          .def("setLayerDemagTensor", &DFDMJunction::setLayerDemagTensor)
+          .def("setLayerExchangeStiffness", &DFDMJunction::setLayerExchangeStiffness,
+               "layerId"_a, "A"_a)
+          .def("setLayerExternalFieldDriver",
+               &DFDMJunction::setLayerExternalFieldDriver)
+          .def("setLayerOerstedFieldDriver",
+               &DFDMJunction::setLayerOerstedFieldDriver)
+          .def("setLayerHdmiDriver", &DFDMJunction::setLayerHdmiDriver)
+          .def("setLayerCurrentDriver", &DFDMJunction::setLayerCurrentDriver)
+          .def("setLayerAnisotropyDriver",
+               &DFDMJunction::setLayerAnisotropyDriver)
+          .def("setLayerSecondOrderAnisotropyDriver",
+               &DFDMJunction::setLayerSecondOrderAnisotropyDriver)
+          .def("setLayerTemperatureDriver",
+               &DFDMJunction::setLayerTemperatureDriver)
+          .def("setLayerFieldLikeTorqueDriver",
+               &DFDMJunction::setLayerFieldLikeTorqueDriver)
+          .def("setLayerDampingLikeTorqueDriver",
+               &DFDMJunction::setLayerDampingLikeTorqueDriver)
+          .def("setLayerReferenceLayer", &DFDMJunction::setLayerReferenceLayer)
+          .def("setLayerReferenceType", &DFDMJunction::setLayerReferenceType)
+          .def("setIECDriver", &DFDMJunction::setIECDriver)
+          .def("setQuadIECDriver", &DFDMJunction::setQuadIECDriver)
+          .def("setIDMIDriver", &DFDMJunction::setIDMIDriver);
+
      // reservoir module
      py::module reservoir_module = m.def_submodule(
           "reservoir", "A reservoir submodule for joining MTJ junctions");
+
      reservoir_module.def("nullDipoleInteraction", &nullDipoleInteraction, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);
      reservoir_module.def("computeDipoleInteraction", &computeDipoleInteraction, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);
      reservoir_module.def("computeDipoleInteractionNoumra", &computeDipoleInteractionNoumra, "r1"_a, "r2"_a, "layer1"_a, "layer2"_a);

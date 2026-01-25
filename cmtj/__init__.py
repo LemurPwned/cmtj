@@ -10,10 +10,15 @@ from ._version import __version__
 try:
     import _cmtj
     from _cmtj import *
+
+    # Import fdm submodule explicitly (submodules aren't included in *)
+    from _cmtj import fdm
+
     # Also make sure we have the version available
-    __all__ = ["__version__"] + [name for name in dir(_cmtj) if not name.startswith('_')]
+    __all__ = ["__version__", "fdm"] + [name for name in dir(_cmtj) if not name.startswith("_")]
 except ImportError as e:
     import warnings
+
     warnings.warn(f"Could not import C++ extension: {e}")
     __all__ = ["__version__"]
 

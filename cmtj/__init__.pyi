@@ -6,6 +6,7 @@ yaxis: Axis
 zaxis: Axis
 none: Axis
 all: Axis
+fdm: typing.Any
 
 def c_dot(arg0: CVector, arg1: CVector) -> float:
     """Compute dot (scalar) product of two CVectors."""

@@ -19,6 +19,7 @@ import numpy as np
 from numba import jit
 
 EPS = 1e-18
+_DEMAG_CACHE: dict[tuple[tuple[int, ...], tuple[float, ...]], np.ndarray] = {}
 
 
 def _aharoni_demag_factor_z(a: float, b: float, c: float) -> float:
@@ -123,6 +124,11 @@ def get_full_demag_tensor(n, dx):
     """
     Get the full demag tensor for a given cells n and their sizes dx.
     """
+    key = (tuple(int(i) for i in n), tuple(float(i) for i in dx))
+    cached = _DEMAG_CACHE.get(key)
+    if cached is not None:
+        return cached
+
     n_demag = np.zeros([2 * i - 1 for i in n] + [6])
     for i, t in enumerate(
         (
@@ -143,7 +149,7 @@ def get_full_demag_tensor(n, dx):
     # 0  1  2
     # 1  3  4
     # 2  4  5
-    tensor = np.zeros_like(*n, 3, 3, dtype=n_demag.dtype)
+    tensor = np.zeros((*n, 3, 3), dtype=n_demag.dtype)
     tensor[..., 0, 0] = n_demag[..., 0]
     tensor[..., 0, 1] = n_demag[..., 1]
     tensor[..., 0, 2] = n_demag[..., 2]
@@ -153,4 +159,56 @@ def get_full_demag_tensor(n, dx):
     tensor[..., 2, 0] = n_demag[..., 2]  # N31 = N13
     tensor[..., 2, 1] = n_demag[..., 4]  # N32 = N23
     tensor[..., 2, 2] = n_demag[..., 5]  # N33
+    tensor.setflags(write=False)
+    _DEMAG_CACHE[key] = tensor
     return tensor
+
+
+def convert_tensor_to_cpp(tensor):
+    """
+    Convert a numpy demag tensor to C++ format for FDM simulations.
+
+    Parameters
+    ----------
+    tensor : numpy.ndarray
+        Demagnetization tensor of shape (nx, ny, nz, 3, 3)
+
+    Returns
+    -------
+    list[list[CVector]]
+        List of demag tensor cells in C++ format.
+        Each cell is a list of 3 CVector objects representing a 3x3 tensor.
+
+    Example
+    -------
+    >>> import cmtj
+    >>> import numpy as np
+    >>> from cmtj.utils import get_full_demag_tensor, convert_tensor_to_cpp
+    >>> # Get tensor for 10x10x1 grid with 5nm cells
+    >>> tensor = get_full_demag_tensor((10, 10, 1), (5e-9, 5e-9, 2e-9))
+    >>> cpp_tensor = convert_tensor_to_cpp(tensor)
+    >>> # Use with FDMLayer
+    >>> layer.setDemagTensor(cpp_tensor)
+    """
+    import cmtj
+
+    if tensor.ndim != 5 or tensor.shape[-2:] != (3, 3):
+        raise ValueError(f"Expected tensor shape (nx, ny, nz, 3, 3), got {tensor.shape}")
+
+    nx, ny, nz, _, _ = tensor.shape
+    result = []
+
+    for iz in range(nz):
+        for iy in range(ny):
+            for ix in range(nx):
+                # Extract 3x3 matrix for this cell
+                cell_tensor = tensor[ix, iy, iz]
+                # Convert to list of 3 CVector objects (row-major)
+                cell = [
+                    cmtj.CVector(float(cell_tensor[0, 0]), float(cell_tensor[0, 1]), float(cell_tensor[0, 2])),
+                    cmtj.CVector(float(cell_tensor[1, 0]), float(cell_tensor[1, 1]), float(cell_tensor[1, 2])),
+                    cmtj.CVector(float(cell_tensor[2, 0]), float(cell_tensor[2, 1]), float(cell_tensor[2, 2])),
+                ]
+                result.append(cell)
+
+    return result

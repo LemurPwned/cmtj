@@ -630,6 +630,10 @@ public:
     return this->HdmiDriver.getCurrentAxialDrivers(time);
   }
 
+  CVector<T> calculateReservedInteractionField(const T &time) {
+    return this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
+  }
+
   CVector<T> calculateExternalField(const T &time) {
     this->H_log = this->externalFieldDriver.getCurrentAxialDrivers(time);
     return this->H_log;

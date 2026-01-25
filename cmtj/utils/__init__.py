@@ -16,6 +16,7 @@ from .constants import (
     me,
     mu0,
 )
+from .demag import convert_tensor_to_cpp, get_full_demag_tensor
 from .filters import Filters
 from .general import VectorObj, box_muller_random, perturb_position
 from .linear import FieldScan
@@ -56,4 +57,6 @@ __all__ = [
     "me",
     "boltzmann",
     "bohr_magneton",
+    "get_full_demag_tensor",
+    "convert_tensor_to_cpp",
 ]
