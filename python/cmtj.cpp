@@ -477,6 +477,14 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("runSimulation", &DFDMJunction::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11,
                "verbose"_a = false, "solverMode"_a = RK4)
+          .def("setLogCallback", [](DFDMJunction &self, py::function callback) {
+               self.setLogCallback([callback](double time, unsigned int iteration,
+                                               const std::vector<std::vector<CVector<double>>> &mags) {
+                    py::gil_scoped_acquire acquire;
+                    callback(time, iteration, mags);
+               });
+          }, "callback"_a)
+          .def("clearLogCallback", &DFDMJunction::clearLogCallback)
           .def("getLayerIds", &DFDMJunction::getLayerIds)
           .def("getLayer",
                static_cast<DFDMLayer& (DFDMJunction::*)(const std::string&)>(&DFDMJunction::getLayer),

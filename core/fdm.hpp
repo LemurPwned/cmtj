@@ -7,6 +7,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -168,6 +169,9 @@ private:
 
   using ScalarSetter = void (Layer<T>::*)(const ScalarDriver<T> &);
   using AxialSetter = void (Layer<T>::*)(const AxialDriver<T> &);
+  using LogCallback = std::function<void(T time, unsigned int iteration,
+                                          const std::vector<std::vector<CVector<T>>> &)>;
+  LogCallback logCallback;
 
   void scalarlayerSetter(const std::string &layerID, ScalarSetter functor,
                          ScalarDriver<T> driver) {
@@ -684,6 +688,14 @@ public:
     }
   }
 
+  void setLogCallback(LogCallback callback) {
+    logCallback = callback;
+  }
+
+  void clearLogCallback() {
+    logCallback = nullptr;
+  }
+
   void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
                      bool verbose = false, SolverMode mode = RK4) {
     if (timeStep > writeFrequency) {
@@ -704,6 +716,16 @@ public:
     for (std::size_t layerIndex = 0; layerIndex < layers.size(); ++layerIndex) {
       currentMags[layerIndex] = layers[layerIndex].getMagnetisationGrid();
       updatedMags[layerIndex] = currentMags[layerIndex];
+    }
+
+    // Calculate write interval
+    const unsigned int writeEvery = static_cast<unsigned int>(writeFrequency / timeStep);
+    T nextWriteTime = 0.0;
+
+    // Log initial state if callback is set
+    if (logCallback) {
+      logCallback(0.0, 0, currentMags);
+      nextWriteTime = writeFrequency;
     }
 
     for (unsigned int i = 0; i < totalIterations; i++) {
@@ -732,6 +754,12 @@ public:
       }
 
       currentMags.swap(updatedMags);
+
+      // Log at write frequency
+      if (logCallback && (i + 1) % writeEvery == 0) {
+        logCallback(t + timeStep, i + 1, currentMags);
+        nextWriteTime += writeFrequency;
+      }
     }
 
     for (std::size_t layerIndex = 0; layerIndex < layers.size(); ++layerIndex) {
