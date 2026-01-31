@@ -2,7 +2,7 @@
 
 ## General description
 
-CMTJ is a C++ code with Python for macromagnetic simulation of multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifschitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
+CMTJ is a C++ code with Python for macromagnetic simulation of multilayer spintronic structures. The package uses C++ implementation of (s)LLGS (stochastic Landau-Lifshitz-Gilbert-Slonczewski) equation with various field contributions included for instance: anisotropy, interlayer exchange coupling, demagnetisation, dipole fields etc.
 It is also possible to connect devices in parallel or in series to have electrically coupled arrays.
 There are also models using Smit-Bejlers formalism which do not solve LLGS differential equations, but instead use static energy minimisation to find magnetisation vector positions and then compute frequencies.
 
