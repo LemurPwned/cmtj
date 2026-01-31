@@ -169,8 +169,9 @@ private:
 
   using ScalarSetter = void (Layer<T>::*)(const ScalarDriver<T> &);
   using AxialSetter = void (Layer<T>::*)(const AxialDriver<T> &);
-  using LogCallback = std::function<void(T time, unsigned int iteration,
-                                          const std::vector<std::vector<CVector<T>>> &)>;
+  using LogCallback =
+      std::function<void(T time, unsigned int iteration,
+                         const std::vector<std::vector<CVector<T>>> &)>;
   LogCallback logCallback;
 
   void scalarlayerSetter(const std::string &layerID, ScalarSetter functor,
@@ -579,6 +580,27 @@ public:
     getLayer(layerId).setMagnetisationGrid(mags);
   }
 
+  // Region-based magnetization setting
+  void setRegionMagnetisation(const std::string &layerId,
+                              const std::vector<bool> &regionMask,
+                              const CVector<T> &mag, bool include = true) {
+    auto &layer = getLayer(layerId);
+    const auto &grid = layer.getGrid();
+    if (regionMask.size() != grid.cellCount()) {
+      throw std::runtime_error("Region mask size must match grid cell count");
+    }
+    auto mags = layer.getMagnetisationGrid();
+    CVector<T> normMag = mag;
+    normMag.normalize();
+    for (std::size_t idx = 0; idx < mags.size(); ++idx) {
+      bool inRegion = regionMask[idx];
+      if ((include && inRegion) || (!include && !inRegion)) {
+        mags[idx] = normMag;
+      }
+    }
+    layer.setMagnetisationGrid(mags);
+  }
+
   void setLayerDemagTensor(
       const std::string &layerId,
       const std::vector<typename FDMLayer<T>::DemagTensorCell> &tensor) {
@@ -688,12 +710,105 @@ public:
     }
   }
 
-  void setLogCallback(LogCallback callback) {
-    logCallback = callback;
+  // Region-based current driver (per-cell STT)
+  // Note: This stores per-cell current multipliers that scale the base layer
+  // current
+  void setRegionCurrentDriver(const std::string &layerId,
+                              const std::vector<bool> &regionMask,
+                              const ScalarDriver<T> &driver,
+                              bool include = true) {
+    // TODO: Implement per-cell current drivers
+    // This requires extending FDMLayer to store per-cell driver multipliers
+    throw std::runtime_error(
+        "Per-region drivers not yet implemented. "
+        "Current FDM architecture uses single driver per layer. "
+        "Use setRegionMagnetisation for spatial control.");
   }
 
-  void clearLogCallback() {
-    logCallback = nullptr;
+  void setRegionExternalFieldDriver(const std::string &layerId,
+                                    const std::vector<bool> &regionMask,
+                                    const AxialDriver<T> &driver,
+                                    bool include = true) {
+    throw std::runtime_error(
+        "Per-region drivers not yet implemented. "
+        "Current FDM architecture uses single driver per layer. "
+        "Use setRegionMagnetisation for spatial control.");
+  }
+
+  void setLogCallback(LogCallback callback) { logCallback = callback; }
+
+  void clearLogCallback() { logCallback = nullptr; }
+
+  // Utility: Create region mask for rectangular region
+  std::vector<bool> createRectangularMask(const std::string &layerId,
+                                          unsigned int xMin, unsigned int xMax,
+                                          unsigned int yMin, unsigned int yMax,
+                                          unsigned int zMin = 0,
+                                          unsigned int zMax = 0) const {
+    const auto &layer = const_cast<FDMJunction *>(this)->getLayer(layerId);
+    const auto &grid = layer.getGrid();
+    if (zMax == 0)
+      zMax = grid.nz - 1;
+
+    std::vector<bool> mask(grid.cellCount(), false);
+    for (unsigned int iz = 0; iz < grid.nz; ++iz) {
+      for (unsigned int iy = 0; iy < grid.ny; ++iy) {
+        for (unsigned int ix = 0; ix < grid.nx; ++ix) {
+          if (ix >= xMin && ix <= xMax && iy >= yMin && iy <= yMax &&
+              iz >= zMin && iz <= zMax) {
+            mask[grid.index(ix, iy, iz)] = true;
+          }
+        }
+      }
+    }
+    return mask;
+  }
+
+  // Utility: Create region mask for circular region
+  std::vector<bool> createCircularMask(const std::string &layerId, T centerX,
+                                       T centerY, T radius,
+                                       unsigned int zMin = 0,
+                                       unsigned int zMax = 0) const {
+    const auto &layer = const_cast<FDMJunction *>(this)->getLayer(layerId);
+    const auto &grid = layer.getGrid();
+    if (zMax == 0)
+      zMax = grid.nz - 1;
+
+    std::vector<bool> mask(grid.cellCount(), false);
+    for (unsigned int iz = 0; iz < grid.nz; ++iz) {
+      for (unsigned int iy = 0; iy < grid.ny; ++iy) {
+        for (unsigned int ix = 0; ix < grid.nx; ++ix) {
+          T dx = (static_cast<T>(ix) + 0.5) * grid.dx - centerX;
+          T dy = (static_cast<T>(iy) + 0.5) * grid.dy - centerY;
+          T r = std::sqrt(dx * dx + dy * dy);
+          if (r <= radius && iz >= zMin && iz <= zMax) {
+            mask[grid.index(ix, iy, iz)] = true;
+          }
+        }
+      }
+    }
+    return mask;
+  }
+
+  // Utility: Create custom mask from function
+  std::vector<bool> createCustomMask(
+      const std::string &layerId,
+      std::function<bool(unsigned int x, unsigned int y, unsigned int z)> fn)
+      const {
+    const auto &layer = const_cast<FDMJunction *>(this)->getLayer(layerId);
+    const auto &grid = layer.getGrid();
+
+    std::vector<bool> mask(grid.cellCount(), false);
+    for (unsigned int iz = 0; iz < grid.nz; ++iz) {
+      for (unsigned int iy = 0; iy < grid.ny; ++iy) {
+        for (unsigned int ix = 0; ix < grid.nx; ++ix) {
+          if (fn(ix, iy, iz)) {
+            mask[grid.index(ix, iy, iz)] = true;
+          }
+        }
+      }
+    }
+    return mask;
   }
 
   void runSimulation(T totalTime, T timeStep = 1e-13, T writeFrequency = 1e-11,
@@ -719,7 +834,8 @@ public:
     }
 
     // Calculate write interval
-    const unsigned int writeEvery = static_cast<unsigned int>(writeFrequency / timeStep);
+    const unsigned int writeEvery =
+        static_cast<unsigned int>(writeFrequency / timeStep);
     T nextWriteTime = 0.0;
 
     // Log initial state if callback is set

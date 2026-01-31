@@ -517,7 +517,27 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("setLayerReferenceType", &DFDMJunction::setLayerReferenceType)
           .def("setIECDriver", &DFDMJunction::setIECDriver)
           .def("setQuadIECDriver", &DFDMJunction::setQuadIECDriver)
-          .def("setIDMIDriver", &DFDMJunction::setIDMIDriver);
+          .def("setIDMIDriver", &DFDMJunction::setIDMIDriver)
+          // Region-based methods
+          .def("setRegionMagnetisation", &DFDMJunction::setRegionMagnetisation,
+               "layerId"_a, "regionMask"_a, "mag"_a, "include"_a = true,
+               "Set magnetization in a region defined by a boolean mask")
+          .def("setRegionCurrentDriver", &DFDMJunction::setRegionCurrentDriver,
+               "layerId"_a, "regionMask"_a, "driver"_a, "include"_a = true,
+               "Set current driver in a region (not yet implemented)")
+          .def("setRegionExternalFieldDriver", &DFDMJunction::setRegionExternalFieldDriver,
+               "layerId"_a, "regionMask"_a, "driver"_a, "include"_a = true,
+               "Set external field driver in a region (not yet implemented)")
+          // Region mask utilities
+          .def("createRectangularMask", &DFDMJunction::createRectangularMask,
+               "layerId"_a, "xMin"_a, "xMax"_a, "yMin"_a, "yMax"_a, "zMin"_a = 0, "zMax"_a = 0,
+               "Create rectangular region mask")
+          .def("createCircularMask", &DFDMJunction::createCircularMask,
+               "layerId"_a, "centerX"_a, "centerY"_a, "radius"_a, "zMin"_a = 0, "zMax"_a = 0,
+               "Create circular region mask")
+          .def("createCustomMask", &DFDMJunction::createCustomMask,
+               "layerId"_a, "fn"_a,
+               "Create custom region mask from function(x, y, z) -> bool");
 
      // reservoir module
      py::module reservoir_module = m.def_submodule(
