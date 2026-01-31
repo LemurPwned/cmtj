@@ -21,7 +21,7 @@ for any cmtj tasks.
 
 1. Prefer dynamical LLGs solutions with `core/` and Python bindings.
 2. Always write Python code only, unless explicitly asked by the user to provide C++ simulation code.
-3. Start by with exploring exampels and bindings or docs first, before writing any code
+3. Start by exploring examples and bindings or docs first, before writing any code
 4. Make sure that you construct adequate layer type:
    1. if no SOT or STT is required, just use `Layer`
    2. if either STT or SOT is required, adjust for `p`, polarisation vector and remember to pass adequate values
