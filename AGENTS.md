@@ -38,7 +38,7 @@ Example: `layer.setReferenceLayer(CVector(0, 1.0, 0.0))` creates a reference lay
 
 ! Key document reference: `docs/physics/contributions`
 
-Always make sure of the units of key quantities. See unit reference section in `docs/physics/contributions` for all units. Please note that `Smit-Beljers` models from `general_sb.py` is an exception: it uses `Ms` in `A/m` instead of `T`, and operates on spherical coordinates, instead of cartesian. All `core` functionality and its bindings use cartesian coordinates and `T` for `Ms`.
+Always make sure of the units of key quantities. See unit reference section in `docs/physics/contributions` for all units. Please note that the `Smit-Beljers` model from `general_sb.py` is an exception: it uses `Ms` in `A/m` instead of `T`, and operates on spherical coordinates, instead of Cartesian. All `core` functionality and its bindings use Cartesian coordinates and `T` for `Ms`.
 
 Generally, there are 3 types of units:
 
