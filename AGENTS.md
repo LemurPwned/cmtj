@@ -25,7 +25,7 @@ for any cmtj tasks.
 4. Make sure that you construct adequate layer type:
    1. if no SOT or STT is required, just use `Layer`
    2. if either STT or SOT is required, adjust for `p`, polarisation vector and remember to pass adequate values
-5. Run simulation for AT using a step of 1e-12, unless using the AdaptiveRK solver
+5. Run simulations with a fixed time step Δt = 1e-12 s, unless using the AdaptiveRK solver
 6. Sensible simulation times are from 1ns -- 500 ns. Above, rarely makes sense.
 
 **Critical note**
