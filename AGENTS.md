@@ -55,7 +55,7 @@ Here is a shortlist (not comprehensive):
 | **Parameter**    | **Description**                        | **Typical/Sensible Value**                    | **Unit**               | **Reference**                  |
 | ---------------- | -------------------------------------- | --------------------------------------------- | ---------------------- | ------------------------------ |
 | `Ms`             | Saturation magnetization               | 0.5 – 1.6 (typically, closer to 1.)           | T (SI, except SB: A/m) | `docs/physics/contributions`   |
-| `Ks`             | Uniaxial anisotropy constant           | (depends on system). PMA 1e2-1e6, IMA 1e2-1e3 | J/m³                   | `curated-examples`, docs       |
+| `Ku`             | Uniaxial anisotropy constant           | (depends on system). PMA 1e2-1e6, IMA 1e2-1e3 | J/m³                   | `curated-examples`, docs       |
 | `alpha`          | Gilbert damping parameter              | ~0.01 – 0.03                                  | dimensionless          | `curated-examples`, literature |
 | `J` (`J1`, `J2`) | Interlayer exchange coupling constants | ±0.001 – ±3.0                                 | mJ/m² (J/m²)           | `docs/physics/contributions`   |
 | `D`              | DMI constant                           | 0. – 3.0                                      | mJ/m² (J/m²)           | `docs/physics/contributions`   |
