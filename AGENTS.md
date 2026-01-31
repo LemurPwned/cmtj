@@ -25,7 +25,7 @@ for any cmtj tasks.
 4. Make sure that you construct adequate layer type:
    1. if no SOT or STT is required, just use `Layer`
    2. if either STT or SOT is required, adjust for `p`, polarisation vector and remember to pass adequate values
-5. Run simulations with a fixed time step Δt = 1e-12 s, unless using the AdaptiveRK solver
+5. Run simulations with a fixed time step Δt = 1e-12 s, unless using the `Dormand-Prince` adaptive solver
 6. Sensible simulation times are from 1ns -- 500 ns. Above, rarely makes sense.
 
 **Critical note**
@@ -52,15 +52,15 @@ Generally, there are 3 types of units:
 For all sensible starting values you are unsure of, always consult `curated-examples` or `docs`.
 Here is a shortlist (not comprehensive):
 
-| **Parameter**    | **Description**                        | **Typical/Sensible Value**                    | **Unit**                                 | **Reference**                  |
-| ---------------- | -------------------------------------- | --------------------------------------------- | ---------------------------------------- | ------------------------------ |
-| `Ms`             | Saturation magnetization               | 0.5 – 1.6 (typically, closer to 1.)           | T (SI, except SB: A/m)                   | `docs/physics/contributions`   |
-| `Ks`             | Uniaxial anisotropy constant           | (depends on system). PMA 1e2-1e6, IMA 1e2-1e3 | J/m³                                     | `curated-examples`, docs       |
-| `alpha`          | Gilbert damping parameter              | ~0.01 – 0.03                                  | dimensionless                            | `curated-examples`, literature |
-| `J` (`J1`, `J2`) | Interlayer exchange coupling constants | ±0.001 – ±3.0                                 | J/m² (API; typical values in mJ/m²)      | `docs/physics/contributions`   |
-| `D`              | DMI constant                           | 0. – 3.0                                      | J/m² (API; typical values in mJ/m²)      | `docs/physics/contributions`   |
-| `thickness`      | Layer thickness                        | 0.8 – 2.0                                     | nm                                       | `curated-examples`             |
-| `H_ext`          | External magnetic field                | ±0 – ±500e3                                   | A/m                    | experiment                     |
+| **Parameter**    | **Description**                        | **Typical/Sensible Value**                    | **Unit**                            | **Reference**                  |
+| ---------------- | -------------------------------------- | --------------------------------------------- | ----------------------------------- | ------------------------------ |
+| `Ms`             | Saturation magnetization               | 0.5 – 1.6 (typically, closer to 1.)           | T (SI, except SB: A/m)              | `docs/physics/contributions`   |
+| `Ks`             | Uniaxial anisotropy constant           | (depends on system). PMA 1e2-1e6, IMA 1e2-1e3 | J/m³                                | `curated-examples`, docs       |
+| `alpha`          | Gilbert damping parameter              | ~0.01 – 0.03                                  | dimensionless                       | `curated-examples`, literature |
+| `J` (`J1`, `J2`) | Interlayer exchange coupling constants | ±0.001 – ±3.0                                 | J/m² (API; typical values in mJ/m²) | `docs/physics/contributions`   |
+| `D`              | DMI constant                           | 0. – 3.0                                      | J/m² (API; typical values in mJ/m²) | `docs/physics/contributions`   |
+| `thickness`      | Layer thickness                        | 0.8 – 2.0                                     | nm                                  | `curated-examples`             |
+| `H_ext`          | External magnetic field                | ±0 – ±500e3                                   | A/m                                 | experiment                     |
 
 **Notes:**
 
