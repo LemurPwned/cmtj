@@ -67,3 +67,25 @@ Here is a shortlist (not comprehensive):
 - Always check `curated-examples` or documentation for specific device/material values.
 - In Smit-Beljers models: `Ms` is given in `A/m`, everywhere else in `T`.
 - All fields (`H_ext`, effective fields) are in `A/m` throughout the Python/C++ codebase.
+
+# Development guide
+
+## Rules about contributions and PRs
+
+1. Do not create additional Readme.md files unless explicitly asked for. Do not explain your implementation in .md files too.
+2. Keep the code simple and organized. Make sure you do not duplicate functions, and import as much from the library as possible.
+3. For plotting, follow `scienplots` graphing styling, you can see that in `curated-examples`
+   1. Plot mostly M(H) or R(H), clearly indicating the magnetisation component or R component (Rxx, Rxy, or R)
+   2. If you want to present a trajectory, do it on a sphere, and make sure it's readable (the sphere must be mostly transparent, set low alpha)
+4. Try to follow industry naming for layers.
+   1. In MTJs:
+      1. `Free` layer is the one that we track the trajectory/switching.
+      2. `Reference` refers to a fixed layer.
+   2. In Spin Hall bars:
+      1. The reference polarisation is often set by the direction of the current through the heavy metal.
+      2. The FM layers can be just named `topFM`, `bottomFM` or if there are more than two, `layerFM1`, ...
+5. If you are providing an example on the new simulation method, place a good example in `curated-examples`. Follow the standard from there, i.e.:
+   1. At the start of the example file, describe the physics of the simulation.
+   2. Use good, sensible names for objects
+   3. The result of the simulation must also be a figure showing the expected result.
+6. If you stub out a PR, please provide a standard description around the proposed change, and if relevant, the physics it affects
