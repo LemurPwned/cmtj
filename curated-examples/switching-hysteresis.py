@@ -37,29 +37,29 @@ from cmtj import AxialDriver, CVector, Junction, Layer, ScalarDriver, constantDr
 with contextlib.suppress(ImportError):
     import scienceplots  # noqa: F401
 
-# Layer parameters following AGENTS.md guidelines
+# Layer parameters from documentation (docs/tutorials and docs/experimental-methods)
 # Ms in Tesla for core Layer objects
-Ms = 1.0  # Saturation magnetization [T]
+Ms = 1.0  # Saturation magnetization [T] - typical from docs
 
-# In-plane anisotropy for clear hysteresis with perpendicular field
-Ku = 80e3  # Anisotropy constant [J/m^3]
+# In-plane anisotropy - using documented value
+Ku = 800e3  # Anisotropy constant [J/m^3] - from trajectory.ipynb example
 
-# Anisotropy direction - IN-PLANE (along x) for perpendicular field sweep
+# Anisotropy direction - in-plane (along x)
 Kdir = CVector(1, 0, 0)
 
-# Damping in recommended range (0.01-0.03)
-damping = 0.02
+# Damping from documentation
+damping = 0.03  # Gilbert damping - from trajectory.ipynb
 
-# Demagnetization tensor - set to zero
-demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
+# Standard thin film demagnetization tensor from documentation
+demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
 
-# Create single magnetic layer with IN-PLANE initial magnetization
+# Create single magnetic layer with in-plane initial magnetization
 layer = Layer(
     "free",
-    mag=CVector(1.0, 0, 0),  # Start with in-plane magnetization
+    mag=CVector(1.0, 0, 0),  # Start aligned with easy axis
     anis=Kdir,
     Ms=Ms,
-    thickness=1.5e-9,
+    thickness=1.4e-9,  # Typical thickness from docs
     damping=damping,
     demagTensor=demag,
     cellSurface=np.pi * (40e-9) ** 2,  # Circular cross-section
@@ -71,9 +71,9 @@ layer.setAnisotropyDriver(constantDriver(Ku))
 # Create junction
 junction = Junction([layer])
 
-# Field sweep parameters - perpendicular to easy axis
-H_max = 150e3  # Maximum field [A/m] along z
-H_min = -150e3  # Minimum field [A/m]
+# Field sweep parameters - perpendicular to easy axis for rotation
+H_max = 250e3  # Maximum field [A/m] - typical range from docs
+H_min = -250e3  # Minimum field [A/m]
 H_steps = 60  # Number of field steps
 
 # Create field sweep: down sweep first, then up sweep

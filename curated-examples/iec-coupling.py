@@ -38,47 +38,46 @@ from cmtj import AxialDriver, CVector, Junction, Layer, constantDriver
 with contextlib.suppress(ImportError):
     import scienceplots  # noqa: F401
 
-# Layer parameters following AGENTS.md guidelines
-# Ms in Tesla for core Layer objects (not A/m)
-Ms1 = 1.0  # Free layer saturation magnetization [T]
-Ms2 = 0.8  # Fixed layer saturation magnetization [T]
+# Layer parameters from documentation (docs/tutorials)
+# Ms in Tesla for core Layer objects
+Ms1 = 1.0  # Free layer - typical from trajectory.ipynb
+Ms2 = 1.2  # Reference layer - typical from trajectory.ipynb
 
-# Anisotropy values - reduced for observable dynamics
-Ku1 = 100e3  # Free layer anisotropy [J/m^3]
-Ku2 = 80e3  # Fixed layer anisotropy [J/m^3]
+# Anisotropy values from documentation
+Ku1 = 300e3  # Free layer [J/m^3] - from trajectory.ipynb IEC example
+Ku2 = 800e3  # Reference layer [J/m^3] - from trajectory.ipynb IEC example
 
-# Anisotropy direction - in-plane for better dynamics with perpendicular field
+# Anisotropy direction - in-plane (along x)
 Kdir = CVector(1, 0, 0)
 
-# Damping in recommended range
-damping1 = 0.02
-damping2 = 0.015
+# Damping from documentation
+damping1 = 0.011  # Low damping - from trajectory.ipynb IEC example
+damping2 = 0.011
 
-# Demagnetization tensors - removed to simplify
-demag1 = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
-demag2 = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
+# Standard thin film demagnetization tensor from documentation
+demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
 
-# Create two coupled magnetic layers with in-plane initial magnetization
+# Create two coupled magnetic layers with in-plane magnetization
 l1 = Layer(
     "layer1",
     mag=CVector(1.0, 0, 0),  # Initially along +x
     anis=Kdir,
     Ms=Ms1,
-    thickness=1.5e-9,
+    thickness=1.4e-9,  # Typical from docs
     damping=damping1,
-    demagTensor=demag1,
-    cellSurface=np.pi * (50e-9) ** 2,  # Circular cross-section
+    demagTensor=demag,
+    cellSurface=7e-10 * 7e-10,  # From trajectory.ipynb
 )
 
 l2 = Layer(
     "layer2",
-    mag=CVector(-1.0, 0, 0),  # Initially along -x (antiparallel due to IEC)
+    mag=CVector(-1.0, 0, 0),  # Initially along -x (antiparallel)
     anis=Kdir,
     Ms=Ms2,
-    thickness=1.2e-9,
+    thickness=3e-9,  # Thicker reference layer from trajectory.ipynb
     damping=damping2,
-    demagTensor=demag2,
-    cellSurface=np.pi * (50e-9) ** 2,
+    demagTensor=demag,
+    cellSurface=7e-10 * 7e-10,
 )
 
 # Set anisotropy drivers
@@ -88,18 +87,18 @@ l2.setAnisotropyDriver(constantDriver(Ku2))
 # Create junction with both layers
 junction = Junction([l1, l2])
 
-# Set IEC coupling (negative J1 for antiferromagnetic coupling)
-# J in mJ/m^2, typical range ±0.001 to ±3.0 according to AGENTS.md
-J_linear = -1.0e-3  # -1.0 mJ/m^2, stronger antiferromagnetic coupling
-J_quad = 0.0  # Remove quadratic term for simplicity
+# Set IEC coupling from documentation
+# trajectory.ipynb uses J = -4e-5 J/m² = -0.04 mJ/m²
+J_linear = -4e-5  # J/m² - from trajectory.ipynb IEC example
+J_quad = 0.0  # No quadratic term
 
 junction.setIECDriver("layer1", "layer2", constantDriver(J_linear))
 junction.setQuadIECDriver("layer1", "layer2", constantDriver(J_quad))
 
 # Apply external field pulse to perturb the system
-# Field strength in typical range (±0 – ±500e3 A/m)
-field_amplitude = 200e3  # A/m - stronger field for clear dynamics
-field_duration = 5e-9  # 5 ns pulse - longer for observable effect
+# Using typical values from trajectory.ipynb
+field_amplitude = 100e3  # A/m - moderate field
+field_duration = 2e-9  # 2 ns pulse
 
 # Create field pulse function
 def field_pulse(t):
