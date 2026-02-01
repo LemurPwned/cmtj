@@ -25,7 +25,7 @@ for any cmtj tasks.
 4. Make sure that you construct adequate layer type:
    1. if no SOT or STT is required, just use `Layer`
    2. if either STT or SOT is required, adjust for `p`, polarisation vector and remember to pass adequate values
-5. Run simulation for AT using a step of 1e-12, unless using the AdaptiveRK solver
+5. Run simulations with a fixed time step Δt = 1e-12 s, unless using the `Dormand-Prince` adaptive solver
 6. Sensible simulation times are from 1ns -- 500 ns. Above, rarely makes sense.
 
 **Critical note**
@@ -52,18 +52,40 @@ Generally, there are 3 types of units:
 For all sensible starting values you are unsure of, always consult `curated-examples` or `docs`.
 Here is a shortlist (not comprehensive):
 
-| **Parameter**    | **Description**                        | **Typical/Sensible Value**                    | **Unit**               | **Reference**                  |
-| ---------------- | -------------------------------------- | --------------------------------------------- | ---------------------- | ------------------------------ |
-| `Ms`             | Saturation magnetization               | 0.5 – 1.6 (typically, closer to 1.)           | T (SI, except SB: A/m) | `docs/physics/contributions`   |
-| `Ks`             | Uniaxial anisotropy constant           | (depends on system). PMA 1e2-1e6, IMA 1e2-1e3 | J/m³                   | `curated-examples`, docs       |
-| `alpha`          | Gilbert damping parameter              | ~0.01 – 0.03                                  | dimensionless          | `curated-examples`, literature |
-| `J` (`J1`, `J2`) | Interlayer exchange coupling constants | ±0.001 – ±3.0                                 | mJ/m² (J/m²)           | `docs/physics/contributions`   |
-| `D`              | DMI constant                           | 0. – 3.0                                      | mJ/m² (J/m²)           | `docs/physics/contributions`   |
-| `thickness`      | Layer thickness                        | 0.8 – 2.0                                     | nm                     | `curated-examples`             |
-| `H_ext`          | External magnetic field                | ±0 – ±500e3                                   | A/m                    | experiment                     |
+| **Parameter**    | **Description**                        | **Typical/Sensible Value**                    | **Unit**                            | **Reference**                  |
+| ---------------- | -------------------------------------- | --------------------------------------------- | ----------------------------------- | ------------------------------ |
+| `Ms`             | Saturation magnetization               | 0.5 – 1.6 (typically, closer to 1.)           | T (SI, except SB: A/m)              | `docs/physics/contributions`   |
+| `Ks`             | Uniaxial anisotropy constant           | (depends on system). PMA 1e2-1e6, IMA 1e2-1e3 | J/m³                                | `curated-examples`, docs       |
+| `alpha`          | Gilbert damping parameter              | ~0.01 – 0.03                                  | dimensionless                       | `curated-examples`, literature |
+| `J` (`J1`, `J2`) | Interlayer exchange coupling constants | ±0.001 – ±3.0                                 | J/m² (API; typical values in mJ/m²) | `docs/physics/contributions`   |
+| `D`              | DMI constant                           | 0. – 3.0                                      | J/m² (API; typical values in mJ/m²) | `docs/physics/contributions`   |
+| `thickness`      | Layer thickness                        | 0.8 – 2.0                                     | nm                                  | `curated-examples`             |
+| `H_ext`          | External magnetic field                | ±0 – ±500e3                                   | A/m                                 | experiment                     |
 
 **Notes:**
 
 - Always check `curated-examples` or documentation for specific device/material values.
 - In Smit-Beljers models: `Ms` is given in `A/m`, everywhere else in `T`.
 - All fields (`H_ext`, effective fields) are in `A/m` throughout the Python/C++ codebase.
+
+# Development guide
+
+## Rules about contributions and PRs
+
+1. Do not create additional Readme.md files unless explicitly asked for. Do not explain your implementation in .md files too.
+2. Keep the code simple and organized. Make sure you do not duplicate functions, and import as much from the library as possible.
+3. For plotting, follow `scienplots` graphing styling, you can see that in `curated-examples`
+   1. Plot mostly M(H) or R(H), clearly indicating the magnetisation component or R component (Rxx, Rxy, or R)
+   2. If you want to present a trajectory, do it on a sphere, and make sure it's readable (the sphere must be mostly transparent, set low alpha)
+4. Try to follow industry naming for layers.
+   1. In MTJs:
+      1. `Free` layer is the one that we track the trajectory/switching.
+      2. `Reference` refers to a fixed layer.
+   2. In Spin Hall bars:
+      1. The reference polarisation is often set by the direction of the current through the heavy metal.
+      2. The FM layers can be just named `topFM`, `bottomFM` or if there are more than two, `layerFM1`, ...
+5. If you are providing an example on the new simulation method, place a good example in `curated-examples`. Follow the standard from there, i.e.:
+   1. At the start of the example file, describe the physics of the simulation.
+   2. Use good, sensible names for objects
+   3. The result of the simulation must also be a figure showing the expected result.
+6. If you stub out a PR, please provide a standard description around the proposed change, and if relevant, the physics it affects

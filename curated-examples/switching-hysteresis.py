@@ -88,8 +88,6 @@ relax_time = 5e-9  # 5 ns relaxation at each field step (within 1-500ns range)
 
 # Storage for results
 mz_values = []
-mx_values = []
-my_values = []
 applied_fields = []
 
 print("Running hysteresis loop simulation...")
@@ -117,12 +115,8 @@ for i, H_field in enumerate(field_sweep):
     # Get final magnetization state
     log = junction.getLog()
     mz_final = log["free_mz"][-1]
-    mx_final = log["free_mx"][-1]
-    my_final = log["free_my"][-1]
 
     mz_values.append(mz_final)
-    mx_values.append(mx_final)
-    my_values.append(my_final)
     applied_fields.append(H_field)
 
     # Progress indicator
@@ -131,8 +125,6 @@ for i, H_field in enumerate(field_sweep):
 
 # Convert to arrays
 mz_values = np.array(mz_values)
-mx_values = np.array(mx_values)
-my_values = np.array(my_values)
 applied_fields = np.array(applied_fields)
 
 # Split into down and up sweeps
@@ -161,87 +153,27 @@ print(f"\nCoercive field (down sweep): {Hc_down/1e3:.1f} kA/m")
 print(f"Coercive field (up sweep): {Hc_up/1e3:.1f} kA/m")
 print(f"Coercivity asymmetry: {abs(Hc_down - Hc_up)/1e3:.1f} kA/m")
 
-# Create plots
+# Create simplified M(H) plot
 with plt.style.context(["science", "no-latex"]):
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10), dpi=300)
+    fig, ax = plt.subplots(figsize=(6, 5), dpi=300)
 
-    # Plot 1: Main hysteresis loop (mz vs H)
-    ax1 = axes[0, 0]
-    ax1.plot(H_down / 1e3, mz_down, "o-", color="crimson", linewidth=2, markersize=4, label="Down sweep")
-    ax1.plot(H_up / 1e3, mz_up, "s-", color="navy", linewidth=2, markersize=4, label="Up sweep")
-    ax1.axhline(y=0, color="gray", linestyle="--", alpha=0.5)
-    ax1.axvline(x=0, color="gray", linestyle="--", alpha=0.5)
+    # Main hysteresis loop (mz vs H)
+    ax.plot(H_down / 1e3, mz_down, "-", color="crimson", linewidth=2, label="Down sweep")
+    ax.plot(H_up / 1e3, mz_up, "-", color="navy", linewidth=2, label="Up sweep")
+    ax.axhline(y=0, color="gray", linestyle="--", alpha=0.5)
+    ax.axvline(x=0, color="gray", linestyle="--", alpha=0.5)
     if not np.isnan(Hc_down):
-        ax1.axvline(x=Hc_down / 1e3, color="red", linestyle=":", alpha=0.7, label=f"Hc↓={Hc_down/1e3:.1f}")
+        ax.axvline(x=Hc_down / 1e3, color="red", linestyle=":", alpha=0.7, label=f"$H_c$↓={Hc_down/1e3:.1f} kA/m")
     if not np.isnan(Hc_up):
-        ax1.axvline(x=Hc_up / 1e3, color="blue", linestyle=":", alpha=0.7, label=f"Hc↑={Hc_up/1e3:.1f}")
-    ax1.set_xlabel("Applied Field (kA/m)")
-    ax1.set_ylabel("$m_z$ (normalized)")
-    ax1.set_title("Hysteresis Loop (Out-of-Plane)")
-    ax1.legend(fontsize=8)
-    ax1.grid(True, alpha=0.3)
-    ax1.set_ylim([-1.1, 1.1])
+        ax.axvline(x=Hc_up / 1e3, color="blue", linestyle=":", alpha=0.7, label=f"$H_c$↑={Hc_up/1e3:.1f} kA/m")
+    ax.set_xlabel(r"$H$ (kA/m)")
+    ax.set_ylabel(r"$m_z$")
+    ax.set_title(f"$M_s$ = {Ms:.1f} T, $K_u$ = {Ku/1e3:.0f} kJ/m³, $\\alpha$ = {damping:.3f}")
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+    ax.set_ylim([-1.1, 1.1])
 
-    # Plot 2: In-plane components
-    ax2 = axes[0, 1]
-    ax2.plot(applied_fields / 1e3, mx_values, color="forestgreen", linewidth=2, label="$m_x$")
-    ax2.plot(applied_fields / 1e3, my_values, color="orange", linewidth=2, label="$m_y$")
-    ax2.set_xlabel("Applied Field (kA/m)")
-    ax2.set_ylabel("In-plane magnetization")
-    ax2.set_title("In-Plane Components")
-    ax2.legend(fontsize=8)
-    ax2.grid(True, alpha=0.3)
-
-    # Plot 3: Phase space trajectory
-    ax3 = axes[1, 0]
-    # Color by field value
-    colors = applied_fields / 1e3
-    scatter = ax3.scatter(mx_values, my_values, c=colors, s=30, cmap="viridis", alpha=0.7)
-    ax3.scatter([mx_values[0]], [my_values[0]], color="green", s=100, marker="o", zorder=10, label="Start")
-    ax3.scatter([mx_values[-1]], [my_values[-1]], color="red", s=100, marker="s", zorder=10, label="End")
-    ax3.set_xlabel("$m_x$")
-    ax3.set_ylabel("$m_y$")
-    ax3.set_title("In-Plane Phase Space")
-    ax3.legend(fontsize=8)
-    ax3.grid(True, alpha=0.3)
-    ax3.set_aspect("equal")
-    cbar = plt.colorbar(scatter, ax=ax3)
-    cbar.set_label("H (kA/m)", fontsize=8)
-
-    # Plot 4: Total magnetization magnitude
-    ax4 = axes[1, 1]
-    m_total = np.sqrt(mx_values**2 + my_values**2 + mz_values**2)
-    ax4.plot(applied_fields / 1e3, m_total, color="purple", linewidth=2)
-    ax4.axhline(y=1.0, color="red", linestyle="--", alpha=0.5, label="Ideal (|m|=1)")
-    ax4.set_xlabel("Applied Field (kA/m)")
-    ax4.set_ylabel("Total |m|")
-    ax4.set_title("Magnetization Magnitude Conservation")
-    ax4.legend(fontsize=8)
-    ax4.grid(True, alpha=0.3)
-    ax4.set_ylim([0.995, 1.005])
-
-    # Add parameter information
-    param_text = (
-        f"Parameters:\n"
-        f"$M_s$ = {Ms:.1f} T\n"
-        f"$K_u$ = {Ku/1e3:.0f} kJ/m³\n"
-        f"$\\alpha$ = {damping:.3f}\n"
-        f"Thickness = {layer.thickness*1e9:.1f} nm\n"
-        f"Relax time = {relax_time*1e9:.1f} ns"
-    )
-    fig.text(
-        0.98,
-        0.02,
-        param_text,
-        transform=fig.transFigure,
-        fontsize=8,
-        verticalalignment="bottom",
-        horizontalalignment="right",
-        bbox=dict(boxstyle="round", facecolor="lightgreen", alpha=0.5),
-    )
-
-    fig.suptitle("Magnetization Switching and Hysteresis", fontsize=14, y=0.995)
-    fig.tight_layout(rect=[0, 0, 1, 0.99])
+    fig.tight_layout()
     fig.savefig(
         "./curated-examples/figures/switching-hysteresis.png",
         dpi=300,
