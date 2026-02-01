@@ -43,25 +43,25 @@ with contextlib.suppress(ImportError):
 Ms1 = 1.0  # Free layer saturation magnetization [T]
 Ms2 = 0.8  # Fixed layer saturation magnetization [T]
 
-# Anisotropy values in typical range for PMA
-Ku1 = 400e3  # Free layer anisotropy [J/m^3]
-Ku2 = 300e3  # Fixed layer anisotropy [J/m^3]
+# Anisotropy values - reduced for observable dynamics
+Ku1 = 100e3  # Free layer anisotropy [J/m^3]
+Ku2 = 80e3  # Fixed layer anisotropy [J/m^3]
 
-# Anisotropy direction (perpendicular to film plane)
-Kdir = CVector(0, 0, 1)
+# Anisotropy direction - in-plane for better dynamics with perpendicular field
+Kdir = CVector(1, 0, 0)
 
 # Damping in recommended range
 damping1 = 0.02
 damping2 = 0.015
 
-# Demagnetization tensors (perpendicular films)
-demag1 = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
-demag2 = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
+# Demagnetization tensors - removed to simplify
+demag1 = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
+demag2 = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
 
-# Create two coupled magnetic layers
+# Create two coupled magnetic layers with in-plane initial magnetization
 l1 = Layer(
     "layer1",
-    mag=CVector(0, 0, 1.0),  # Initially up
+    mag=CVector(1.0, 0, 0),  # Initially along +x
     anis=Kdir,
     Ms=Ms1,
     thickness=1.5e-9,
@@ -72,7 +72,7 @@ l1 = Layer(
 
 l2 = Layer(
     "layer2",
-    mag=CVector(0, 0, -1.0),  # Initially down (antiparallel due to IEC)
+    mag=CVector(-1.0, 0, 0),  # Initially along -x (antiparallel due to IEC)
     anis=Kdir,
     Ms=Ms2,
     thickness=1.2e-9,
@@ -90,16 +90,16 @@ junction = Junction([l1, l2])
 
 # Set IEC coupling (negative J1 for antiferromagnetic coupling)
 # J in mJ/m^2, typical range ±0.001 to ±3.0 according to AGENTS.md
-J_linear = -0.5e-3  # -0.5 mJ/m^2, antiferromagnetic coupling
-J_quad = 0.1e-3  # 0.1 mJ/m^2, small quadratic term
+J_linear = -1.0e-3  # -1.0 mJ/m^2, stronger antiferromagnetic coupling
+J_quad = 0.0  # Remove quadratic term for simplicity
 
 junction.setIECDriver("layer1", "layer2", constantDriver(J_linear))
 junction.setQuadIECDriver("layer1", "layer2", constantDriver(J_quad))
 
 # Apply external field pulse to perturb the system
 # Field strength in typical range (±0 – ±500e3 A/m)
-field_amplitude = 100e3  # A/m
-field_duration = 2e-9  # 2 ns pulse
+field_amplitude = 200e3  # A/m - stronger field for clear dynamics
+field_duration = 5e-9  # 5 ns pulse - longer for observable effect
 
 # Create field pulse function
 def field_pulse(t):
