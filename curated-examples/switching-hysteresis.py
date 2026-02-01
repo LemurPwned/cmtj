@@ -37,32 +37,33 @@ from cmtj import AxialDriver, CVector, Junction, Layer, ScalarDriver, constantDr
 with contextlib.suppress(ImportError):
     import scienceplots  # noqa: F401
 
-# Layer parameters from documentation (docs/tutorials and docs/experimental-methods)
+# Layer parameters from documentation (docs/experimental-methods/examples.ipynb)
 # Ms in Tesla for core Layer objects
-Ms = 1.0  # Saturation magnetization [T] - typical from docs
+Ms = 1.03  # Saturation magnetization [T] - from examples.ipynb
 
-# In-plane anisotropy - using documented value
-Ku = 800e3  # Anisotropy constant [J/m^3] - from trajectory.ipynb example
+# In-plane anisotropy - using LOW value from experimental examples
+Ku = 0.8e3  # Anisotropy constant [J/m^3] - from examples.ipynb (0.8 kJ/m³)
 
-# Anisotropy direction - in-plane (along x)
+# Anisotropy direction - IN-PLANE (along x) for in-plane hysteresis
 Kdir = CVector(1, 0, 0)
 
 # Damping from documentation
-damping = 0.03  # Gilbert damping - from trajectory.ipynb
+damping = 0.024  # Gilbert damping - from examples.ipynb
 
 # Standard thin film demagnetization tensor from documentation
 demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
 
 # Create single magnetic layer with in-plane initial magnetization
+# Start slightly off-axis to allow switching
 layer = Layer(
     "free",
-    mag=CVector(1.0, 0, 0),  # Start aligned with easy axis
+    mag=CVector(1.0, 0.1, 0.1),  # Start near +x with small perturbation
     anis=Kdir,
     Ms=Ms,
-    thickness=1.4e-9,  # Typical thickness from docs
+    thickness=2.1e-9,  # From examples.ipynb
     damping=damping,
     demagTensor=demag,
-    cellSurface=np.pi * (40e-9) ** 2,  # Circular cross-section
+    cellSurface=15e-9 * 15e-9 * np.pi,  # From examples.ipynb
 )
 
 # Set constant anisotropy
@@ -71,9 +72,9 @@ layer.setAnisotropyDriver(constantDriver(Ku))
 # Create junction
 junction = Junction([layer])
 
-# Field sweep parameters - perpendicular to easy axis for rotation
-H_max = 250e3  # Maximum field [A/m] - typical range from docs
-H_min = -250e3  # Minimum field [A/m]
+# Field sweep parameters - IN-PLANE field along easy axis (x) for switching
+H_max = 100e3  # Maximum field [A/m] in x direction
+H_min = -100e3  # Minimum field [A/m]
 H_steps = 60  # Number of field steps
 
 # Create field sweep: down sweep first, then up sweep
@@ -84,27 +85,27 @@ field_sweep = np.concatenate([field_down, field_up])
 # Time parameters
 # Following AGENTS.md: use dt=1e-12 for standard simulations
 dt = 1e-12
-relax_time = 10e-9  # 10 ns relaxation for better convergence
+relax_time = 20e-9  # 20 ns relaxation - from examples.ipynb
 
-# Storage for results
-mz_values = []
+# Storage for results - track mx since field is in x direction
+mx_values = []
 applied_fields = []
 
 print("Running hysteresis loop simulation...")
 print(f"Ms = {Ms:.2f} T")
-print(f"Ku = {Ku/1e3:.0f} kJ/m³")
+print(f"Ku = {Ku/1e3:.1f} kJ/m³")
 print(f"Field range: {H_min/1e3:.0f} to {H_max/1e3:.0f} kA/m")
 print(f"Damping α = {damping:.3f}\n")
 
 # Run field sweep
 for i, H_field in enumerate(field_sweep):
-    # Set external field in z direction
+    # Set external field in X direction (along easy axis)
     junction.setLayerExternalFieldDriver(
         "free",
         AxialDriver(
-            ScalarDriver.getConstantDriver(0),
-            ScalarDriver.getConstantDriver(0),
             ScalarDriver.getConstantDriver(H_field),
+            ScalarDriver.getConstantDriver(0),
+            ScalarDriver.getConstantDriver(0),
         ),
     )
 
@@ -114,9 +115,9 @@ for i, H_field in enumerate(field_sweep):
 
     # Get final magnetization state
     log = junction.getLog()
-    mz_final = log["free_mz"][-1]
+    mx_final = log["free_mx"][-1]
 
-    mz_values.append(mz_final)
+    mx_values.append(mx_final)
     applied_fields.append(H_field)
 
     # Progress indicator
@@ -124,27 +125,27 @@ for i, H_field in enumerate(field_sweep):
         print(f"Completed {i+1}/{len(field_sweep)} field points")
 
 # Convert to arrays
-mz_values = np.array(mz_values)
+mx_values = np.array(mx_values)
 applied_fields = np.array(applied_fields)
 
 # Split into down and up sweeps
 split_idx = H_steps
 H_down = applied_fields[:split_idx]
 H_up = applied_fields[split_idx:]
-mz_down = mz_values[:split_idx]
-mz_up = mz_values[split_idx:]
+mx_down = mx_values[:split_idx]
+mx_up = mx_values[split_idx:]
 
-# Find coercive fields (where mz crosses zero)
-# Down sweep: find where mz goes from positive to negative
+# Find coercive fields (where mx crosses zero)
+# Down sweep: find where mx goes from positive to negative
 try:
-    idx_down = np.where(np.diff(np.sign(mz_down)))[0][0]
+    idx_down = np.where(np.diff(np.sign(mx_down)))[0][0]
     Hc_down = H_down[idx_down]
 except IndexError:
     Hc_down = np.nan
 
-# Up sweep: find where mz goes from negative to positive
+# Up sweep: find where mx goes from negative to positive
 try:
-    idx_up = np.where(np.diff(np.sign(mz_up)))[0][0]
+    idx_up = np.where(np.diff(np.sign(mx_up)))[0][0]
     Hc_up = H_up[idx_up]
 except IndexError:
     Hc_up = np.nan
@@ -157,9 +158,9 @@ print(f"Coercivity asymmetry: {abs(Hc_down - Hc_up)/1e3:.1f} kA/m")
 with plt.style.context(["science", "no-latex"]):
     fig, ax = plt.subplots(figsize=(6, 5), dpi=300)
 
-    # Main hysteresis loop (mz vs H)
-    ax.plot(H_down / 1e3, mz_down, "-", color="crimson", linewidth=2, label="Down sweep")
-    ax.plot(H_up / 1e3, mz_up, "-", color="navy", linewidth=2, label="Up sweep")
+    # Main hysteresis loop (mx vs H)
+    ax.plot(H_down / 1e3, mx_down, "-", color="crimson", linewidth=2, label="Down sweep")
+    ax.plot(H_up / 1e3, mx_up, "-", color="navy", linewidth=2, label="Up sweep")
     ax.axhline(y=0, color="gray", linestyle="--", alpha=0.5)
     ax.axvline(x=0, color="gray", linestyle="--", alpha=0.5)
     if not np.isnan(Hc_down):
@@ -167,8 +168,8 @@ with plt.style.context(["science", "no-latex"]):
     if not np.isnan(Hc_up):
         ax.axvline(x=Hc_up / 1e3, color="blue", linestyle=":", alpha=0.7, label=f"$H_c$↑={Hc_up/1e3:.1f} kA/m")
     ax.set_xlabel(r"$H$ (kA/m)")
-    ax.set_ylabel(r"$m_z$")
-    ax.set_title(f"$M_s$ = {Ms:.1f} T, $K_u$ = {Ku/1e3:.0f} kJ/m³, $\\alpha$ = {damping:.3f}")
+    ax.set_ylabel(r"$m_x$")
+    ax.set_title(f"$M_s$ = {Ms:.2f} T, $K_u$ = {Ku/1e3:.1f} kJ/m³, $\\alpha$ = {damping:.3f}")
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
     ax.set_ylim([-1.1, 1.1])
