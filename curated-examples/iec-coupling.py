@@ -36,23 +36,23 @@ from cmtj import AxialDriver, CVector, Junction, Layer, constantDriver
 with contextlib.suppress(ImportError):
     import scienceplots  # noqa: F401
 
-# Layer parameters from documentation (docs/tutorials)
+# Layer parameters  (docs/tutorials)
 # Ms in Tesla for core Layer objects
 Ms1 = 1.0  # Free layer - typical from trajectory.ipynb
 Ms2 = 1.2  # Reference layer - typical from trajectory.ipynb
 
-# Anisotropy values from documentation
-Ku1 = 300e3  # Free layer [J/m^3] - from trajectory.ipynb IEC example
-Ku2 = 800e3  # Reference layer [J/m^3] - from trajectory.ipynb IEC example
+# Anisotropy values 
+Ku1 = 300e3  # Free layer [J/m^3]
+Ku2 = 800e3  # Reference layer [J/m^3]
 
 # Anisotropy direction - perpendicular for clear oscillations
 Kdir = CVector(0, 0, 1)
 
-# Low damping for sustained oscillations - from trajectory.ipynb IEC example
+# Low damping for sustained oscillationm
 damping1 = 0.011  
 damping2 = 0.011
 
-# Standard thin film demagnetization tensor from documentation
+# Standard thin film demagnetization tensor 
 demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
 
 # Create two coupled magnetic layers with perpendicular magnetization
@@ -85,13 +85,8 @@ l2.setAnisotropyDriver(constantDriver(Ku2))
 # Create junction with both layers
 junction = Junction([l1, l2])
 
-# Set IEC coupling from documentation
-# trajectory.ipynb uses J = -4e-5 J/m² = -0.04 mJ/m²
-J_linear = -4e-5  # J/m² - from trajectory.ipynb IEC example
-J_quad = 0.0  # No quadratic term
-
+J_linear = -4e-5  # J/m²
 junction.setIECDriver("layer1", "layer2", constantDriver(J_linear))
-junction.setQuadIECDriver("layer1", "layer2", constantDriver(J_quad))
 
 # Apply continuous oscillating field to sustain coupled oscillations
 # Use sinusoidal drive similar to VCMA example in trajectory.ipynb
@@ -121,9 +116,7 @@ junction.setLayerExternalFieldDriver(
     ),
 )
 
-# Run simulation with appropriate time step
-# Following AGENTS.md: use dt=1e-12 for standard simulations
-dt = 1e-12
+dt = 1e-13
 sim_time = 10e-9  # 10 ns to show sustained oscillations (within 1-500 ns range)
 junction.runSimulation(sim_time, dt, dt)
 
