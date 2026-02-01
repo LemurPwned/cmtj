@@ -1,31 +1,29 @@
 """
-Interlayer Exchange Coupling (IEC) Dynamics Simulation
+Interlayer Exchange Coupling (IEC) Coupled Oscillations Simulation
 
 GOAL:
-This simulation demonstrates interlayer exchange coupling (IEC) between two magnetic
-layers in a synthetic antiferromagnet (SAF) structure. It shows how RKKY-type coupling
-mediated through a non-magnetic spacer layer creates coupled magnetization dynamics,
-enabling synchronized switching and collective behavior essential for spintronic
-memory and logic applications.
+This simulation demonstrates sustained coupled oscillations in two IEC-coupled magnetic
+layers, showing acoustic and optical precession modes. The IEC coupling creates collective
+dynamics where the layers oscillate together (acoustic mode) or in opposition (optical mode),
+which is essential for coupled spin-torque oscillators and synchronized switching in
+spintronic devices.
 
 CRITICAL SIMULATION MECHANISMS:
-1. IEC Interaction: Models both linear (J1) and quadratic (J2) coupling terms that
-   create effective fields between layers proportional to their relative orientations
-2. Dual-Layer System: Simulates two ferromagnetic layers with different magnetic
-   properties coupled through IEC, creating coupled precession modes
-3. Field-Driven Dynamics: Applies pulsed external field to excite both layers and
-   observe their coupled response through magnetization trajectories
-4. Antiferromagnetic Coupling: Uses negative J1 to favor antiparallel alignment,
-   characteristic of SAF structures for improved thermal stability
-5. Coupled Precession: Captures acoustic and optical modes of magnetization dynamics
-   arising from symmetric and antisymmetric combinations of layer motions
-6. Time-Domain Analysis: Tracks magnetization components to show phase relationships
-   and coupling strength effects on dynamic response
+1. IEC Interaction: Models antiferromagnetic coupling (negative J) that creates 
+   effective fields between layers proportional to their relative orientations
+2. Dual-Layer System: Two ferromagnetic layers with different properties coupled
+   through IEC, enabling acoustic and optical oscillation modes
+3. Continuous Drive: Applies oscillating external field to sustain coupled precession
+   and demonstrate long-term coupled dynamics
+4. Coupled Modes: Captures both in-phase (acoustic) and out-of-phase (optical)
+   magnetization oscillations arising from symmetric/antisymmetric layer combinations
+5. Phase Relationships: Shows how IEC coupling maintains phase coherence between
+   layers during sustained oscillations
+6. Low Damping: Uses realistic low damping to enable observable coupled dynamics
 
-The simulation generates magnetization trajectories and phase space plots showing
-the coupled dynamics. This enables optimization of IEC strength for applications
-requiring synchronized switching (MRAM write), collective oscillations (coupled STOs),
-or enhanced stability (SAF-based sensors and memory).
+The simulation generates magnetization time traces showing sustained coupled oscillations.
+This demonstrates IEC-mediated collective behavior crucial for coupled STOs,
+synchronized switching, and enhanced stability in SAF-based devices.
 """
 
 import contextlib
@@ -47,20 +45,20 @@ Ms2 = 1.2  # Reference layer - typical from trajectory.ipynb
 Ku1 = 300e3  # Free layer [J/m^3] - from trajectory.ipynb IEC example
 Ku2 = 800e3  # Reference layer [J/m^3] - from trajectory.ipynb IEC example
 
-# Anisotropy direction - in-plane (along x)
-Kdir = CVector(1, 0, 0)
+# Anisotropy direction - perpendicular for clear oscillations
+Kdir = CVector(0, 0, 1)
 
-# Damping from documentation
-damping1 = 0.011  # Low damping - from trajectory.ipynb IEC example
+# Low damping for sustained oscillations - from trajectory.ipynb IEC example
+damping1 = 0.011  
 damping2 = 0.011
 
 # Standard thin film demagnetization tensor from documentation
 demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
 
-# Create two coupled magnetic layers with in-plane magnetization
+# Create two coupled magnetic layers with perpendicular magnetization
 l1 = Layer(
     "layer1",
-    mag=CVector(1.0, 0, 0),  # Initially along +x
+    mag=CVector(0.0, 0, 1.0),  # Initially up
     anis=Kdir,
     Ms=Ms1,
     thickness=1.4e-9,  # Typical from docs
@@ -71,7 +69,7 @@ l1 = Layer(
 
 l2 = Layer(
     "layer2",
-    mag=CVector(-1.0, 0, 0),  # Initially along -x (antiparallel)
+    mag=CVector(0.0, 0, -1.0),  # Initially down (antiparallel due to IEC)
     anis=Kdir,
     Ms=Ms2,
     thickness=3e-9,  # Thicker reference layer from trajectory.ipynb
@@ -95,29 +93,22 @@ J_quad = 0.0  # No quadratic term
 junction.setIECDriver("layer1", "layer2", constantDriver(J_linear))
 junction.setQuadIECDriver("layer1", "layer2", constantDriver(J_quad))
 
-# Apply external field pulse to perturb the system
-# Using typical values from trajectory.ipynb
-field_amplitude = 100e3  # A/m - moderate field
-field_duration = 2e-9  # 2 ns pulse
-
-# Create field pulse function
-def field_pulse(t):
-    """Pulsed field in z direction"""
-    if t < field_duration:
-        return field_amplitude
-    else:
-        return 0
-
-
+# Apply continuous oscillating field to sustain coupled oscillations
+# Use sinusoidal drive similar to VCMA example in trajectory.ipynb
 from cmtj import ScalarDriver
 
-# Set external field on both layers
+# Oscillation parameters
+field_amplitude = 50e3  # A/m - moderate amplitude
+oscillation_freq = 5e9  # 5 GHz - typical FMR frequency range
+bias_field = 100e3  # A/m - bias field in y direction to set operating point
+
+# Set oscillating field on both layers in y direction
 junction.setLayerExternalFieldDriver(
     "layer1",
     AxialDriver(
         ScalarDriver.getConstantDriver(0),
+        ScalarDriver.getSineDriver(bias_field, field_amplitude, oscillation_freq, 0),
         ScalarDriver.getConstantDriver(0),
-        ScalarDriver.getPulseDriver(0, field_amplitude, 0, field_duration),
     ),
 )
 
@@ -125,15 +116,15 @@ junction.setLayerExternalFieldDriver(
     "layer2",
     AxialDriver(
         ScalarDriver.getConstantDriver(0),
+        ScalarDriver.getSineDriver(bias_field, field_amplitude, oscillation_freq, 0),
         ScalarDriver.getConstantDriver(0),
-        ScalarDriver.getPulseDriver(0, field_amplitude, 0, field_duration),
     ),
 )
 
 # Run simulation with appropriate time step
 # Following AGENTS.md: use dt=1e-12 for standard simulations
 dt = 1e-12
-sim_time = 20e-9  # 20 ns total simulation (within 1-500 ns range)
+sim_time = 10e-9  # 10 ns to show sustained oscillations (within 1-500 ns range)
 junction.runSimulation(sim_time, dt, dt)
 
 # Get simulation log
@@ -148,17 +139,16 @@ m2x = np.array(log["layer2_mx"])
 m2y = np.array(log["layer2_my"])
 m2z = np.array(log["layer2_mz"])
 
-# Create simplified plots - focus on magnetization dynamics
+# Create simplified plots - focus on sustained oscillations
 with plt.style.context(["science", "no-latex"]):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4), dpi=300)
 
-    # Plot 1: Out-of-plane magnetization vs time
-    ax1.plot(time, m1z, color="crimson", linewidth=2, label="Layer 1 $m_z$")
-    ax1.plot(time, m2z, color="navy", linewidth=2, label="Layer 2 $m_z$")
-    ax1.axvspan(0, field_duration * 1e9, alpha=0.2, color="yellow", label="Field pulse")
+    # Plot 1: In-plane magnetization vs time showing sustained oscillations
+    ax1.plot(time, m1y, color="crimson", linewidth=1.5, label="Layer 1 $m_y$")
+    ax1.plot(time, m2y, color="navy", linewidth=1.5, label="Layer 2 $m_y$")
     ax1.set_xlabel("Time (ns)")
-    ax1.set_ylabel("$m_z$")
-    ax1.set_title("Out-of-plane Magnetization")
+    ax1.set_ylabel("$m_y$")
+    ax1.set_title("Sustained Coupled Oscillations")
     ax1.legend(fontsize=9)
     ax1.grid(True, alpha=0.3)
 
@@ -166,12 +156,12 @@ with plt.style.context(["science", "no-latex"]):
     # Compute dot product m1 · m2
     dot_product = m1x * m2x + m1y * m2y + m1z * m2z
     angle = np.arccos(np.clip(dot_product, -1, 1)) * 180 / np.pi  # Convert to degrees
-    ax2.plot(time, angle, color="forestgreen", linewidth=2)
+    ax2.plot(time, angle, color="forestgreen", linewidth=1.5)
     ax2.axhline(y=180, color="red", linestyle="--", alpha=0.5, label="Antiparallel")
     ax2.axhline(y=0, color="blue", linestyle="--", alpha=0.5, label="Parallel")
     ax2.set_xlabel("Time (ns)")
     ax2.set_ylabel("Interlayer Angle (degrees)")
-    ax2.set_title(f"$J_1$ = {J_linear*1e3:.2f} mJ/m², $J_2$ = {J_quad*1e3:.2f} mJ/m²")
+    ax2.set_title(f"$J_1$ = {J_linear*1e3:.2f} mJ/m², f = {oscillation_freq/1e9:.1f} GHz")
     ax2.legend(fontsize=9)
     ax2.grid(True, alpha=0.3)
 
@@ -183,7 +173,10 @@ with plt.style.context(["science", "no-latex"]):
     )
 
 print(f"\nSimulation completed: {sim_time*1e9:.1f} ns")
-print(f"Final layer 1 mz: {m1z[-1]:.4f}")
-print(f"Final layer 2 mz: {m2z[-1]:.4f}")
+print(f"Oscillation frequency: {oscillation_freq/1e9:.1f} GHz")
+print(f"Final layer 1 my: {m1y[-1]:.4f}")
+print(f"Final layer 2 my: {m2y[-1]:.4f}")
 print(f"Final interlayer angle: {angle[-1]:.2f} degrees")
-print(f"Initial interlayer angle: {angle[0]:.2f} degrees")
+print(f"Mean interlayer angle: {np.mean(angle):.2f} degrees")
+print(f"Oscillation amplitude (layer 1): {np.std(m1y):.4f}")
+print(f"Oscillation amplitude (layer 2): {np.std(m2y):.4f}")
