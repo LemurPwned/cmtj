@@ -116,8 +116,8 @@ junction.setLayerExternalFieldDriver(
     ),
 )
 
-dt = 1e-13
-sim_time = 10e-9  # 10 ns to show sustained oscillations (within 1-500 ns range)
+dt = 1e-12
+sim_time = 30e-9  # 30 ns to show sustained oscillations (within 1-500 ns range)
 junction.runSimulation(sim_time, dt, dt)
 
 # Get simulation log
