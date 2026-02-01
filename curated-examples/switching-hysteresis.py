@@ -41,22 +41,22 @@ with contextlib.suppress(ImportError):
 # Ms in Tesla for core Layer objects
 Ms = 1.0  # Saturation magnetization [T]
 
-# Perpendicular anisotropy in typical range
-Ku = 500e3  # PMA constant [J/m^3] - typical for PMA materials
+# In-plane anisotropy for clear hysteresis with perpendicular field
+Ku = 80e3  # Anisotropy constant [J/m^3]
 
-# Anisotropy direction (perpendicular to film)
-Kdir = CVector(0, 0, 1)
+# Anisotropy direction - IN-PLANE (along x) for perpendicular field sweep
+Kdir = CVector(1, 0, 0)
 
 # Damping in recommended range (0.01-0.03)
 damping = 0.02
 
-# Demagnetization tensor (thin film - strong in-plane preference)
-demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1.0)]
+# Demagnetization tensor - set to zero
+demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
 
-# Create single magnetic layer
+# Create single magnetic layer with IN-PLANE initial magnetization
 layer = Layer(
     "free",
-    mag=CVector(0, 0, 1.0),  # Start with magnetization up
+    mag=CVector(1.0, 0, 0),  # Start with in-plane magnetization
     anis=Kdir,
     Ms=Ms,
     thickness=1.5e-9,
@@ -71,9 +71,9 @@ layer.setAnisotropyDriver(constantDriver(Ku))
 # Create junction
 junction = Junction([layer])
 
-# Field sweep parameters (within ±0-±500e3 A/m range from AGENTS.md)
-H_max = 300e3  # Maximum field [A/m]
-H_min = -300e3  # Minimum field [A/m]
+# Field sweep parameters - perpendicular to easy axis
+H_max = 150e3  # Maximum field [A/m] along z
+H_min = -150e3  # Minimum field [A/m]
 H_steps = 60  # Number of field steps
 
 # Create field sweep: down sweep first, then up sweep
@@ -84,7 +84,7 @@ field_sweep = np.concatenate([field_down, field_up])
 # Time parameters
 # Following AGENTS.md: use dt=1e-12 for standard simulations
 dt = 1e-12
-relax_time = 5e-9  # 5 ns relaxation at each field step (within 1-500ns range)
+relax_time = 10e-9  # 10 ns relaxation for better convergence
 
 # Storage for results
 mz_values = []
