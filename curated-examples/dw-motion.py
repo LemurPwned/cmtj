@@ -129,72 +129,25 @@ dw_width = np.array(results["dw_0"]) * 1e9  # Convert to nm
 velocity = np.array(results["v_0"])  # m/s
 current = np.array(results["je_0"]) * 1e-11  # Scale to 10^11 A/m^2
 
-# Create comprehensive figure
+# Create simplified figure - focus on position and velocity
 with plt.style.context(["science", "no-latex"]):
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8), dpi=300)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4), dpi=300)
 
     # Plot 1: Wall position vs time
-    ax1 = axes[0, 0]
     ax1.plot(time, position, color="crimson", linewidth=2)
     ax1.set_xlabel("Time (ns)")
     ax1.set_ylabel("Position (nm)")
-    ax1.set_title("Domain Wall Position")
+    ax1.set_title(f"DW Position: $\\Delta x$ = {(position[-1] - position[0]):.1f} nm")
     ax1.grid(True, alpha=0.3)
 
     # Plot 2: Wall velocity vs time
-    ax2 = axes[0, 1]
     ax2.plot(time, velocity, color="navy", linewidth=2)
     ax2.set_xlabel("Time (ns)")
     ax2.set_ylabel(r"Velocity (m/s)")
-    ax2.set_title("Domain Wall Velocity")
+    ax2.set_title(f"$M_s$ = {Ms/1e6:.1f} MA/m, $D$ = {D*1e3:.1f} mJ/m², $\\theta_{{SH}}$ = {SHE_angle:.2f}")
     ax2.grid(True, alpha=0.3)
 
-    # Plot 3: Internal angle vs time
-    ax3 = axes[1, 0]
-    ax3.plot(time, phi, color="forestgreen", linewidth=2)
-    ax3.axhline(y=DW.NEEL_RIGHT, color="red", linestyle="--", alpha=0.5, label="Néel-right")
-    ax3.axhline(y=DW.NEEL_LEFT, color="blue", linestyle="--", alpha=0.5, label="Néel-left")
-    ax3.set_xlabel("Time (ns)")
-    ax3.set_ylabel(r"$\phi$ (rad)")
-    ax3.set_title("Internal Angle (Wall Chirality)")
-    ax3.legend(fontsize=8)
-    ax3.grid(True, alpha=0.3)
-
-    # Plot 4: Current density overlay with wall width
-    ax4 = axes[1, 1]
-    ax4_twin = ax4.twinx()
-    l1 = ax4.plot(time, current, color="purple", linewidth=2, label="Current density")
-    l2 = ax4_twin.plot(time, dw_width, color="orange", linewidth=2, label="DW width")
-    ax4.set_xlabel("Time (ns)")
-    ax4.set_ylabel(r"$j_e$ ($10^{11}$ A/m$^2$)", color="purple")
-    ax4_twin.set_ylabel(r"$\delta$ (nm)", color="orange")
-    ax4.set_title("Current Pulse & DW Width")
-    ax4.tick_params(axis="y", labelcolor="purple")
-    ax4_twin.tick_params(axis="y", labelcolor="orange")
-    ax4.grid(True, alpha=0.3)
-
-    # Add parameter text box
-    param_text = (
-        f"Parameters:\n"
-        f"$M_s$ = {Ms/1e6:.1f} MA/m\n"
-        f"$K_u$ = {Ku/1e3:.0f} kJ/m³\n"
-        f"$D$ = {D*1e3:.1f} mJ/m²\n"
-        f"$\\theta_{{SH}}$ = {SHE_angle:.2f}\n"
-        f"$\\alpha$ = {alpha:.2f}"
-    )
-    fig.text(
-        0.98,
-        0.98,
-        param_text,
-        transform=fig.transFigure,
-        fontsize=8,
-        verticalalignment="top",
-        horizontalalignment="right",
-        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
-    )
-
-    fig.suptitle("Domain Wall Motion under Spin-Orbit Torque", fontsize=12, y=0.995)
-    fig.tight_layout(rect=[0, 0, 1, 0.99])
+    fig.tight_layout()
     fig.savefig(
         "./curated-examples/figures/dw-motion.png",
         dpi=300,
