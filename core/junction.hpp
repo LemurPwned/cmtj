@@ -402,6 +402,17 @@ public:
     this->temperatureSet = true;
   }
 
+  /**
+   * @brief Seed the internal RNG used for thermal (Langevin) noise.
+   * Calling this with the same seed before each run makes the stochastic
+   * trajectory fully reproducible from Python.
+   * @param seed Any unsigned integer.
+   */
+  void setSeed(unsigned int seed) {
+    this->distribution = std::bind(std::normal_distribution<T>(0, 1),
+                                   std::mt19937(seed));
+  }
+
   void setNonStochasticLangevinDriver(const ScalarDriver<T> &driver) {
     this->temperatureDriver = driver;
     // do not set the SDE flag here

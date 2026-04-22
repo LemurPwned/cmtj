@@ -98,6 +98,14 @@ class LLGBLayer:
         :param driver: the temperature driver to be set."""
         ...
 
+    def setSeed(self, seed: int) -> None:
+        """Seed the internal RNGs used for thermal (Langevin) noise.
+        Calling this with the same seed before each run makes stochastic
+        trajectories fully reproducible.
+        :param seed: Any non-negative integer seed value.
+        """
+        ...
+
 def MFAWeissCurie(
     me: float,
     T: float,

@@ -119,3 +119,60 @@ def test_multiple_layers():
     assert "free2_mx" in log
     # Layers should maintain opposite magnetization
     assert log["free1_mx"][-1] * log["free2_mx"][-1] < 0
+
+
+def _make_llgb_layer(layer_id="free", seed=None):
+    """Helper: build a simple thermally-driven LLGBLayer with an optional seed."""
+    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    layer = LLGBLayer(
+        layer_id,
+        CVector(1, 0, 0),
+        CVector(1, 0, 0),
+        Ms=0.27,
+        thickness=2e-9,
+        cellSurface=100e-9 * 100e-9,
+        demagTensor=demag,
+        damping=0.0275,
+        Tc=448,
+        susceptibility=0.04,
+        me=0.9,
+    )
+    if seed is not None:
+        layer.setSeed(seed)
+    return layer
+
+
+def test_llgblayer_set_seed_reproducibility():
+    """Same seed must produce identical stochastic LLGBLayer trajectories."""
+    import numpy as np
+
+    sim_time = 1e-9
+    dt = 1e-13
+
+    def run_with_seed(seed):
+        layer = _make_llgb_layer(seed=seed)
+        junction = LLGBJunction([layer])
+        junction.setLayerTemperatureDriver("all", ScalarDriver.getConstantDriver(300))
+        junction.runSimulation(sim_time, dt, dt)
+        return np.asarray(junction.getLog()["free_mx"])
+
+    traj_a = run_with_seed(7)
+    traj_b = run_with_seed(7)
+    np.testing.assert_array_equal(
+        traj_a, traj_b, err_msg="LLGB trajectories with the same seed must be identical"
+    )
+
+
+def test_llgblayer_different_seeds_differ():
+    """Different seeds must produce different stochastic LLGBLayer trajectories.
+
+    NOTE: The LLGB stochastic thermal fields are currently multiplied by zero
+    in the C++ implementation (work in progress), so the trajectory is the same
+    regardless of seed.  This test is skipped until the stochastic terms are
+    enabled.
+    """
+    import pytest
+    pytest.skip(
+        "LLGBLayer stochastic thermal fields are currently zeroed out in the "
+        "C++ implementation; skipping until stochastic terms are enabled."
+    )

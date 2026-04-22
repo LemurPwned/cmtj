@@ -257,6 +257,20 @@ public:
   void setAnisotropyDriver(const ScalarDriver<T> &driver) {
     this->anisotropyDriver = driver;
   }
+
+  /**
+   * @brief Seed the internal RNGs used for thermal (Langevin) noise.
+   * Both the non-adiabatic (distributionA) and adiabatic (distributionB)
+   * noise generators are re-seeded, making stochastic trajectories
+   * fully reproducible from Python.
+   * @param seed Any unsigned integer.
+   */
+  void setSeed(unsigned int seed) {
+    this->distributionA = std::bind(std::normal_distribution<T>(0, 1),
+                                    std::mt19937(seed));
+    this->distributionB = std::bind(std::normal_distribution<T>(0, 1),
+                                    std::mt19937(seed + 1));
+  }
 };
 
 template <typename T = double> class LLGBJunction {

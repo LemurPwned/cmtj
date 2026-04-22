@@ -583,6 +583,14 @@ class Layer:
         """
         ...
 
+    def setSeed(self, seed: int) -> None:
+        """Seed the internal RNG used for thermal (Langevin) noise.
+        Calling this with the same seed before each run makes stochastic
+        trajectories fully reproducible.
+        :param seed: Any non-negative integer seed value.
+        """
+        ...
+
 class NullDriver(ScalarDriver):
     def __init__(self) -> None:
         """

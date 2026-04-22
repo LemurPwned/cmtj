@@ -286,7 +286,11 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
           .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
-          .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
+          .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise)
+          .def("setSeed", &DLayer::setSeed, "seed"_a,
+               "Seed the internal RNG used for thermal (Langevin) noise. "
+               "Calling this with the same seed before each run makes "
+               "stochastic trajectories fully reproducible.");
 
      py::class_<DJunction>(m, "Junction")
           .def(py::init<std::vector<DLayer>>(), "layers"_a)
@@ -478,7 +482,11 @@ PYBIND11_MODULE(_cmtj, m) {
           // setters
           .def("setTemperatureDriver", &DLLGBLayer::setTemperatureDriver)
           .def("setExternalFieldDriver", &DLLGBLayer::setExternalFieldDriver)
-          .def("setAnisotropyDriver", &DLLGBLayer::setAnisotropyDriver);
+          .def("setAnisotropyDriver", &DLLGBLayer::setAnisotropyDriver)
+          .def("setSeed", &DLLGBLayer::setSeed, "seed"_a,
+               "Seed the internal RNGs used for thermal (Langevin) noise. "
+               "Calling this with the same seed before each run makes "
+               "stochastic trajectories fully reproducible.");
 
      py::class_<DLLGBJunction>(llgb_module, "LLGBJunction")
           .def(py::init<std::vector<DLLGBLayer>>(), "layers"_a)
