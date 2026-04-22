@@ -406,6 +406,13 @@ public:
    * @brief Seed the internal RNG used for thermal (Langevin) noise.
    * Calling this with the same seed before each run makes the stochastic
    * trajectory fully reproducible from Python.
+   *
+   * Implementation note: std::bind copies the std::mt19937 by value into the
+   * std::function object.  Each invocation of distribution() advances the
+   * copy stored inside the std::function, so the sequence IS reproducible
+   * when the same seed is used.  This matches the pattern used in the
+   * constructor.
+   *
    * @param seed Any unsigned integer.
    */
   void setSeed(unsigned int seed) {

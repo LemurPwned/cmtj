@@ -1,5 +1,7 @@
 from cmtj.llgb import LLGBLayer, LLGBJunction
 from cmtj import CVector, ScalarDriver
+import numpy as np
+import pytest
 
 
 def test_basic():
@@ -144,8 +146,6 @@ def _make_llgb_layer(layer_id="free", seed=None):
 
 def test_llgblayer_set_seed_reproducibility():
     """Same seed must produce identical stochastic LLGBLayer trajectories."""
-    import numpy as np
-
     sim_time = 1e-9
     dt = 1e-13
 
@@ -163,16 +163,25 @@ def test_llgblayer_set_seed_reproducibility():
     )
 
 
+@pytest.mark.skip(
+    reason="LLGBLayer stochastic thermal fields are currently zeroed out in "
+           "the C++ implementation (work in progress); enable once stochastic "
+           "terms are activated."
+)
 def test_llgblayer_different_seeds_differ():
-    """Different seeds must produce different stochastic LLGBLayer trajectories.
+    """Different seeds must produce different stochastic LLGBLayer trajectories."""
+    sim_time = 1e-9
+    dt = 1e-13
 
-    NOTE: The LLGB stochastic thermal fields are currently multiplied by zero
-    in the C++ implementation (work in progress), so the trajectory is the same
-    regardless of seed.  This test is skipped until the stochastic terms are
-    enabled.
-    """
-    import pytest
-    pytest.skip(
-        "LLGBLayer stochastic thermal fields are currently zeroed out in the "
-        "C++ implementation; skipping until stochastic terms are enabled."
-    )
+    def run_with_seed(seed):
+        layer = _make_llgb_layer(seed=seed)
+        junction = LLGBJunction([layer])
+        junction.setLayerTemperatureDriver("all", ScalarDriver.getConstantDriver(300))
+        junction.runSimulation(sim_time, dt, dt)
+        return np.asarray(junction.getLog()["free_mx"])
+
+    traj_a = run_with_seed(3)
+    traj_b = run_with_seed(4)
+    assert not np.array_equal(
+        traj_a, traj_b
+    ), "LLGB trajectories with different seeds should differ"

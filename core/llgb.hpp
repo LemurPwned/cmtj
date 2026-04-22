@@ -263,6 +263,13 @@ public:
    * Both the non-adiabatic (distributionA) and adiabatic (distributionB)
    * noise generators are re-seeded, making stochastic trajectories
    * fully reproducible from Python.
+   *
+   * Implementation note: std::bind copies each std::mt19937 by value into its
+   * std::function object.  Each invocation of distributionA/B() advances the
+   * copy stored inside, so the sequences ARE reproducible when the same seed
+   * is used.  distributionB is seeded with seed+1 to keep the two sequences
+   * independent while remaining deterministic.
+   *
    * @param seed Any unsigned integer.
    */
   void setSeed(unsigned int seed) {
