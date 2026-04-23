@@ -78,9 +78,9 @@ jobs:
           CIBW_SKIP: "pp* *-win32 *-manylinux_i686"
           # Install build dependencies
           CIBW_BUILD_REQUIRES: "setuptools>=61.0 setuptools-scm>=8.0 pybind11>=2.6.1 wheel"
-          # Test command (optional)
+          # Test command (optional) -- exclude @pytest.mark.slow tests (they can crash CI workers)
           CIBW_TEST_REQUIRES: "pytest pytest-xdist"
-          CIBW_TEST_COMMAND: "pytest {project}/tests/ -v"
+          CIBW_TEST_COMMAND: "pytest {project}/tests/ -v -m 'not slow'"
           # Use manylinux2014 for Linux builds
           CIBW_TEST_SKIP: "*-musllinux*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28

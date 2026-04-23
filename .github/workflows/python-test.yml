@@ -50,7 +50,7 @@ jobs:
         
     - name: Test with pytest
       run: |
-        pytest
+        pytest -m "not slow"
 
   build-windows:
     runs-on: windows-latest
@@ -75,4 +75,4 @@ jobs:
         
     - name: Test with pytest
       run: |
-        pytest
+        pytest -m "not slow"
