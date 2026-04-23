@@ -2025,7 +2025,6 @@ public:
         if (t + current_timestep > totalTime) {
           current_timestep = totalTime - t;
         }
-        consecutive_rejections = 0;
         // Check for NaN in timestep and fix it
         if (isnan(current_timestep) || isinf(current_timestep) ||
             current_timestep <= 0) {
