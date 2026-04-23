@@ -2032,7 +2032,6 @@ public:
                        "Resetting to initial timestep at t="
                     << t << std::endl;
           current_timestep = timeStep; // Reset to initial timestep
-          consecutive_rejections++;    // Count this as a rejection
         }
 
         // Run one step with adaptive timestep and check if accepted
