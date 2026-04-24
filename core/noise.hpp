@@ -17,6 +17,7 @@
 
 #include "../third_party/kissfft/kissfft.hh"
 #include "cvector.hpp"
+#include <cstdint>
 #include <algorithm> // for generate, sort, unique
 #include <complex>
 #include <cstdlib>  // for rand, srand, NULL, RAND_MAX, size_t
@@ -24,6 +25,7 @@
 #include <iterator> // for distance
 #include <memory>
 #include <numeric> // for accumulate
+#include <optional>
 #include <random>  // for uniform_real_distribution, geometr...
 #include <vector>  // for vector
 
@@ -83,15 +85,32 @@ private:
   T sumTrack = 0;
 
 public:
-  OneFNoise(int sources, T bias, T scale)
+  OneFNoise(int sources, T bias, T scale,
+            std::optional<std::uint64_t> seed = std::nullopt)
       : sources(sources), geom_distr(bias), scale(scale) {
     this->state.resize(sources); // fill it with 0s
     this->trials.resize(sources);
     this->float_dist = std::uniform_real_distribution<T>(0, 1);
     // start off with random values in the state
+    if (seed.has_value()) {
+      this->generator.seed(*seed);
+    } else {
+      this->generator.seed(std::random_device{}());
+    }
+    // start off with random values in the state
     std::generate(this->state.begin(), this->state.end(),
                   [&] { return this->float_dist(generator); });
     // try out the binding stuff
+  }
+
+  void setSeed(std::optional<std::uint64_t> seed = std::nullopt) {
+    if (seed.has_value()) {
+      this->generator.seed(*seed);
+    } else {
+      this->generator.seed(std::random_device{}());
+    }
+    std::generate(this->state.begin(), this->state.end(),
+                  [&] { return this->float_dist(generator); });
   }
   /**
    * @brief This function works faster if p is a large number (p > 0.5)

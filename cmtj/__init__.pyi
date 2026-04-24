@@ -339,6 +339,11 @@ class Junction:
         """
         ...
 
+    def setLayerSeed(self, layerId: str, seed: int | None = None) -> None:
+        """Seed the RNGs for one layer or all layers.
+        If omitted, the selected layer(s) are randomized again."""
+        ...
+
     def setLayerAnisotropyDriver(self, layerId: str, driver: ScalarDriver) -> None:
         """Set anisotropy driver for a layer.
         :param layerId: the id of the layer.
@@ -516,6 +521,11 @@ class Layer:
     def setTemperatureDriver(self, driver: ScalarDriver) -> None:
         """Set a driver for the temperature of the layer.
         Automatically changes the solver to Euler-Heun."""
+        ...
+
+    def setSeed(self, seed: int | None = None) -> None:
+        """Seed the layer RNGs.
+        If omitted, the layer is randomized again."""
         ...
 
     def setExternalFieldDriver(self, driver: AxialDriver) -> None: ...

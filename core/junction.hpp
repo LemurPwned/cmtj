@@ -16,6 +16,7 @@
 #include "cvector.hpp"   // for CVector
 #include "drivers.hpp"   // for ScalarDriver, AxialDriver
 #include "noise.hpp"     // for OneFNoise
+#include <cstdint>
 #include <algorithm>     // for find_if
 #include <array>         // for array, array<>::value_type
 #include <chrono>        // for seconds, steady_clock, duration
@@ -23,6 +24,7 @@
 #include <fstream>       // for file save
 #include <functional>    // for bind, function
 #include <iostream>      // for string, operator<<, basic_ostream
+#include <optional>
 #include <random>        // for mt19937, normal_distribution
 #include <stdexcept>     // for runtime_error, invalid_argument
 #include <string>        // for operator+, operator==, basic_string
@@ -180,20 +182,19 @@ private:
   bool alternativeSTTSet = false;
   Reference referenceType = NONE;
 
-  // the distribution is binded for faster generation
-  // is also shared between 1/f and Gaussian noise.
-  std::function<T()> distribution = std::bind(
-      std::normal_distribution<T>(0, 1), std::mt19937(std::random_device{}()));
+    std::mt19937 thermalGenerator = std::mt19937(std::random_device{}());
+    std::normal_distribution<T> thermalDistribution =
+      std::normal_distribution<T>(0, 1);
 
   CVector<T> dWn, dWn2; // one for thermal, one for OneF
   Layer(const std::string &id, CVector<T> mag, CVector<T> anis, T Ms,
         T thickness, T cellSurface, const std::vector<CVector<T>> &demagTensor,
         T damping, T fieldLikeTorque, T dampingLikeTorque,
         T SlonczewskiSpacerLayerParameter, T beta, T spinPolarisation)
-      : id(id), mag(mag), anis(anis), Ms(Ms), thickness(thickness),
-        cellSurface(cellSurface), demagTensor(demagTensor), damping(damping),
-        dampingSq(damping * damping),
-        fieldLikeTorque(fieldLikeTorque), dampingLikeTorque(dampingLikeTorque),
+      : id(id), Ms(Ms), thickness(thickness), cellSurface(cellSurface),
+        mag(mag), anis(anis), demagTensor(demagTensor), damping(damping),
+        dampingSq(damping * damping), fieldLikeTorque(fieldLikeTorque),
+        dampingLikeTorque(dampingLikeTorque),
         SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
         SlonczewskiSpacerLayerParameterSq(SlonczewskiSpacerLayerParameter * SlonczewskiSpacerLayerParameter),
         beta(beta), spinPolarisation(spinPolarisation) {
@@ -206,7 +207,7 @@ private:
     }
     // normalise magnetisation
     mag.normalize();
-    dWn = CVector<T>(this->distribution);
+    dWn = CVector<T>([this]() { return this->thermalDistribution(this->thermalGenerator); });
     dWn.normalize();
     this->cellVolume = this->cellSurface * this->thickness;
     this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(0, 0., 0.));
@@ -400,6 +401,20 @@ public:
   void setTemperatureDriver(const ScalarDriver<T> &driver) {
     this->temperatureDriver = driver;
     this->temperatureSet = true;
+  }
+
+  void setSeed(std::optional<std::uint64_t> seed = std::nullopt) {
+    if (seed.has_value()) {
+      this->thermalGenerator.seed(*seed);
+      if (this->ofn) {
+        this->ofn->setSeed(seed);
+      }
+    } else {
+      this->thermalGenerator.seed(std::random_device{}());
+      if (this->ofn) {
+        this->ofn->setSeed();
+      }
+    }
   }
 
   void setNonStochasticLangevinDriver(const ScalarDriver<T> &driver) {
@@ -1137,7 +1152,7 @@ public:
       return CVector<T>();
     const T Hthermal_temp =
         this->getLangevinStochasticStandardDeviation(time, timeStep);
-    return CVector<T>(this->distribution) * Hthermal_temp;
+    return CVector<T>([this]() { return this->thermalDistribution(this->thermalGenerator); }) * Hthermal_temp;
   }
 
   inline CVector<T> getOneFVector() {
@@ -1175,7 +1190,7 @@ public:
    * @param layersToSet: layers that compose the junction
    */
   explicit Junction(std::vector<Layer<T>> layersToSet) 
-      : layers(std::move(layersToSet)), MR_mode(NONE), layerNo(layers.size()) {
+      : MR_mode(NONE), layers(std::move(layersToSet)), layerNo(layers.size()) {
     if (this->layerNo == 0) {
       throw std::invalid_argument("Passed a zero length Layer vector!");
     }
@@ -1470,6 +1485,15 @@ public:
       }
     } else
       getLayer(layerID).setAlternativeSTT(alternative);
+  }
+
+  void setLayerSeed(const std::string &layerID, unsigned int seed) {
+    if (layerID == "all") {
+      for (auto &l : this->layers) {
+        l.setSeed(seed);
+      }
+    } else
+      getLayer(layerID).setSeed(seed);
   }
 
   void setLayerOneFNoise(const std::string &layerID, unsigned int sources,
