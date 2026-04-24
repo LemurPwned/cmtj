@@ -279,6 +279,7 @@ PYBIND11_MODULE(_cmtj, m) {
           .def_readonly("demagTensor", &DLayer::demagTensor)
           // noise
           .def("setAlphaNoise", &DLayer::setAlphaNoise, "alpha"_a, "std"_a, "scale"_a, "axis"_a = Axis::all)
+          .def("setSeed", &DLayer::setSeed, "seed"_a = py::none())
           .def("setOneFNoise", &DLayer::setOneFNoise)
           // getters
           .def("getReferenceLayer", &DLayer::getReferenceLayer, py::return_value_policy::reference)
@@ -323,6 +324,7 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("setIDMIDriver", &DJunction::setIDMIDriver)
           // noise
           .def("setLayerTemperatureDriver", &DJunction::setLayerTemperatureDriver)
+          .def("setLayerSeed", &DJunction::setLayerSeed, "layerId"_a, "seed"_a = py::none())
           .def("setLayerNonStochasticLangevinDriver",
                &DJunction::setLayerNonStochasticLangevinDriver)
           .def("setLayerOneFNoise", &DJunction::setLayerOneFNoise)
