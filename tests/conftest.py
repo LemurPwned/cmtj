@@ -1,5 +1,3 @@
-import sys
-
 import pytest
 from typing import Tuple
 from math import pi
@@ -19,21 +17,6 @@ surface = 150e-9 * 150e-9 * pi
 @pytest.fixture
 def arg(request):
     return request.getfixturevalue(request.param)
-
-
-def pytest_configure(config):
-    if sys.platform == "win32":
-        config.option.dist = "loadgroup"
-
-
-def pytest_collection_modifyitems(config, items):
-    if sys.platform != "win32":
-        return
-
-    for item in items:
-        if item.nodeid == "tests/test_curated_examples.py::test_cims_stability":
-            item.add_marker(pytest.mark.xdist_group("cims_stability"))
-            break
 
 
 @pytest.fixture
