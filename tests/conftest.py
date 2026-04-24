@@ -21,27 +21,19 @@ def arg(request):
     return request.getfixturevalue(request.param)
 
 
+def pytest_configure(config):
+    if sys.platform == "win32":
+        config.option.dist = "loadgroup"
+
+
 def pytest_collection_modifyitems(config, items):
     if sys.platform != "win32":
         return
 
-    serial_nodeid = "tests/test_curated_examples.py::test_cims_stability"
-    serial_items = [item for item in items if item.nodeid == serial_nodeid]
-    if not serial_items:
-        return
-
-    config._serial_items = serial_items  # type: ignore[attr-defined]
-    items[:] = [item for item in items if item.nodeid != serial_nodeid]
-
-
-def pytest_collection_finish(session):
-    serial_items = getattr(session.config, "_serial_items", None)
-    if not serial_items:
-        return
-
-    for index, item in enumerate(serial_items):
-        nextitem = serial_items[index + 1] if index + 1 < len(serial_items) else None
-        item.ihook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+    for item in items:
+        if item.nodeid == "tests/test_curated_examples.py::test_cims_stability":
+            item.add_marker(pytest.mark.xdist_group("cims_stability"))
+            break
 
 
 @pytest.fixture
