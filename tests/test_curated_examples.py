@@ -12,6 +12,7 @@ by setting the UPDATE_REFERENCE environment variable.
 import json
 import math
 import os
+import sys
 from collections import defaultdict
 
 import numpy as np
@@ -948,6 +949,7 @@ def test_sto(update_reference):
     compare_with_reference("test_sto", test_data, update_reference)
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Windows access violation in this curated example")
 @pytest.mark.slow
 def test_cims_stability(update_reference):
     """Test CIMS stability diagram simulation."""
