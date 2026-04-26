@@ -97,11 +97,6 @@ j.clearLog()
 j.runSimulation(14e-9, tstep, tstep)
 m_components = defaultdict(list)
 hysteresis_scales = []
-Hoescales = np.linspace(0, 2500, 3)
-Hoescales = np.concatenate((-Hoescales, Hoescales[1:]))
-
-Hoescales = np.asarray([-1000, -500, -100, 0, 100, 500, 1000])
-Hoescales = [1, 0.5, 1e-1, 1e-2, 0, -1e-1, -1]
 Hoescales = [1, 0, -1]
 
 """
