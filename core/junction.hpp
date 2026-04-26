@@ -60,7 +60,7 @@ inline CVector<T> calculate_tensor_interaction(
   // Cache magnetization components for better register usage
   const T m0 = m[0], m1 = m[1], m2 = m[2];
   const T scale = Ms / MAGNETIC_PERMEABILITY;
-  
+
   // Compute matrix-vector product with fewer temporary objects
   return CVector<T>(
       (tensor[0][0] * m0 + tensor[0][1] * m1 + tensor[0][2] * m2) * scale,
@@ -74,7 +74,7 @@ inline CVector<T> calculate_tensor_interaction(
   // Cache magnetization components for better register usage
   const T m0 = m[0], m1 = m[1], m2 = m[2];
   const T scale = Ms / MAGNETIC_PERMEABILITY;
-  
+
   // Compute matrix-vector product with fewer temporary objects
   return CVector<T>(
       (tensor[0][0] * m0 + tensor[0][1] * m1 + tensor[0][2] * m2) * scale,
@@ -87,11 +87,11 @@ inline CVector<T> c_cross(const CVector<T> &a, const CVector<T> &b) {
   // Cache array accesses for better performance
   const T a0 = a[0], a1 = a[1], a2 = a[2];
   const T b0 = b[0], b1 = b[1], b2 = b[2];
-  
+
   return CVector<T>(a1 * b2 - a2 * b1, a2 * b0 - a0 * b2, a0 * b1 - a1 * b0);
 }
 
-template <typename T> 
+template <typename T>
 constexpr inline T c_dot(const CVector<T> &a, const CVector<T> &b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
@@ -1226,7 +1226,7 @@ public:
    * No magnetoresistance is calculated.
    * @param layersToSet: layers that compose the junction
    */
-  explicit Junction(std::vector<Layer<T>> layersToSet) 
+  explicit Junction(std::vector<Layer<T>> layersToSet)
       : MR_mode(NONE), layers(std::move(layersToSet)), layerNo(layers.size()) {
     if (this->layerNo == 0) {
       throw std::invalid_argument("Passed a zero length Layer vector!");
@@ -1282,7 +1282,7 @@ public:
                     std::vector<T> AMR_X, std::vector<T> AMR_Y,
                     std::vector<T> SMR_X, std::vector<T> SMR_Y,
                     std::vector<T> AHE)
-      : layers(std::move(layersToSet)), 
+      : layers(std::move(layersToSet)),
         Rx0(std::move(Rx0)), Ry0(std::move(Ry0)), AMR_X(std::move(AMR_X)),
         AMR_Y(std::move(AMR_Y)), SMR_X(std::move(SMR_X)),
         SMR_Y(std::move(SMR_Y)), AHE(std::move(AHE))
@@ -1302,6 +1302,7 @@ public:
       throw std::invalid_argument(
           "Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
     }
+    this->magCopiesBuffer.resize(this->layerNo + 2);
     // this->fileSave = std::move(filename);
     this->MR_mode = STRIP;
   }

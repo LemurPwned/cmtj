@@ -18,10 +18,9 @@ authors = [
 keywords = ["magnetics", "physics", "simulation", "spintronics"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: C++",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering",
@@ -29,7 +28,7 @@ classifiers = [
     "Typing :: Stubs Only",
     "Typing :: Typed",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.25.0",
     "numba>=0.60.0",
@@ -86,7 +85,7 @@ local_scheme = "no-local-version"
 write_to = "cmtj/_version.py"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 88
 select = [
     "E",  # pycodestyle errors
@@ -107,7 +106,7 @@ ignore = [
 "tests/*" = ["E711", "E712"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

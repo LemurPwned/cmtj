@@ -72,7 +72,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          # Build for Python 3.9, 3.10, 3.11, 3.12
+          # Build for Python 3.11, 3.12, 3.13
           CIBW_BUILD: "cp311-* cp312-* cp313-*"
           # Skip PyPy builds and 32-bit builds
           CIBW_SKIP: "pp* *-win32 *-manylinux_i686"
