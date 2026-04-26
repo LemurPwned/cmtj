@@ -30,6 +30,7 @@
 #include <string>        // for operator+, operator==, basic_string
 #include <type_traits>   // for enable_if<>::type
 #include <unordered_map> // for unordered_map
+#include <unordered_set> // for unordered_set
 #include <vector>        // for vector, __vector_base<>::value_type
 
 #define MAGNETIC_PERMEABILITY PhysicalConstants::MAGNETIC_PERMEABILITY
@@ -59,7 +60,7 @@ inline CVector<T> calculate_tensor_interaction(
   // Cache magnetization components for better register usage
   const T m0 = m[0], m1 = m[1], m2 = m[2];
   const T scale = Ms / MAGNETIC_PERMEABILITY;
-  
+
   // Compute matrix-vector product with fewer temporary objects
   return CVector<T>(
       (tensor[0][0] * m0 + tensor[0][1] * m1 + tensor[0][2] * m2) * scale,
@@ -73,7 +74,7 @@ inline CVector<T> calculate_tensor_interaction(
   // Cache magnetization components for better register usage
   const T m0 = m[0], m1 = m[1], m2 = m[2];
   const T scale = Ms / MAGNETIC_PERMEABILITY;
-  
+
   // Compute matrix-vector product with fewer temporary objects
   return CVector<T>(
       (tensor[0][0] * m0 + tensor[0][1] * m1 + tensor[0][2] * m2) * scale,
@@ -86,11 +87,11 @@ inline CVector<T> c_cross(const CVector<T> &a, const CVector<T> &b) {
   // Cache array accesses for better performance
   const T a0 = a[0], a1 = a[1], a2 = a[2];
   const T b0 = b[0], b1 = b[1], b2 = b[2];
-  
+
   return CVector<T>(a1 * b2 - a2 * b1, a2 * b0 - a0 * b2, a0 * b1 - a1 * b0);
 }
 
-template <typename T> 
+template <typename T>
 constexpr inline T c_dot(const CVector<T> &a, const CVector<T> &b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
@@ -157,6 +158,14 @@ enum SolverMode { EULER_HEUN = 0, RK4 = 1, DORMAND_PRINCE = 2, HEUN = 3 };
 
 template <typename T = double> class Layer {
 private:
+  static std::array<CVector<T>, 3>
+  tensorVectorToArray(const std::vector<CVector<T>> &tensor) {
+    if (tensor.size() != 3) {
+      throw std::runtime_error("Tensor must contain exactly 3 vectors!");
+    }
+    return {tensor[0], tensor[1], tensor[2]};
+  }
+
   ScalarDriver<T> temperatureDriver;
 
   // CMTJ interaction drivers
@@ -192,8 +201,11 @@ private:
         T damping, T fieldLikeTorque, T dampingLikeTorque,
         T SlonczewskiSpacerLayerParameter, T beta, T spinPolarisation)
       : id(id), Ms(Ms), thickness(thickness), cellSurface(cellSurface),
-        mag(mag), anis(anis), demagTensor(demagTensor), damping(damping),
-        dampingSq(damping * damping), fieldLikeTorque(fieldLikeTorque),
+        mag(mag), anis(anis), demagTensor(demagTensor),
+        demagTensorArray(tensorVectorToArray(demagTensor)), damping(damping),
+        dampingSq(damping * damping), invMs(1 / Ms),
+        invMsThickness(1 / (Ms * thickness)),
+        fieldLikeTorque(fieldLikeTorque),
         dampingLikeTorque(dampingLikeTorque),
         SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
         SlonczewskiSpacerLayerParameterSq(SlonczewskiSpacerLayerParameter * SlonczewskiSpacerLayerParameter),
@@ -211,6 +223,8 @@ private:
     dWn.normalize();
     this->cellVolume = this->cellSurface * this->thickness;
     this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(0, 0., 0.));
+    this->dipoleBottomArray = tensorVectorToArray(this->dipoleBottom);
+    this->dipoleTopArray = tensorVectorToArray(this->dipoleTop);
   }
 
 public:
@@ -251,14 +265,19 @@ public:
 
   // dipole and demag tensors
   std::vector<CVector<T>> demagTensor;
+  std::array<CVector<T>, 3> demagTensorArray;
   std::vector<CVector<T>> dipoleBottom =
       std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
   std::vector<CVector<T>> dipoleTop =
       std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
+  std::array<CVector<T>, 3> dipoleBottomArray;
+  std::array<CVector<T>, 3> dipoleTopArray;
 
   // LLG params
   T damping;
   T dampingSq; // cached damping^2 for performance
+  T invMs = 0.0;
+  T invMsThickness = 0.0;
 
   // SOT params
   bool dynamicSOT = true;
@@ -390,10 +409,12 @@ public:
   void setKappa(T kappa) { this->kappa = kappa; }
   void setTopDipoleTensor(const std::vector<CVector<T>> &dipoleTensor) {
     this->dipoleTop = dipoleTensor;
+    this->dipoleTopArray = tensorVectorToArray(dipoleTensor);
   }
 
   void setBottomDipoleTensor(const std::vector<CVector<T>> &dipoleTensor) {
     this->dipoleBottom = dipoleTensor;
+    this->dipoleBottomArray = tensorVectorToArray(dipoleTensor);
   }
 
   const bool hasTemperature() { return this->temperatureSet; }
@@ -611,8 +632,8 @@ public:
                 const CVector<T> &bottom, const CVector<T> &top,
                 const CVector<T> &Hfluctuation = CVector<T>()) {
     this->Hdipole =
-        calculate_tensor_interaction(bottom, this->dipoleBottom, this->Ms) +
-        calculate_tensor_interaction(top, this->dipoleTop, this->Ms);
+        calculate_tensor_interaction(bottom, this->dipoleBottomArray, this->Ms) +
+        calculate_tensor_interaction(top, this->dipoleTopArray, this->Ms);
     return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top,
                                         this->Hdipole, Hfluctuation);
   }
@@ -626,7 +647,7 @@ public:
     this->Hoe = calculateHOeField(time);
 
     this->Hdemag =
-        calculate_tensor_interaction(stepMag, this->demagTensor, this->Ms);
+        calculate_tensor_interaction(stepMag, this->demagTensorArray, this->Ms);
     this->HIEC = calculateIEC(time, stepMag, bottom, top);
     this->Hidmi = calculateIDMI(time, stepMag, bottom, top);
     this->HAnis = calculateAnisotropy(stepMag, time);
@@ -634,20 +655,17 @@ public:
     CVector<T> HreservedInteractionField =
         this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
     const CVector<T> HAnis2 = calculateSecondOrderAnisotropy(stepMag, time);
-    const CVector<T> Heff = this->Hext     // external
-                            + this->HAnis  // anistotropy
-                            + HAnis2       // second order anisotropy
-                            + this->HIEC   // IEC
-                            + this->Hidmi  // IDMI
-                            + this->Hoe    // Oersted field
-                            + this->Hdmi   // regular DMI
-                            + Hfluctuation // fluctuations
-                            // demag -- negative contribution
-                            - this->Hdemag
-                            // dipole -- negative contribution
-                            - dipole
-                            // reserved interaction field
-                            + HreservedInteractionField;
+    CVector<T> Heff = this->Hext;
+    Heff += this->HAnis;
+    Heff += HAnis2;
+    Heff += this->HIEC;
+    Heff += this->Hidmi;
+    Heff += this->Hoe;
+    Heff += this->Hdmi;
+    Heff += Hfluctuation;
+    Heff -= this->Hdemag;
+    Heff -= dipole;
+    Heff += HreservedInteractionField;
     return Heff;
   }
 
@@ -667,7 +685,7 @@ public:
 
   inline CVector<T> calculateAnisotropy(const CVector<T> &stepMag, T &time) {
     this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
-    const T nom = (2 * this->K_log) * c_dot<T>(this->anis, stepMag) / this->Ms;
+    const T nom = (2 * this->K_log) * c_dot<T>(this->anis, stepMag) * this->invMs;
     return this->anis * nom;
   }
 
@@ -676,7 +694,7 @@ public:
     this->K2_log =
         this->secondOrderAnisotropyDriver.getCurrentScalarValue(time);
     const T dot = c_dot<T>(this->anis, stepMag);
-    const T nom = (4 * this->K2_log) * dot * dot * dot / this->Ms;
+    const T nom = (4 * this->K2_log) * dot * dot * dot * this->invMs;
     return this->anis * nom;
   }
 
@@ -686,7 +704,8 @@ public:
     // only. const T nom = J / (this->Ms * this->thickness); return (coupledMag
     // - stepMag) * nom; // alternative form return (coupledMag + coupledMag * 2
     // * J2 * c_dot(coupledMag, stepMag)) * nom;
-    const T scale = (J + 2 * J2 * c_dot(coupledMag, stepMag)) / (this->Ms * this->thickness);
+    const T scale =
+        (J + 2 * J2 * c_dot(coupledMag, stepMag)) * this->invMsThickness;
     return coupledMag * scale;
   }
 
@@ -712,7 +731,7 @@ public:
     // dm1/dm1z x m2 = (-my, mx, 0)
     // E = D z * (m1 x m2) == D m1 (m2 x z)
     // dE/dm1 = D m2 x z
-    const T scale = -1.0 / (this->Ms * this->thickness);
+    const T scale = -this->invMsThickness;
     return c_cross<T>(Dvector, coupledMag) * scale;
     // const CVector<T> dm1crossm2(
     //     c_dot(Dvector, CVector<T>(0, -coupledMag.z, coupledMag.y)),
@@ -748,7 +767,8 @@ public:
     const CVector<T> prod = c_cross<T>(m, heff);
     const CVector<T> prod2 = c_cross<T>(m, prod);
     const T convTerm = 1 / (1 + this->dampingSq); // LLGS -> LL form
-    const CVector<T> dmdt = prod + prod2 * this->damping;
+    CVector<T> dmdt = prod;
+    dmdt += prod2 * this->damping;
     CVector<T> reference;
 
     // decide what is to be the reference for (s)LLG-STT
@@ -774,8 +794,7 @@ public:
       // use standard STT formulation
       // see that literature reports Ms/MAGNETIC_PERMEABILITY
       // but then the units don't match, we use Ms [T] which works
-      const T aJ =
-          HBAR * this->I_log / (ELECTRON_CHARGE * this->Ms * this->thickness);
+      const T aJ = HBAR * this->I_log * this->invMsThickness / ELECTRON_CHARGE;
       // field like
       T eta = 0;
       if (this->alternativeSTTSet) {
@@ -793,9 +812,11 @@ public:
       const CVector<T> fieldLike = c_cross<T>(m, reference);
       // damping like
       const CVector<T> dampingLike = c_cross<T>(m, fieldLike);
-      return (dmdt * -GYRO + dampingLike * -sttTerm * this->kappa +
-              fieldLike * sttTerm * this->beta) *
-             convTerm;
+      CVector<T> result = dmdt * -GYRO;
+      result += dampingLike * (-sttTerm * this->kappa);
+      result += fieldLike * (sttTerm * this->beta);
+      result *= convTerm;
+      return result;
     } else if (this->includeSOT) {
       T Hdl = 0, Hfl = 0, Hdl2 = 0, Hfl2 = 0;
 
@@ -835,12 +856,17 @@ public:
       const CVector<T> dlTorque_secondary =
           ccm_secondary * (Hdl2 + this->damping * Hfl2);
 
-      return (dmdt + flTorque_primary + dlTorque_primary + flTorque_secondary +
-              dlTorque_secondary) *
-             -GYRO * convTerm;
+      CVector<T> result = dmdt;
+      result += flTorque_primary;
+      result += dlTorque_primary;
+      result += flTorque_secondary;
+      result += dlTorque_secondary;
+      result *= (-GYRO * convTerm);
+      return result;
     }
 
-    return dmdt * -GYRO * convTerm;
+    dmdt *= (-GYRO * convTerm);
+    return dmdt;
   }
 
   /**
@@ -1060,7 +1086,12 @@ public:
     const CVector<T> k4 = calculateLLGWithFieldTorque(time + timeStep, m_t + k3,
                                                       bottom, top, timeStep) *
                           timeStep;
-    m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
+    CVector<T> increment = k1;
+    increment += k2 * 2.0;
+    increment += k3 * 2.0;
+    increment += k4;
+    increment *= (1.0 / 6.0);
+    m_t += increment;
     m_t.normalize();
     this->mag = m_t;
     if (isnan(this->mag.x)) {
@@ -1101,7 +1132,12 @@ public:
         calculateLLGWithFieldTorqueDipoleInjection(
             time + timeStep, m_t + k3, bottom, top, dipole, timeStep) *
         timeStep;
-    m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
+    CVector<T> increment = k1;
+    increment += k2 * 2.0;
+    increment += k3 * 2.0;
+    increment += k4;
+    increment *= (1.0 / 6.0);
+    m_t += increment;
     m_t.normalize();
     this->mag = m_t;
   }
@@ -1177,6 +1213,7 @@ public:
 
   std::vector<T> Rx0, Ry0, AMR_X, AMR_Y, SMR_X, SMR_Y, AHE;
   std::unordered_map<std::string, std::vector<T>> log;
+  std::vector<CVector<T>> magCopiesBuffer;
 
   unsigned int logLength = 0;
   unsigned int layerNo;
@@ -1189,7 +1226,7 @@ public:
    * No magnetoresistance is calculated.
    * @param layersToSet: layers that compose the junction
    */
-  explicit Junction(std::vector<Layer<T>> layersToSet) 
+  explicit Junction(std::vector<Layer<T>> layersToSet)
       : MR_mode(NONE), layers(std::move(layersToSet)), layerNo(layers.size()) {
     if (this->layerNo == 0) {
       throw std::invalid_argument("Passed a zero length Layer vector!");
@@ -1202,6 +1239,7 @@ public:
       }
       _ids.insert(layer.id);
     }
+    this->magCopiesBuffer.resize(this->layerNo + 2);
   }
   explicit Junction(std::vector<Layer<T>> layersToSet, T Rp, T Rap)
       : Junction(std::move(layersToSet)) {
@@ -1244,7 +1282,7 @@ public:
                     std::vector<T> AMR_X, std::vector<T> AMR_Y,
                     std::vector<T> SMR_X, std::vector<T> SMR_Y,
                     std::vector<T> AHE)
-      : layers(std::move(layersToSet)), 
+      : layers(std::move(layersToSet)),
         Rx0(std::move(Rx0)), Ry0(std::move(Ry0)), AMR_X(std::move(AMR_X)),
         AMR_Y(std::move(AMR_Y)), SMR_X(std::move(SMR_X)),
         SMR_Y(std::move(SMR_Y)), AHE(std::move(AHE))
@@ -1264,6 +1302,7 @@ public:
       throw std::invalid_argument(
           "Layers and Rx0, Ry, AMR, AMR and SMR must be of the same size!");
     }
+    this->magCopiesBuffer.resize(this->layerNo + 2);
     // this->fileSave = std::move(filename);
     this->MR_mode = STRIP;
   }
@@ -1287,6 +1326,51 @@ public:
   void clearLog() {
     this->log.clear();
     this->logLength = 0;
+  }
+
+  void initialiseLogStorage(unsigned int expectedSamples,
+                            bool calculateEnergies) {
+    auto reserveKey = [&](const std::string &key) {
+      auto &values = this->log[key];
+      values.reserve(expectedSamples);
+    };
+
+    reserveKey("time");
+    for (const auto &layer : this->layers) {
+      const std::string &layerId = layer.id;
+      reserveKey(layerId + "_mx");
+      reserveKey(layerId + "_my");
+      reserveKey(layerId + "_mz");
+
+      if (!calculateEnergies) {
+        continue;
+      }
+
+      reserveKey(layerId + "_K");
+      reserveKey(layerId + "_K2");
+      reserveKey(layerId + "_Jbottom");
+      reserveKey(layerId + "_Jtop");
+      reserveKey(layerId + "_I");
+      for (const auto &axisName : this->vectorNames) {
+        reserveKey(layerId + "_Hext" + axisName);
+        reserveKey(layerId + "_Hiec" + axisName);
+        reserveKey(layerId + "_Hanis" + axisName);
+        reserveKey(layerId + "_Hdemag" + axisName);
+        reserveKey(layerId + "_Hth" + axisName);
+        if (layer.includeSOT) {
+          reserveKey(layerId + "_Hfl" + axisName);
+          reserveKey(layerId + "_Hdl" + axisName);
+        }
+      }
+    }
+
+    if (this->MR_mode == CLASSIC) {
+      reserveKey(this->layerNo == 1 ? "R" : this->Rtag);
+    } else if (this->MR_mode == STRIP) {
+      reserveKey("Rx");
+      reserveKey("Ry");
+      reserveKey("Rz");
+    }
   }
 
   std::unordered_map<std::string, std::vector<T>> &getLog() {
@@ -1719,13 +1803,12 @@ public:
                            bool &step_accepted) {
     // Run solver for each layer and check if all steps were accepted
     step_accepted = true;
-    std::vector<CVector<T>> magCopies;
-    magCopies.reserve(this->layerNo + 2);
-    magCopies.emplace_back(); // First layer gets 0 vector coupled
+    auto &magCopies = this->magCopiesBuffer;
+    magCopies[0] = CVector<T>(); // First layer gets 0 vector coupled
     // the first and the last layer get 0 vector coupled
     for (unsigned int i = 0; i < this->layerNo; i++)
-      magCopies.emplace_back(this->layers[i].mag);
-    magCopies.emplace_back(); // Last layer gets 0 vector coupled
+      magCopies[i + 1] = this->layers[i].mag;
+    magCopies[this->layerNo + 1] = CVector<T>(); // Last layer gets 0 vector coupled
 
     for (unsigned int i = 0; i < layerNo; i++) {
       // If any layer rejects the step, the whole step is rejected
@@ -1997,10 +2080,13 @@ public:
         static_cast<unsigned int>(totalTime / timeStep);
     const unsigned int writeEvery =
         static_cast<unsigned int>(writeFrequency / timeStep);
+    const unsigned int expectedSamples =
+        (totalIterations / writeEvery) + 2;
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
     // pick a solver based on drivers
     auto [runner, solver, solver_mode] = getSolver(mode, totalIterations);
+    initialiseLogStorage(expectedSamples, calculateEnergies);
     T t = 0.0;
     T next_write_time = 0.0;
     if (solver_mode != DORMAND_PRINCE) {

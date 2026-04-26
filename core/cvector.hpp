@@ -1,6 +1,7 @@
 #ifndef CORE_CVECTOR_HPP_
 #define CORE_CVECTOR_HPP_
 
+#include <cmath>      // for sqrt
 #include <functional> // for function
 #include <iostream>   // for operator<<, ostream
 #include <sstream>    // for char_traits, basic_stringstream, basic_os..
@@ -158,7 +159,7 @@ public:
     return res;
   };
 
-  T operator[](const int &i) {
+  T &operator[](const int &i) {
     if (i == 0)
       return x;
     else if (i == 1)
@@ -167,7 +168,7 @@ public:
       return z;
   }
 
-  T operator[](const int &i) const {
+  const T &operator[](const int &i) const {
     if (i == 0)
       return x;
     else if (i == 1)
@@ -176,18 +177,17 @@ public:
       return z;
   }
 
-  T length() { return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)); }; // Magnitude
+  T length() { return std::sqrt(x * x + y * y + z * z); }; // Magnitude
 
-  T length() const {
-    return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
-  }; // Magnitude
+  T length() const { return std::sqrt(x * x + y * y + z * z); }; // Magnitude
 
   void normalize() {
     const T mag = this->length();
     if (mag != 0) {
-      x = x / mag;
-      y = y / mag;
-      z = z / mag;
+      const T invMag = 1 / mag;
+      x *= invMag;
+      y *= invMag;
+      z *= invMag;
     }
   };
   void setX(const T &vx) { this->x = vx; }

@@ -9,6 +9,7 @@
 #include <stdlib.h> // for abs
 #define _USE_MATH_DEFINES
 #include "cvector.hpp" // for CVector
+#include <array>       // for array
 #include <cmath>       // for M_PI
 #include <pybind11/pybind11.h>
 #include <stdexcept> // for runtime_error
@@ -259,39 +260,58 @@ public:
     return ScalarDriver(custom, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, callback);
   }
 
+  bool isConstant() const { return this->update == constant; }
+  T getConstantValue() const { return this->constantValue; }
+
   T getCurrentScalarValue(T &time) override {
+    if (this->update == constant) {
+      return this->constantValue;
+    }
+
     T returnValue = this->constantValue;
-    if (this->update == pulse) {
+    switch (this->update) {
+    case pulse:
       returnValue +=
           pulseTrain(this->amplitude, time, this->period, this->cycle);
-    } else if (this->update == sine) {
-      returnValue += this->amplitude *
-                     sin(2 * M_PI * time * this->frequency + this->phase);
-    } else if (this->update == posine) {
-      returnValue += abs(this->amplitude *
-                         sin(2 * M_PI * time * this->frequency + this->phase));
-    } else if (this->update == halfsine) {
-      const T tamp = this->amplitude *
-                     sin(2 * M_PI * time * this->frequency + this->phase);
+      break;
+    case sine: {
+      const T phaseArg = 2 * M_PI * time * this->frequency + this->phase;
+      returnValue += this->amplitude * std::sin(phaseArg);
+      break;
+    }
+    case posine: {
+      const T phaseArg = 2 * M_PI * time * this->frequency + this->phase;
+      returnValue += std::abs(this->amplitude * std::sin(phaseArg));
+      break;
+    }
+    case halfsine: {
+      const T phaseArg = 2 * M_PI * time * this->frequency + this->phase;
+      const T tamp = this->amplitude * std::sin(phaseArg);
       if (tamp <= 0) {
-        returnValue += tamp; // ? tamp >= 0. : 0.;
+        returnValue += tamp;
       }
-    } else if (this->update == step) {
+      break;
+    }
+    case step:
       returnValue +=
           stepUpdate(this->amplitude, time, this->timeStart, this->timeStop);
-    } else if (this->update == trapezoid) {
+      break;
+    case trapezoid:
       returnValue += trapezoidalUpdate(this->amplitude, time, this->timeStart,
                                        this->edgeTime, this->steadyTime);
-    } else if (this->update == gaussimpulse) {
-      const T gaussImp = this->amplitude * exp(-pow(time - this->timeStart, 2) /
-                                               (2 * pow(this->edgeTime, 2)));
-      returnValue += gaussImp;
-    } else if (this->update == gaussstep) {
-      const T gaussStep =
-          0.5 * this->amplitude *
-          (1 + std::erf((time - this->timeStart) / (sqrt(2) * this->edgeTime)));
-      returnValue += gaussStep;
-    } else if (this->update == custom) {
+      break;
+    case gaussimpulse: {
+      const T dt = time - this->timeStart;
+      const T sigmaSq = this->edgeTime * this->edgeTime;
+      returnValue += this->amplitude * std::exp(-(dt * dt) / (2 * sigmaSq));
+      break;
+    }
+    case gaussstep:
+      returnValue += 0.5 * this->amplitude *
+                     (1 + std::erf((time - this->timeStart) /
+                                   (std::sqrt(2.0) * this->edgeTime)));
+      break;
+    case custom: {
       // If it is, call the Python function
       pybind11::gil_scoped_acquire gil;
       try {
@@ -300,6 +320,9 @@ public:
         std::cerr << "Error in Python callback: " << e.what() << std::endl;
         throw std::runtime_error("Error in Python callback");
       }
+    }
+    default:
+      break;
     }
     return returnValue;
   }
@@ -361,7 +384,20 @@ public:
 
 template <typename T> class AxialDriver : public Driver<T> {
 private:
-  std::vector<ScalarDriver<T>> drivers;
+  std::array<ScalarDriver<T>, 3> drivers;
+  bool allConstant = true;
+  CVector<T> constantValuesCache;
+
+  void refreshConstantCache() {
+    this->allConstant = this->drivers[0].isConstant() &&
+                        this->drivers[1].isConstant() &&
+                        this->drivers[2].isConstant();
+    if (this->allConstant) {
+      this->constantValuesCache = CVector<T>(this->drivers[0].getConstantValue(),
+                                             this->drivers[1].getConstantValue(),
+                                             this->drivers[2].getConstantValue());
+    }
+  }
 
 public:
   static AxialDriver getVectorAxialDriver(T x, T y, T z) {
@@ -378,6 +414,7 @@ public:
         throw std::runtime_error("Invalid mask value, mask must be binary!");
       }
     }
+    refreshConstantCache();
   }
 
   void applyMask(const CVector<T> &mask) {
@@ -388,10 +425,12 @@ public:
 
   AxialDriver() {
     this->drivers = {NullDriver<T>(), NullDriver<T>(), NullDriver<T>()};
+    refreshConstantCache();
   }
 
   AxialDriver(ScalarDriver<T> x, ScalarDriver<T> y, ScalarDriver<T> z) {
     this->drivers = {x, y, z};
+    refreshConstantCache();
   }
 
   explicit AxialDriver(const CVector<T> &xyz)
@@ -408,7 +447,9 @@ public:
     if (axialDrivers.size() != 3) {
       throw std::runtime_error("The axial driver can only have 3 axes!");
     }
-    this->drivers = std::move(axialDrivers);
+    this->drivers = {std::move(axialDrivers[0]), std::move(axialDrivers[1]),
+                     std::move(axialDrivers[2])};
+    refreshConstantCache();
   }
 
   static AxialDriver getUniAxialDriver(const ScalarDriver<T> &in, Axis axis) {
@@ -427,6 +468,9 @@ public:
     return AxialDriver(NullDriver<T>(), NullDriver<T>(), NullDriver<T>());
   }
   CVector<T> getCurrentAxialDrivers(T time) {
+    if (this->allConstant) {
+      return this->constantValuesCache;
+    }
     return CVector<T>(this->drivers[0].getCurrentScalarValue(time),
                       this->drivers[1].getCurrentScalarValue(time),
                       this->drivers[2].getCurrentScalarValue(time));
