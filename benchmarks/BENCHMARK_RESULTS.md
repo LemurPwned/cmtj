@@ -1,3 +1,30 @@
+# CMTJ 1.13.0
+======================================================================
+SUMMARY
+======================================================================
+Total benchmark time: 1.0776s
+
+Individual results:
+  1. Single layer RK4:            0.1320s ± 0.0001s
+  2. Multi-layer RK4:             0.0834s ± 0.0001s
+  3. Dormand-Prince:              0.0001s ± 0.0000s
+  4. Field sweep (50 steps):      0.3305s ± 0.0002s
+  5. Tensor operations:           0.5315s ± 0.0013s
+======================================================================
+================================================================================
+BENCHMARK MODE: Testing current version
+================================================================================
+Running benchmark: Single layer RK4 simulation...
+  Mean: 0.0134s ± 0.0001s
+Running benchmark: Multi-layer (3 layers) RK4 simulation...
+  Mean: 0.0082s ± 0.0000s
+Running benchmark: Single layer adaptive Dormand-Prince solver...
+  Mean: 0.0000s ± 0.0000s
+Running benchmark: Field sweep with 50 steps...
+  Mean: 0.3342s ± 0.0003s
+Running benchmark: Heavy tensor interaction calculations...
+  Mean: 0.0529s ± 0.0001s
+
 # CMTJ 1.11.0 (-O3 -march=native -ffast-math)
 ======================================================================
 SUMMARY
@@ -132,4 +159,3 @@ Running benchmark: Field sweep with 50 steps...
   Mean: 1.6958s ± 0.0452s
 Running benchmark: Heavy tensor interaction calculations...
   Mean: 0.2948s ± 0.0182s
-

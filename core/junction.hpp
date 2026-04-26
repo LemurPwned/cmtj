@@ -639,20 +639,17 @@ public:
     CVector<T> HreservedInteractionField =
         this->HreservedInteractionFieldDriver.getCurrentAxialDrivers(time);
     const CVector<T> HAnis2 = calculateSecondOrderAnisotropy(stepMag, time);
-    const CVector<T> Heff = this->Hext     // external
-                            + this->HAnis  // anistotropy
-                            + HAnis2       // second order anisotropy
-                            + this->HIEC   // IEC
-                            + this->Hidmi  // IDMI
-                            + this->Hoe    // Oersted field
-                            + this->Hdmi   // regular DMI
-                            + Hfluctuation // fluctuations
-                            // demag -- negative contribution
-                            - this->Hdemag
-                            // dipole -- negative contribution
-                            - dipole
-                            // reserved interaction field
-                            + HreservedInteractionField;
+    CVector<T> Heff = this->Hext;
+    Heff += this->HAnis;
+    Heff += HAnis2;
+    Heff += this->HIEC;
+    Heff += this->Hidmi;
+    Heff += this->Hoe;
+    Heff += this->Hdmi;
+    Heff += Hfluctuation;
+    Heff -= this->Hdemag;
+    Heff -= dipole;
+    Heff += HreservedInteractionField;
     return Heff;
   }
 
@@ -754,7 +751,8 @@ public:
     const CVector<T> prod = c_cross<T>(m, heff);
     const CVector<T> prod2 = c_cross<T>(m, prod);
     const T convTerm = 1 / (1 + this->dampingSq); // LLGS -> LL form
-    const CVector<T> dmdt = prod + prod2 * this->damping;
+    CVector<T> dmdt = prod;
+    dmdt += prod2 * this->damping;
     CVector<T> reference;
 
     // decide what is to be the reference for (s)LLG-STT
@@ -798,9 +796,11 @@ public:
       const CVector<T> fieldLike = c_cross<T>(m, reference);
       // damping like
       const CVector<T> dampingLike = c_cross<T>(m, fieldLike);
-      return (dmdt * -GYRO + dampingLike * -sttTerm * this->kappa +
-              fieldLike * sttTerm * this->beta) *
-             convTerm;
+      CVector<T> result = dmdt * -GYRO;
+      result += dampingLike * (-sttTerm * this->kappa);
+      result += fieldLike * (sttTerm * this->beta);
+      result *= convTerm;
+      return result;
     } else if (this->includeSOT) {
       T Hdl = 0, Hfl = 0, Hdl2 = 0, Hfl2 = 0;
 
@@ -840,12 +840,17 @@ public:
       const CVector<T> dlTorque_secondary =
           ccm_secondary * (Hdl2 + this->damping * Hfl2);
 
-      return (dmdt + flTorque_primary + dlTorque_primary + flTorque_secondary +
-              dlTorque_secondary) *
-             -GYRO * convTerm;
+      CVector<T> result = dmdt;
+      result += flTorque_primary;
+      result += dlTorque_primary;
+      result += flTorque_secondary;
+      result += dlTorque_secondary;
+      result *= (-GYRO * convTerm);
+      return result;
     }
 
-    return dmdt * -GYRO * convTerm;
+    dmdt *= (-GYRO * convTerm);
+    return dmdt;
   }
 
   /**
@@ -1065,7 +1070,12 @@ public:
     const CVector<T> k4 = calculateLLGWithFieldTorque(time + timeStep, m_t + k3,
                                                       bottom, top, timeStep) *
                           timeStep;
-    m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
+    CVector<T> increment = k1;
+    increment += k2 * 2.0;
+    increment += k3 * 2.0;
+    increment += k4;
+    increment *= (1.0 / 6.0);
+    m_t += increment;
     m_t.normalize();
     this->mag = m_t;
     if (isnan(this->mag.x)) {
@@ -1106,7 +1116,12 @@ public:
         calculateLLGWithFieldTorqueDipoleInjection(
             time + timeStep, m_t + k3, bottom, top, dipole, timeStep) *
         timeStep;
-    m_t = m_t + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) / 6.0;
+    CVector<T> increment = k1;
+    increment += k2 * 2.0;
+    increment += k3 * 2.0;
+    increment += k4;
+    increment *= (1.0 / 6.0);
+    m_t += increment;
     m_t.normalize();
     this->mag = m_t;
   }
