@@ -1,6 +1,6 @@
 # Parallel sweeps — `cmtj.utils.parallel.distribute`
 
-Full walkthrough: `docs/physics/paralellism.md`.
+Full walkthrough: `docs/physics/parallelism.md`.
 
 ## When to reach for this
 

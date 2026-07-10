@@ -269,9 +269,9 @@ public:
   bool includeSOT = false;
 
   // AFM sublattices: this layer models a single antiferromagnetic layer as
-  // two exchange-coupled sublattices. `mag` is sublattice 1, `mag2` is
-  // sublattice 2. Both share Ms/anis/damping (same material). Set via
-  // `setMagnetisation2` or the `LayerAFM` factory.
+  // two exchange-coupled sublattices. `mag` is sublattice A, `mag2` is
+  // sublattice B. Both share Ms/anis/damping (same material). Set via
+  // `setSubLatticeMagnetisationB` or the `LayerAFM` factory.
   bool isAFM = false;
   CVector<T> mag2;
 
@@ -418,9 +418,8 @@ public:
    * Models a single AFM layer as two exchange-coupled sublattices, `mag1`
    * and `mag2`, sharing Ms/anis/damping (same material). The sublattices
    * are coupled via `afmExchangeDriver` -- a strongly negative J favours
-   * the antiparallel (Neel) ground state. Currently only the RK4/DP
-   * fixed-step solver path supports AFM layers (no stochastic/temperature
-   * drivers).
+   * the antiparallel (Neel) ground state. Currently only the fixed-step RK4
+   * solver supports AFM layers (no stochastic/temperature drivers).
    * @param id: identifiable name for the layer.
    * @param mag1: initial magnetisation of sublattice 1. Normalised.
    * @param mag2: initial magnetisation of sublattice 2. Normalised.
@@ -440,7 +439,7 @@ public:
            const ScalarDriver<T> &afmExchangeDriver) {
     Layer<T> layer(id, mag1, anis, Ms, thickness, cellSurface, demagTensor,
                    damping);
-    layer.setMagnetisation2(mag2);
+    layer.setSubLatticeMagnetisationB(mag2);
     layer.setAFMExchangeDriver(afmExchangeDriver);
     return layer;
   }
@@ -635,37 +634,50 @@ public:
   }
 
   /**
-   * @brief Set the second sublattice magnetisation.
-   * Setting this marks the layer as an antiferromagnetic (AFM) layer:
-   * `mag` becomes sublattice 1, `mag2` sublattice 2, coupled via
-   * `setAFMExchangeDriver`. Both sublattices share Ms/anis/damping.
-   * @param newMag2: initial magnetisation of the second sublattice.
+   * @brief Set sublattice A's magnetisation (AFM naming alias).
+   * Sublattice A is `mag` -- the same state `setMagnetisation` sets. This
+   * alias exists so AFM layers can be configured with a symmetric
+   * `setSubLatticeMagnetisationA`/`setSubLatticeMagnetisationB` pair instead
+   * of mixing the generic `setMagnetisation` with the AFM-specific setter.
+   * @param newMagA: initial magnetisation of sublattice A.
    */
-  void setMagnetisation2(const CVector<T> &newMag2) {
-    if (newMag2.length() == 0) {
+  void setSubLatticeMagnetisationA(const CVector<T> &newMagA) {
+    this->setMagnetisation(newMagA);
+  }
+
+  CVector<T> getSubLatticeMagnetisationA() const { return this->mag; }
+
+  /**
+   * @brief Set sublattice B's magnetisation.
+   * Setting this marks the layer as an antiferromagnetic (AFM) layer:
+   * sublattice A (`mag`) and sublattice B (`mag2`) are coupled via
+   * `setAFMExchangeDriver`. Both sublattices share Ms/anis/damping.
+   * @param newMagB: initial magnetisation of sublattice B.
+   */
+  void setSubLatticeMagnetisationB(const CVector<T> &newMagB) {
+    if (newMagB.length() == 0) {
       throw std::runtime_error(
           "Initial magnetisation was set to a zero vector!");
     }
     if (this->temperatureSet || this->pinkNoiseSet) {
       throw std::runtime_error(
-          "Cannot mark a layer AFM (setMagnetisation2) after a "
-          "temperature/noise driver was already set on it! AFM layers do "
-          "not support stochastic/temperature solvers -- set those drivers "
-          "before, not after, setMagnetisation2.");
+          "Cannot mark a layer AFM (setSubLatticeMagnetisationB) after a "
+          "temperature/noise driver was already set on it! AFM layers and "
+          "stochastic/temperature drivers are incompatible.");
     }
     if (this->includeSTT || this->includeSOT) {
       throw std::runtime_error(
-          "Cannot mark an STT/SOT layer as AFM (setMagnetisation2)! "
+          "Cannot mark an STT/SOT layer as AFM (setSubLatticeMagnetisationB)! "
           "Spin torques on the coupled sublattices are not supported yet -- "
           "the plain ferromagnetic torque formulas do not describe "
           "Neel-order dynamics.");
     }
-    this->mag2 = newMag2;
+    this->mag2 = newMagB;
     this->mag2.normalize();
     this->isAFM = true;
   }
 
-  CVector<T> getMagnetisation2() const { return this->mag2; }
+  CVector<T> getSubLatticeMagnetisationB() const { return this->mag2; }
 
   /**
    * @brief Set the intra-layer AFM (Neel) exchange coupling driver between
@@ -1884,12 +1896,23 @@ public:
     return getLayer(layerID).mag;
   }
 
-  void setLayerMagnetisation2(const std::string &layerID,
-                              const CVector<T> &mag) {
-    applyLayerDriver(this->layers, layerID, &Layer<T>::setMagnetisation2, mag);
+  void setLayerSubLatticeMagnetisationA(const std::string &layerID,
+                                        const CVector<T> &mag) {
+    applyLayerDriver(this->layers, layerID,
+                     &Layer<T>::setSubLatticeMagnetisationA, mag);
   }
 
-  CVector<T> getLayerMagnetisation2(const std::string &layerID) {
+  CVector<T> getLayerSubLatticeMagnetisationA(const std::string &layerID) {
+    return getLayer(layerID).mag;
+  }
+
+  void setLayerSubLatticeMagnetisationB(const std::string &layerID,
+                                        const CVector<T> &mag) {
+    applyLayerDriver(this->layers, layerID,
+                     &Layer<T>::setSubLatticeMagnetisationB, mag);
+  }
+
+  CVector<T> getLayerSubLatticeMagnetisationB(const std::string &layerID) {
     return getLayer(layerID).mag2;
   }
 

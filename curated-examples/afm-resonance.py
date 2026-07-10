@@ -59,17 +59,16 @@ pulse_duration = 5 * dt
 
 
 def make_afm_layer(j_afm: float) -> Layer:
+    # mag1/mag2 default to the canonical Neel ground state (1,0,0)/(-1,0,0)
     layer = Layer.createAFMLayer(
         "afm",
-        CVector(1, 0, 0),
-        CVector(-1, 0, 0),
-        Kdir,
-        Ms,
-        thickness,
-        cell_surface,
-        demag,
-        damping,
-        ScalarDriver.getConstantDriver(j_afm),
+        anis=Kdir,
+        Ms=Ms,
+        thickness=thickness,
+        cellSurface=cell_surface,
+        demagTensor=demag,
+        damping=damping,
+        afmExchangeDriver=ScalarDriver.getConstantDriver(j_afm),
     )
     layer.setAnisotropyDriver(ScalarDriver.getConstantDriver(Ku))
     layer.setExternalFieldDriver(

@@ -11,15 +11,15 @@ def make_afm_layer(mag1=None, mag2=None, Jafm=-1e-3):
     demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 0)]
     return Layer.createAFMLayer(
         "afm",
-        mag1,
-        mag2,
-        CVector(1, 0, 0),
-        0.5,
-        1e-9,
-        1e-16,
-        demag,
-        0.01,
-        ScalarDriver.getConstantDriver(Jafm),
+        anis=CVector(1, 0, 0),
+        Ms=0.5,
+        thickness=1e-9,
+        cellSurface=1e-16,
+        demagTensor=demag,
+        damping=0.01,
+        afmExchangeDriver=ScalarDriver.getConstantDriver(Jafm),
+        mag1=mag1,
+        mag2=mag2,
     )
 
 
@@ -80,7 +80,7 @@ def test_afm_rejects_temperature_driver_set_before_magnetisation2():
     )
     layer.setTemperatureDriver(ScalarDriver.getConstantDriver(300))
     with pytest.raises(RuntimeError, match="temperature/noise driver"):
-        layer.setMagnetisation2(CVector(-1, 0, 0))
+        layer.setSubLatticeMagnetisationB(CVector(-1, 0, 0))
 
 
 def test_afm_rejects_onef_noise():
@@ -199,7 +199,7 @@ def test_stt_layer_rejects_magnetisation2():
         0.5,
     )
     with pytest.raises(RuntimeError, match="STT/SOT"):
-        layer.setMagnetisation2(CVector(0, 0, -1))
+        layer.setSubLatticeMagnetisationB(CVector(0, 0, -1))
 
 
 def test_mr_junction_with_afm_layer_rejects_run():
@@ -226,4 +226,20 @@ def test_set_layer_magnetisation2_unknown_id_raises():
     layer = make_afm_layer()
     junction = Junction([layer])
     with pytest.raises(RuntimeError, match="Failed to find a layer"):
-        junction.setLayerMagnetisation2("nonexistent", CVector(-1, 0, 0))
+        junction.setLayerSubLatticeMagnetisationB("nonexistent", CVector(-1, 0, 0))
+
+
+def test_set_get_layer_sublattice_b_magnetisation():
+    layer = make_afm_layer()
+    junction = Junction([layer])
+    new_magnetisation = CVector(0, -1, 0)
+
+    junction.setLayerSubLatticeMagnetisationB("afm", new_magnetisation)
+
+    magnetisation = junction.getLayerSubLatticeMagnetisationB("afm")
+    assert magnetisation.x == pytest.approx(0.0)
+    assert magnetisation.y == pytest.approx(-1.0)
+    assert magnetisation.z == pytest.approx(0.0)
+
+    junction.runSimulation(1e-11, 1e-12, 1e-11)
+    assert "afm_m2y" in junction.getLog()

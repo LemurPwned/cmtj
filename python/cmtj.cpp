@@ -238,13 +238,30 @@ PYBIND11_MODULE(_cmtj, m) {
                "demagTensor"_a, "damping"_a = 0.011,
                "SlonczewskiSpacerLayerParameter"_a = 1.0, "beta"_a = 0.0,
                "spinPolarisation"_a = 0.0)
-          .def_static("createAFMLayer", &DLayer::LayerAFM, "id"_a, "mag1"_a,
-               "mag2"_a, "anis"_a, "Ms"_a, "thickness"_a, "cellSurface"_a,
+          .def_static(
+               "createAFMLayer",
+               [](const std::string &id, const DVector &anis, double Ms,
+                  double thickness, double cellSurface,
+                  const std::vector<DVector> &demagTensor, double damping,
+                  const DScalarDriver &afmExchangeDriver, const DVector &mag1,
+                  const DVector &mag2) {
+                    return DLayer::LayerAFM(id, mag1, mag2, anis, Ms, thickness,
+                                            cellSurface, demagTensor, damping,
+                                            afmExchangeDriver);
+               },
+               // mag1/mag2 default to the canonical Neel ground state
+               // (antiparallel along x); pybind requires trailing defaults to
+               // match the declaration order, so they're last here even
+               // though they read first in LayerAFM's C++ signature.
+               "id"_a, "anis"_a, "Ms"_a, "thickness"_a, "cellSurface"_a,
                "demagTensor"_a, "damping"_a = 0.011,
-               "afmExchangeDriver"_a = DScalarDriver::getConstantDriver(0.0))
+               "afmExchangeDriver"_a = DScalarDriver::getConstantDriver(0.0),
+               "mag1"_a = DVector(1, 0, 0), "mag2"_a = DVector(-1, 0, 0))
           .def("setMagnetisation", &DLayer::setMagnetisation)
-          .def("setMagnetisation2", &DLayer::setMagnetisation2)
-          .def("getMagnetisation2", &DLayer::getMagnetisation2)
+          .def("setSubLatticeMagnetisationA", &DLayer::setSubLatticeMagnetisationA)
+          .def("getSubLatticeMagnetisationA", &DLayer::getSubLatticeMagnetisationA)
+          .def("setSubLatticeMagnetisationB", &DLayer::setSubLatticeMagnetisationB)
+          .def("getSubLatticeMagnetisationB", &DLayer::getSubLatticeMagnetisationB)
           .def("setAFMExchangeDriver", &DLayer::setAFMExchangeDriver)
           .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
           .def("setSecondOrderAnisotropyDriver", &DLayer::setSecondOrderAnisotropyDriver)
@@ -320,8 +337,10 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("setLayerSecondOrderAnisotropyDriver", &DJunction::setLayerSecondOrderAnisotropyDriver)
           .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
           .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
-          .def("setLayerMagnetisation2", &DJunction::setLayerMagnetisation2)
-          .def("getLayerMagnetisation2", &DJunction::getLayerMagnetisation2)
+          .def("setLayerSubLatticeMagnetisationA", &DJunction::setLayerSubLatticeMagnetisationA)
+          .def("getLayerSubLatticeMagnetisationA", &DJunction::getLayerSubLatticeMagnetisationA)
+          .def("setLayerSubLatticeMagnetisationB", &DJunction::setLayerSubLatticeMagnetisationB)
+          .def("getLayerSubLatticeMagnetisationB", &DJunction::getLayerSubLatticeMagnetisationB)
           .def("setLayerAFMExchangeDriver", &DJunction::setLayerAFMExchangeDriver)
           .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
           // interaction setters

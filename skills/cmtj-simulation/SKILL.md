@@ -63,7 +63,7 @@ Driver factory functions available beyond constant: `sineDriver`, `posSineDriver
 ## Integration
 
 - Fixed step `dt = 1e-12` s by default. Drop to `1e-13` or lower only for large IEC (`J` near or above 1e-4 J/m²) or if convergence is in question — confirm by halving `dt` and checking the result doesn't change.
-- `SolverMode.RK4` is the default deterministic solver. `SolverMode.DormandPrice` (adaptive step — that's the real API spelling, no "n") only when explicitly warranted instead of hand-shrinking `dt`.
+- `SolverMode.RK4` is the default deterministic solver. `SolverMode.DormandPrince` (adaptive step) only when explicitly warranted instead of hand-shrinking `dt`.
 - **Any simulation with a temperature driver (`setLayerTemperatureDriver`) or noise must use `SolverMode.Heun` or `SolverMode.EulerHeun`.** RK4 does not correctly integrate the stochastic (Stratonovich) term — this produces silently wrong results, not just noisier ones. Details + reproducible seeding via `junction.setLayerSeed(...)`: `references/solvers-and-stochastic.md`.
 - Sensible total sim time: 1–500 ns. Longer rarely makes physical sense here.
 - Use `junction.clearLog()` / `stack.clearLogs()` before repeated runs (parameter scans) — keeps memory bounded and speeds up scans a lot.

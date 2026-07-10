@@ -32,7 +32,10 @@ def check(path: str) -> int:
         val = float(m.group(1))
         if is_sb:
             if val < 1e4:
-                warnings.append(f"Ms={val}: looks like Tesla, but this looks like a Smit-Beljers file (Ms should be A/m, ~1e5-1e6)")
+                warnings.append(
+                    f"Ms={val}: looks like Tesla, but this looks like a "
+                    "Smit-Beljers file (Ms should be A/m, ~1e5-1e6)"
+                )
         else:
             if val > 10:
                 warnings.append(f"Ms={val}: looks like A/m, but core Layer API wants Tesla (~0.5-1.6)")
@@ -54,8 +57,16 @@ def check(path: str) -> int:
     if dt_vals and j_vals:
         max_dt = max(dt_vals)
         max_j = max(abs(v) for v in j_vals)
-        if max_j >= 1e-4 and max_dt > 1e-13 and "DormandPrice" not in text and "adaptive" not in text.lower():
-            warnings.append(f"dt={max_dt} with IEC J={max_j}: large IEC usually needs dt <= 1e-13 for stable fixed-step integration")
+        if (
+            max_j >= 1e-4
+            and max_dt > 1e-13
+            and "DormandPrince" not in text
+            and "adaptive" not in text.lower()
+        ):
+            warnings.append(
+                f"dt={max_dt} with IEC J={max_j}: large IEC usually needs "
+                "dt <= 1e-13 for stable fixed-step integration"
+            )
 
     for w in warnings:
         print(f"{path}: {w}")

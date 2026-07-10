@@ -86,7 +86,7 @@ The recommended way is to use the `pip` package manager and virtualenv (or conda
 Installation is as easy as doing:
 
 **Recommendation**
-Use the following flagswhen installing/compiling from start. They provide optimimum performance,
+Use the following flags when installing/compiling from start. They provide optimum performance,
 but even without them, `cmtj` is very fast.
 
 ```bash

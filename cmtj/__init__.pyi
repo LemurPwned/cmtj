@@ -379,15 +379,28 @@ class Junction:
         """
         ...
 
-    def setLayerMagnetisation2(self, layerId: str, mag: CVector) -> None:
-        """Set the sublattice-2 magnetisation of an AFM layer.
+    def setLayerSubLatticeMagnetisationA(self, layerId: str, mag: CVector) -> None:
+        """Set the sublattice-A magnetisation of an AFM layer.
         :param layerId: the layer id
-        :param mag: the sublattice-2 magnetisation
+        :param mag: the sublattice-A magnetisation
         """
         ...
 
-    def getLayerMagnetisation2(self, layerId: str) -> CVector:
-        """Get the sublattice-2 magnetisation of an AFM layer.
+    def getLayerSubLatticeMagnetisationA(self, layerId: str) -> CVector:
+        """Get the sublattice-A magnetisation of an AFM layer.
+        :param layerId: the layer id
+        """
+        ...
+
+    def setLayerSubLatticeMagnetisationB(self, layerId: str, mag: CVector) -> None:
+        """Set the sublattice-B magnetisation of an AFM layer.
+        :param layerId: the layer id
+        :param mag: the sublattice-B magnetisation
+        """
+        ...
+
+    def getLayerSubLatticeMagnetisationB(self, layerId: str) -> CVector:
+        """Get the sublattice-B magnetisation of an AFM layer.
         :param layerId: the layer id
         """
         ...
@@ -523,8 +536,6 @@ class Layer:
     @staticmethod
     def createAFMLayer(
         id: str,
-        mag1: CVector,
-        mag2: CVector,
         anis: CVector,
         Ms: float,
         thickness: float,
@@ -532,6 +543,8 @@ class Layer:
         demagTensor: list[CVector],
         damping: float = 0.011,
         afmExchangeDriver: ScalarDriver = ...,
+        mag1: CVector = ...,
+        mag2: CVector = ...,
     ) -> Layer:
         """
         Create an antiferromagnetic (AFM) layer, modelled as two
@@ -539,8 +552,6 @@ class Layer:
         Only the RK4 solver mode supports AFM layers (no stochastic/temperature
         drivers).
         :param id: identifiable name for a layer -- e.g. "bottom" or "free".
-        :param mag1: initial magnetisation of sublattice 1. Normalised.
-        :param mag2: initial magnetisation of sublattice 2. Normalised.
         :param anis: anisotropy of the layer, shared by both sublattices.
         :param Ms: magnetisation saturation. Unit: Tesla [T].
         :param thickness: thickness of the layer. Unit: meter [m].
@@ -548,6 +559,10 @@ class Layer:
         :param damping: Gilbert damping, shared by both sublattices. Default 0.011.
         :param afmExchangeDriver: intra-layer Neel exchange coupling driver (J/m^2)
             between the two sublattices. Strongly negative favours antiparallel alignment.
+        :param mag1: initial magnetisation of sublattice A. Normalised.
+            Defaults to the canonical Neel ground state (1, 0, 0).
+        :param mag2: initial magnetisation of sublattice B. Normalised.
+            Defaults to the canonical Neel ground state (-1, 0, 0).
         """
         ...
 
@@ -585,13 +600,22 @@ class Layer:
         :param mag: the magnetisation to be set."""
         ...
 
-    def setMagnetisation2(self, mag2: CVector) -> None:
-        """Set the second sublattice magnetisation. Marks the layer as AFM.
-        :param mag2: the sublattice-2 magnetisation to be set."""
+    def setSubLatticeMagnetisationA(self, mag1: CVector) -> None:
+        """Set sublattice A's magnetisation (AFM naming alias for `setMagnetisation`).
+        :param mag1: the sublattice-A magnetisation to be set."""
         ...
 
-    def getMagnetisation2(self) -> CVector:
-        """Get the second sublattice magnetisation."""
+    def getSubLatticeMagnetisationA(self) -> CVector:
+        """Get sublattice A's magnetisation."""
+        ...
+
+    def setSubLatticeMagnetisationB(self, mag2: CVector) -> None:
+        """Set sublattice B's magnetisation. Marks the layer as AFM.
+        :param mag2: the sublattice-B magnetisation to be set."""
+        ...
+
+    def getSubLatticeMagnetisationB(self) -> CVector:
+        """Get sublattice B's magnetisation."""
         ...
 
     def setAFMExchangeDriver(self, driver: ScalarDriver) -> None:
@@ -774,7 +798,7 @@ class ScalarDriver:
 class SolverMode:
     """SolverMode Indicator"""
 
-    DormandPrice: ClassVar[SolverMode] = ...
+    DormandPrince: ClassVar[SolverMode] = ...
     EulerHeun: ClassVar[SolverMode] = ...
     RK4: ClassVar[SolverMode] = ...
     Heun: ClassVar[SolverMode] = ...
@@ -787,7 +811,7 @@ class Reference:
     none: ClassVar[Reference] = ...
     top: ClassVar[Reference] = ...
 
-DormandPrice: SolverMode
+DormandPrince: SolverMode
 EulerHeun: SolverMode
 Heun: SolverMode
 RK4: SolverMode

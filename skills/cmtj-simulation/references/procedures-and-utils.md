@@ -42,7 +42,7 @@ spectrum, freqs, other = PIMM_procedure(
 
 - `calculate_resistance_series` / `calculate_resistance_parallel` — GMR/TMR-style resistance from
   layer magnetizations for series- or parallel-connected stacks. Junction's own `R_<a>_<b>` log key
-  (see `docs/physics/paralellism.md` example: `log['R_free_bottom']`) is produced by whichever
+  (see `docs/physics/parallelism.md` example: `log['R_free_bottom']`) is produced by whichever
   `resistance_fn` you pass to a procedure.
 - `calculate_magnetoresistance` / `compute_gmr` — plain `Rp`, `Rap` two-state MR, when you don't need
   the angular AMR/SMR/AHE decomposition.

@@ -10,7 +10,7 @@ class Filters:
         :param pass_freq: the tuple of (low, high) band frequencies.
         :param fs: sampling frequency.
         """
-        b, a = butter(order, [pass_freq[0], pass_freq[1]], btype="bandpass", analog=False)
+        b, a = butter(order, pass_freq, btype="bandpass", fs=fs, analog=False)
         return lfilter(b, a, data, zi=None)
 
     @staticmethod

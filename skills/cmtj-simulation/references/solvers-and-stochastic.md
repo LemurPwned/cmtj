@@ -2,14 +2,14 @@
 
 ## SolverMode
 
-`cmtj.SolverMode`: `RK4` (default), `DormandPrice` (adaptive step — note the API spelling, no "n"), `Heun`, `EulerHeun`.
+`cmtj.SolverMode`: `RK4` (default), `DormandPrince` (adaptive step), `Heun`, `EulerHeun`.
 
 ```python
 junction.runSimulation(5e-10, 1e-12, 1e-12, solverMode=SolverMode.EulerHeun)
 ```
 
 - **RK4** — default, deterministic dynamics, fixed `dt`.
-- **DormandPrice** — adaptive step, use instead of shrinking `dt` by hand for stiff/large-IEC systems.
+- **DormandPrince** — adaptive step, use instead of shrinking `dt` by hand for stiff/large-IEC systems.
 - **Heun / EulerHeun — required for any stochastic run** (thermal noise, 1/f noise). RK4 cannot integrate the Stratonovich SDE correctly; if a temperature driver is set but the solver is left at RK4, results are wrong, not just noisier. `Heun` is the generally-preferred stochastic method (better convergence order than `EulerHeun`); see `docs/physics/macromagnetic_models.md` for why.
 
 ## Thermal / stochastic simulations

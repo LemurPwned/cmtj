@@ -26,10 +26,9 @@ Wire it up in .claude/settings.json (project or user level):
 
 import json
 import os
-import subprocess
 import sys
 
-CHECK_SCRIPT = os.path.join(os.path.dirname(__file__), "check_units.py")
+from check_units import check
 
 
 def main() -> int:
@@ -46,7 +45,7 @@ def main() -> int:
         if "cmtj" not in f.read():
             return 0
 
-    subprocess.run([sys.executable, CHECK_SCRIPT, file_path], check=False)
+    check(file_path)
     return 0
 
 
