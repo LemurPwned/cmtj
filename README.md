@@ -20,6 +20,7 @@
     - [Installation :rocket:](#installation-rocket)
     - [Extra dependencies](#extra-dependencies)
   - [Documentation and examples](#documentation-and-examples)
+  - [Claude Code skill](#claude-code-skill)
   - [Extensions](#extensions)
   - [Citing](#citing)
 - [Development](#development)
@@ -68,12 +69,12 @@ Some of the experimental methods available:
 
 ## Web GUI
 
-Check out the [streamlit hosted demo here](https://cmtj-app.streamlit.app/spectrum). 
+Check out the [streamlit hosted demo here](https://cmtj-app.streamlit.app/spectrum).
 You can simulate:
 
-* PIMM spectra and Spin-Diode spectra
-* Try some optimization fitting
-* Fit multi-domain or multi-level M(H) or R(H) loops in [Domain mode](https://cmtj-app.streamlit.app)
+- PIMM spectra and Spin-Diode spectra
+- Try some optimization fitting
+- Fit multi-domain or multi-level M(H) or R(H) loops in [Domain mode](https://cmtj-app.streamlit.app)
 
 Let us know if you have any issues with the demo.
 
@@ -85,7 +86,7 @@ The recommended way is to use the `pip` package manager and virtualenv (or conda
 Installation is as easy as doing:
 
 **Recommendation**
-Use the following flagswhen installing/compiling from start. They provide optimimum performance, 
+Use the following flagswhen installing/compiling from start. They provide optimimum performance,
 but even without them, `cmtj` is very fast.
 
 ```bash
@@ -119,6 +120,7 @@ python3 -m pip install git+https://github.com/LemurPwned/cmtj.git
 git clone --recurse-submodules https://github.com/LemurPwned/cmtj.git
 python3 -m pip install .
 ```
+
 if your git is older, you may need to use `--recursive` instead of `--recurse-submodules`.
 
 #### Extra dependencies
@@ -135,6 +137,25 @@ The package requires (if `utils` subpackage is used):
 
 Documentation: [https://lemurpwned.github.io/cmtj](https://lemurpwned.github.io/cmtj).
 There are many examples available, check out the [examples section in the docs](https://lemurpwned.github.io/cmtj/experimental-methods/introduction/)
+
+## Claude Code skill
+
+This repo ships a [Claude Code](https://claude.com/claude-code) skill (`skills/cmtj-simulation`)
+that teaches it how to write correct CMTJ simulations (units, layer setup, drivers, solvers,
+reproducibility). Install it with the [`skills` CLI](https://www.npmjs.com/package/skills):
+
+```bash
+npx skills add LemurPwned/cmtj --skill cmtj-simulation
+```
+
+Or, from a local checkout of this repo:
+
+```bash
+npx skills add . --skill cmtj-simulation
+```
+
+Add `-g` to install globally instead of just this project. See `skills/cmtj-simulation/SKILL.md`
+for what it covers.
 
 ## Extensions
 

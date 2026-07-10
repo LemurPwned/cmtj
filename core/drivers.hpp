@@ -393,9 +393,10 @@ private:
                         this->drivers[1].isConstant() &&
                         this->drivers[2].isConstant();
     if (this->allConstant) {
-      this->constantValuesCache = CVector<T>(this->drivers[0].getConstantValue(),
-                                             this->drivers[1].getConstantValue(),
-                                             this->drivers[2].getConstantValue());
+      this->constantValuesCache =
+          CVector<T>(this->drivers[0].getConstantValue(),
+                     this->drivers[1].getConstantValue(),
+                     this->drivers[2].getConstantValue());
     }
   }
 
@@ -502,11 +503,6 @@ public:
                                 std::abs(this->drivers[2].constantValue)
                           : 0.0);
   }
-};
-
-template <typename T> class NullAxialDriver : public AxialDriver<T> {
-public:
-  NullAxialDriver() = default;
 };
 
 #endif

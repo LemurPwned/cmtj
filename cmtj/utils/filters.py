@@ -10,23 +10,7 @@ class Filters:
         :param pass_freq: the tuple of (low, high) band frequencies.
         :param fs: sampling frequency.
         """
-        # Nyquist is half of the sampling freq
-        nyq = 0.5 * fs
-        if isinstance(pass_freq, float):
-            if pass_freq == 0:
-                pass_freq = 0.1
-                try:
-                    b, a = butter(
-                        order,
-                        [0.9 * pass_freq / nyq, pass_freq / nyq],
-                        btype="bandpass",
-                        analog=False,
-                    )
-                except ValueError as e:
-                    print(fs, pass_freq, nyq, 0.9 * pass_freq / nyq, pass_freq / nyq)
-                    raise ValueError("Error in filtering") from e
-        elif isinstance(pass_freq, tuple):
-            b, a = butter(order, [pass_freq[0], pass_freq[1]], btype="bandpass", analog=False)
+        b, a = butter(order, [pass_freq[0], pass_freq[1]], btype="bandpass", analog=False)
         return lfilter(b, a, data, zi=None)
 
     @staticmethod
