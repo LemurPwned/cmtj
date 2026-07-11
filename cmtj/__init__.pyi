@@ -379,6 +379,39 @@ class Junction:
         """
         ...
 
+    def setLayerSubLatticeMagnetisationA(self, layerId: str, mag: CVector) -> None:
+        """Set the sublattice-A magnetisation of an AFM layer.
+        :param layerId: the layer id
+        :param mag: the sublattice-A magnetisation
+        """
+        ...
+
+    def getLayerSubLatticeMagnetisationA(self, layerId: str) -> CVector:
+        """Get the sublattice-A magnetisation of an AFM layer.
+        :param layerId: the layer id
+        """
+        ...
+
+    def setLayerSubLatticeMagnetisationB(self, layerId: str, mag: CVector) -> None:
+        """Set the sublattice-B magnetisation of an AFM layer.
+        :param layerId: the layer id
+        :param mag: the sublattice-B magnetisation
+        """
+        ...
+
+    def getLayerSubLatticeMagnetisationB(self, layerId: str) -> CVector:
+        """Get the sublattice-B magnetisation of an AFM layer.
+        :param layerId: the layer id
+        """
+        ...
+
+    def setLayerAFMExchangeDriver(self, layerId: str, driver: ScalarDriver) -> None:
+        """Set the intra-layer Neel exchange coupling driver of an AFM layer.
+        :param layerId: the layer id
+        :param driver: the exchange coupling driver
+        """
+        ...
+
     @overload
     def setLayerOerstedFieldDriver(self, layerId: str, driver: AxialDriver) -> None:
         """Set an Oersted field driver for a layer.
@@ -500,6 +533,39 @@ class Layer:
         """
         ...
 
+    @staticmethod
+    def createAFMLayer(
+        id: str,
+        anis: CVector,
+        Ms: float,
+        thickness: float,
+        cellSurface: float,
+        demagTensor: list[CVector],
+        damping: float = 0.011,
+        afmExchangeDriver: ScalarDriver = ...,
+        mag1: CVector = ...,
+        mag2: CVector = ...,
+    ) -> Layer:
+        """
+        Create an antiferromagnetic (AFM) layer, modelled as two
+        exchange-coupled sublattices (`mag1`, `mag2`) sharing Ms/anis/damping.
+        Only the RK4 solver mode supports AFM layers (no stochastic/temperature
+        drivers).
+        :param id: identifiable name for a layer -- e.g. "bottom" or "free".
+        :param anis: anisotropy of the layer, shared by both sublattices.
+        :param Ms: magnetisation saturation. Unit: Tesla [T].
+        :param thickness: thickness of the layer. Unit: meter [m].
+        :param cellSurface: surface of the layer, for volume calculation. Unit: meter^2 [m^2].
+        :param damping: Gilbert damping, shared by both sublattices. Default 0.011.
+        :param afmExchangeDriver: intra-layer Neel exchange coupling driver (J/m^2)
+            between the two sublattices. Strongly negative favours antiparallel alignment.
+        :param mag1: initial magnetisation of sublattice A. Normalised.
+            Defaults to the canonical Neel ground state (1, 0, 0).
+        :param mag2: initial magnetisation of sublattice B. Normalised.
+            Defaults to the canonical Neel ground state (-1, 0, 0).
+        """
+        ...
+
     def createBufferedAlphaNoise(self, bufferSize: int) -> None:
         """Create a buffered alpha noise generator."""
         ...
@@ -532,6 +598,29 @@ class Layer:
     def setMagnetisation(self, mag: CVector) -> None:
         """Set the magnetisation of the layer.
         :param mag: the magnetisation to be set."""
+        ...
+
+    def setSubLatticeMagnetisationA(self, mag1: CVector) -> None:
+        """Set sublattice A's magnetisation (AFM naming alias for `setMagnetisation`).
+        :param mag1: the sublattice-A magnetisation to be set."""
+        ...
+
+    def getSubLatticeMagnetisationA(self) -> CVector:
+        """Get sublattice A's magnetisation."""
+        ...
+
+    def setSubLatticeMagnetisationB(self, mag2: CVector) -> None:
+        """Set sublattice B's magnetisation. Marks the layer as AFM.
+        :param mag2: the sublattice-B magnetisation to be set."""
+        ...
+
+    def getSubLatticeMagnetisationB(self) -> CVector:
+        """Get sublattice B's magnetisation."""
+        ...
+
+    def setAFMExchangeDriver(self, driver: ScalarDriver) -> None:
+        """Set the intra-layer Neel exchange coupling driver between the
+        two AFM sublattices (J/m^2, same convention as IEC)."""
         ...
 
     def setOerstedFieldDriver(self, driver: AxialDriver) -> None:
@@ -709,7 +798,7 @@ class ScalarDriver:
 class SolverMode:
     """SolverMode Indicator"""
 
-    DormandPrice: ClassVar[SolverMode] = ...
+    DormandPrince: ClassVar[SolverMode] = ...
     EulerHeun: ClassVar[SolverMode] = ...
     RK4: ClassVar[SolverMode] = ...
     Heun: ClassVar[SolverMode] = ...
@@ -722,7 +811,7 @@ class Reference:
     none: ClassVar[Reference] = ...
     top: ClassVar[Reference] = ...
 
-DormandPrice: SolverMode
+DormandPrince: SolverMode
 EulerHeun: SolverMode
 Heun: SolverMode
 RK4: SolverMode

@@ -280,31 +280,11 @@ public:
   typedef void (LLGBLayer<T>::*axialDriverSetter)(const AxialDriver<T> &driver);
   void scalarlayerSetter(const std::string &layerID, scalarDriverSetter functor,
                          ScalarDriver<T> driver) {
-    bool found = false;
-    for (auto &l : this->layers) {
-      if (l.id == layerID || layerID == "all") {
-        (l.*functor)(driver);
-        found = true;
-      }
-    }
-    if (!found) {
-      throw std::runtime_error(
-          "Failed to find a layer with a given id: " + layerID + "!");
-    }
+    applyLayerDriver(this->layers, layerID, functor, driver);
   }
   void axiallayerSetter(const std::string &layerID, axialDriverSetter functor,
                         AxialDriver<T> driver) {
-    bool found = false;
-    for (auto &l : this->layers) {
-      if (l.id == layerID || layerID == "all") {
-        (l.*functor)(driver);
-        found = true;
-      }
-    }
-    if (!found) {
-      throw std::runtime_error(
-          "Failed to find a layer with a given id: " + layerID + "!");
-    }
+    applyLayerDriver(this->layers, layerID, functor, driver);
   }
   void setLayerTemperatureDriver(const std::string &layerID,
                                  const ScalarDriver<T> &driver) {

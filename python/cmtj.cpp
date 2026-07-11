@@ -154,13 +154,7 @@ PYBIND11_MODULE(_cmtj, m) {
           .def_readwrite("rel_tol", &AdaptiveIntegrationParams<double>::rel_tol)
           .def_readwrite("max_factor", &AdaptiveIntegrationParams<double>::max_factor)
           .def_readwrite("min_factor", &AdaptiveIntegrationParams<double>::min_factor)
-          .def_readwrite("safety_factor", &AdaptiveIntegrationParams<double>::safety_factor)
-          .def_readwrite("use_pid_control", &AdaptiveIntegrationParams<double>::use_pid_control)
-          .def_readwrite("ki", &AdaptiveIntegrationParams<double>::ki)
-          .def_readwrite("kp", &AdaptiveIntegrationParams<double>::kp)
-          .def_readwrite("kd", &AdaptiveIntegrationParams<double>::kd)
-          .def_readwrite("prev_error_ratio", &AdaptiveIntegrationParams<double>::prev_error_ratio)
-          .def_readwrite("integral_error", &AdaptiveIntegrationParams<double>::integral_error);
+          .def_readwrite("safety_factor", &AdaptiveIntegrationParams<double>::safety_factor);
 
      py::enum_<UpdateType>(m, "UpdateType")
           .value("constant", constant)
@@ -244,7 +238,31 @@ PYBIND11_MODULE(_cmtj, m) {
                "demagTensor"_a, "damping"_a = 0.011,
                "SlonczewskiSpacerLayerParameter"_a = 1.0, "beta"_a = 0.0,
                "spinPolarisation"_a = 0.0)
+          .def_static(
+               "createAFMLayer",
+               [](const std::string &id, const DVector &anis, double Ms,
+                  double thickness, double cellSurface,
+                  const std::vector<DVector> &demagTensor, double damping,
+                  const DScalarDriver &afmExchangeDriver, const DVector &mag1,
+                  const DVector &mag2) {
+                    return DLayer::LayerAFM(id, mag1, mag2, anis, Ms, thickness,
+                                            cellSurface, demagTensor, damping,
+                                            afmExchangeDriver);
+               },
+               // mag1/mag2 default to the canonical Neel ground state
+               // (antiparallel along x); pybind requires trailing defaults to
+               // match the declaration order, so they're last here even
+               // though they read first in LayerAFM's C++ signature.
+               "id"_a, "anis"_a, "Ms"_a, "thickness"_a, "cellSurface"_a,
+               "demagTensor"_a, "damping"_a = 0.011,
+               "afmExchangeDriver"_a = DScalarDriver::getConstantDriver(0.0),
+               "mag1"_a = DVector(1, 0, 0), "mag2"_a = DVector(-1, 0, 0))
           .def("setMagnetisation", &DLayer::setMagnetisation)
+          .def("setSubLatticeMagnetisationA", &DLayer::setSubLatticeMagnetisationA)
+          .def("getSubLatticeMagnetisationA", &DLayer::getSubLatticeMagnetisationA)
+          .def("setSubLatticeMagnetisationB", &DLayer::setSubLatticeMagnetisationB)
+          .def("getSubLatticeMagnetisationB", &DLayer::getSubLatticeMagnetisationB)
+          .def("setAFMExchangeDriver", &DLayer::setAFMExchangeDriver)
           .def("setAnisotropyDriver", &DLayer::setAnisotropyDriver)
           .def("setSecondOrderAnisotropyDriver", &DLayer::setSecondOrderAnisotropyDriver)
           .def("setExternalFieldDriver", &DLayer::setExternalFieldDriver)
@@ -277,6 +295,8 @@ PYBIND11_MODULE(_cmtj, m) {
           .def_readonly("damping", &DLayer::damping)
           .def_readonly("cellSurface", &DLayer::cellSurface)
           .def_readonly("demagTensor", &DLayer::demagTensor)
+          .def_readonly("isAFM", &DLayer::isAFM)
+          .def_readonly("mag2", &DLayer::mag2)
           // noise
           .def("setAlphaNoise", &DLayer::setAlphaNoise, "alpha"_a, "std"_a, "scale"_a, "axis"_a = Axis::all)
           .def("setSeed", &DLayer::setSeed, "seed"_a = py::none())
@@ -317,6 +337,11 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("setLayerSecondOrderAnisotropyDriver", &DJunction::setLayerSecondOrderAnisotropyDriver)
           .def("setLayerOerstedFieldDriver", &DJunction::setLayerOerstedFieldDriver)
           .def("setLayerMagnetisation", &DJunction::setLayerMagnetisation)
+          .def("setLayerSubLatticeMagnetisationA", &DJunction::setLayerSubLatticeMagnetisationA)
+          .def("getLayerSubLatticeMagnetisationA", &DJunction::getLayerSubLatticeMagnetisationA)
+          .def("setLayerSubLatticeMagnetisationB", &DJunction::setLayerSubLatticeMagnetisationB)
+          .def("getLayerSubLatticeMagnetisationB", &DJunction::getLayerSubLatticeMagnetisationB)
+          .def("setLayerAFMExchangeDriver", &DJunction::setLayerAFMExchangeDriver)
           .def("setLayerHdmiDriver", &DJunction::setLayerHdmiDriver)
           // interaction setters
           .def("setIECDriver", &DJunction::setIECDriver)

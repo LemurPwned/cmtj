@@ -13,17 +13,17 @@
 
 #define _USE_MATH_DEFINES
 #include "constants.hpp"
-#include "cvector.hpp"   // for CVector
-#include "drivers.hpp"   // for ScalarDriver, AxialDriver
-#include "noise.hpp"     // for OneFNoise
+#include "cvector.hpp" // for CVector
+#include "drivers.hpp" // for ScalarDriver, AxialDriver
+#include "noise.hpp"   // for OneFNoise
+#include <algorithm>   // for find_if
+#include <array>       // for array, array<>::value_type
+#include <chrono>      // for seconds, steady_clock, duration
+#include <cmath>       // for isnan, M_PI
 #include <cstdint>
-#include <algorithm>     // for find_if
-#include <array>         // for array, array<>::value_type
-#include <chrono>        // for seconds, steady_clock, duration
-#include <cmath>         // for isnan, M_PI
-#include <fstream>       // for file save
-#include <functional>    // for bind, function
-#include <iostream>      // for string, operator<<, basic_ostream
+#include <fstream>    // for file save
+#include <functional> // for bind, function
+#include <iostream>   // for string, operator<<, basic_ostream
 #include <optional>
 #include <random>        // for mt19937, normal_distribution
 #include <stdexcept>     // for runtime_error, invalid_argument
@@ -98,30 +98,63 @@ constexpr inline T c_dot(const CVector<T> &a, const CVector<T> &b) {
 
 template <typename T> class EnergyDriver {
 public:
-  static inline T calculateZeemanEnergy(const CVector<T> &mag, const CVector<T> &Hext, T cellVolume,
-                                 T Ms) {
+  static inline T calculateZeemanEnergy(const CVector<T> &mag,
+                                        const CVector<T> &Hext, T cellVolume,
+                                        T Ms) {
     return -MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hext) * cellVolume;
   }
 
-  static inline T calculateAnisotropyEnergy(const CVector<T> &mag, const CVector<T> &anis, T K,
-                                     T cellVolume) {
+  static inline T calculateAnisotropyEnergy(const CVector<T> &mag,
+                                            const CVector<T> &anis, T K,
+                                            T cellVolume) {
     const T dot = c_dot<T>(mag, anis);
     const T normProd = anis.length() * mag.length();
     const T sinSq = 1.0 - (dot * dot) / (normProd * normProd);
     return K * sinSq * cellVolume;
   }
 
-  static inline T calculateIECEnergy(const CVector<T> &mag, const CVector<T> &other, T J,
-                              T cellSurface) {
+  static inline T calculateIECEnergy(const CVector<T> &mag,
+                                     const CVector<T> &other, T J,
+                                     T cellSurface) {
     return -c_dot<T>(mag, other) * J * cellSurface;
   }
 
-  static inline T calculateDemagEnergy(const CVector<T> &mag, const CVector<T> &Hdemag, T Ms,
-                                T cellVolume) {
+  static inline T calculateDemagEnergy(const CVector<T> &mag,
+                                       const CVector<T> &Hdemag, T Ms,
+                                       T cellVolume) {
     return -0.5 * MAGNETIC_PERMEABILITY * Ms * c_dot<T>(mag, Hdemag) *
            cellVolume;
   }
 };
+
+/**
+ * @brief Apply a driver setter to a layer (or all layers) by id.
+ * Shared by Junction and LLGBJunction, whose per-layer driver setters
+ * (setLayerAnisotropyDriver, setLayerExternalFieldDriver, ...) all reduce to
+ * "find layer(s) matching `layerID` (or every layer if 'all') and invoke a
+ * setter member function on it".
+ * @param layers: the layer collection to search.
+ * @param layerID: the layer id to match, or "all" to apply to every layer.
+ * @param setter: the driver-setter member function pointer to invoke.
+ * @param driver: the driver value to set.
+ */
+template <typename LayerT, typename DriverT>
+inline void applyLayerDriver(std::vector<LayerT> &layers,
+                             const std::string &layerID,
+                             void (LayerT::*setter)(const DriverT &),
+                             const DriverT &driver) {
+  bool found = false;
+  for (auto &l : layers) {
+    if (l.id == layerID || layerID == "all") {
+      (l.*setter)(driver);
+      found = true;
+    }
+  }
+  if (!found) {
+    throw std::runtime_error(
+        "Failed to find a layer with a given id: " + layerID + "!");
+  }
+}
 
 // Forward declarations if needed
 template <typename T> class Layer;
@@ -137,19 +170,11 @@ using RunnerFn = void (Junction<T>::*)(SolverFn<T> &functor, T &t, T &timeStep,
                                        bool &step_accepted);
 
 template <typename T> struct AdaptiveIntegrationParams {
-  T abs_tol = 1e-6;             // Absolute error tolerance
-  T rel_tol = 1e-3;             // Relative error tolerance
-  T max_factor = 5.0;           // Maximum allowed increase in step size
-  T min_factor = 0.1;           // Minimum allowed decrease in step size
-  T safety_factor = 0.9;        // Safety factor for step size adjustment
-  bool use_pid_control = false; // Whether to use PID control for step size
-  T ki = 0.0;                   // Integral gain for PID controller
-  T kp = 0.2;                   // Proportional gain for PID controller
-  T kd = 0.0;                   // Derivative gain for PID controller
-
-  // Previous error for PID controller
-  T prev_error_ratio = 1.0;
-  T integral_error = 0.0;
+  T abs_tol = 1e-6;      // Absolute error tolerance
+  T rel_tol = 1e-3;      // Relative error tolerance
+  T max_factor = 5.0;    // Maximum allowed increase in step size
+  T min_factor = 0.1;    // Minimum allowed decrease in step size
+  T safety_factor = 0.9; // Safety factor for step size adjustment
 };
 
 enum Reference { NONE = 0, FIXED, TOP, BOTTOM };
@@ -173,6 +198,8 @@ private:
   ScalarDriver<T> IECDriverBottom;
   ScalarDriver<T> IECQuadDriverTop;
   ScalarDriver<T> IECQuadDriverBottom;
+  ScalarDriver<T>
+      AFMExchangeDriver; // intra-layer Neel exchange between sublattices
   AxialDriver<T> IDMIDriverTop;
   AxialDriver<T> IDMIDriverBottom;
   AxialDriver<T> HreservedInteractionFieldDriver;
@@ -184,15 +211,13 @@ private:
   AxialDriver<T> externalFieldDriver;
   AxialDriver<T> HoeDriver, HdmiDriver;
 
-  bool nonStochasticTempSet = false;
-  bool nonStochasticOneFSet = true;
   bool temperatureSet = false;
   bool pinkNoiseSet = false;
   bool alternativeSTTSet = false;
   Reference referenceType = NONE;
 
-    std::mt19937 thermalGenerator = std::mt19937(std::random_device{}());
-    std::normal_distribution<T> thermalDistribution =
+  std::mt19937 thermalGenerator = std::mt19937(std::random_device{}());
+  std::normal_distribution<T> thermalDistribution =
       std::normal_distribution<T>(0, 1);
 
   CVector<T> dWn, dWn2; // one for thermal, one for OneF
@@ -204,11 +229,11 @@ private:
         mag(mag), anis(anis), demagTensor(demagTensor),
         demagTensorArray(tensorVectorToArray(demagTensor)), damping(damping),
         dampingSq(damping * damping), invMs(1 / Ms),
-        invMsThickness(1 / (Ms * thickness)),
-        fieldLikeTorque(fieldLikeTorque),
+        invMsThickness(1 / (Ms * thickness)), fieldLikeTorque(fieldLikeTorque),
         dampingLikeTorque(dampingLikeTorque),
         SlonczewskiSpacerLayerParameter(SlonczewskiSpacerLayerParameter),
-        SlonczewskiSpacerLayerParameterSq(SlonczewskiSpacerLayerParameter * SlonczewskiSpacerLayerParameter),
+        SlonczewskiSpacerLayerParameterSq(SlonczewskiSpacerLayerParameter *
+                                          SlonczewskiSpacerLayerParameter),
         beta(beta), spinPolarisation(spinPolarisation) {
     if (mag.length() == 0) {
       throw std::runtime_error(
@@ -219,7 +244,8 @@ private:
     }
     // normalise magnetisation
     mag.normalize();
-    dWn = CVector<T>([this]() { return this->thermalDistribution(this->thermalGenerator); });
+    dWn = CVector<T>(
+        [this]() { return this->thermalDistribution(this->thermalGenerator); });
     dWn.normalize();
     this->cellVolume = this->cellSurface * this->thickness;
     this->ofn = std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(0, 0., 0.));
@@ -242,6 +268,13 @@ public:
   bool includeSTT = false;
   bool includeSOT = false;
 
+  // AFM sublattices: this layer models a single antiferromagnetic layer as
+  // two exchange-coupled sublattices. `mag` is sublattice A, `mag2` is
+  // sublattice B. Both share Ms/anis/damping (same material). Set via
+  // `setSubLatticeMagnetisationB` or the `LayerAFM` factory.
+  bool isAFM = false;
+  CVector<T> mag2;
+
   std::string id;
   T Ms = 0.0;
 
@@ -259,6 +292,7 @@ public:
   CVector<T> HIEC, HIECtop, HIECbottom;
   T Jbottom_log = 0.0, Jtop_log = 0.0;
   T J2bottom_log = 0.0, J2top_log = 0.0;
+  T Jafm_log = 0.0;
   T K_log = 0.0;
   T K2_log = 0.0;
   T I_log = 0.0;
@@ -272,6 +306,8 @@ public:
       std::vector<CVector<T>>{CVector<T>(), CVector<T>(), CVector<T>()};
   std::array<CVector<T>, 3> dipoleBottomArray;
   std::array<CVector<T>, 3> dipoleTopArray;
+  bool hasDipole =
+      false; // skip dipole tensor matvec when unset (default zero tensor)
 
   // LLG params
   T damping;
@@ -287,8 +323,8 @@ public:
   // STT params
   T SlonczewskiSpacerLayerParameter;
   T SlonczewskiSpacerLayerParameterSq; // cached for performance
-  T beta;      // usually either set to 0 or to damping
-  T kappa = 1; // for damping-like off -turning torque
+  T beta;                              // usually either set to 0 or to damping
+  T kappa = 1;                         // for damping-like off -turning torque
   T spinPolarisation;
 
   T hopt = -1.0;
@@ -377,6 +413,37 @@ public:
                     spinPolarisation);
   }
 
+  /**
+   * @brief Construct an antiferromagnetic (AFM) layer.
+   * Models a single AFM layer as two exchange-coupled sublattices, `mag1`
+   * and `mag2`, sharing Ms/anis/damping (same material). The sublattices
+   * are coupled via `afmExchangeDriver` -- a strongly negative J favours
+   * the antiparallel (Neel) ground state. Currently only the fixed-step RK4
+   * solver supports AFM layers (no stochastic/temperature drivers).
+   * @param id: identifiable name for the layer.
+   * @param mag1: initial magnetisation of sublattice 1. Normalised.
+   * @param mag2: initial magnetisation of sublattice 2. Normalised.
+   * @param anis: shared anisotropy axis of the layer.
+   * @param Ms: saturation magnetisation, shared by both sublattices. Unit: T.
+   * @param thickness: layer thickness. Unit: m.
+   * @param cellSurface: layer surface, for volume calculation. Unit: m^2.
+   * @param demagTensor: demagnetisation tensor of the layer.
+   * @param damping: Gilbert damping, shared by both sublattices.
+   * @param afmExchangeDriver: intra-layer Neel exchange coupling driver
+   * (J/m^2), applied symmetrically between the two sublattices.
+   */
+  inline static Layer<T>
+  LayerAFM(const std::string &id, const CVector<T> &mag1,
+           const CVector<T> &mag2, const CVector<T> &anis, T Ms, T thickness,
+           T cellSurface, const std::vector<CVector<T>> &demagTensor, T damping,
+           const ScalarDriver<T> &afmExchangeDriver) {
+    Layer<T> layer(id, mag1, anis, Ms, thickness, cellSurface, demagTensor,
+                   damping);
+    layer.setSubLatticeMagnetisationB(mag2);
+    layer.setAFMExchangeDriver(afmExchangeDriver);
+    return layer;
+  }
+
   inline static Layer<T> LayerSOT(const std::string &id, const CVector<T> &mag,
                                   const CVector<T> &anis, T Ms, T thickness,
                                   T cellSurface,
@@ -410,16 +477,23 @@ public:
   void setTopDipoleTensor(const std::vector<CVector<T>> &dipoleTensor) {
     this->dipoleTop = dipoleTensor;
     this->dipoleTopArray = tensorVectorToArray(dipoleTensor);
+    this->hasDipole = true;
   }
 
   void setBottomDipoleTensor(const std::vector<CVector<T>> &dipoleTensor) {
     this->dipoleBottom = dipoleTensor;
     this->dipoleBottomArray = tensorVectorToArray(dipoleTensor);
+    this->hasDipole = true;
   }
 
   const bool hasTemperature() { return this->temperatureSet; }
 
   void setTemperatureDriver(const ScalarDriver<T> &driver) {
+    if (this->isAFM) {
+      throw std::runtime_error(
+          "AFM layers do not support stochastic/temperature solvers yet"
+          " (only RK4 is supported for the coupled sublattices)!");
+    }
     this->temperatureDriver = driver;
     this->temperatureSet = true;
   }
@@ -442,19 +516,25 @@ public:
     this->temperatureDriver = driver;
     // do not set the SDE flag here
     this->temperatureSet = false;
-    this->nonStochasticTempSet = true;
   }
 
   void setOneFNoise(unsigned int sources, T bias, T scale) {
+    if (this->isAFM) {
+      throw std::runtime_error(
+          "AFM layers do not support stochastic noise solvers yet"
+          " (only RK4 is supported for the coupled sublattices)!");
+    }
     this->ofn =
         std::shared_ptr<OneFNoise<T>>(new OneFNoise<T>(sources, bias, scale));
     this->pinkNoiseSet = true;
-    // by default turn it on, but in the stochastic sims, we will have to turn
-    // it off
-    this->nonStochasticOneFSet = true;
   }
 
   void setAlphaNoise(T alpha, T std, T scale, Axis axis = Axis::all) {
+    if (this->isAFM) {
+      throw std::runtime_error(
+          "AFM layers do not support stochastic noise solvers yet"
+          " (only RK4 is supported for the coupled sublattices)!");
+    }
     if ((alpha < 0) || (alpha > 2))
       throw std::runtime_error("alpha must be between 0 and 2");
     this->noiseParams.alphaNoise = alpha;
@@ -480,6 +560,11 @@ public:
   }
 
   void setTorqueParameters() {
+    if (this->isAFM)
+      throw std::runtime_error(
+          "AFM layers do not support SOT/STT torques yet -- the plain "
+          "ferromagnetic torque formulas do not describe Neel-order "
+          "dynamics!");
     this->includeSOT = true;
     if (this->includeSTT)
       throw std::runtime_error(
@@ -546,6 +631,62 @@ public:
     }
     this->mag = newMag;
     this->mag.normalize();
+  }
+
+  /**
+   * @brief Set sublattice A's magnetisation (AFM naming alias).
+   * Sublattice A is `mag` -- the same state `setMagnetisation` sets. This
+   * alias exists so AFM layers can be configured with a symmetric
+   * `setSubLatticeMagnetisationA`/`setSubLatticeMagnetisationB` pair instead
+   * of mixing the generic `setMagnetisation` with the AFM-specific setter.
+   * @param newMagA: initial magnetisation of sublattice A.
+   */
+  void setSubLatticeMagnetisationA(const CVector<T> &newMagA) {
+    this->setMagnetisation(newMagA);
+  }
+
+  CVector<T> getSubLatticeMagnetisationA() const { return this->mag; }
+
+  /**
+   * @brief Set sublattice B's magnetisation.
+   * Setting this marks the layer as an antiferromagnetic (AFM) layer:
+   * sublattice A (`mag`) and sublattice B (`mag2`) are coupled via
+   * `setAFMExchangeDriver`. Both sublattices share Ms/anis/damping.
+   * @param newMagB: initial magnetisation of sublattice B.
+   */
+  void setSubLatticeMagnetisationB(const CVector<T> &newMagB) {
+    if (newMagB.length() == 0) {
+      throw std::runtime_error(
+          "Initial magnetisation was set to a zero vector!");
+    }
+    if (this->temperatureSet || this->pinkNoiseSet) {
+      throw std::runtime_error(
+          "Cannot mark a layer AFM (setSubLatticeMagnetisationB) after a "
+          "temperature/noise driver was already set on it! AFM layers and "
+          "stochastic/temperature drivers are incompatible.");
+    }
+    if (this->includeSTT || this->includeSOT) {
+      throw std::runtime_error(
+          "Cannot mark an STT/SOT layer as AFM (setSubLatticeMagnetisationB)! "
+          "Spin torques on the coupled sublattices are not supported yet -- "
+          "the plain ferromagnetic torque formulas do not describe "
+          "Neel-order dynamics.");
+    }
+    this->mag2 = newMagB;
+    this->mag2.normalize();
+    this->isAFM = true;
+  }
+
+  CVector<T> getSubLatticeMagnetisationB() const { return this->mag2; }
+
+  /**
+   * @brief Set the intra-layer AFM (Neel) exchange coupling driver between
+   * the two sublattices. Uses the same bilinear IEC formula/units (J/m^2)
+   * as the interlayer coupling; a strongly negative J favours antiparallel
+   * sublattices.
+   */
+  void setAFMExchangeDriver(const ScalarDriver<T> &driver) {
+    this->AFMExchangeDriver = driver;
   }
 
   void setIECDriverBottom(const ScalarDriver<T> &driver) {
@@ -631,9 +772,12 @@ public:
   calculateHeff(T time, T timeStep, const CVector<T> &stepMag,
                 const CVector<T> &bottom, const CVector<T> &top,
                 const CVector<T> &Hfluctuation = CVector<T>()) {
-    this->Hdipole =
-        calculate_tensor_interaction(bottom, this->dipoleBottomArray, this->Ms) +
-        calculate_tensor_interaction(top, this->dipoleTopArray, this->Ms);
+    this->Hdipole = this->hasDipole
+                        ? calculate_tensor_interaction(
+                              bottom, this->dipoleBottomArray, this->Ms) +
+                              calculate_tensor_interaction(
+                                  top, this->dipoleTopArray, this->Ms)
+                        : CVector<T>();
     return calculateHeffDipoleInjection(time, timeStep, stepMag, bottom, top,
                                         this->Hdipole, Hfluctuation);
   }
@@ -685,12 +829,13 @@ public:
 
   inline CVector<T> calculateAnisotropy(const CVector<T> &stepMag, T &time) {
     this->K_log = this->anisotropyDriver.getCurrentScalarValue(time);
-    const T nom = (2 * this->K_log) * c_dot<T>(this->anis, stepMag) * this->invMs;
+    const T nom =
+        (2 * this->K_log) * c_dot<T>(this->anis, stepMag) * this->invMs;
     return this->anis * nom;
   }
 
   inline CVector<T> calculateSecondOrderAnisotropy(const CVector<T> &stepMag,
-                                            T &time) {
+                                                   T &time) {
     this->K2_log =
         this->secondOrderAnisotropyDriver.getCurrentScalarValue(time);
     const T dot = c_dot<T>(this->anis, stepMag);
@@ -698,8 +843,9 @@ public:
     return this->anis * nom;
   }
 
-  inline CVector<T> calculateIEC_(const T J, const T J2, const CVector<T> &stepMag,
-                           const CVector<T> &coupledMag) {
+  inline CVector<T> calculateIEC_(const T J, const T J2,
+                                  const CVector<T> &stepMag,
+                                  const CVector<T> &coupledMag) {
     // below an alternative method for computing J -- it's here for reference
     // only. const T nom = J / (this->Ms * this->thickness); return (coupledMag
     // - stepMag) * nom; // alternative form return (coupledMag + coupledMag * 2
@@ -710,7 +856,8 @@ public:
   }
 
   inline CVector<T> calculateIEC(T time, const CVector<T> &stepMag,
-                          const CVector<T> &bottom, const CVector<T> &top) {
+                                 const CVector<T> &bottom,
+                                 const CVector<T> &top) {
     this->Jbottom_log = this->IECDriverBottom.getCurrentScalarValue(time);
     this->Jtop_log = this->IECDriverTop.getCurrentScalarValue(time);
 
@@ -723,8 +870,8 @@ public:
   }
 
   inline CVector<T> calculateIDMI_(const CVector<T> &Dvector,
-                            const CVector<T> &stepMag,
-                            const CVector<T> &coupledMag) {
+                                   const CVector<T> &stepMag,
+                                   const CVector<T> &coupledMag) {
     // D * [(dm1/dm1x x m2) + (m1 x dm2/dm2x)]
     // dm1/dm1x x m2 = (0, -mz, my)
     // dm1/dm1y x m2 = (mz, 0, -mx)
@@ -741,7 +888,8 @@ public:
   }
 
   inline CVector<T> calculateIDMI(T time, const CVector<T> &stepMag,
-                           const CVector<T> &bottom, const CVector<T> &top) {
+                                  const CVector<T> &bottom,
+                                  const CVector<T> &top) {
     return calculateIDMI_(this->IDMIDriverBottom.getCurrentAxialDrivers(time),
                           stepMag, bottom) +
            calculateIDMI_(this->IDMIDriverTop.getCurrentAxialDrivers(time),
@@ -877,7 +1025,7 @@ public:
    * @return CVector<T>
    */
   inline CVector<T> stochasticTorque(const CVector<T> &currentMag,
-                              const CVector<T> &dW) {
+                                     const CVector<T> &dW) {
 
     const T convTerm = -GYRO / (1. + this->dampingSq);
     const CVector<T> thcross = c_cross(currentMag, dW);
@@ -918,8 +1066,87 @@ public:
     return solveLLG(time, m, timeStep, bottom, top, heff);
   }
 
+  /**
+   * @brief Effective field for one AFM sublattice, reusing `calculateHeff`
+   * for all the usual (external/anisotropy/demag/IEC-to-neighbours/...)
+   * contributions and adding the intra-layer Neel exchange from the other
+   * sublattice via the same bilinear coupling formula used for IEC.
+   */
+  inline const CVector<T> calculateHeffAFM(T time, T timeStep,
+                                           const CVector<T> &stepMag,
+                                           const CVector<T> &partnerMag,
+                                           const CVector<T> &bottom,
+                                           const CVector<T> &top, T jafm) {
+    CVector<T> Heff = calculateHeff(time, timeStep, stepMag, bottom, top);
+    Heff += calculateIEC_(jafm, T(0.0), stepMag, partnerMag);
+    return Heff;
+  }
+
+  inline const CVector<T> calculateLLGWithFieldTorqueAFM(
+      T time, const CVector<T> &m, const CVector<T> &partner,
+      const CVector<T> &bottom, const CVector<T> &top, T timeStep, T jafm) {
+    const CVector<T> heff =
+        calculateHeffAFM(time, timeStep, m, partner, bottom, top, jafm);
+    return solveLLG(time, m, timeStep, bottom, top, heff);
+  }
+
+  /**
+   * @brief Coupled RK4 step for the two AFM sublattices. Both `mag` and
+   * `mag2` are advanced jointly since each sublattice's effective field
+   * depends on the other's instantaneous state at every RK4 stage.
+   */
+  bool rk4_step_afm(T time, T &timeStep, const CVector<T> &bottom,
+                    const CVector<T> &top) {
+    const CVector<T> m1_t = this->mag;
+    const CVector<T> m2_t = this->mag2;
+
+    auto deriv =
+        [&](T t, const CVector<T> &m1,
+            const CVector<T> &m2) -> std::pair<CVector<T>, CVector<T>> {
+      // evaluate the AFM exchange driver once per stage and reuse for both
+      // sublattices, instead of re-querying it twice with an identical time
+      const T jafm = this->AFMExchangeDriver.getCurrentScalarValue(t);
+      this->Jafm_log = jafm;
+      return {calculateLLGWithFieldTorqueAFM(t, m1, m2, bottom, top, timeStep,
+                                             jafm),
+              calculateLLGWithFieldTorqueAFM(t, m2, m1, bottom, top, timeStep,
+                                             jafm)};
+    };
+
+    const auto [d1k1, d2k1] = deriv(time, m1_t, m2_t);
+    const CVector<T> k1a = d1k1 * timeStep, k1b = d2k1 * timeStep;
+
+    const auto [d1k2, d2k2] =
+        deriv(time + 0.5 * timeStep, m1_t + k1a * 0.5, m2_t + k1b * 0.5);
+    const CVector<T> k2a = d1k2 * timeStep, k2b = d2k2 * timeStep;
+
+    const auto [d1k3, d2k3] =
+        deriv(time + 0.5 * timeStep, m1_t + k2a * 0.5, m2_t + k2b * 0.5);
+    const CVector<T> k3a = d1k3 * timeStep, k3b = d2k3 * timeStep;
+
+    const auto [d1k4, d2k4] = deriv(time + timeStep, m1_t + k3a, m2_t + k3b);
+    const CVector<T> k4a = d1k4 * timeStep, k4b = d2k4 * timeStep;
+
+    CVector<T> m1_next =
+        m1_t + (k1a + k2a * 2.0 + k3a * 2.0 + k4a) * (1.0 / 6.0);
+    CVector<T> m2_next =
+        m2_t + (k1b + k2b * 2.0 + k3b * 2.0 + k4b) * (1.0 / 6.0);
+    m1_next.normalize();
+    m2_next.normalize();
+    this->mag = m1_next;
+    this->mag2 = m2_next;
+    if (isnan(this->mag.x) || isnan(this->mag2.x)) {
+      throw std::runtime_error("NAN magnetisation");
+    }
+    return true;
+  }
+
   bool dormand_prince_step(T time, T &timeStep, const CVector<T> &bottom,
                            const CVector<T> &top) {
+    if (this->isAFM) {
+      throw std::runtime_error(
+          "AFM layers only support the RK4 solver mode for now!");
+    }
     CVector<T> m_t = this->mag;
 
     // Constants for Dormand-Prince method
@@ -1003,21 +1230,8 @@ public:
       error_ratio = 10.0; // Force a smaller timestep but avoid NaN
     }
 
-    // Step size control
-    T factor;
-    if (adaptiveParams.use_pid_control) {
-      // PID controller for step size
-      // TODO: Test it a bit more
-      T e_n = log(error_ratio);
-      adaptiveParams.integral_error += e_n;
-      factor = exp(adaptiveParams.kp * e_n +
-                   adaptiveParams.ki * adaptiveParams.integral_error +
-                   adaptiveParams.kd * (e_n - adaptiveParams.prev_error_ratio));
-      adaptiveParams.prev_error_ratio = e_n;
-    } else {
-      // Standard controller (error-based)
-      factor = adaptiveParams.safety_factor * pow(1.0 / error_ratio, 0.2);
-    }
+    // Step size control (error-based)
+    T factor = adaptiveParams.safety_factor * pow(1.0 / error_ratio, 0.2);
 
     // Check for numerical errors in factor calculation
     if (isnan(factor) || isinf(factor)) {
@@ -1071,6 +1285,9 @@ public:
    */
   bool rk4_step(T time, T &timeStep, const CVector<T> &bottom,
                 const CVector<T> &top) {
+    if (this->isAFM) {
+      return rk4_step_afm(time, timeStep, bottom, top);
+    }
     CVector<T> m_t = this->mag;
     const CVector<T> k1 =
         calculateLLGWithFieldTorque(time, m_t, bottom, top, timeStep) *
@@ -1143,9 +1360,9 @@ public:
   }
 
   inline CVector<T> stochastic_llg(const CVector<T> &cm, T time, T timeStep,
-                            const CVector<T> &bottom, const CVector<T> &top,
-                            const CVector<T> &dW, const CVector<T> &dW2,
-                            const T &HoneF) {
+                                   const CVector<T> &bottom,
+                                   const CVector<T> &top, const CVector<T> &dW,
+                                   const CVector<T> &dW2, const T &HoneF) {
     // compute the Langevin fluctuations -- this is the sigma
     const T convTerm = -GYRO / (1 + this->dampingSq);
     const T Hthermal_temp =
@@ -1183,12 +1400,16 @@ public:
     return sqrt(mainFactor);
   }
 
-  inline CVector<T> getStochasticLangevinVector(const T &time, const T &timeStep) {
+  inline CVector<T> getStochasticLangevinVector(const T &time,
+                                                const T &timeStep) {
     if (!this->temperatureSet)
       return CVector<T>();
     const T Hthermal_temp =
         this->getLangevinStochasticStandardDeviation(time, timeStep);
-    return CVector<T>([this]() { return this->thermalDistribution(this->thermalGenerator); }) * Hthermal_temp;
+    return CVector<T>([this]() {
+             return this->thermalDistribution(this->thermalGenerator);
+           }) *
+           Hthermal_temp;
   }
 
   inline CVector<T> getOneFVector() {
@@ -1277,15 +1498,13 @@ public:
    * @param SMR_Y
    * @param AHE
    */
-  explicit Junction(std::vector<Layer<T>> layersToSet,
-                    std::vector<T> Rx0, std::vector<T> Ry0,
-                    std::vector<T> AMR_X, std::vector<T> AMR_Y,
-                    std::vector<T> SMR_X, std::vector<T> SMR_Y,
-                    std::vector<T> AHE)
-      : layers(std::move(layersToSet)),
-        Rx0(std::move(Rx0)), Ry0(std::move(Ry0)), AMR_X(std::move(AMR_X)),
-        AMR_Y(std::move(AMR_Y)), SMR_X(std::move(SMR_X)),
-        SMR_Y(std::move(SMR_Y)), AHE(std::move(AHE))
+  explicit Junction(std::vector<Layer<T>> layersToSet, std::vector<T> Rx0,
+                    std::vector<T> Ry0, std::vector<T> AMR_X,
+                    std::vector<T> AMR_Y, std::vector<T> SMR_X,
+                    std::vector<T> SMR_Y, std::vector<T> AHE)
+      : layers(std::move(layersToSet)), Rx0(std::move(Rx0)),
+        Ry0(std::move(Ry0)), AMR_X(std::move(AMR_X)), AMR_Y(std::move(AMR_Y)),
+        SMR_X(std::move(SMR_X)), SMR_Y(std::move(SMR_Y)), AHE(std::move(AHE))
 
   {
     this->layerNo = this->layers.size();
@@ -1341,6 +1560,11 @@ public:
       reserveKey(layerId + "_mx");
       reserveKey(layerId + "_my");
       reserveKey(layerId + "_mz");
+      if (layer.isAFM) {
+        reserveKey(layerId + "_m2x");
+        reserveKey(layerId + "_m2y");
+        reserveKey(layerId + "_m2z");
+      }
 
       if (!calculateEnergies) {
         continue;
@@ -1351,6 +1575,9 @@ public:
       reserveKey(layerId + "_Jbottom");
       reserveKey(layerId + "_Jtop");
       reserveKey(layerId + "_I");
+      if (layer.isAFM) {
+        reserveKey(layerId + "_Jafm");
+      }
       for (const auto &axisName : this->vectorNames) {
         reserveKey(layerId + "_Hext" + axisName);
         reserveKey(layerId + "_Hiec" + axisName);
@@ -1381,32 +1608,12 @@ public:
   typedef void (Layer<T>::*axialDriverSetter)(const AxialDriver<T> &driver);
   void scalarlayerSetter(const std::string &layerID, scalarDriverSetter functor,
                          ScalarDriver<T> driver) {
-    bool found = false;
-    for (auto &l : this->layers) {
-      if (l.id == layerID || layerID == "all") {
-        (l.*functor)(driver);
-        found = true;
-      }
-    }
-    if (!found) {
-      throw std::runtime_error(
-          "Failed to find a layer with a given id: " + layerID + "!");
-    }
+    applyLayerDriver(this->layers, layerID, functor, driver);
   }
 
   void axiallayerSetter(const std::string &layerID, axialDriverSetter functor,
                         AxialDriver<T> driver) {
-    bool found = false;
-    for (auto &l : this->layers) {
-      if (l.id == layerID || layerID == "all") {
-        (l.*functor)(driver);
-        found = true;
-      }
-    }
-    if (!found) {
-      throw std::runtime_error(
-          "Failed to find a layer with a given id: " + layerID + "!");
-    }
+    applyLayerDriver(this->layers, layerID, functor, driver);
   }
 
   /**
@@ -1416,11 +1623,24 @@ public:
    * @param bottomLayer: the first layer id
    * @param topLayer: the second layer id
    */
+  void assertNoInterlayerCouplingWithAFM(const std::string &bottomLayer,
+                                         const std::string &topLayer) {
+    for (const auto &l : this->layers) {
+      if ((l.id == bottomLayer || l.id == topLayer) && l.isAFM) {
+        throw std::runtime_error(
+            "Interlayer coupling (IEC/IDMI) to/from AFM layer '" + l.id +
+            "' is not supported yet: the coupling field only sees sublattice "
+            "1 (mag), silently ignoring sublattice 2 (mag2)!");
+      }
+    }
+  }
+
   void setCouplingDriver(
       const std::string &bottomLayer, const std::string &topLayer,
       const ScalarDriver<T> &driver,
       void (Layer<T>::*setDriverFuncTop)(const ScalarDriver<T> &),
       void (Layer<T>::*setDriverFuncBottom)(const ScalarDriver<T> &)) {
+    assertNoInterlayerCouplingWithAFM(bottomLayer, topLayer);
     bool found = false;
     for (unsigned int i = 0; i < this->layerNo - 1; i++) {
       // check if the layer above is actually top layer the user specified
@@ -1457,6 +1677,7 @@ public:
       const AxialDriver<T> &driver,
       void (Layer<T>::*setDriverFuncTop)(const AxialDriver<T> &),
       void (Layer<T>::*setDriverFuncBottom)(const AxialDriver<T> &)) {
+    assertNoInterlayerCouplingWithAFM(bottomLayer, topLayer);
     bool found = false;
     for (unsigned int i = 0; i < this->layerNo - 1; i++) {
       // check if the layer above is actually top layer the user specified
@@ -1481,8 +1702,29 @@ public:
     }
   }
 
+  /**
+   * @brief Reject a broadcast ("all") setter up front if it would fail on
+   * any AFM layer, so the call either fully succeeds or mutates nothing --
+   * rather than throwing mid-loop after already mutating earlier layers.
+   */
+  void assertNoAFMBroadcastConflict(const std::string &layerID,
+                                    const char *what) {
+    if (layerID != "all") {
+      return;
+    }
+    for (const auto &l : this->layers) {
+      if (l.isAFM) {
+        throw std::runtime_error(
+            std::string("Cannot set ") + what +
+            " on 'all' layers: junction contains an AFM layer ('" + l.id +
+            "') which does not support it!");
+      }
+    }
+  }
+
   void setLayerTemperatureDriver(const std::string &layerID,
                                  const ScalarDriver<T> &driver) {
+    assertNoAFMBroadcastConflict(layerID, "a temperature driver");
     scalarlayerSetter(layerID, &Layer<T>::setTemperatureDriver, driver);
   }
   void setLayerNonStochasticLangevinDriver(const std::string &layerID,
@@ -1582,7 +1824,7 @@ public:
 
   void setLayerOneFNoise(const std::string &layerID, unsigned int sources,
                          T bias, T scale) {
-
+    assertNoAFMBroadcastConflict(layerID, "1/f noise");
     if (layerID == "all") {
       for (auto &l : this->layers) {
         l.setOneFNoise(sources, bias, scale);
@@ -1654,6 +1896,31 @@ public:
     return getLayer(layerID).mag;
   }
 
+  void setLayerSubLatticeMagnetisationA(const std::string &layerID,
+                                        const CVector<T> &mag) {
+    applyLayerDriver(this->layers, layerID,
+                     &Layer<T>::setSubLatticeMagnetisationA, mag);
+  }
+
+  CVector<T> getLayerSubLatticeMagnetisationA(const std::string &layerID) {
+    return getLayer(layerID).mag;
+  }
+
+  void setLayerSubLatticeMagnetisationB(const std::string &layerID,
+                                        const CVector<T> &mag) {
+    applyLayerDriver(this->layers, layerID,
+                     &Layer<T>::setSubLatticeMagnetisationB, mag);
+  }
+
+  CVector<T> getLayerSubLatticeMagnetisationB(const std::string &layerID) {
+    return getLayer(layerID).mag2;
+  }
+
+  void setLayerAFMExchangeDriver(const std::string &layerID,
+                                 const ScalarDriver<T> &driver) {
+    scalarlayerSetter(layerID, &Layer<T>::setAFMExchangeDriver, driver);
+  }
+
   Reference getLayerReferenceType(const std::string &layerID) {
     return getLayer(layerID).referenceType;
   }
@@ -1711,6 +1978,9 @@ public:
         this->log[lId + "_Jbottom"].emplace_back(layer.Jbottom_log);
         this->log[lId + "_Jtop"].emplace_back(layer.Jtop_log);
         this->log[lId + "_I"].emplace_back(layer.I_log);
+        if (layer.isAFM) {
+          this->log[lId + "_Jafm"].emplace_back(layer.Jafm_log);
+        }
         for (int i = 0; i < 3; i++) {
           this->log[lId + "_Hext" + vectorNames[i]].emplace_back(layer.Hext[i]);
           this->log[lId + "_Hiec" + vectorNames[i]].emplace_back(layer.HIEC[i]);
@@ -1734,6 +2004,11 @@ public:
       // always save magnetisation
       for (int i = 0; i < 3; i++) {
         this->log[lId + "_m" + vectorNames[i]].emplace_back(layer.mag[i]);
+      }
+      if (layer.isAFM) {
+        for (int i = 0; i < 3; i++) {
+          this->log[lId + "_m2" + vectorNames[i]].emplace_back(layer.mag2[i]);
+        }
       }
     }
     if (this->MR_mode == CLASSIC && this->layerNo == 1) {
@@ -1808,7 +2083,8 @@ public:
     // the first and the last layer get 0 vector coupled
     for (unsigned int i = 0; i < this->layerNo; i++)
       magCopies[i + 1] = this->layers[i].mag;
-    magCopies[this->layerNo + 1] = CVector<T>(); // Last layer gets 0 vector coupled
+    magCopies[this->layerNo + 1] =
+        CVector<T>(); // Last layer gets 0 vector coupled
 
     for (unsigned int i = 0; i < layerNo; i++) {
       // If any layer rejects the step, the whole step is rejected
@@ -1867,7 +2143,7 @@ public:
       const CVector<T> gnPrimeApprox =
           this->layers[i].stochasticTorque(mNext, dW);
       mPrime.emplace_back(this->layers[i].mag + fnApprox * timeStep +
-                  0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep));
+                          0.5 * (gnApprox + gnPrimeApprox) * sqrt(timeStep));
     }
 
     for (unsigned int i = 0; i < this->layerNo; i++) {
@@ -1914,11 +2190,12 @@ public:
 
       // draw the noise for each layer, dW
       dW.emplace_back(this->layers[i].getStochasticLangevinVector(t, timeStep) +
-              this->layers[i].getOneFVector());
-      gn.emplace_back(this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]));
+                      this->layers[i].getOneFVector());
+      gn.emplace_back(
+          this->layers[i].stochasticTorque(this->layers[i].mag, dW[i]));
 
-      mNext.emplace_back(
-          this->layers[i].mag + fn[i] * timeStep + gn[i] * sqrt(timeStep));
+      mNext.emplace_back(this->layers[i].mag + fn[i] * timeStep +
+                         gn[i] * sqrt(timeStep));
     }
     // second approximation
     for (unsigned int i = 0; i < this->layerNo; i++) {
@@ -1956,13 +2233,11 @@ public:
    * @param SMR_Y
    * @param AHE
    */
-  inline std::vector<T> stripMagnetoResistance(const std::vector<T> &Rx0,
-                                        const std::vector<T> &Ry0,
-                                        const std::vector<T> &AMR_X,
-                                        const std::vector<T> &SMR_X,
-                                        const std::vector<T> &AMR_Y,
-                                        const std::vector<T> &SMR_Y,
-                                        const std::vector<T> &AHE) const {
+  inline std::vector<T> stripMagnetoResistance(
+      const std::vector<T> &Rx0, const std::vector<T> &Ry0,
+      const std::vector<T> &AMR_X, const std::vector<T> &SMR_X,
+      const std::vector<T> &AMR_Y, const std::vector<T> &SMR_Y,
+      const std::vector<T> &AHE) const {
     T Rx_acc = 0.0;
     T Ry_acc = 0.0;
 
@@ -1990,6 +2265,15 @@ public:
   }
 
   std::vector<T> getMagnetoresistance() {
+    for (const auto &l : this->layers) {
+      if (l.isAFM) {
+        throw std::runtime_error(
+            "Magnetoresistance calculation is not supported for AFM layer '" +
+            l.id +
+            "' yet: it only sees sublattice 1 (mag), silently ignoring "
+            "sublattice 2 (mag2)!");
+      }
+    }
     // this is classical bilayer case
     if (this->MR_mode == CLASSIC && this->layerNo == 2) {
       return {
@@ -2014,8 +2298,27 @@ public:
   std::tuple<RunnerFn<T>, SolverFn<T>, SolverMode>
   getSolver(SolverMode mode, unsigned int totalIterations) {
     SolverMode localMode = mode;
+    bool anyAFM = false;
+    for (const auto &l : this->layers) {
+      if (l.isAFM) {
+        anyAFM = true;
+        break;
+      }
+    }
+    if (anyAFM && localMode == DORMAND_PRINCE) {
+      throw std::runtime_error(
+          "AFM layers only support the RK4 solver mode for now!");
+    }
     for (auto &l : this->layers) {
       if (l.hasTemperature()) {
+        if (anyAFM) {
+          throw std::runtime_error(
+              "Cannot run a stochastic/temperature solver on a junction that "
+              "contains an AFM layer: its stochastic solver step never "
+              "advances sublattice 2 (mag2), silently freezing the AFM "
+              "dynamics. AFM layers only support RK4, with no temperature "
+              "driver on ANY layer in the junction.");
+        }
         // if at least one temp. driver is set
         // then use heun for consistency
         if (localMode != HEUN && localMode != EULER_HEUN) {
@@ -2026,6 +2329,14 @@ public:
         }
       }
       if (l.noiseParams.scaleNoise != 0) {
+        if (anyAFM) {
+          throw std::runtime_error(
+              "Cannot run a stochastic/noise solver on a junction that "
+              "contains an AFM layer: its stochastic solver step never "
+              "advances sublattice 2 (mag2), silently freezing the AFM "
+              "dynamics. AFM layers only support RK4, with no noise driver "
+              "on ANY layer in the junction.");
+        }
         // if at least one temp. driver is set
         // then use heun for consistency
         if (localMode != HEUN && localMode != EULER_HEUN) {
@@ -2076,12 +2387,24 @@ public:
       throw std::runtime_error(
           "The time step cannot be larger than write frequency!");
     }
+    if (this->MR_mode != NONE) {
+      // logLayerParams computes the logged resistance from sublattice 1
+      // only, so it would be silently wrong for AFM layers
+      for (const auto &l : this->layers) {
+        if (l.isAFM) {
+          throw std::runtime_error(
+              "Magnetoresistance logging is not supported for AFM layer '" +
+              l.id +
+              "' yet: it only sees sublattice 1 (mag). Construct the "
+              "junction without Rp/Rap or strip-MR parameters.");
+        }
+      }
+    }
     const unsigned int totalIterations =
         static_cast<unsigned int>(totalTime / timeStep);
     const unsigned int writeEvery =
         static_cast<unsigned int>(writeFrequency / timeStep);
-    const unsigned int expectedSamples =
-        (totalIterations / writeEvery) + 2;
+    const unsigned int expectedSamples = (totalIterations / writeEvery) + 2;
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
     // pick a solver based on drivers

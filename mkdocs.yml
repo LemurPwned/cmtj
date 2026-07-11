@@ -26,7 +26,7 @@ nav:
       - Harmonic Hall: experimental-methods/HarmonicsFits.ipynb
       - Misc experiments: experimental-methods/examples.ipynb
       - Spin Diode experiments: experimental-methods/VoltageSpinDiodeFits.ipynb
-  - Parallelism: physics/paralellism.md
+  - Parallelism: physics/parallelism.md
   - Tutorial (LLM-generated):
       - Index: autogen/index.md
       - Procedures: autogen/01_pimm___vsd_procedures_.md

@@ -64,12 +64,6 @@ public:
     return *this;
   }
 
-  CVector operator+(CVector v) {
-    CVector res(x + v.x, y + v.y, z + v.z);
-
-    return res;
-  };
-
   CVector operator+(const CVector &v) const {
     CVector res(x + v.x, y + v.y, z + v.z);
 
@@ -81,28 +75,18 @@ public:
     return res;
   }
 
-  CVector operator-(CVector v) {
-    CVector res(x - v.x, y - v.y, z - v.z);
-
-    return res;
-  };
   CVector operator-(const CVector &v) const {
     CVector res(x - v.x, y - v.y, z - v.z);
 
     return res;
   };
 
-  void operator=(CVector v) {
+  CVector &operator=(const CVector &v) {
     x = v.x;
     y = v.y;
     z = v.z;
+    return *this;
   }
-
-  bool operator==(const CVector &v) {
-    if ((x == v.x) && (y == v.y) && (z == v.z))
-      return true;
-    return false;
-  };
 
   bool operator==(const CVector &v) const {
     if ((x == v.x) && (y == v.y) && (z == v.z))
@@ -110,21 +94,10 @@ public:
     return false;
   };
 
-  bool operator!=(const CVector &v) {
-    if ((x == v.x) && (y == v.y) && (z == v.z))
-      return false;
-    return true;
-  };
-
   bool operator!=(const CVector &v) const {
     if ((x == v.x) && (y == v.y) && (z == v.z))
       return false;
     return true;
-  };
-
-  CVector operator*(const T &val) {
-    CVector res(x * val, y * val, z * val);
-    return res;
   };
 
   CVector operator*(const T &val) const {
@@ -142,14 +115,6 @@ public:
     z *= v;
     return *this;
   }
-
-  CVector operator/(T val) {
-    if (val == 0) {
-      throw std::runtime_error("Failed to divide vector by zero!");
-    }
-    CVector res(x / val, y / val, z / val);
-    return res;
-  };
 
   CVector operator/(T val) const {
     if (val == 0) {
@@ -176,8 +141,6 @@ public:
     else
       return z;
   }
-
-  T length() { return std::sqrt(x * x + y * y + z * z); }; // Magnitude
 
   T length() const { return std::sqrt(x * x + y * y + z * z); }; // Magnitude
 
