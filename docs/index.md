@@ -130,6 +130,8 @@ There are many examples available, check out the [examples section in the docs](
 
 There's a GUI version available! If you wish to conduct a subset of simulations, mainly for experimental modelling, please see the _PyMag_ project. It uses CMTJ as a backend for fast computation.
 
+If you're interested in reinforcement learning control of spintronic devices (spin-torque oscillators, perpendicular switching, skyrmion control, VCMA sensors), see [`cmtj-rl`](https://github.com/LemurPwned/cmtj-rl) -- Gym environments and training configs built on top of `cmtj`, using `stable-baselines3`.
+
 ## Citing
 
 We would appreciate citing either of the listed work if you decide to use the project or using the cite button on the right hand side panel of the repository:
