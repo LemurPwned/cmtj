@@ -24,6 +24,7 @@
 #include <fstream>    // for file save
 #include <functional> // for bind, function
 #include <iostream>   // for string, operator<<, basic_ostream
+#include <limits>     // for numeric_limits
 #include <optional>
 #include <random>        // for mt19937, normal_distribution
 #include <stdexcept>     // for runtime_error, invalid_argument
@@ -243,7 +244,7 @@ private:
       throw std::runtime_error("Anisotropy was set to a zero vector!");
     }
     // normalise magnetisation
-    mag.normalize();
+    this->mag.normalize();
     dWn = CVector<T>(
         [this]() { return this->thermalDistribution(this->thermalGenerator); });
     dWn.normalize();
@@ -326,8 +327,6 @@ public:
   T beta;                              // usually either set to 0 or to damping
   T kappa = 1;                         // for damping-like off -turning torque
   T spinPolarisation;
-
-  T hopt = -1.0;
 
   Layer() {}
   explicit Layer(const std::string &id, const CVector<T> &mag,
@@ -1998,8 +1997,6 @@ public:
                 layer.Hdl_v[i]);
           }
         }
-        if (layer.includeSTT | layer.includeSOT)
-          this->log[lId + "_I"].emplace_back(layer.I_log);
       }
       // always save magnetisation
       for (int i = 0; i < 3; i++) {
@@ -2086,22 +2083,26 @@ public:
     magCopies[this->layerNo + 1] =
         CVector<T>(); // Last layer gets 0 vector coupled
 
+    // every layer attempts the same step; adaptive solvers propose their own
+    // next step size, and the junction proceeds with the smallest one
+    T next_timestep = std::numeric_limits<T>::max();
     for (unsigned int i = 0; i < layerNo; i++) {
+      T layerTimeStep = timeStep;
       // If any layer rejects the step, the whole step is rejected
-      if (!(layers[i].*functor)(t, timeStep, magCopies[i], magCopies[i + 2])) {
+      if (!(layers[i].*functor)(t, layerTimeStep, magCopies[i],
+                                magCopies[i + 2])) {
         step_accepted = false;
       }
+      next_timestep = std::min(next_timestep, layerTimeStep);
     }
 
-    // If any layer rejected, we need the smallest timestep among all layers
     if (!step_accepted) {
-      T min_timestep = timeStep;
-      for (unsigned int i = 0; i < layerNo; i++) {
-        // Assuming each layer has its own timeStep that was updated
-        min_timestep = std::min(min_timestep, layers[i].hopt);
-      }
-      timeStep = min_timestep;
+      // roll back the layers that already accepted, so that all layers stay
+      // at the same time t
+      for (unsigned int i = 0; i < this->layerNo; i++)
+        this->layers[i].mag = magCopies[i + 1];
     }
+    timeStep = next_timestep;
   }
 
   void eulerHeunSolverStep(SolverFn<T> &functor, T &t, T &timeStep,
@@ -2453,8 +2454,9 @@ public:
 
         // Run one step with adaptive timestep and check if accepted
         bool step_accepted = false;
-
-        // Minimum timestep threshold (can be adjusted based on needs)
+        // the solver overwrites current_timestep with the proposed size of
+        // the next step, so remember the size of the step actually taken
+        const T attempted_timestep = current_timestep;
 
         if (layerNo > 1) {
           // For multi-layer systems
@@ -2477,7 +2479,7 @@ public:
 
         // If step was accepted, update time and possibly log
         if (step_accepted) {
-          t += current_timestep;
+          t += attempted_timestep;
           consecutive_rejections = 0;
 
           // Log data at regular intervals based on writeFrequency

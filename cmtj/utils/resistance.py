@@ -84,7 +84,7 @@ def calculate_magnetoresistance(Rp: float, Rap: float, m: np.ndarray) -> np.ndar
         m = np.asarray(m)
     if m.shape[0] != 2:
         raise ValueError("The magnetoresistance can only be computed for 2 layers" f". Current shape {m.shape}")
-    return Rp + 0.5 * (Rap - Rp) * np.sum(m[0] * m[1], axis=0)
+    return compute_gmr(Rp, Rap, m[0], m[1])
 
 
 def calculate_resistance_parallel(

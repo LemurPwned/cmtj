@@ -141,22 +141,20 @@ def PIMM_procedure(
         junction.runSimulation(simulation_duration, int_step, int_step)
         log = junction.getLog()
         indx = np.argwhere(np.asarray(log["time"]) >= wait_time).ravel()
-        m_traj = np.asarray(
+        m_unit = np.asarray(
             [
-                np.asarray(
-                    [
-                        log[f"{layer.id}_mx"],
-                        log[f"{layer.id}_my"],
-                        log[f"{layer.id}_mz"],
-                    ]
-                )
-                * layer.thickness
-                * layer.Ms
-                / normalising_factor
+                [
+                    log[f"{layer.id}_mx"],
+                    log[f"{layer.id}_my"],
+                    log[f"{layer.id}_mz"],
+                ]
                 for layer in junction.layers
             ]
         )
-        m = m_traj[:, :, -take_last_n:]  # all layers, all x, y, z, last 100 steps
+        layer_weights = np.asarray([layer.thickness * layer.Ms for layer in junction.layers]) / normalising_factor
+        m_traj = m_unit * layer_weights[:, None, None]
+        # resistance of each layer depends on its own unit magnetisation
+        m = m_unit[:, :, -take_last_n:]  # all layers, all x, y, z, last n steps
         Rx, Ry = resistance_fn(
             [r.Rxx0 for r in resistance_params],
             [r.Rxy0 for r in resistance_params],
@@ -234,7 +232,7 @@ def VSD_procedure(
     layer_ids = junction.getLayerIds()
     if Rtype == "Rz" and len(layer_ids) > 2:
         raise ValueError("Rz can only be used for 2 layer junctions. Use Rx or Ry instead.")
-    elif len(resistance_params) != len(layer_ids):
+    elif Rtype != "Rz" and len(resistance_params) != len(layer_ids):
         raise ValueError("The number of layers in the junction must match the number of resistance parameters!")
 
     def simulate_VSD(H: np.ndarray, frequency: float, resistance_params: ResistanceParameters):
@@ -295,7 +293,7 @@ def VSD_procedure(
             elif len(layer_ids) == 2:
                 R = log[f"R_{layer_ids[0]}_{layer_ids[1]}"]
             elif len(layer_ids) == 1:
-                R = log["Resistance"]
+                R = log["R"]
             else:
                 raise ValueError(
                     "Resistance definition ambiguous!"
