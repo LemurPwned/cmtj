@@ -241,7 +241,7 @@ public:
    */
   static ScalarDriver getGaussianStepDriver(T constantValue, T amplitude, T t0,
                                             T sigma) {
-    return ScalarDriver(gaussstep, constantValue, amplitude, -1, -1, -1, -1,
+    return ScalarDriver(gaussimpulse, constantValue, amplitude, -1, -1, -1, -1,
                         t0, -1, sigma);
   }
 

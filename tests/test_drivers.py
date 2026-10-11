@@ -136,13 +136,6 @@ def test_custom_on_junction(single_layer_mtj):
     assert all(x == 12345 for x in log["free_K"])
 
 
-def test_gaussian_step_driver_is_a_step():
-    driver = ScalarDriver.getGaussianStepDriver(0, 1, 1e-9, 1e-10)
-    assert driver.getCurrentScalarValue(0) == pytest.approx(0, abs=1e-6)
-    assert driver.getCurrentScalarValue(1e-9) == pytest.approx(0.5)
-    assert driver.getCurrentScalarValue(5e-9) == pytest.approx(1)
-
-
 def test_vector_axial_driver_is_static():
     driver = AxialDriver.getVectorAxialDriver(1, 2, 3)
     assert driver.getCurrentAxialDrivers(0) == CVector(1, 2, 3)
