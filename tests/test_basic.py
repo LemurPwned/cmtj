@@ -100,3 +100,21 @@ def test_second_order_anisotropy():
     assert "free_K2" in log.keys()
     K2_log = np.asarray(log["free_K2"])
     assert np.all(K2_log == K2)
+
+
+def test_layer_magnetisation_is_normalised():
+    demag = [CVector(0, 0, 0)] * 3
+    layer = Layer("free", CVector(2, 0, 0), CVector(0, 0, 1), 1.0, 1e-9, 1e-16, demag, 0.01)
+    junction = Junction([layer])
+    assert junction.getLayerMagnetisation("free").length() == pytest.approx(1.0)
+
+
+def test_energy_log_lengths_match_with_current():
+    demag = [CVector(0, 0, 0)] * 3
+    layer = Layer.createSTTLayer("free", CVector(0, 0, 1), CVector(0, 0, 1), 1.0, 1e-9, 1e-16, demag, 0.01, 1.0, 0.0, 0.5)
+    layer.setReferenceLayer(CVector(1, 0, 0))
+    junction = Junction([layer])
+    junction.setLayerCurrentDriver("free", ScalarDriver.getConstantDriver(1e10))
+    junction.runSimulation(1e-10, 1e-12, 1e-12, calculateEnergies=True)
+    log = junction.getLog()
+    assert len(log["free_I"]) == len(log["time"])

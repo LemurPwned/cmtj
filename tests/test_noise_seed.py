@@ -34,5 +34,5 @@ def test_seed_reproducibility_with_thermal_and_onef_noise():
     same_seed_b = _run_and_get_mz(1234, include_temperature=True)
     different_seed = _run_and_get_mz(5678, include_temperature=True)
 
-    np.testing.assert_allclose(same_seed_a, same_seed_b, rtol=1e-4, atol=1e-4)
+    np.testing.assert_array_equal(same_seed_a, same_seed_b)
     assert not np.allclose(same_seed_a, different_seed)

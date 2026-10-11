@@ -4,11 +4,12 @@ from typing import Tuple
 import numpy as np
 import pytest
 
-from cmtj import Axis, Junction
+from cmtj import Axis, CVector, Junction, Layer
 from cmtj.utils import FieldScan
 from cmtj.utils.procedures import (PIMM_procedure, ResistanceParameters,
                                    VSD_procedure)
-from cmtj.utils.resistance import (calculate_resistance_parallel,
+from cmtj.utils.resistance import (calculate_magnetoresistance,
+                                   calculate_resistance_parallel,
                                    calculate_resistance_series)
 
 
@@ -83,3 +84,49 @@ def test_vsd(arg: Tuple[Junction, ResistanceParameters]):
                       simulation_duration=10e-9,
                       Rtype=rtype,
                       disable_tqdm=True)
+
+
+def test_pimm_resistance_uses_unit_magnetisation():
+    demag = [CVector(0, 0, 0)] * 3
+    layers = [
+        Layer(f"L{i}", CVector(1, 0, 0), CVector(1, 0, 0), 1.0, 1e-9, 1e-16, demag, 0.01)
+        for i in range(2)
+    ]
+    junction = Junction(layers)
+    rp = ResistanceParameters(Rxx0=100, Ramr=1, w=1, l=1)
+    _, _, out = PIMM_procedure(
+        junction,
+        np.asarray([[500e3, 0, 0]]),
+        1e-12,
+        [rp, rp],
+        simulation_duration=1e-10,
+        disturbance=0,
+        static_only=True,
+        disable_tqdm=True,
+    )
+    # both layers saturated along x: 101 Ohm each, in series
+    assert np.ravel(out["Rx"])[-1] == pytest.approx(202, rel=1e-6)
+
+
+def test_vsd_rz_single_layer():
+    demag = [CVector(0, 0, 0)] * 3
+    layer = Layer("free", CVector(1, 0, 0), CVector(1, 0, 0), 1.0, 1e-9, 1e-16, demag, 0.01)
+    layer.setReferenceLayer(CVector(1, 0, 0))
+    junction = Junction([layer], 100, 200)
+    spectrum = VSD_procedure(
+        junction,
+        np.asarray([[500e3, 0, 0]]),
+        [1e9],
+        1e-12,
+        Rtype="Rz",
+        simulation_duration=1e-10,
+        disable_tqdm=True,
+    )
+    assert spectrum.shape == (1, 1)
+
+
+def test_calculate_magnetoresistance_limits():
+    parallel = np.asarray([[[0], [0], [1]], [[0], [0], [1]]], dtype=float)
+    antiparallel = np.asarray([[[0], [0], [1]], [[0], [0], [-1]]], dtype=float)
+    assert calculate_magnetoresistance(100, 200, parallel)[0] == pytest.approx(100)
+    assert calculate_magnetoresistance(100, 200, antiparallel)[0] == pytest.approx(200)
