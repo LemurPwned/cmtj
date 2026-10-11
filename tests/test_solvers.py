@@ -61,3 +61,31 @@ def test_dormand_prince_multilayer():
     t = np.asarray(junction.getLog()["time"])
     assert np.all(np.diff(t) > 0)
     assert t[-1] == pytest.approx(total_time, rel=1e-6)
+
+
+def test_dormand_prince_multilayer_rejection_rollback():
+    """A layer rejecting steps must not let its neighbour run ahead of time.
+
+    L1 has a tight tolerance and a pulsed field, so it rejects steps that the
+    freely precessing L0 accepts. L0's phase must still follow the logged time.
+    """
+    H = 100e3
+    demag = [CVector(0, 0, 0)] * 3
+    free = Layer("L0", CVector(1, 0, 0), CVector(0, 0, 1), 1.0, 1e-9, 1e-16, demag, 0.0)
+    pulsed = Layer("L1", CVector(1, 0, 0), CVector(0, 0, 1), 1.0, 1e-9, 1e-16, demag, 0.01)
+    params = AdaptiveIntegrationParams()
+    params.abs_tol = 1e-9
+    params.rel_tol = 1e-9
+    pulsed.setAdaptiveParams(params)
+    junction = Junction([free, pulsed])
+    junction.setLayerExternalFieldDriver("L0", AxialDriver(0, 0, H))
+    junction.setLayerExternalFieldDriver(
+        "L1",
+        AxialDriver(NullDriver(), NullDriver(), ScalarDriver.getPulseDriver(0, 300e3, 2e-11, 0.5)),
+    )
+    junction.runSimulation(5e-10, 1e-13, 1e-12, solverMode=SolverMode.DormandPrince)
+    log = junction.getLog()
+    t = np.asarray(log["time"])
+    phase = np.abs(np.unwrap(np.arctan2(log["L0_my"], log["L0_mx"])))
+    omega = constants.PhysicalConstants.gyromagnetic_ratio() * H
+    assert np.abs(phase - omega * t).max() < 0.05
