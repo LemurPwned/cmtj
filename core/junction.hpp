@@ -498,6 +498,8 @@ public:
   }
 
   void setSeed(std::optional<std::uint64_t> seed = std::nullopt) {
+    // drop the normal deviate cached from the unseeded generator
+    this->thermalDistribution.reset();
     if (seed.has_value()) {
       this->thermalGenerator.seed(*seed);
       if (this->ofn) {
