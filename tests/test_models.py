@@ -157,3 +157,29 @@ def test_spin_diode_mr_channels_first_order():
 
     expected = R(pos[0] + step[0]) - R(pos[0])
     assert np.allclose(spin_diode_mr_channels(pos, step, j)[0].real, expected, rtol=1e-4)
+
+
+def test_spin_diode_scan_reuses_layout_compile():
+    """Solvers with the same layout share one compiled system; each still gets its own parameters
+    (including the dipole coupling and a complex DL ratio)."""
+    from cmtj.models.general_sb import _DIODE_FN_CACHE
+
+    rng = np.random.default_rng(2)
+    pos = np.column_stack([rng.uniform(1.2, 1.9, 3), rng.uniform(-1, 1, 3), rng.uniform(1.2, 1.9, 3), rng.uniform(-1, 1, 3)])
+    H = np.column_stack([np.linspace(-30e3, 30e3, 3), np.zeros(3), np.full(3, 1e3)])
+    kw = dict(frequency=5e9, Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol())
+    dipole = [VectorObj.from_cartesian(0, 1e-4, 0), VectorObj.from_cartesian(0, -1e-4, 0), VectorObj.from_cartesian(0, 0, 1e-6)]
+    for k, (J1, ratio, Ku) in enumerate([(-2e-4, 0.3 + 1j, 5e3), (6e-4, -2.0 - 0.5j, 9e3)]):
+        layers = [
+            LayerDynamic(i, thickness=3e-9 + 1e-9 * i, Kv=VectorObj(np.deg2rad(90), 0.3 * i, Ku * (1 + i)), Ks=1e3,
+                         Ms=1.5 / (4e-7 * np.pi), alpha=0.01 + 0.01 * i, Hdmi=[1e3 * i, -5e2, 0],
+                         hoe_direction=[0.2, 1.0, 0.1], hoe_dl_ratio=ratio)
+            for i in range(2)
+        ]
+        solver = Solver(layers=layers, J1=[J1], J2=[1e-5], ilD=[VectorObj.from_cartesian(1e-5, 0, 2e-5)], Ndipole=[dipole])
+        n_cached = len(_DIODE_FN_CACHE)
+        scan = solver.linearised_spin_diode_scan(H=H, zero_pos=pos, **kw)
+        assert k == 0 or len(_DIODE_FN_CACHE) == n_cached  # second solver: no new compile
+        ref = [solver.linearised_N_spin_diode(H=VectorObj.from_cartesian(*h), zero_pos=x, Vdc_ex_value=1.0,
+                                              return_complex=True, **kw).ravel() for h, x in zip(H, pos)]
+        assert np.allclose(scan, ref, rtol=1e-8)

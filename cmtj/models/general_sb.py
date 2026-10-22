@@ -351,8 +351,8 @@ class LayerDynamic(LayerSB):
     :param alpha: Gilbert damping.
     :param torque_par: damping-like torque amplitude of the `Vp` excitation (layer frame).
     :param torque_perp: field-like torque amplitude of the `Vp` excitation (layer frame).
-    :param hoe_direction: direction of the rf field of the `Hoe` excitation, fixed in the lab frame
-        (e.g. z x j for the Oersted field of a current along j). None (default): the rf field is
+    :param hoe_direction: direction (VectorObj or (x, y, z)) of the rf field of the `Hoe` excitation, fixed in
+        the lab frame (e.g. z x j for the Oersted field of a current along j). None (default): the rf field is
         always in-plane and perpendicular to m, so its torque does not depend on where m points.
     :param hoe_dl_ratio: damping-like torque of the same excitation relative to the rf field, as an
         effective field hoe_dl_ratio * (m x hoe_direction); complex values give a DL torque out of
@@ -367,7 +367,9 @@ class LayerDynamic(LayerSB):
 
     def __post_init__(self):
         super().__post_init__()
-        if self.hoe_direction is not None and not any(self.hoe_direction.get_cartesian()):
+        d = self.hoe_direction
+        self._hoe_cartesian = None if d is None else list(d.get_cartesian() if isinstance(d, VectorObj) else d)
+        if d is not None and not any(self._hoe_cartesian):
             raise ValueError("hoe_direction must be a non-zero vector (or None for the default drive).")
 
     @staticmethod
@@ -409,7 +411,7 @@ class LayerDynamic(LayerSB):
 
     def _hoe_components(self):
         """theta-hat and phi-hat components of h = d + hoe_dl_ratio (m x d), d = unit hoe_direction."""
-        d = sym.ImmutableMatrix(self.hoe_direction.get_cartesian())
+        d = sym.ImmutableMatrix(self._hoe_cartesian)
         d = d / sym.sqrt(d.dot(d))
         h = d + sym.nsimplify(self.hoe_dl_ratio) * self.m.cross(d)
         theta_hat = sym.ImmutableMatrix(
@@ -441,6 +443,51 @@ class LayerDynamic(LayerSB):
 
     def __hash__(self) -> int:
         return super().__hash__()
+
+
+_DIODE_FN_CACHE: dict = {}  # layout key -> (A_fn, V_fn), shared by all solvers with that layout
+
+
+def _diode_layer_values(layer: "LayerDynamic") -> list:
+    """Numeric parameters of a layer in the order of `_symbolic_diode_layer`."""
+    hoe = [*layer._hoe_cartesian, layer.hoe_dl_ratio] if layer._hoe_cartesian is not None else []
+    return [
+        layer.thickness,
+        layer.Ms,
+        layer.alpha,
+        layer.Ks,
+        layer.Kv.phi,
+        layer.Kv.mag,
+        *layer.Hdmi,
+        *layer.Ndemag,
+        layer.torque_par,
+        layer.torque_perp,
+        *hoe,
+    ]
+
+
+def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]:
+    """LayerDynamic whose parameters are symbols, and those symbols in the order of `_diode_layer_values`."""
+    names = ["t", "Ms", "alpha", "Ks", "Kphi", "Kmag", "Hdmix", "Hdmiy", "Hdmiz", "Nx", "Ny", "Nz", "tpar", "tperp"]
+    p = [sym.Symbol(f"{name}_{i}", real=True) for name in names]
+    t, Ms, alpha, Ks, Kphi, Kmag = p[:6]
+    hdmi, nd, (tpar, tperp) = p[6:9], p[9:12], p[12:]
+    hoe = [*(sym.Symbol(f"hoe{c}_{i}", real=True) for c in "xyz"), sym.Symbol(f"hoedl_{i}")] if with_hoe else []
+    layer = LayerDynamic(
+        _id=i,
+        thickness=t,
+        Kv=VectorObj(0, Kphi, Kmag),
+        Ks=Ks,
+        Ms=Ms,
+        Hdmi=list(hdmi),
+        Ndemag=list(nd),
+        alpha=alpha,
+        torque_par=tpar,
+        torque_perp=tperp,
+        hoe_direction=hoe[:3] or None,
+        hoe_dl_ratio=hoe[3] if hoe else 0,
+    )
+    return layer, [*p, *hoe]
 
 
 def spin_diode_mr_channels(zero_pos: np.ndarray, amplitudes: np.ndarray, current_direction) -> np.ndarray:
@@ -1124,21 +1171,41 @@ class Solver:
         return A_matrix, V_matrix
 
     def _diode_functions(self, Vdc_ex_variable: sym.Expr):
-        """numpy functions (theta_0, phi_0, ..., Hx, Hy, Hz, omega) -> entries of A (at zero excitation) and
-        V = d rhs / d excitation, built once per excitation variable."""
-        cache = self.__dict__.setdefault("_diode_fn_cache", {})
-        if Vdc_ex_variable not in cache:
+        """numpy functions (theta_0, phi_0, ..., Hx, Hy, Hz, omega, *parameters) -> entries of A (at zero
+        excitation) and V = d rhs / d excitation, plus this solver's parameter values.
+
+        The functions are compiled once per layout (number of layers, excitation, which layers have a
+        lab-frame rf field, dipole coupling) from a twin solver whose parameters are symbols, so a new
+        parameter set costs no symbolic work."""
+        n = len(self.layers)
+        with_hoe = tuple(layer._hoe_cartesian is not None for layer in self.layers)
+        dipole = self.dipoleMatrix is not None
+        values = [v for layer in self.layers for v in _diode_layer_values(layer)] + [*self.J1, *self.J2]
+        values += [c for d in self.ilD for c in d] + ([c for mat in self.dipoleMatrix for c in mat] if dipole else [])
+        key = (n, Vdc_ex_variable, with_hoe, dipole)
+        if key not in _DIODE_FN_CACHE:
+            layers, params = zip(*(_symbolic_diode_layer(i, h) for i, h in enumerate(with_hoe)))
+            params = [p for ps in params for p in ps]
+            J1 = [sym.Symbol(f"J1_{i}", real=True) for i in range(n - 1)]
+            J2 = [sym.Symbol(f"J2_{i}", real=True) for i in range(n - 1)]
+            twin = Solver(layers=list(layers), J1=list(J1), J2=list(J2))
+            twin.ilD = [sym.ImmutableMatrix([sym.Symbol(f"D{c}_{i}", real=True) for c in "xyz"]) for i in range(n - 1)]
+            params += [*J1, *J2, *(c for d in twin.ilD for c in d)]
+            if dipole:
+                twin.Ndipole = "symbolic"  # str(twin) keys create_energy's cache: keep the two layouts apart
+                twin.dipoleMatrix = [
+                    sym.Matrix(3, 3, [sym.Symbol(f"Ndip{k}_{i}", real=True) for k in range(9)]) for i in range(n - 1)
+                ]
+                params += [c for mat in twin.dipoleMatrix for c in mat]
             Hsym = sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
-            A, V = self._compute_A_and_V_matrices(
-                n=len(self.layers), Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None
-            )
+            A, V = twin._compute_A_and_V_matrices(n=n, Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None)
             zero = {LayerDynamic.get_Vp_symbol(): 0, LayerDynamic.get_hoe_ex_symbol(): 0}
-            args = [c for layer in self.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA]
-            cache[Vdc_ex_variable] = (
+            args = [c for layer in twin.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA, *params]
+            _DIODE_FN_CACHE[key] = (
                 sym.lambdify(args, list(sym.ImmutableMatrix(A).subs(zero)), "numpy", cse=True),
                 sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
             )
-        return cache[Vdc_ex_variable]
+        return (*_DIODE_FN_CACHE[key], [complex(v) if isinstance(v, complex) else float(v) for v in values])
 
     def linearised_spin_diode_scan(
         self,
@@ -1159,8 +1226,8 @@ class Solver:
         """
         H, zero_pos = np.atleast_2d(H), np.atleast_2d(zero_pos)
         steps, n = len(H), 2 * len(self.layers)
-        A_fn, V_fn = self._diode_functions(Vdc_ex_variable)
-        args = [*zero_pos.T, *H.T, 2 * np.pi * frequency]
+        A_fn, V_fn, values = self._diode_functions(Vdc_ex_variable)
+        args = [*zero_pos.T, *H.T, 2 * np.pi * frequency, *values]
         A = np.stack([np.broadcast_to(e, steps) for e in A_fn(*args)], -1).reshape(steps, n, n)
         V = np.stack([np.broadcast_to(e, steps) for e in V_fn(*args)], -1) * Vdc_ex_value
         return np.linalg.solve(A.astype(complex), V.astype(complex)[..., None])[..., 0]
