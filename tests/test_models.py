@@ -1,5 +1,6 @@
 import numpy as np
-from cmtj.models import Solver, LayerDynamic, VectorObj, LayerSB
+import pytest
+from cmtj.models import Solver, LayerDynamic, VectorObj, LayerSB, spin_diode_mr_channels
 from typing import Tuple
 
 
@@ -123,3 +124,36 @@ def test_spin_diode_linear_in_excitation():
     one = solver.linearised_N_spin_diode(Vdc_ex_value=1.0, **kw)
     big = solver.linearised_N_spin_diode(Vdc_ex_value=1e4, **kw)
     assert np.allclose(big, 1e4 * one, rtol=1e-6)
+
+
+def test_spin_diode_zero_direction_rejected():
+    with pytest.raises(ValueError):
+        _diode_solver(VectorObj.from_cartesian(0, 0, 0))
+
+
+def test_spin_diode_scan_matches_pointwise():
+    """The vectorised scan equals linearised_N_spin_diode point by point (lab-frame drive, complex DL)."""
+    solver, _ = _diode_solver(VectorObj.from_cartesian(-0.6, 0.8, 0), 1.5 - 0.7j)
+    rng = np.random.default_rng(1)
+    pos = np.column_stack([rng.uniform(1.2, 1.9, 4), rng.uniform(-1, 1, 4), rng.uniform(1.2, 1.9, 4), rng.uniform(-1, 1, 4)])
+    H = np.column_stack([np.linspace(-50e3, 50e3, 4), np.full(4, 3e3), np.zeros(4)])
+    kw = dict(frequency=6e9, Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol(), Vdc_ex_value=2.0)
+    scan = solver.linearised_spin_diode_scan(H=H, zero_pos=pos, **kw)
+    ref = [solver.linearised_N_spin_diode(H=VectorObj.from_cartesian(*h), zero_pos=x, return_complex=True, **kw).ravel()
+           for h, x in zip(H, pos)]
+    assert np.allclose(scan, ref, rtol=1e-8)
+
+
+def test_spin_diode_mr_channels_first_order():
+    """Channels equal the first-order change of AMR sum (m.j)^2 and GMR (1 - m1.m2)/2 for a small real step."""
+    pos = np.array([[1.3, 0.4, 1.7, 2.5]])
+    step = np.array([[2e-6, -1e-6, 3e-6, 1e-6]])
+    j = np.array([np.cos(0.7), np.sin(0.7), 0.0])
+
+    def R(x):
+        t, p = x[0::2], x[1::2]
+        m = np.stack([np.sin(t) * np.cos(p), np.sin(t) * np.sin(p), np.cos(t)], -1)
+        return np.array([np.sum((m @ j) ** 2), (1 - m[0] @ m[1]) / 2])
+
+    expected = R(pos[0] + step[0]) - R(pos[0])
+    assert np.allclose(spin_diode_mr_channels(pos, step, j)[0].real, expected, rtol=1e-4)

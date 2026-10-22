@@ -365,6 +365,11 @@ class LayerDynamic(LayerSB):
     hoe_direction: VectorObj = None
     hoe_dl_ratio: complex = 0
 
+    def __post_init__(self):
+        super().__post_init__()
+        if self.hoe_direction is not None and not any(self.hoe_direction.get_cartesian()):
+            raise ValueError("hoe_direction must be a non-zero vector (or None for the default drive).")
+
     @staticmethod
     def get_hoe_ex_symbol():
         return sym.Symbol(r"H_{oe}")
@@ -436,6 +441,31 @@ class LayerDynamic(LayerSB):
 
     def __hash__(self) -> int:
         return super().__hash__()
+
+
+def spin_diode_mr_channels(zero_pos: np.ndarray, amplitudes: np.ndarray, current_direction) -> np.ndarray:
+    """Complex resistance changes of a spin diode scan, per channel, to first order in the amplitudes.
+
+    AMR: sum_i (m_i . j)^2; GMR: sum over neighbouring layers (1 - m_i . m_i+1) / 2, both per unit
+    magnetoresistance. The rectified voltage of a line is Re(e^{i phase} (a_AMR dR_AMR + a_GMR dR_GMR)) with
+    the rf current I(t) = cos(w t - phase).
+
+    :param zero_pos: equilibria (steps, 2N) as (theta_0, phi_0, theta_1, ...).
+    :param amplitudes: complex amplitudes (steps, 2N), e.g. from `Solver.linearised_spin_diode_scan`.
+    :param current_direction: in-plane/3D current direction j (normalised here).
+    :return: complex (steps, 2): [dR_AMR, dR_GMR].
+    """
+    zero_pos, amplitudes = np.atleast_2d(zero_pos), np.atleast_2d(amplitudes)
+    j = np.asarray(current_direction, float)
+    j = j / np.linalg.norm(j)
+    th, ph = zero_pos[:, 0::2], zero_pos[:, 1::2]
+    st, ct, sp, cp = np.sin(th), np.cos(th), np.sin(ph), np.cos(ph)
+    m = np.stack([st * cp, st * sp, ct], -1)  # (steps, layer, xyz)
+    dm = np.stack([np.stack([ct * cp, ct * sp, -st], -1), np.stack([-st * sp, st * cp, np.zeros_like(st)], -1)], 2)
+    dm = np.einsum("slcx,slc->slx", dm, amplitudes.reshape(*th.shape, 2))  # first-order dm per layer
+    amr = np.sum(2 * (m @ j) * (dm @ j), -1)
+    gmr = -0.5 * np.sum(np.sum(dm[:, :-1] * m[:, 1:] + m[:, :-1] * dm[:, 1:], -1), -1)
+    return np.stack([amr, gmr], -1)
 
 
 @dataclass
@@ -1092,6 +1122,48 @@ class Solver:
         A_matrix = A_matrix.subs({**subs, Vdc_ex_variable: 0})
         V_matrix = V_matrix.subs(subs) * Vdc_ex_value
         return A_matrix, V_matrix
+
+    def _diode_functions(self, Vdc_ex_variable: sym.Expr):
+        """numpy functions (theta_0, phi_0, ..., Hx, Hy, Hz, omega) -> entries of A (at zero excitation) and
+        V = d rhs / d excitation, built once per excitation variable."""
+        cache = self.__dict__.setdefault("_diode_fn_cache", {})
+        if Vdc_ex_variable not in cache:
+            Hsym = sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
+            A, V = self._compute_A_and_V_matrices(
+                n=len(self.layers), Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None
+            )
+            zero = {LayerDynamic.get_Vp_symbol(): 0, LayerDynamic.get_hoe_ex_symbol(): 0}
+            args = [c for layer in self.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA]
+            cache[Vdc_ex_variable] = (
+                sym.lambdify(args, list(sym.ImmutableMatrix(A).subs(zero)), "numpy", cse=True),
+                sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
+            )
+        return cache[Vdc_ex_variable]
+
+    def linearised_spin_diode_scan(
+        self,
+        H: np.ndarray,
+        frequency: float,
+        zero_pos: np.ndarray,
+        Vdc_ex_variable: sym.Expr,
+        Vdc_ex_value: float = 1.0,
+    ) -> np.ndarray:
+        """Vectorised `linearised_N_spin_diode` over a field scan, with the symbolic system compiled once.
+
+        :param H: fields (steps, 3) in A/m.
+        :param frequency: excitation frequency in Hz.
+        :param zero_pos: equilibria (steps, 2N) as (theta_0, phi_0, theta_1, ...), one per field.
+        :param Vdc_ex_variable: `LayerDynamic.get_Vp_symbol()` or `LayerDynamic.get_hoe_ex_symbol()`.
+        :param Vdc_ex_value: amplitude of the excitation.
+        :return: complex amplitudes (steps, 2N); see `spin_diode_mr_channels` for the resistance.
+        """
+        H, zero_pos = np.atleast_2d(H), np.atleast_2d(zero_pos)
+        steps, n = len(H), 2 * len(self.layers)
+        A_fn, V_fn = self._diode_functions(Vdc_ex_variable)
+        args = [*zero_pos.T, *H.T, 2 * np.pi * frequency]
+        A = np.stack([np.broadcast_to(e, steps) for e in A_fn(*args)], -1).reshape(steps, n, n)
+        V = np.stack([np.broadcast_to(e, steps) for e in V_fn(*args)], -1) * Vdc_ex_value
+        return np.linalg.solve(A.astype(complex), V.astype(complex)[..., None])[..., 0]
 
     def _compute_numerical_inverse(self, A_matrix):
         # Use NumPy for faster matrix inversion
