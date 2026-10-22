@@ -346,9 +346,24 @@ class LayerSB:
 
 @dataclass
 class LayerDynamic(LayerSB):
+    """Layer for the dynamic (linearised LLG) Smit-Beljers solver.
+
+    :param alpha: Gilbert damping.
+    :param torque_par: damping-like torque amplitude of the `Vp` excitation (layer frame).
+    :param torque_perp: field-like torque amplitude of the `Vp` excitation (layer frame).
+    :param hoe_direction: direction of the rf field of the `Hoe` excitation, fixed in the lab frame
+        (e.g. z x j for the Oersted field of a current along j). None (default): the rf field is
+        always in-plane and perpendicular to m, so its torque does not depend on where m points.
+    :param hoe_dl_ratio: damping-like torque of the same excitation relative to the rf field, as an
+        effective field hoe_dl_ratio * (m x hoe_direction); complex values give a DL torque out of
+        phase with the field-like one. Used only with `hoe_direction`.
+    """
+
     alpha: float = 0.01
     torque_par: float = 0
     torque_perp: float = 0
+    hoe_direction: VectorObj = None
+    hoe_dl_ratio: complex = 0
 
     @staticmethod
     def get_hoe_ex_symbol():
@@ -377,9 +392,26 @@ class LayerDynamic(LayerSB):
 
         # Hoe can be used only for excitation, unlike Vp which controls torquances
         Hoe = LayerDynamic.get_hoe_ex_symbol() if osc else 0
-        dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe
-        dphi = inv_sin * dUdtheta - self.alpha * dUdphi * (inv_sin) ** 2 + self.alpha * self.Ms * Hoe * inv_sin
+        # rf field components along theta-hat and phi-hat; default: along phi-hat only
+        h_theta, h_phi = self._hoe_components() if self.hoe_direction is not None else (0, 1)
+        dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe * (h_phi + self.alpha * h_theta)
+        dphi = (
+            inv_sin * dUdtheta
+            - self.alpha * dUdphi * (inv_sin) ** 2
+            + self.Ms * Hoe * inv_sin * (self.alpha * h_phi - h_theta)
+        )
         return prefac * (sym.Matrix([dtheta, dphi]) + self.torque(osc=osc)) / self.Ms
+
+    def _hoe_components(self):
+        """theta-hat and phi-hat components of h = d + hoe_dl_ratio (m x d), d = unit hoe_direction."""
+        d = sym.ImmutableMatrix(self.hoe_direction.get_cartesian())
+        d = d / sym.sqrt(d.dot(d))
+        h = d + sym.nsimplify(self.hoe_dl_ratio) * self.m.cross(d)
+        theta_hat = sym.ImmutableMatrix(
+            [sym.cos(self.theta) * sym.cos(self.phi), sym.cos(self.theta) * sym.sin(self.phi), -sym.sin(self.theta)]
+        )
+        phi_hat = sym.ImmutableMatrix([-sym.sin(self.phi), sym.cos(self.phi), 0])
+        return h.dot(theta_hat), h.dot(phi_hat)
 
     def torque(self, osc: bool = True):
         # cannot be 0 because you may want to use Hoe + torques
@@ -395,7 +427,12 @@ class LayerDynamic(LayerSB):
         )
 
     def __eq__(self, __value: "LayerDynamic") -> bool:
-        return super().__eq__(__value) and self.alpha == __value.alpha
+        return (
+            super().__eq__(__value)
+            and self.alpha == __value.alpha
+            and str(self.hoe_direction) == str(__value.hoe_direction)
+            and self.hoe_dl_ratio == __value.hoe_dl_ratio
+        )
 
     def __hash__(self) -> int:
         return super().__hash__()
@@ -565,7 +602,7 @@ class Solver:
         char_AP = sym.I * omega * sym.eye(J0_AP.shape[0]) - J0_AP
         return char_P, char_AP, J0_P, J0_AP
 
-    @lru_cache(3)  # cache for 3 calls
+    @lru_cache(3)  # noqa: B019  # cache for 3 calls
     def create_energy(
         self,
         H: Union[VectorObj, sym.ImmutableMatrix, None] = None,
@@ -1050,8 +1087,10 @@ class Solver:
             subs[theta] = zero_pos[2 * i]
             subs[phi] = zero_pos[2 * i + 1]
         A_matrix = sym.ImmutableMatrix(A_matrix)
-        A_matrix = A_matrix.subs(subs)
-        V_matrix = V_matrix.subs(subs)
+        # linear response: the Jacobian is taken at zero excitation and V (= d rhs / d excitation)
+        # is scaled by the excitation amplitude
+        A_matrix = A_matrix.subs({**subs, Vdc_ex_variable: 0})
+        V_matrix = V_matrix.subs(subs) * Vdc_ex_value
         return A_matrix, V_matrix
 
     def _compute_numerical_inverse(self, A_matrix):
@@ -1115,6 +1154,7 @@ class Solver:
         zero_pos: np.ndarray,
         phase_shift: float = 0,
         cache_var: str = "H",
+        return_complex: bool = False,
     ):
         """Linearised N-spin diode. Use `LayerDynamic.get_Vp_symbol()`
         or `LayerDynamic.get_hoe_ex_symbol()` for Vdc_ex_variable.
@@ -1124,6 +1164,8 @@ class Solver:
         :param Vdc_ex_value: the value of the excitation.
         :param zero_pos: the equilibrium position of the system.
         :param phase_shift: the phase shift of the external field.
+        :param return_complex: return the complex amplitudes (theta_0, phi_0, theta_1, ...) instead of
+            their real part, e.g. to rectify against a current of a different phase.
         :return: the N-spin diode angle variations.
         """
         # allow only if the layers are LayerDynamic
@@ -1158,7 +1200,8 @@ class Solver:
 
         A_inv = self._compute_numerical_inverse(A_matrix)
         fstep = A_inv * V_matrix * sym.exp(sym.I * phase_shift)
-        return np.real(np.complex64(fstep.evalf()))
+        fstep = np.asarray(fstep.evalf(), dtype=np.complex128)
+        return fstep if return_complex else np.real(fstep)
 
     def __hash__(self):
         return hash(str(self))

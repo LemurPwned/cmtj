@@ -1,10 +1,15 @@
 # Changelog
 
-## 1.11.0 
+## Unreleased
+
+- SB `linearised_N_spin_diode`: `LayerDynamic(hoe_direction=...)` for an rf field fixed in the lab frame (e.g. the Oersted field z x j), `hoe_dl_ratio` for a (complex) damping-like torque of the same excitation, and `return_complex=True` for the complex amplitudes (now float64).
+- FIX: `linearised_N_spin_diode` took the Jacobian with the excitation switched on and did not scale the drive by `Vdc_ex_value`; the response is now linear in `Vdc_ex_value` and the Jacobian is taken at zero excitation.
+
+## 1.11.0
 
 - Run of the mill optmisations + benchmarks. Even up to 40% speedup (best results with maximum optmisation flags, see README.md)
 
-## 1.10.0 
+## 1.10.0
 
 - Added generalised constants which an be modified via the interface
 - BREAKING: _dropped Python3.9-3.10_ support

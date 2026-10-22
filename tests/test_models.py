@@ -49,3 +49,77 @@ def test_sb_classic_dipole(two_layer_symbolic_classic: Tuple[LayerSB]):
         )
         f_sb.sort()
         pos = eq_sb
+
+
+def _diode_solver(hoe_direction=None, hoe_dl_ratio=0):
+    layers = [
+        LayerDynamic(
+            i,
+            thickness=4e-9,
+            Kv=VectorObj(np.deg2rad(90), np.deg2rad(20 + 40 * i), 5e3),
+            Ks=0,
+            Ms=1.6 / (4e-7 * np.pi),
+            alpha=0.02,
+            Ndemag=VectorObj.from_cartesian(0, 0, 1),
+            hoe_direction=hoe_direction,
+            hoe_dl_ratio=hoe_dl_ratio,
+        )
+        for i in range(2)
+    ]
+    H = VectorObj.from_cartesian(40e3, 0, 0)
+    return Solver(layers=layers, J1=[-2e-4], J2=[0.0], H=H), H
+
+
+def _diode(solver, H, pos):
+    return solver.linearised_N_spin_diode(
+        H=H,
+        frequency=8e9,
+        Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol(),
+        Vdc_ex_value=1.0,
+        zero_pos=pos,
+        return_complex=True,
+    ).ravel()
+
+
+def test_spin_diode_lab_frame_drive():
+    """A fixed rf field direction reproduces the default (phi-hat) drive when it is
+    along phi-hat of both layers, and scales with its projection on phi-hat."""
+    pos = np.array([np.pi / 2, 0.0, np.pi / 2, 0.0])  # both layers along x
+    solver, H = _diode_solver()
+    ref = _diode(solver, H, pos)
+    solver, H = _diode_solver(VectorObj.from_cartesian(0, 1, 0))
+    assert np.allclose(_diode(solver, H, pos), ref, rtol=1e-6)
+    solver, H = _diode_solver(VectorObj.from_cartesian(1, 1, 0))
+    assert np.allclose(_diode(solver, H, pos), ref / np.sqrt(2), rtol=1e-6)
+    # complex output agrees with the real one
+    real = solver.linearised_N_spin_diode(
+        H=H,
+        frequency=8e9,
+        Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol(),
+        Vdc_ex_value=1.0,
+        zero_pos=pos,
+    ).ravel()
+    assert np.allclose(real, _diode(solver, H, pos).real)
+
+
+def test_spin_diode_damping_like_ratio():
+    """hoe_dl_ratio adds the drive of the effective field r (m x d): for m = x, d = y that is
+    r z, i.e. -r along theta-hat; the response is linear in the (complex) ratio."""
+    pos = np.array([np.pi / 2, 0.0, np.pi / 2, 0.0])
+    d = VectorObj.from_cartesian(0, 1, 0)
+    base = _diode(*_diode_solver(d), pos)
+    r1 = _diode(*_diode_solver(d, 1.0), pos) - base
+    r2 = _diode(*_diode_solver(d, 0.5 + 2j), pos) - base
+    assert np.abs(r1).max() > 1e-3 * np.abs(base).max()
+    assert np.allclose(r2, (0.5 + 2j) * r1, rtol=1e-6, atol=1e-12 * np.abs(r1).max())
+
+
+def test_spin_diode_linear_in_excitation():
+    """The response is linear in Vdc_ex_value also away from the plane (the Jacobian
+    is taken at zero excitation)."""
+    pos = np.array([np.pi / 3, 0.2, np.pi / 3, 0.4])
+    solver, H = _diode_solver()
+    kw = dict(H=H, frequency=8e9, Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol(), zero_pos=pos, return_complex=True)
+    one = solver.linearised_N_spin_diode(Vdc_ex_value=1.0, **kw)
+    big = solver.linearised_N_spin_diode(Vdc_ex_value=1e4, **kw)
+    assert np.allclose(big, 1e4 * one, rtol=1e-6)
