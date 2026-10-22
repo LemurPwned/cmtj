@@ -209,7 +209,8 @@ PYBIND11_MODULE(_cmtj, m) {
           .def(py::init<std::vector<ScalarDriver<double>>>())
           .def(py::init<double, double, double>())
           .def(py::init<DVector>())
-          .def("getVectorAxialDriver", &DAxialDriver::getVectorAxialDriver)
+          .def_static("getVectorAxialDriver", &DAxialDriver::getVectorAxialDriver,
+               "x"_a, "y"_a, "z"_a)
           .def("getCurrentAxialDrivers", &DAxialDriver::getCurrentAxialDrivers,
                "time"_a)
           .def("applyMask",
@@ -387,7 +388,7 @@ PYBIND11_MODULE(_cmtj, m) {
 
      py::class_<DSeriesStack>(stack_module, "SeriesStack")
           .def(py::init<std::vector<DJunction>, std::string, std::string, double, bool>(),
-               "junctionList"_a, "topId_a"_a = "free", "bottomId"_a = "bottom",
+               "junctionList"_a, "topId"_a = "free", "bottomId"_a = "bottom",
                "phaseOffset"_a = 0.0, "useKCL"_a = true)
           .def("runSimulation", &DSeriesStack::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11)
@@ -420,7 +421,7 @@ PYBIND11_MODULE(_cmtj, m) {
 
      py::class_<DParallelStack>(stack_module, "ParallelStack")
           .def(py::init<std::vector<DJunction>, std::string, std::string, double, bool>(),
-               "junctionList"_a, "topId_a"_a = "free", "bottomId"_a = "bottom",
+               "junctionList"_a, "topId"_a = "free", "bottomId"_a = "bottom",
                "phaseOffset"_a = 0.0, "useKCL"_a = true)
           .def("runSimulation", &DParallelStack::runSimulation, "totalTime"_a,
                "timeStep"_a = 1e-13, "writeFrequency"_a = 1e-11)

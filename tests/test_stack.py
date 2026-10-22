@@ -229,3 +229,16 @@ def test_kcl_vs_non_kcl_current_behavior(stack_type):
     assert (
         "I_1" in log_non_kcl and "I_1" in log_kcl
     )  # Both should log current for second junction
+
+
+def test_stack_top_id_keyword():
+    demag = [CVector(0, 0, 0)] * 3
+    junctions = []
+    for _ in range(2):
+        layer = Layer("top", CVector(1, 0, 0), CVector(1, 0, 0), 1.0, 1e-9, 1e-16, demag, 0.01)
+        layer.setReferenceLayer(CVector(1, 0, 0))
+        junctions.append(Junction([layer], 100, 200))
+    for stack_type in (SeriesStack, ParallelStack):
+        stack = stack_type(junctions, topId="top")
+        stack.setCouplingStrength(0.1)
+        stack.runSimulation(1e-11, 1e-13, 1e-12)
