@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.15.0
 
 - SB `linearised_N_spin_diode`: `LayerDynamic(hoe_direction=...)` for an rf field fixed in the lab frame (e.g. the Oersted field z x j), `hoe_dl_ratio` for a (complex) damping-like torque of the same excitation, and `return_complex=True` for the complex amplitudes (now float64).
 - SB `Solver.linearised_spin_diode_scan`: vectorised spin diode over a field scan (symbolic system compiled once), and `spin_diode_mr_channels` for the AMR (any current direction) and GMR rectification channels.
 - FIX: `linearised_N_spin_diode` took the Jacobian with the excitation switched on and did not scale the drive by `Vdc_ex_value`; the response is now linear in `Vdc_ex_value` and the Jacobian is taken at zero excitation.
+- bug fixes related to edge case MR calculations
+- Python 3.14 package builds
 
 ## 1.11.0
 
