@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- SB `Solver.linearised_spin_diode_scan` compiles once per layout (number of layers, excitation, lab-frame rf field, dipole coupling) with all material parameters as arguments, so new parameter values cost no symbolic work (about 0.1 s for a 400-point line instead of about 0.5 s). `hoe_direction` also accepts an (x, y, z) sequence.
+
 ## 1.15.0
 
 - SB `linearised_N_spin_diode`: `LayerDynamic(hoe_direction=...)` for an rf field fixed in the lab frame (e.g. the Oersted field z x j), `hoe_dl_ratio` for a (complex) damping-like torque of the same excitation, and `return_complex=True` for the complex amplitudes (now float64).
