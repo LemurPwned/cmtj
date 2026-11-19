@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- SB `Solver.linearised_spin_diode_scan` is faster on repeated scans with new parameter values (about 0.1 s instead of 0.5 s for a 400-point line). `cmtj.models.clear_diode_cache()` frees the compiled scans.
+- SB `LayerDynamic(hoe_direction=...)` accepts an (x, y, z) sequence; it must have exactly 3 components, not all zero (ValueError otherwise).
+- SB `LayerDynamic(hoe_amplitude=...)`: per-layer (complex) amplitude of the `Hoe` drive; changing it between scans needs no recompile. `hoe_amplitude`, `hoe_dl_ratio` and `hoe_direction` components must be numbers (TypeError otherwise, e.g. for strings).
+- SB `spin_diode_mr_channels(..., AMR=[...], SMR=[...])`: per-layer AMR and SMR coefficients for the AMR channel. Each list needs one value per layer, and non-zero SMR with the current along z is rejected (ValueError).
+
 ## 1.15.0
 
 - SB `linearised_N_spin_diode`: `LayerDynamic(hoe_direction=...)` for an rf field fixed in the lab frame (e.g. the Oersted field z x j), `hoe_dl_ratio` for a (complex) damping-like torque of the same excitation, and `return_complex=True` for the complex amplitudes (now float64).
