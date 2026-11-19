@@ -491,6 +491,7 @@ def _diode_layer_values(layer: "LayerDynamic") -> list:
         *layer.Ndemag,
         layer.torque_par,
         layer.torque_perp,
+        layer.hoe_amplitude,
         *hoe,
     ]
 
@@ -501,6 +502,7 @@ def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]
     p = [sym.Symbol(f"{name}_{i}", real=True) for name in names]
     t, Ms, alpha, Ks, Kphi, Kmag = p[:6]
     hdmi, nd, (tpar, tperp) = p[6:9], p[9:12], p[12:]
+    amp = sym.Symbol(f"hoeamp_{i}")  # complex: per-layer drive amplitude, an argument so it never recompiles
     hoe = [*(sym.Symbol(f"hoe{c}_{i}", real=True) for c in "xyz"), sym.Symbol(f"hoedl_{i}")] if with_hoe else []
     layer = LayerDynamic(
         _id=i,
@@ -515,8 +517,9 @@ def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]
         torque_perp=tperp,
         hoe_direction=hoe[:3] or None,
         hoe_dl_ratio=hoe[3] if hoe else 0,
+        hoe_amplitude=amp,
     )
-    return layer, [*p, *hoe]
+    return layer, [*p, amp, *hoe]
 
 
 def spin_diode_mr_channels(
@@ -539,24 +542,32 @@ def spin_diode_mr_channels(
     :param zero_pos: equilibria (steps, 2N) as (theta_0, phi_0, theta_1, ...).
     :param amplitudes: complex amplitudes (steps, 2N), e.g. from `Solver.linearised_spin_diode_scan`.
     :param current_direction: in-plane/3D current direction j (normalised here).
-    :param AMR: per-layer AMR coefficients (default 1 for every layer).
-    :param SMR: per-layer SMR coefficients (default 0 for every layer).
+    :param AMR: per-layer AMR coefficients, one per layer (default 1 for every layer).
+    :param SMR: per-layer SMR coefficients, one per layer (default 0 for every layer). Non-zero SMR needs a
+        current with an in-plane component (y = z x j is undefined for j along z): ValueError otherwise.
     :return: complex (steps, 2): [dR_AMR, dR_GMR].
     """
     zero_pos, amplitudes = np.atleast_2d(zero_pos), np.atleast_2d(amplitudes)
     j = np.asarray(current_direction, float)
     j = j / np.linalg.norm(j)
-    y = np.cross([0.0, 0.0, 1.0], j)
-    y = y / np.linalg.norm(y)
     th, ph = zero_pos[:, 0::2], zero_pos[:, 1::2]
     n_layers = th.shape[1]
     amr = np.ones(n_layers) if AMR is None else np.asarray(AMR, float)
     smr = np.zeros(n_layers) if SMR is None else np.asarray(SMR, float)
+    for name, coef in (("AMR", amr), ("SMR", smr)):
+        if coef.shape != (n_layers,):
+            raise ValueError(f"{name} needs one value per layer ({n_layers}), got shape {coef.shape}.")
+    y = np.cross([0.0, 0.0, 1.0], j)
+    if np.any(smr) and np.linalg.norm(y) < 1e-12:
+        raise ValueError("SMR needs a current with an in-plane component: y = z x j is undefined for j along z.")
     st, ct, sp, cp = np.sin(th), np.cos(th), np.sin(ph), np.cos(ph)
     m = np.stack([st * cp, st * sp, ct], -1)  # (steps, layer, xyz)
     dm = np.stack([np.stack([ct * cp, ct * sp, -st], -1), np.stack([-st * sp, st * cp, np.zeros_like(st)], -1)], 2)
     dm = np.einsum("slcx,slc->slx", dm, amplitudes.reshape(*th.shape, 2))  # first-order dm per layer
-    amr_ch = np.sum(2 * amr * (m @ j) * (dm @ j) + 2 * smr * (m @ y) * (dm @ y), -1)
+    amr_ch = np.sum(2 * amr * (m @ j) * (dm @ j), -1)
+    if np.any(smr):
+        y = y / np.linalg.norm(y)
+        amr_ch = amr_ch + np.sum(2 * smr * (m @ y) * (dm @ y), -1)
     gmr = -0.5 * np.sum(np.sum(dm[:, :-1] * m[:, 1:] + m[:, :-1] * dm[:, 1:], -1), -1)
     return np.stack([amr_ch, gmr], -1)
 
