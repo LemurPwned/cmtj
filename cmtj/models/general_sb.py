@@ -1,10 +1,12 @@
 import math
+import threading
 import time
 import warnings
-from collections.abc import Iterable
+from collections import OrderedDict
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from functools import lru_cache, wraps
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import sympy as sym
@@ -362,13 +364,15 @@ class LayerDynamic(LayerSB):
     alpha: float = 0.01
     torque_par: float = 0
     torque_perp: float = 0
-    hoe_direction: VectorObj = None
+    hoe_direction: Optional[Union[VectorObj, Sequence[float]]] = None
     hoe_dl_ratio: complex = 0
 
     def __post_init__(self):
         super().__post_init__()
         d = self.hoe_direction
         self._hoe_cartesian = None if d is None else list(d.get_cartesian() if isinstance(d, VectorObj) else d)
+        if d is not None and len(self._hoe_cartesian) != 3:
+            raise ValueError(f"hoe_direction must have 3 components (x, y, z), got {len(self._hoe_cartesian)}.")
         if d is not None and not any(self._hoe_cartesian):
             raise ValueError("hoe_direction must be a non-zero vector (or None for the default drive).")
 
@@ -445,7 +449,16 @@ class LayerDynamic(LayerSB):
         return super().__hash__()
 
 
-_DIODE_FN_CACHE: dict = {}  # layout key -> (A_fn, V_fn), shared by all solvers with that layout
+_DIODE_FN_CACHE: OrderedDict = OrderedDict()  # layout key -> (A_fn, V_fn), shared by all solvers, LRU
+_DIODE_FN_CACHE_SIZE = 32
+# ponytail: one global lock held for lookup + compile, so distinct layouts also compile one at a time
+_DIODE_FN_LOCK = threading.Lock()
+
+
+def clear_diode_cache():
+    """Drop all compiled spin diode functions (see `Solver.linearised_spin_diode_scan`)."""
+    with _DIODE_FN_LOCK:
+        _DIODE_FN_CACHE.clear()
 
 
 def _diode_layer_values(layer: "LayerDynamic") -> list:
@@ -1183,29 +1196,38 @@ class Solver:
         values = [v for layer in self.layers for v in _diode_layer_values(layer)] + [*self.J1, *self.J2]
         values += [c for d in self.ilD for c in d] + ([c for mat in self.dipoleMatrix for c in mat] if dipole else [])
         key = (n, Vdc_ex_variable, with_hoe, dipole)
-        if key not in _DIODE_FN_CACHE:
-            layers, params = zip(*(_symbolic_diode_layer(i, h) for i, h in enumerate(with_hoe)))
-            params = [p for ps in params for p in ps]
-            J1 = [sym.Symbol(f"J1_{i}", real=True) for i in range(n - 1)]
-            J2 = [sym.Symbol(f"J2_{i}", real=True) for i in range(n - 1)]
-            twin = Solver(layers=list(layers), J1=list(J1), J2=list(J2))
-            twin.ilD = [sym.ImmutableMatrix([sym.Symbol(f"D{c}_{i}", real=True) for c in "xyz"]) for i in range(n - 1)]
-            params += [*J1, *J2, *(c for d in twin.ilD for c in d)]
-            if dipole:
-                twin.Ndipole = "symbolic"  # str(twin) keys create_energy's cache: keep the two layouts apart
-                twin.dipoleMatrix = [
-                    sym.Matrix(3, 3, [sym.Symbol(f"Ndip{k}_{i}", real=True) for k in range(9)]) for i in range(n - 1)
+        with _DIODE_FN_LOCK:
+            fns = _DIODE_FN_CACHE.get(key)
+            if fns is None:
+                layers, params = zip(*(_symbolic_diode_layer(i, h) for i, h in enumerate(with_hoe)))
+                params = [p for ps in params for p in ps]
+                J1 = [sym.Symbol(f"J1_{i}", real=True) for i in range(n - 1)]
+                J2 = [sym.Symbol(f"J2_{i}", real=True) for i in range(n - 1)]
+                twin = Solver(layers=list(layers), J1=list(J1), J2=list(J2))
+                twin.ilD = [
+                    sym.ImmutableMatrix([sym.Symbol(f"D{c}_{i}", real=True) for c in "xyz"]) for i in range(n - 1)
                 ]
-                params += [c for mat in twin.dipoleMatrix for c in mat]
-            Hsym = sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
-            A, V = twin._compute_A_and_V_matrices(n=n, Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None)
-            zero = {LayerDynamic.get_Vp_symbol(): 0, LayerDynamic.get_hoe_ex_symbol(): 0}
-            args = [c for layer in twin.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA, *params]
-            _DIODE_FN_CACHE[key] = (
-                sym.lambdify(args, list(sym.ImmutableMatrix(A).subs(zero)), "numpy", cse=True),
-                sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
-            )
-        return (*_DIODE_FN_CACHE[key], [complex(v) if isinstance(v, complex) else float(v) for v in values])
+                params += [*J1, *J2, *(c for d in twin.ilD for c in d)]
+                if dipole:
+                    twin.Ndipole = "symbolic"  # str(twin) keys create_energy's cache: keep the two layouts apart
+                    twin.dipoleMatrix = [
+                        sym.Matrix(3, 3, [sym.Symbol(f"Ndip{k}_{i}", real=True) for k in range(9)])
+                        for i in range(n - 1)
+                    ]
+                    params += [c for mat in twin.dipoleMatrix for c in mat]
+                Hsym = sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
+                A, V = twin._compute_A_and_V_matrices(n=n, Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None)
+                zero = {LayerDynamic.get_Vp_symbol(): 0, LayerDynamic.get_hoe_ex_symbol(): 0}
+                args = [c for layer in twin.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA, *params]
+                fns = (
+                    sym.lambdify(args, list(sym.ImmutableMatrix(A).subs(zero)), "numpy", cse=True),
+                    sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
+                )
+                _DIODE_FN_CACHE[key] = fns
+                if len(_DIODE_FN_CACHE) > _DIODE_FN_CACHE_SIZE:
+                    _DIODE_FN_CACHE.popitem(last=False)
+            _DIODE_FN_CACHE.move_to_end(key)
+        return (*fns, [complex(v) if np.iscomplexobj(v) else float(v) for v in values])
 
     def linearised_spin_diode_scan(
         self,

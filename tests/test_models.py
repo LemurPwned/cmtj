@@ -183,3 +183,37 @@ def test_spin_diode_scan_reuses_layout_compile():
         ref = [solver.linearised_N_spin_diode(H=VectorObj.from_cartesian(*h), zero_pos=x, Vdc_ex_value=1.0,
                                               return_complex=True, **kw).ravel() for h, x in zip(H, pos)]
         assert np.allclose(scan, ref, rtol=1e-8)
+
+
+def test_hoe_direction_needs_three_components():
+    with pytest.raises(ValueError, match="3 components"):
+        LayerDynamic(0, thickness=1e-9, Kv=VectorObj(0, 0, 1e3), Ks=0, Ms=1e6, hoe_direction=[0, 1])
+
+
+def test_spin_diode_scan_numpy_complex_ratio():
+    """numpy complex scalars (not `complex` subclasses) are passed as complex parameters."""
+    pos = np.array([[1.5, 0.3]])
+    H = np.array([[1e4, 0, 1e3]])
+    kw = dict(frequency=5e9, Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol())
+    scans = []
+    for ratio in (np.complex64(0.5 + 1j), 0.5 + 1j):
+        layer = LayerDynamic(0, thickness=3e-9, Kv=VectorObj(np.deg2rad(90), 0, 5e3), Ks=1e3, Ms=1.2e6,
+                             hoe_direction=[0, 1, 0], hoe_dl_ratio=ratio)
+        scans.append(Solver(layers=[layer], J1=[], J2=[]).linearised_spin_diode_scan(H=H, zero_pos=pos, **kw))
+    assert np.allclose(scans[0], scans[1], rtol=1e-6)
+
+
+def test_diode_cache_is_bounded_and_clearable(monkeypatch):
+    from cmtj.models import general_sb as gsb
+
+    monkeypatch.setattr(gsb, "_DIODE_FN_CACHE_SIZE", 1)
+    gsb.clear_diode_cache()
+    pos, H = np.array([[1.5, 0.3]]), np.array([[1e4, 0, 1e3]])
+    for hoe in (None, [0, 1, 0]):  # two layouts
+        layer = LayerDynamic(0, thickness=3e-9, Kv=VectorObj(np.deg2rad(90), 0, 5e3), Ks=1e3, Ms=1.2e6,
+                             hoe_direction=hoe)
+        Solver(layers=[layer], J1=[], J2=[]).linearised_spin_diode_scan(
+            H=H, zero_pos=pos, frequency=5e9, Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol())
+    assert len(gsb._DIODE_FN_CACHE) == 1
+    gsb.clear_diode_cache()
+    assert len(gsb._DIODE_FN_CACHE) == 0
