@@ -292,30 +292,38 @@ def test_spin_diode_mr_channels_per_layer_amr_smr():
 
     got = spin_diode_mr_channels(pos, step, j, AMR=amr, SMR=smr)[0, 0].real
     assert np.isclose(got, R(pos[0] + step[0]) - R(pos[0]), rtol=1e-4)
-    assert np.allclose(
-        spin_diode_mr_channels(pos, step, j, AMR=[1, 1], SMR=[0, 0]), spin_diode_mr_channels(pos, step, j)
-    )
+    # defaults: the equal-weight AMR channel sum_i 2 (m_i.j)(dm_i.j), computed independently
+    t, p = pos[0, 0::2], pos[0, 1::2]
+    m = np.stack([np.sin(t) * np.cos(p), np.sin(t) * np.sin(p), np.cos(t)], -1)
+    dt, dp = step[0, 0::2], step[0, 1::2]
+    theta_hat = np.stack([np.cos(t) * np.cos(p), np.cos(t) * np.sin(p), -np.sin(t)], -1)
+    phi_hat_sin = np.stack([-np.sin(t) * np.sin(p), np.sin(t) * np.cos(p), 0 * t], -1)  # dm/dphi
+    dm = dt[:, None] * theta_hat + dp[:, None] * phi_hat_sin
+    assert np.isclose(spin_diode_mr_channels(pos, step, j)[0, 0], np.sum(2 * (m @ j) * (dm @ j)), rtol=1e-12)
 
 
-def test_spin_diode_scan_hoe_amplitude_no_recompile():
+def test_spin_diode_scan_hoe_amplitude_no_recompile(monkeypatch):
     """hoe_amplitude is an argument of the compiled scan: changing it on the same solver rescales the
     response without a new compile, and per-layer amplitudes match the direct (symbolic) solution."""
-    from cmtj.models.general_sb import _DIODE_FN_CACHE
+    from cmtj.models import general_sb as gsb
 
+    compiles = []
+    lambdify = gsb.sym.lambdify
+    monkeypatch.setattr(gsb.sym, "lambdify", lambda *a, **k: compiles.append(1) or lambdify(*a, **k))
     pos = np.array([[np.pi / 3, 0.2, np.pi / 2.5, 0.9]])
     s, H = _diode_solver(VectorObj.from_cartesian(-0.6, 0.8, 0), 0.7 - 0.3j)
     kw = dict(H=np.array([H.get_cartesian()]), zero_pos=pos, frequency=8e9, Vdc_ex_variable=LayerDynamic.get_hoe_ex_symbol())
     base = s.linearised_spin_diode_scan(**kw)
-    n_cached = len(_DIODE_FN_CACHE)
+    n_compiles = len(compiles)
     for layer, a in zip(s.layers, (2 - 1j, 0.5)):
         layer.hoe_amplitude = a
     scan = s.linearised_spin_diode_scan(**kw)
-    assert len(_DIODE_FN_CACHE) == n_cached
     assert not np.allclose(scan, base)
     assert np.allclose(scan.ravel(), _diode(s, H, pos[0]), rtol=1e-6)
     for layer in s.layers:
         layer.hoe_amplitude = 3.0
     assert np.allclose(s.linearised_spin_diode_scan(**kw), 3.0 * base, rtol=1e-6)
+    assert len(compiles) == n_compiles  # amplitude changes never recompile
 
 
 def test_spin_diode_mr_channels_validation():
@@ -329,3 +337,16 @@ def test_spin_diode_mr_channels_validation():
         spin_diode_mr_channels(pos, step, [0, 0, 1], SMR=[0.0, -0.4])
     # current along z without SMR: AMR channel only, finite
     assert np.all(np.isfinite(spin_diode_mr_channels(pos, step, [0, 0, 1])))
+
+
+@pytest.mark.parametrize("field", ["hoe_amplitude", "hoe_dl_ratio", "hoe_direction"])
+def test_drive_parameters_reject_strings(field):
+    """Strings would go through sympy's parser (which evaluates them): rejected up front and at use time."""
+    kw = dict(hoe_direction=[0, 1, 0])
+    kw[field] = "__import__('os')" if field != "hoe_direction" else ["1", "0", "0"]
+    with pytest.raises(TypeError, match="must be a number"):
+        LayerDynamic(0, thickness=1e-9, Kv=VectorObj(0, 0, 1e3), Ks=0, Ms=1e6, **kw)
+    s, H = _diode_solver(VectorObj.from_cartesian(0, 1, 0))
+    s.layers[0].hoe_amplitude = "1"
+    with pytest.raises(TypeError, match="must be a number"):
+        _diode(s, H, np.array([np.pi / 3, 0.2, np.pi / 2.5, 0.9]))

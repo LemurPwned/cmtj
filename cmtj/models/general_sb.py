@@ -1,4 +1,5 @@
 import math
+import numbers
 import threading
 import time
 import warnings
@@ -346,6 +347,14 @@ class LayerSB:
         )
 
 
+def _number(name: str, value):
+    """`value` if it is a number or a sympy expression. Anything else (notably a str, which sympy would parse
+    and evaluate) raises TypeError."""
+    if not isinstance(value, (numbers.Number, sym.Basic)):
+        raise TypeError(f"{name} must be a number, got {type(value).__name__}.")
+    return value
+
+
 @dataclass
 class LayerDynamic(LayerSB):
     """Layer for the dynamic (linearised LLG) Smit-Beljers solver.
@@ -374,6 +383,8 @@ class LayerDynamic(LayerSB):
     def __post_init__(self):
         super().__post_init__()
         _ = self._hoe_cartesian  # validate hoe_direction
+        _number("hoe_dl_ratio", self.hoe_dl_ratio)
+        _number("hoe_amplitude", self.hoe_amplitude)
 
     @property
     def _hoe_cartesian(self):
@@ -384,6 +395,8 @@ class LayerDynamic(LayerSB):
         xyz = list(d.get_cartesian() if isinstance(d, VectorObj) else d)
         if len(xyz) != 3:
             raise ValueError(f"hoe_direction must have 3 components (x, y, z), got {len(xyz)}.")
+        for c in xyz:
+            _number("hoe_direction component", c)
         if not any(xyz):
             raise ValueError("hoe_direction must be a non-zero vector (or None for the default drive).")
         return xyz
@@ -417,7 +430,7 @@ class LayerDynamic(LayerSB):
         Hoe = LayerDynamic.get_hoe_ex_symbol() if osc else 0
         # rf field components along theta-hat and phi-hat; default: along phi-hat only
         h_theta, h_phi = self._hoe_components() if self.hoe_direction is not None else (0, 1)
-        amp = sym.nsimplify(self.hoe_amplitude)
+        amp = sym.nsimplify(_number("hoe_amplitude", self.hoe_amplitude))
         h_theta, h_phi = amp * h_theta, amp * h_phi
         dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe * (h_phi + self.alpha * h_theta)
         dphi = (
@@ -431,7 +444,7 @@ class LayerDynamic(LayerSB):
         """theta-hat and phi-hat components of h = d + hoe_dl_ratio (m x d), d = unit hoe_direction."""
         d = sym.ImmutableMatrix(self._hoe_cartesian)
         d = d / sym.sqrt(d.dot(d))
-        h = d + sym.nsimplify(self.hoe_dl_ratio) * self.m.cross(d)
+        h = d + sym.nsimplify(_number("hoe_dl_ratio", self.hoe_dl_ratio)) * self.m.cross(d)
         theta_hat = sym.ImmutableMatrix(
             [sym.cos(self.theta) * sym.cos(self.phi), sym.cos(self.theta) * sym.sin(self.phi), -sym.sin(self.theta)]
         )
