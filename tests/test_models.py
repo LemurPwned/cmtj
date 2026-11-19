@@ -255,3 +255,43 @@ def test_spin_diode_scan_follows_gamma():
         Constants.set_gamma_rad(gamma)
     assert not np.allclose(scan, base)
     assert np.allclose(scan.ravel(), ref, rtol=1e-6)
+
+
+def test_spin_diode_hoe_amplitude():
+    """hoe_amplitude scales a layer's drive (field-like and damping-like); response is linear in it per layer."""
+    pos = np.array([np.pi / 3, 0.2, np.pi / 2.5, 0.9])
+    d = VectorObj.from_cartesian(-0.6, 0.8, 0)
+
+    def solver(a0, a1):
+        s, H = _diode_solver(d, 0.7 - 0.3j)
+        for layer, a in zip(s.layers, (a0, a1)):
+            layer.hoe_amplitude = a
+        return _diode(s, H, pos)
+
+    base = solver(1, 1)
+    assert np.allclose(solver(1, 1), _diode(*_diode_solver(d, 0.7 - 0.3j), pos))
+    assert np.allclose(solver(2.5, 2.5), 2.5 * base, rtol=1e-6)
+    # superposition: drive on layer 1 only + layer 0 only = both
+    assert np.allclose(solver(1, 0) + solver(0, 1.0 + 2j), solver(1, 1.0 + 2j), rtol=1e-6, atol=1e-12)
+
+
+def test_spin_diode_mr_channels_per_layer_amr_smr():
+    """Per-layer AMR/SMR channel equals the first-order change of sum_i AMR_i (m_i.j)^2 + SMR_i (m_i.y)^2, y = z x j,
+    i.e. compute_resistance's R_xx with x along j; defaults reproduce the equal-weight AMR channel."""
+    pos = np.array([[1.3, 0.4, 1.7, 2.5]])
+    step = np.array([[2e-6, -1e-6, 3e-6, 1e-6]])
+    c = 0.7
+    j = np.array([np.cos(c), np.sin(c), 0.0])
+    y = np.array([-np.sin(c), np.cos(c), 0.0])
+    amr, smr = [0.8, 1.3], [0.0, -0.4]
+
+    def R(x):
+        t, p = x[0::2], x[1::2]
+        m = np.stack([np.sin(t) * np.cos(p), np.sin(t) * np.sin(p), np.cos(t)], -1)
+        return np.sum(np.array(amr) * (m @ j) ** 2 + np.array(smr) * (m @ y) ** 2)
+
+    got = spin_diode_mr_channels(pos, step, j, AMR=amr, SMR=smr)[0, 0].real
+    assert np.isclose(got, R(pos[0] + step[0]) - R(pos[0]), rtol=1e-4)
+    assert np.allclose(
+        spin_diode_mr_channels(pos, step, j, AMR=[1, 1], SMR=[0, 0]), spin_diode_mr_channels(pos, step, j)
+    )

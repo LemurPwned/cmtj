@@ -359,6 +359,9 @@ class LayerDynamic(LayerSB):
     :param hoe_dl_ratio: damping-like torque of the same excitation relative to the rf field, as an
         effective field hoe_dl_ratio * (m x hoe_direction); complex values give a DL torque out of
         phase with the field-like one. Used only with `hoe_direction`.
+    :param hoe_amplitude: relative (complex) amplitude of this layer's `Hoe` drive, multiplying both the
+        field-like and the damping-like part. Lets layers in one stack see different drives, e.g. the
+        Oersted field alone on one layer and Oersted + spin-orbit torques on the layer next to a heavy metal.
     """
 
     alpha: float = 0.01
@@ -366,6 +369,7 @@ class LayerDynamic(LayerSB):
     torque_perp: float = 0
     hoe_direction: Optional[Union[VectorObj, Sequence[float]]] = None
     hoe_dl_ratio: complex = 0
+    hoe_amplitude: complex = 1
 
     def __post_init__(self):
         super().__post_init__()
@@ -413,6 +417,8 @@ class LayerDynamic(LayerSB):
         Hoe = LayerDynamic.get_hoe_ex_symbol() if osc else 0
         # rf field components along theta-hat and phi-hat; default: along phi-hat only
         h_theta, h_phi = self._hoe_components() if self.hoe_direction is not None else (0, 1)
+        amp = sym.nsimplify(self.hoe_amplitude)
+        h_theta, h_phi = amp * h_theta, amp * h_phi
         dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe * (h_phi + self.alpha * h_theta)
         dphi = (
             inv_sin * dUdtheta
@@ -451,6 +457,7 @@ class LayerDynamic(LayerSB):
             and self.alpha == __value.alpha
             and str(self.hoe_direction) == str(__value.hoe_direction)
             and self.hoe_dl_ratio == __value.hoe_dl_ratio
+            and self.hoe_amplitude == __value.hoe_amplitude
         )
 
     def __hash__(self) -> int:
@@ -512,29 +519,46 @@ def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]
     return layer, [*p, *hoe]
 
 
-def spin_diode_mr_channels(zero_pos: np.ndarray, amplitudes: np.ndarray, current_direction) -> np.ndarray:
+def spin_diode_mr_channels(
+    zero_pos: np.ndarray,
+    amplitudes: np.ndarray,
+    current_direction,
+    AMR: Union[list[float], None] = None,
+    SMR: Union[list[float], None] = None,
+) -> np.ndarray:
     """Complex resistance changes of a spin diode scan, per channel, to first order in the amplitudes.
 
-    AMR: sum_i (m_i . j)^2; GMR: sum over neighbouring layers (1 - m_i . m_i+1) / 2, both per unit
-    magnetoresistance. The rectified voltage of a line is Re(e^{i phase} (a_AMR dR_AMR + a_GMR dR_GMR)) with
-    the rf current I(t) = cos(w t - phase).
+    AMR channel: first-order change of sum_i [AMR_i (m_i . j)^2 + SMR_i (m_i . y)^2] with y = z x j, the
+    longitudinal resistance of `cmtj.utils.resistance.compute_resistance` (R_xx,i = R_x0 + AMR_i m_x^2 + SMR_i m_y^2)
+    in the frame of the current. Defaults AMR_i = 1, SMR_i = 0 give sum_i (m_i . j)^2. Sign convention as in
+    `compute_resistance`: spin Hall MR of a heavy-metal interface (R lowest for m along the spin polarisation
+    y) is SMR_i < 0. GMR channel: sum over neighbouring layers (1 - m_i . m_i+1) / 2, per unit magnetoresistance.
+    The rectified voltage of a line is Re(e^{i phase} (a_AMR dR_AMR + a_GMR dR_GMR)) with the rf current
+    I(t) = cos(w t - phase).
 
     :param zero_pos: equilibria (steps, 2N) as (theta_0, phi_0, theta_1, ...).
     :param amplitudes: complex amplitudes (steps, 2N), e.g. from `Solver.linearised_spin_diode_scan`.
     :param current_direction: in-plane/3D current direction j (normalised here).
+    :param AMR: per-layer AMR coefficients (default 1 for every layer).
+    :param SMR: per-layer SMR coefficients (default 0 for every layer).
     :return: complex (steps, 2): [dR_AMR, dR_GMR].
     """
     zero_pos, amplitudes = np.atleast_2d(zero_pos), np.atleast_2d(amplitudes)
     j = np.asarray(current_direction, float)
     j = j / np.linalg.norm(j)
+    y = np.cross([0.0, 0.0, 1.0], j)
+    y = y / np.linalg.norm(y)
     th, ph = zero_pos[:, 0::2], zero_pos[:, 1::2]
+    n_layers = th.shape[1]
+    amr = np.ones(n_layers) if AMR is None else np.asarray(AMR, float)
+    smr = np.zeros(n_layers) if SMR is None else np.asarray(SMR, float)
     st, ct, sp, cp = np.sin(th), np.cos(th), np.sin(ph), np.cos(ph)
     m = np.stack([st * cp, st * sp, ct], -1)  # (steps, layer, xyz)
     dm = np.stack([np.stack([ct * cp, ct * sp, -st], -1), np.stack([-st * sp, st * cp, np.zeros_like(st)], -1)], 2)
     dm = np.einsum("slcx,slc->slx", dm, amplitudes.reshape(*th.shape, 2))  # first-order dm per layer
-    amr = np.sum(2 * (m @ j) * (dm @ j), -1)
+    amr_ch = np.sum(2 * amr * (m @ j) * (dm @ j) + 2 * smr * (m @ y) * (dm @ y), -1)
     gmr = -0.5 * np.sum(np.sum(dm[:, :-1] * m[:, 1:] + m[:, :-1] * dm[:, 1:], -1), -1)
-    return np.stack([amr, gmr], -1)
+    return np.stack([amr_ch, gmr], -1)
 
 
 @dataclass
