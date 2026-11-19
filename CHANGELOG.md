@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- SB `Solver.linearised_spin_diode_scan` compiles once per layout (number of layers, excitation, lab-frame rf field, dipole coupling) with all material parameters as arguments, so new parameter values cost no symbolic work (about 0.1 s for a 400-point line instead of about 0.5 s). `hoe_direction` also accepts an (x, y, z) sequence.
+- SB `Solver.linearised_spin_diode_scan` is faster on repeated scans with new parameter values (about 0.1 s instead of 0.5 s for a 400-point line). `cmtj.models.clear_diode_cache()` frees the compiled scans.
+- SB `LayerDynamic(hoe_direction=...)` accepts an (x, y, z) sequence; it must have exactly 3 components, not all zero (ValueError otherwise).
 
 ## 1.15.0
 

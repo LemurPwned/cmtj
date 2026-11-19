@@ -369,12 +369,20 @@ class LayerDynamic(LayerSB):
 
     def __post_init__(self):
         super().__post_init__()
+        _ = self._hoe_cartesian  # validate hoe_direction
+
+    @property
+    def _hoe_cartesian(self):
+        """`hoe_direction` as an [x, y, z] list (None for the default drive), read at use time."""
         d = self.hoe_direction
-        self._hoe_cartesian = None if d is None else list(d.get_cartesian() if isinstance(d, VectorObj) else d)
-        if d is not None and len(self._hoe_cartesian) != 3:
-            raise ValueError(f"hoe_direction must have 3 components (x, y, z), got {len(self._hoe_cartesian)}.")
-        if d is not None and not any(self._hoe_cartesian):
+        if d is None:
+            return None
+        xyz = list(d.get_cartesian() if isinstance(d, VectorObj) else d)
+        if len(xyz) != 3:
+            raise ValueError(f"hoe_direction must have 3 components (x, y, z), got {len(xyz)}.")
+        if not any(xyz):
             raise ValueError("hoe_direction must be a non-zero vector (or None for the default drive).")
+        return xyz
 
     @staticmethod
     def get_hoe_ex_symbol():
@@ -463,7 +471,8 @@ def clear_diode_cache():
 
 def _diode_layer_values(layer: "LayerDynamic") -> list:
     """Numeric parameters of a layer in the order of `_symbolic_diode_layer`."""
-    hoe = [*layer._hoe_cartesian, layer.hoe_dl_ratio] if layer._hoe_cartesian is not None else []
+    xyz = layer._hoe_cartesian
+    hoe = [*xyz, layer.hoe_dl_ratio] if xyz is not None else []
     return [
         layer.thickness,
         layer.Ms,
@@ -1195,7 +1204,8 @@ class Solver:
         dipole = self.dipoleMatrix is not None
         values = [v for layer in self.layers for v in _diode_layer_values(layer)] + [*self.J1, *self.J2]
         values += [c for d in self.ilD for c in d] + ([c for mat in self.dipoleMatrix for c in mat] if dipole else [])
-        key = (n, Vdc_ex_variable, with_hoe, dipole)
+        # constants are baked into the compiled system: a changed one compiles a new entry
+        key = (n, Vdc_ex_variable, with_hoe, dipole, Constants.mu0(), Constants.gamma_rad())
         with _DIODE_FN_LOCK:
             fns = _DIODE_FN_CACHE.get(key)
             if fns is None:
