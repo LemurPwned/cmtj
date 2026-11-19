@@ -1,4 +1,5 @@
 import math
+import numbers
 import threading
 import time
 import warnings
@@ -346,6 +347,14 @@ class LayerSB:
         )
 
 
+def _number(name: str, value):
+    """`value` if it is a number or a sympy expression. Anything else (notably a str, which sympy would parse
+    and evaluate) raises TypeError."""
+    if not isinstance(value, (numbers.Number, sym.Basic)):
+        raise TypeError(f"{name} must be a number, got {type(value).__name__}.")
+    return value
+
+
 @dataclass
 class LayerDynamic(LayerSB):
     """Layer for the dynamic (linearised LLG) Smit-Beljers solver.
@@ -359,6 +368,9 @@ class LayerDynamic(LayerSB):
     :param hoe_dl_ratio: damping-like torque of the same excitation relative to the rf field, as an
         effective field hoe_dl_ratio * (m x hoe_direction); complex values give a DL torque out of
         phase with the field-like one. Used only with `hoe_direction`.
+    :param hoe_amplitude: relative (complex) amplitude of this layer's `Hoe` drive, multiplying both the
+        field-like and the damping-like part. Lets layers in one stack see different drives, e.g. the
+        Oersted field alone on one layer and Oersted + spin-orbit torques on the layer next to a heavy metal.
     """
 
     alpha: float = 0.01
@@ -366,10 +378,13 @@ class LayerDynamic(LayerSB):
     torque_perp: float = 0
     hoe_direction: Optional[Union[VectorObj, Sequence[float]]] = None
     hoe_dl_ratio: complex = 0
+    hoe_amplitude: complex = 1
 
     def __post_init__(self):
         super().__post_init__()
         _ = self._hoe_cartesian  # validate hoe_direction
+        _number("hoe_dl_ratio", self.hoe_dl_ratio)
+        _number("hoe_amplitude", self.hoe_amplitude)
 
     @property
     def _hoe_cartesian(self):
@@ -380,6 +395,8 @@ class LayerDynamic(LayerSB):
         xyz = list(d.get_cartesian() if isinstance(d, VectorObj) else d)
         if len(xyz) != 3:
             raise ValueError(f"hoe_direction must have 3 components (x, y, z), got {len(xyz)}.")
+        for c in xyz:
+            _number("hoe_direction component", c)
         if not any(xyz):
             raise ValueError("hoe_direction must be a non-zero vector (or None for the default drive).")
         return xyz
@@ -413,6 +430,8 @@ class LayerDynamic(LayerSB):
         Hoe = LayerDynamic.get_hoe_ex_symbol() if osc else 0
         # rf field components along theta-hat and phi-hat; default: along phi-hat only
         h_theta, h_phi = self._hoe_components() if self.hoe_direction is not None else (0, 1)
+        amp = sym.nsimplify(_number("hoe_amplitude", self.hoe_amplitude))
+        h_theta, h_phi = amp * h_theta, amp * h_phi
         dtheta = -inv_sin * dUdphi - self.alpha * dUdtheta + self.Ms * Hoe * (h_phi + self.alpha * h_theta)
         dphi = (
             inv_sin * dUdtheta
@@ -425,7 +444,7 @@ class LayerDynamic(LayerSB):
         """theta-hat and phi-hat components of h = d + hoe_dl_ratio (m x d), d = unit hoe_direction."""
         d = sym.ImmutableMatrix(self._hoe_cartesian)
         d = d / sym.sqrt(d.dot(d))
-        h = d + sym.nsimplify(self.hoe_dl_ratio) * self.m.cross(d)
+        h = d + sym.nsimplify(_number("hoe_dl_ratio", self.hoe_dl_ratio)) * self.m.cross(d)
         theta_hat = sym.ImmutableMatrix(
             [sym.cos(self.theta) * sym.cos(self.phi), sym.cos(self.theta) * sym.sin(self.phi), -sym.sin(self.theta)]
         )
@@ -451,6 +470,7 @@ class LayerDynamic(LayerSB):
             and self.alpha == __value.alpha
             and str(self.hoe_direction) == str(__value.hoe_direction)
             and self.hoe_dl_ratio == __value.hoe_dl_ratio
+            and self.hoe_amplitude == __value.hoe_amplitude
         )
 
     def __hash__(self) -> int:
@@ -484,6 +504,7 @@ def _diode_layer_values(layer: "LayerDynamic") -> list:
         *layer.Ndemag,
         layer.torque_par,
         layer.torque_perp,
+        layer.hoe_amplitude,
         *hoe,
     ]
 
@@ -494,6 +515,7 @@ def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]
     p = [sym.Symbol(f"{name}_{i}", real=True) for name in names]
     t, Ms, alpha, Ks, Kphi, Kmag = p[:6]
     hdmi, nd, (tpar, tperp) = p[6:9], p[9:12], p[12:]
+    amp = sym.Symbol(f"hoeamp_{i}")  # complex: per-layer drive amplitude, an argument so it never recompiles
     hoe = [*(sym.Symbol(f"hoe{c}_{i}", real=True) for c in "xyz"), sym.Symbol(f"hoedl_{i}")] if with_hoe else []
     layer = LayerDynamic(
         _id=i,
@@ -508,33 +530,59 @@ def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]
         torque_perp=tperp,
         hoe_direction=hoe[:3] or None,
         hoe_dl_ratio=hoe[3] if hoe else 0,
+        hoe_amplitude=amp,
     )
-    return layer, [*p, *hoe]
+    return layer, [*p, amp, *hoe]
 
 
-def spin_diode_mr_channels(zero_pos: np.ndarray, amplitudes: np.ndarray, current_direction) -> np.ndarray:
+def spin_diode_mr_channels(
+    zero_pos: np.ndarray,
+    amplitudes: np.ndarray,
+    current_direction,
+    AMR: Union[list[float], None] = None,
+    SMR: Union[list[float], None] = None,
+) -> np.ndarray:
     """Complex resistance changes of a spin diode scan, per channel, to first order in the amplitudes.
 
-    AMR: sum_i (m_i . j)^2; GMR: sum over neighbouring layers (1 - m_i . m_i+1) / 2, both per unit
-    magnetoresistance. The rectified voltage of a line is Re(e^{i phase} (a_AMR dR_AMR + a_GMR dR_GMR)) with
-    the rf current I(t) = cos(w t - phase).
+    AMR channel: first-order change of sum_i [AMR_i (m_i . j)^2 + SMR_i (m_i . y)^2] with y = z x j, the
+    longitudinal resistance of `cmtj.utils.resistance.compute_resistance` (R_xx,i = R_x0 + AMR_i m_x^2 + SMR_i m_y^2)
+    in the frame of the current. Defaults AMR_i = 1, SMR_i = 0 give sum_i (m_i . j)^2. Sign convention as in
+    `compute_resistance`: spin Hall MR of a heavy-metal interface (R lowest for m along the spin polarisation
+    y) is SMR_i < 0. GMR channel: sum over neighbouring layers (1 - m_i . m_i+1) / 2, per unit magnetoresistance.
+    The rectified voltage of a line is Re(e^{i phase} (a_AMR dR_AMR + a_GMR dR_GMR)) with the rf current
+    I(t) = cos(w t - phase).
 
     :param zero_pos: equilibria (steps, 2N) as (theta_0, phi_0, theta_1, ...).
     :param amplitudes: complex amplitudes (steps, 2N), e.g. from `Solver.linearised_spin_diode_scan`.
     :param current_direction: in-plane/3D current direction j (normalised here).
+    :param AMR: per-layer AMR coefficients, one per layer (default 1 for every layer).
+    :param SMR: per-layer SMR coefficients, one per layer (default 0 for every layer). Non-zero SMR needs a
+        current with an in-plane component (y = z x j is undefined for j along z): ValueError otherwise.
     :return: complex (steps, 2): [dR_AMR, dR_GMR].
     """
     zero_pos, amplitudes = np.atleast_2d(zero_pos), np.atleast_2d(amplitudes)
     j = np.asarray(current_direction, float)
     j = j / np.linalg.norm(j)
     th, ph = zero_pos[:, 0::2], zero_pos[:, 1::2]
+    n_layers = th.shape[1]
+    amr = np.ones(n_layers) if AMR is None else np.asarray(AMR, float)
+    smr = np.zeros(n_layers) if SMR is None else np.asarray(SMR, float)
+    for name, coef in (("AMR", amr), ("SMR", smr)):
+        if coef.shape != (n_layers,):
+            raise ValueError(f"{name} needs one value per layer ({n_layers}), got shape {coef.shape}.")
+    y = np.cross([0.0, 0.0, 1.0], j)
+    if np.any(smr) and np.linalg.norm(y) < 1e-12:
+        raise ValueError("SMR needs a current with an in-plane component: y = z x j is undefined for j along z.")
     st, ct, sp, cp = np.sin(th), np.cos(th), np.sin(ph), np.cos(ph)
     m = np.stack([st * cp, st * sp, ct], -1)  # (steps, layer, xyz)
     dm = np.stack([np.stack([ct * cp, ct * sp, -st], -1), np.stack([-st * sp, st * cp, np.zeros_like(st)], -1)], 2)
     dm = np.einsum("slcx,slc->slx", dm, amplitudes.reshape(*th.shape, 2))  # first-order dm per layer
-    amr = np.sum(2 * (m @ j) * (dm @ j), -1)
+    amr_ch = np.sum(2 * amr * (m @ j) * (dm @ j), -1)
+    if np.any(smr):
+        y = y / np.linalg.norm(y)
+        amr_ch = amr_ch + np.sum(2 * smr * (m @ y) * (dm @ y), -1)
     gmr = -0.5 * np.sum(np.sum(dm[:, :-1] * m[:, 1:] + m[:, :-1] * dm[:, 1:], -1), -1)
-    return np.stack([amr, gmr], -1)
+    return np.stack([amr_ch, gmr], -1)
 
 
 @dataclass
