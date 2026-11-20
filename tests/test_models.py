@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from cmtj.models import Solver, LayerDynamic, VectorObj, LayerSB, spin_diode_mr_channels
+from pathlib import Path
 from typing import Tuple
 
 
@@ -350,3 +351,55 @@ def test_drive_parameters_reject_strings(field):
     s.layers[0].hoe_amplitude = "1"
     with pytest.raises(TypeError, match="must be a number"):
         _diode(s, H, np.array([np.pi / 3, 0.2, np.pi / 2.5, 0.9]))
+
+
+def _coruco_solver(params, ms=1.65 / (4e-7 * np.pi), thickness=4e-9, ndemag=(2.9e-05, 1.33e-4, 0.99984)):
+    """Co/Ru/Co-like bilayer: in-plane uniaxial axes, Hdmi, J1/J2 and interlayer DMI."""
+    Ku, Kphi, asym, dphi, J1, J2, Dx, Dy, Dz, h1x, h1y, h2x, h2y = params
+    layers = [
+        LayerSB(_id=i, thickness=thickness, Kv=VectorObj(0, Kphi + (0.5 - i) * dphi, Ku * (1 + (1 - 2 * i) * asym)),
+                Ks=0, Ms=ms, Ndemag=VectorObj.from_cartesian(*ndemag), Hdmi=[(h1x, h2x)[i], (h1y, h2y)[i], 0])
+        for i in range(2)
+    ]
+    return Solver(layers=layers, J1=[J1], J2=[J2], ilD=[VectorObj.from_cartesian(Dx, Dy, Dz)])
+
+
+def _m(coords):
+    t, p = coords[..., 0::2], coords[..., 1::2]
+    return np.stack([np.sin(t) * np.cos(p), np.sin(t) * np.sin(p), np.cos(t)], -1)
+
+
+def test_relax_field_path_matches_per_point_solver():
+    """Each equilibrium of the path is a minimum the per-point Adam solver agrees with (same history)."""
+    params = (2e3, 0.3, -0.2, 0.2, -1.2e-4, -5e-5, 0, 0, 3e-5, 2e3, 0, -2e3, 0)
+    solver = _coruco_solver(params)
+    path = np.linspace(-60e3, 60e3, 25)
+    eq = solver.relax_field_path(path, np.deg2rad([20.0]))
+    for k in (0, 8, 12, 16, 24):
+        solver.set_H(VectorObj(np.pi / 2, np.deg2rad(20.0), path[k]))
+        adam = solver.adam_gradient_descent(eq[k, 0], max_steps=200000, tol=1e-12, learning_rate=1e-4, perturbation=0)
+        assert np.allclose(_m(adam), _m(eq[k, 0]), atol=1e-4)
+
+
+def test_relax_field_path_matches_reference_hysteresis():
+    """Hysteresis loops of the vectorised Newton relaxation used in the Co/Ru/Co polar-coercivity fits."""
+    ref = np.load(Path(__file__).parent / "assets" / "sb_relax_path_reference.npz")
+    solver = _coruco_solver(ref["params"], float(ref["ms"]), float(ref["thickness"]), ref["ndemag"])
+    eq = solver.relax_field_path(ref["path"], np.deg2rad(ref["angles_deg"]))
+    assert np.allclose(_m(eq), ref["m"], atol=1e-5)
+
+
+def test_relax_field_path_new_parameters_no_recompile(monkeypatch):
+    from cmtj.models import general_sb as gsb
+
+    compiles = []
+    kernel = gsb._row_kernel
+    monkeypatch.setattr(gsb, "_row_kernel", lambda *a, **k: compiles.append(1) or kernel(*a, **k))
+    path, angles = np.linspace(-50e3, 50e3, 11), np.deg2rad([0.0, 90.0])
+    a = _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)).relax_field_path(path, angles)
+    n_compiles = len(compiles)
+    b, hess = _coruco_solver((5e3, 1.0, 0.1, 0, -3e-4, -1e-4, 0, 0, 1e-5, 1e3, 0, 0, 0)).relax_field_path(
+        path, angles, return_hessian=True)
+    assert len(compiles) == n_compiles
+    assert not np.allclose(a, b)
+    assert hess.shape == (11, 2, 4, 4) and np.allclose(hess, np.swapaxes(hess, -1, -2))
