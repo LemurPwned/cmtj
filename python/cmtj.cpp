@@ -121,6 +121,14 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("__len__", [](const DVector& v) { return 3; })
           .def("__str__", py::overload_cast<>(&DVector::toString))
           .def("__repr__", py::overload_cast<>(&DVector::toString))
+          .def(py::pickle(
+               [](const DVector& v) { return py::make_tuple(v.x, v.y, v.z); },
+               [](const py::tuple& t) {
+                    if (t.size() != 3)
+                         throw std::runtime_error("Invalid CVector pickle state");
+                    return DVector(t[0].cast<double>(), t[1].cast<double>(),
+                         t[2].cast<double>());
+               }))
           .def_static("fromSpherical", &DVector::fromSpherical, "theta"_a, "phi"_a, "r"_a = 1.0);
 
      py::implicitly_convertible<std::list<double>, DVector>();

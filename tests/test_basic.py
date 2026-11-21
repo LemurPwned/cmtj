@@ -118,3 +118,12 @@ def test_energy_log_lengths_match_with_current():
     junction.runSimulation(1e-10, 1e-12, 1e-12, calculateEnergies=True)
     log = junction.getLog()
     assert len(log["free_I"]) == len(log["time"])
+
+
+def test_cvector_pickle():
+    import copy
+    import pickle
+
+    v = CVector(1.5, -2.0, 3.25)
+    for w in (pickle.loads(pickle.dumps(v)), copy.deepcopy(v), copy.copy(v)):
+        assert w == v and w is not v
