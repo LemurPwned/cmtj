@@ -218,14 +218,17 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("applyMask", py::overload_cast<const std::vector<unsigned int> &>(
                &DAxialDriver::applyMask));
 
+     // Python's repr: escaped strings, shortest round-trip floats
      const auto layerRepr = [](const DLayer& l) {
-          std::ostringstream ss;
-          ss << "Layer(id='" << l.id << "', Ms=" << l.Ms << ", thickness=" << l.thickness
-             << ", damping=" << l.damping << ", mag=" << l.mag.toString()
-             << ", anis=" << l.anis.toString();
-          if (l.isAFM) ss << ", mag2=" << l.mag2.toString();
-          ss << ")";
-          return ss.str();
+          const auto f = [](double x) { return std::string(py::repr(py::float_(x))); };
+          const auto v = [&f](const DVector& c) {
+               return "[x:" + f(c.x) + ", y:" + f(c.y) + ", z:" + f(c.z) + "]";
+          };
+          std::string s = "Layer(id=" + std::string(py::repr(py::str(l.id))) + ", Ms=" + f(l.Ms) +
+                          ", thickness=" + f(l.thickness) + ", damping=" + f(l.damping) +
+                          ", mag=" + v(l.mag) + ", anis=" + v(l.anis);
+          if (l.isAFM) s += ", mag2=" + v(l.mag2);
+          return s + ")";
      };
 
      py::class_<DLayer>(m, "Layer")

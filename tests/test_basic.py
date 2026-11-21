@@ -128,4 +128,8 @@ def test_layer_and_junction_repr():
     assert r.startswith("Layer(id='free'") and "Ms=1.2" in r and "thickness=1e-09" in r
     assert str(layer) == r
     j = repr(Junction([layer]))
-    assert j.startswith("Junction(layers=[") and "id='free'" in j
+    assert j.startswith("Junction(layers=[") and r in j
+
+    tricky = Layer("a'b\\c\nd", mag=CVector(0, 0, 1), anis=CVector(0, 0, 1), Ms=1.0000000001, thickness=1e-9,
+                   cellSurface=1e-16, demagTensor=demag)
+    assert repr(tricky).startswith("Layer(id=" + repr("a'b\\c\nd")) and "Ms=1.0000000001" in repr(tricky)
