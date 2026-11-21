@@ -403,3 +403,14 @@ def test_relax_field_path_new_parameters_no_recompile(monkeypatch):
     assert len(compiles) == n_compiles
     assert not np.allclose(a, b)
     assert hess.shape == (11, 2, 4, 4) and np.allclose(hess, np.swapaxes(hess, -1, -2))
+
+
+def test_relax_field_path_rejects_zero_direction():
+    with pytest.raises(ValueError, match="non-zero"):
+        _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)).relax_field_path([1e3], [[1, 0, 0], [0, 0, 0]])
+
+
+def test_relax_field_path_warns_when_unconverged():
+    solver = _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0))
+    with pytest.warns(RuntimeWarning, match="did not converge"):
+        solver.relax_field_path(np.linspace(-50e3, 50e3, 5), np.deg2rad([10.0]), max_iter=1)

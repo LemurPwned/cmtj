@@ -492,11 +492,17 @@ def clear_diode_cache():
 
 
 def _cached_fns(key, compile_fns):
-    """`compile_fns()` once per `key`, kept in the shared LRU cache."""
+    """`compile_fns()` once per (`key`, constants), kept in the shared LRU cache. The constants are baked into
+    the compiled functions, so a changed one compiles a new entry."""
     with _DIODE_FN_LOCK:
+        consts = (Constants.mu0(), Constants.gamma_rad())
+        key = (*key, *consts)
         fns = _DIODE_FN_CACHE.get(key)
         if fns is None:
-            fns = _DIODE_FN_CACHE[key] = compile_fns()
+            fns = compile_fns()
+            if (Constants.mu0(), Constants.gamma_rad()) != consts:
+                raise RuntimeError("Constants changed while compiling SB functions; retry")
+            _DIODE_FN_CACHE[key] = fns
             if len(_DIODE_FN_CACHE) > _DIODE_FN_CACHE_SIZE:
                 _DIODE_FN_CACHE.popitem(last=False)
         _DIODE_FN_CACHE.move_to_end(key)
@@ -1311,8 +1317,7 @@ class Solver:
                 sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
             )
 
-        # constants are baked into the compiled system: a changed one compiles a new entry
-        fns = _cached_fns((n, Vdc_ex_variable, with_hoe, dipole, Constants.mu0(), Constants.gamma_rad()), compile_fns)
+        fns = _cached_fns((n, Vdc_ex_variable, with_hoe, dipole), compile_fns)
         return (*fns, [complex(v) if np.iscomplexobj(v) else float(v) for v in values])
 
     def _coupling_values(self) -> list:
@@ -1340,7 +1345,7 @@ class Solver:
             rows, args = [*coords, *Hsym], [*(p for ps in params for p in ps), *coupling]
             return _row_kernel(rows, args, [energy]), _row_kernel(rows, args, [energy, *grad, *hess])
 
-        fns = _cached_fns(("relax", n, dipole, Constants.mu0()), compile_fns)
+        fns = _cached_fns(("relax", n, dipole), compile_fns)
         return (*fns, np.array(values, float))
 
     def relax_field_path(
@@ -1360,7 +1365,9 @@ class Solver:
         0.3 rad) with its own backtracking line search, so no direction can push another over a barrier.
         A converged point with negative curvature (a saddle, e.g. exactly antiparallel to the field) is
         nudged along that mode, as thermal noise would, at most 3 times per step. A direction whose line
-        search fails is at the numerical floor and counts as converged. Theta is kept in [1e-6, pi - 1e-6].
+        search fails is at the numerical floor and counts as converged. Theta is kept in [1e-6, pi - 1e-6]
+        (trials are clipped before their energy is checked). Points still above `tol` (or at an un-nudged
+        saddle) after `max_iter` iterations are kept as they are and counted in one RuntimeWarning.
         Energy, gradient and Hessian come from `create_energy` (all terms), compiled once per layout with the
         material parameters as arguments: a new parameter set needs no symbolic work.
 
@@ -1380,7 +1387,10 @@ class Solver:
         directions = np.asarray(directions, float)
         if directions.ndim == 1:
             directions = np.column_stack([np.cos(directions), np.sin(directions), np.zeros_like(directions)])
-        u = directions / np.linalg.norm(directions, axis=1, keepdims=True)
+        norm = np.linalg.norm(directions, axis=1, keepdims=True)
+        if not np.all(norm > 0):
+            raise ValueError("relax_field_path: every direction must be a non-zero vector")
+        u = directions / norm
         n = len(u)
         Hpath = np.asarray(Hpath, float)
         if init is None:
@@ -1388,8 +1398,12 @@ class Solver:
             theta = np.arccos(np.clip(start[:, 2], -1, 1))
             phi = np.arctan2(start[:, 1], start[:, 0])
             init = np.column_stack([v for i in range(dim // 2) for v in (theta, phi + 1e-5 * (-1) ** i)])
-        x = np.array(np.broadcast_to(init, (n, dim)), float)
-        x[:, 0::2] = np.clip(x[:, 0::2], 1e-6, np.pi - 1e-6)
+
+        def clip(x):
+            x[:, 0::2] = np.clip(x[:, 0::2], 1e-6, np.pi - 1e-6)
+            return x
+
+        x = clip(np.array(np.broadcast_to(init, (n, dim)), float))
 
         def egh(x, h):
             out = np.empty((len(x), 1 + dim + len(upper[0])))
@@ -1403,12 +1417,14 @@ class Solver:
             energy_fn(np.hstack([x, h]), values, out)
             return out[:, 0]
 
-        out, hessians = np.empty((len(Hpath), n, dim)), np.empty((len(Hpath), n, dim, dim))
+        out = np.empty((len(Hpath), n, dim))
+        hessians = np.empty((len(Hpath), n, dim, dim)) if return_hessian else None
+        unconverged = 0
         for k, h in enumerate(Hpath):
             hk = h * u
             act = np.arange(n)  # directions not yet converged at this step
             frozen, nudges = np.zeros(n, bool), np.zeros(n, int)
-            for _ in range(max_iter):
+            for it in range(max_iter + 1):  # the last pass only checks convergence
                 e, g, hess = egh(x[act], hk[act])
                 lam, vec = np.linalg.eigh(hess)
                 done = (np.max(np.abs(g), axis=1) < tol) | frozen[act]
@@ -1416,7 +1432,7 @@ class Solver:
                 nudges[act] += saddle
                 keep = ~done | saddle
                 act, e, g, lam, vec, saddle = act[keep], e[keep], g[keep], lam[keep], vec[keep], saddle[keep]
-                if not len(act):
+                if not len(act) or it == max_iter:
                     break
                 step = -np.einsum("nij,nj->ni", vec, np.einsum("nji,nj->ni", vec, g) / np.maximum(np.abs(lam), 1e-6))
                 step[saddle] = 1e-3 * vec[saddle, :, 0]
@@ -1426,17 +1442,23 @@ class Solver:
                     idx = np.flatnonzero(test)
                     if not len(idx):
                         break
-                    trial = x[act[idx]] + alpha[idx, None] * step[idx]
+                    trial = clip(x[act[idx]] + alpha[idx, None] * step[idx])
                     test[idx] = energy(trial, hk[act[idx]]) > e[idx] + 1e-15 * np.abs(e[idx])
                     alpha[idx[test[idx]]] *= 0.5
                 alpha[test] = 0.0
                 frozen[act[test]] = True
-                xa = x[act] + alpha[:, None] * step
-                xa[:, 0::2] = np.clip(xa[:, 0::2], 1e-6, np.pi - 1e-6)
-                x[act] = xa
+                x[act] = clip(x[act] + alpha[:, None] * step)
+            unconverged += len(act)
             out[k] = x
             if return_hessian:
                 hessians[k] = egh(x, hk)[2] / 1e3
+        if unconverged:
+            warnings.warn(
+                f"relax_field_path: {unconverged} of {out.shape[0] * n} (field step, direction) points did not"
+                f" converge to tol={tol} in max_iter={max_iter} iterations",
+                RuntimeWarning,
+                stacklevel=2,
+            )
         return (out, hessians) if return_hessian else out
 
     def linearised_spin_diode_scan(
