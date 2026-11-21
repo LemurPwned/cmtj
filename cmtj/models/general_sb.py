@@ -1385,6 +1385,8 @@ class Solver:
         :return: equilibria (steps, n, 2N) as (theta_0, phi_0, theta_1, ...); with `return_hessian`,
             (equilibria, Hessians (steps, n, 2N, 2N)). m_i = (sin t cos p, sin t sin p, cos t).
         """
+        if any(layer.coordinate_system != "spherical" for layer in self.layers):
+            raise ValueError("relax_field_path: only spherical-coordinate layers are supported")
         energy_fn, egh_fn, values = self._relax_functions()
         dim = 2 * len(self.layers)
         upper = np.triu_indices(dim)
@@ -1393,6 +1395,8 @@ class Solver:
             directions = np.column_stack([np.cos(directions), np.sin(directions), np.zeros_like(directions)])
         if directions.ndim != 2 or directions.shape[1] != 3:
             raise ValueError("relax_field_path: directions must be (n, 3) vectors or (n,) angles")
+        if not np.all(np.isfinite(directions)):
+            raise ValueError("relax_field_path: directions must be finite")
         norm = np.linalg.norm(directions, axis=1, keepdims=True)
         if not np.all(norm > 0):
             raise ValueError("relax_field_path: every direction must be a non-zero vector")
@@ -1401,6 +1405,8 @@ class Solver:
         Hpath = np.asarray(Hpath, float)
         if Hpath.ndim != 1 or not len(Hpath):
             raise ValueError("relax_field_path: Hpath must be a non-empty 1-D array of field magnitudes")
+        if not np.all(np.isfinite(Hpath)):
+            raise ValueError("relax_field_path: Hpath must be finite")
         if init is None:
             start = u if Hpath[0] >= 0 else -u
             theta = np.arccos(np.clip(start[:, 2], -1, 1))
