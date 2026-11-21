@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from cmtj.models import Solver, LayerDynamic, VectorObj, LayerSB, spin_diode_mr_channels
+from pathlib import Path
 from typing import Tuple
 
 
@@ -350,3 +351,120 @@ def test_drive_parameters_reject_strings(field):
     s.layers[0].hoe_amplitude = "1"
     with pytest.raises(TypeError, match="must be a number"):
         _diode(s, H, np.array([np.pi / 3, 0.2, np.pi / 2.5, 0.9]))
+
+
+def _coruco_solver(params, ms=1.65 / (4e-7 * np.pi), thickness=4e-9, ndemag=(2.9e-05, 1.33e-4, 0.99984)):
+    """Co/Ru/Co-like bilayer: in-plane uniaxial axes, Hdmi, J1/J2 and interlayer DMI."""
+    Ku, Kphi, asym, dphi, J1, J2, Dx, Dy, Dz, h1x, h1y, h2x, h2y = params
+    layers = [
+        LayerSB(_id=i, thickness=thickness, Kv=VectorObj(0, Kphi + (0.5 - i) * dphi, Ku * (1 + (1 - 2 * i) * asym)),
+                Ks=0, Ms=ms, Ndemag=VectorObj.from_cartesian(*ndemag), Hdmi=[(h1x, h2x)[i], (h1y, h2y)[i], 0])
+        for i in range(2)
+    ]
+    return Solver(layers=layers, J1=[J1], J2=[J2], ilD=[VectorObj.from_cartesian(Dx, Dy, Dz)])
+
+
+def _m(coords):
+    t, p = coords[..., 0::2], coords[..., 1::2]
+    return np.stack([np.sin(t) * np.cos(p), np.sin(t) * np.sin(p), np.cos(t)], -1)
+
+
+def test_relax_field_path_matches_per_point_solver():
+    """The path matches an independent per-point Adam sweep (each field started from Adam's previous
+    equilibrium, same initial state). Asymmetric layers and DMI make the per-layer states unambiguous."""
+    params = (2e3, 0.3, -0.2, 0.2, -1.2e-4, -5e-5, 0, 0, 3e-5, 2e3, 0, -2e3, 0)
+    solver = _coruco_solver(params)
+    path, phi = np.linspace(-60e3, 60e3, 25), np.deg2rad(20.0)
+    eq = solver.relax_field_path(path, [phi])[:, 0]
+    position = np.array([np.pi / 2, phi + np.pi + 1e-5, np.pi / 2, phi + np.pi - 1e-5])  # relax_field_path's start
+    adam = []
+    for H in path:
+        solver.set_H(VectorObj(np.pi / 2, phi, H))
+        position = solver.adam_gradient_descent(position, max_steps=100000, tol=1e-10, perturbation=0)
+        adam.append(position)
+    m_adam, m_path = _m(np.array(adam)), _m(eq)
+    assert np.allclose(m_adam.mean(-2), m_path.mean(-2), atol=1e-4)  # net moment
+    assert np.allclose(m_adam, m_path, atol=1e-4)  # per layer
+
+
+def test_relax_field_path_matches_reference_hysteresis():
+    """Hysteresis loops of the vectorised Newton relaxation used in the Co/Ru/Co polar-coercivity fits."""
+    ref = np.load(Path(__file__).parent / "assets" / "sb_relax_path_reference.npz")
+    solver = _coruco_solver(ref["params"], float(ref["ms"]), float(ref["thickness"]), ref["ndemag"])
+    eq = solver.relax_field_path(ref["path"], np.deg2rad(ref["angles_deg"]))
+    assert np.allclose(_m(eq), ref["m"], atol=1e-5)
+
+
+def test_relax_field_path_new_parameters_no_recompile(monkeypatch):
+    from cmtj.models import general_sb as gsb
+
+    compiles = []
+    kernel = gsb._row_kernel
+    monkeypatch.setattr(gsb, "_row_kernel", lambda *a, **k: compiles.append(1) or kernel(*a, **k))
+    path, angles = np.linspace(-50e3, 50e3, 11), np.deg2rad([0.0, 90.0])
+    a = _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)).relax_field_path(path, angles)
+    n_compiles = len(compiles)
+    solver = _coruco_solver((5e3, 1.0, 0.1, 0, -3e-4, -1e-4, 0, 0, 1e-5, 1e3, 0, 0, 0))
+    b, hess = solver.relax_field_path(path, angles, return_hessian=True)
+    assert len(compiles) == n_compiles
+    assert not np.allclose(a, b)
+    assert hess.shape == (11, 2, 4, 4) and np.allclose(hess, np.swapaxes(hess, -1, -2))
+    # one Hessian against central differences of the solver's symbolic energy [J/m^2 per rad^2]
+    import sympy as sym
+
+    Hsym = sym.symbols("H_x H_y H_z")
+    coords = [c for layer in solver.layers for c in layer.get_coord_sym()]
+    energy = sym.lambdify([*coords, *Hsym], solver.create_energy(H=sym.ImmutableMatrix(Hsym)))
+    x0, h, d = b[3, 1], path[3] * np.array([0.0, 1.0, 0.0]), 1e-4
+    eye = np.eye(4) * d
+    fd = [[(energy(*(x0 + p + q), *h) - energy(*(x0 + p - q), *h) - energy(*(x0 - p + q), *h)
+            + energy(*(x0 - p - q), *h)) / (4 * d * d) for q in eye] for p in eye]
+    assert np.allclose(hess[3, 1], fd, rtol=1e-4, atol=1e-6 * np.abs(hess[3, 1]).max())
+
+
+def test_relax_field_path_rejects_zero_direction():
+    with pytest.raises(ValueError, match="non-zero"):
+        _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)).relax_field_path([1e3], [[1, 0, 0], [0, 0, 0]])
+
+
+def test_relax_field_path_warns_when_unconverged():
+    solver = _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0))
+    with pytest.warns(RuntimeWarning, match="did not converge"):
+        solver.relax_field_path(np.linspace(-50e3, 50e3, 5), np.deg2rad([10.0]), max_iter=1)
+
+
+def test_relax_field_path_follows_mu0_change():
+    from cmtj.models import clear_diode_cache
+    from cmtj.utils import Constants
+
+    params = (2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)
+    path, angles = np.linspace(-50e3, 50e3, 11), np.deg2rad([10.0, 80.0])
+    mu0 = Constants.mu0()
+    try:
+        default = _coruco_solver(params).relax_field_path(path, angles)  # compile and cache at the default mu0
+        Constants.set_mu0(2 * mu0)
+        changed = _coruco_solver(params).relax_field_path(path, angles)
+        clear_diode_cache()
+        Solver._create_energy.cache_clear()
+        fresh = _coruco_solver(params).relax_field_path(path, angles)
+    finally:
+        Constants.set_mu0(mu0)
+    assert np.allclose(changed, fresh)
+    assert not np.allclose(changed, default)
+
+
+@pytest.mark.parametrize(
+    "path, directions, match",
+    [([1e3], np.ones((2, 2)), "directions must be"), ([1e3], np.ones((1, 2, 3)), "directions must be"),
+     ([], [0.0], "Hpath must be"), ([[1e3]], [0.0], "Hpath must be"),
+     ([1e3], [[np.inf, 0, 0]], "finite"), ([np.nan], [0.0], "finite"), ([1e3], [np.nan], "finite")],
+)
+def test_relax_field_path_rejects_bad_shapes(path, directions, match):
+    with pytest.raises(ValueError, match=match):
+        _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)).relax_field_path(path, directions)
+
+
+def test_relax_field_path_rejects_cartesian_layers():
+    layer = LayerSB(_id=0, thickness=2e-9, Kv=VectorObj(0, 0, 1e3), Ks=0, Ms=1e6, coordinate_system="cartesian")
+    with pytest.raises(ValueError, match="spherical"):
+        Solver(layers=[layer], J1=[], J2=[]).relax_field_path([1e3], [0.0])

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- SB `Solver.relax_field_path(Hpath, directions)`: equilibria along a field sweep (hysteresis loops) for many field directions at once, with all energy terms of the solver. Repeated calls with new parameter values are fast; `return_hessian=True` also returns the energy Hessian at each equilibrium; points that do not converge emit a RuntimeWarning. `clear_diode_cache()` frees these compiled functions too.
+
+- SB `Solver.create_energy` no longer returns an expression built with a previous `mu0` after `Constants.set_mu0`.
 - SB `Solver.linearised_spin_diode_scan` is faster on repeated scans with new parameter values (about 0.1 s instead of 0.5 s for a 400-point line). `cmtj.models.clear_diode_cache()` frees the compiled scans.
 - SB `LayerDynamic(hoe_direction=...)` accepts an (x, y, z) sequence; it must have exactly 3 components, not all zero (ValueError otherwise).
 - SB `LayerDynamic(hoe_amplitude=...)`: per-layer (complex) amplitude of the `Hoe` drive; changing it between scans needs no recompile. `hoe_amplitude`, `hoe_dl_ratio` and `hoe_direction` components must be numbers (TypeError otherwise, e.g. for strings).

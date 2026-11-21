@@ -12,6 +12,7 @@ from typing import Literal, Optional, Union
 import numpy as np
 import sympy as sym
 from numba import njit
+from sympy.printing.pycode import PythonCodePrinter
 from tqdm import tqdm
 
 from ..utils import Constants, VectorObj, perturb_position
@@ -477,54 +478,87 @@ class LayerDynamic(LayerSB):
         return super().__hash__()
 
 
-_DIODE_FN_CACHE: OrderedDict = OrderedDict()  # layout key -> (A_fn, V_fn), shared by all solvers, LRU
+# compiled SB functions (spin diode scans, path relaxation), keyed by layout, shared by all solvers, LRU
+_DIODE_FN_CACHE: OrderedDict = OrderedDict()
 _DIODE_FN_CACHE_SIZE = 32
 # ponytail: one global lock held for lookup + compile, so distinct layouts also compile one at a time
 _DIODE_FN_LOCK = threading.Lock()
 
 
 def clear_diode_cache():
-    """Drop all compiled spin diode functions (see `Solver.linearised_spin_diode_scan`)."""
+    """Drop all compiled SB functions (`Solver.linearised_spin_diode_scan`, `Solver.relax_field_path`)."""
     with _DIODE_FN_LOCK:
         _DIODE_FN_CACHE.clear()
+
+
+def _cached_fns(key, compile_fns):
+    """`compile_fns()` once per (`key`, constants), kept in the shared LRU cache. The constants are baked into
+    the compiled functions, so a changed one compiles a new entry."""
+    with _DIODE_FN_LOCK:
+        consts = (Constants.mu0(), Constants.gamma_rad())
+        key = (*key, *consts)
+        fns = _DIODE_FN_CACHE.get(key)
+        if fns is None:
+            fns = compile_fns()
+            if (Constants.mu0(), Constants.gamma_rad()) != consts:
+                raise RuntimeError("Constants changed while compiling SB functions; retry")
+            _DIODE_FN_CACHE[key] = fns
+            if len(_DIODE_FN_CACHE) > _DIODE_FN_CACHE_SIZE:
+                _DIODE_FN_CACHE.popitem(last=False)
+        _DIODE_FN_CACHE.move_to_end(key)
+    return fns
+
+
+def _row_kernel(row_syms: list, param_syms: list, exprs: list):
+    """numba kernel (R (m, len(row_syms)), P (len(param_syms),), out (m, len(exprs))) setting out[k] to `exprs`
+    at row_syms = R[k], param_syms = P, with common subexpressions computed once per row."""
+    names = {s: sym.Symbol(f"_r{i}") for i, s in enumerate(row_syms)}
+    names.update({s: sym.Symbol(f"_p{i}") for i, s in enumerate(param_syms)})
+    repl, red = sym.cse([sym.sympify(e).xreplace(names) for e in exprs])
+    pr = PythonCodePrinter()
+    lines = ["def kernel(R, P, out):", " for k in range(R.shape[0]):"]
+    lines += [f"  _r{i} = R[k, {i}]" for i in range(len(row_syms))]
+    lines += [f"  _p{i} = P[{i}]" for i in range(len(param_syms))]
+    lines += [f"  {a} = {pr.doprint(b)}" for a, b in repl]
+    lines += [f"  out[k, {j}] = {pr.doprint(r)}" for j, r in enumerate(red)]
+    ns = {"math": math}
+    exec("\n".join(lines), ns)  # noqa: S102  # source generated above from the solver's own energy
+    return njit(ns["kernel"])
+
+
+def _energy_layer_values(layer: LayerSB) -> list:
+    """Numeric energy parameters of a layer in the order of `_symbolic_energy_layer`."""
+    return [layer.thickness, layer.Ms, layer.Ks, layer.Kv.phi, layer.Kv.mag, *layer.Hdmi, *layer.Ndemag]
+
+
+def _symbolic_energy_layer(i: int) -> list:
+    """Symbols of `_energy_layer_values` for layer i."""
+    names = ["t", "Ms", "Ks", "Kphi", "Kmag", "Hdmix", "Hdmiy", "Hdmiz", "Nx", "Ny", "Nz"]
+    return [sym.Symbol(f"{name}_{i}", real=True) for name in names]
+
+
+def _layer_kwargs(p: list) -> dict:
+    t, Ms, Ks, Kphi, Kmag = p[:5]
+    return dict(thickness=t, Kv=VectorObj(0, Kphi, Kmag), Ks=Ks, Ms=Ms, Hdmi=list(p[5:8]), Ndemag=list(p[8:11]))
 
 
 def _diode_layer_values(layer: "LayerDynamic") -> list:
     """Numeric parameters of a layer in the order of `_symbolic_diode_layer`."""
     xyz = layer._hoe_cartesian
     hoe = [*xyz, layer.hoe_dl_ratio] if xyz is not None else []
-    return [
-        layer.thickness,
-        layer.Ms,
-        layer.alpha,
-        layer.Ks,
-        layer.Kv.phi,
-        layer.Kv.mag,
-        *layer.Hdmi,
-        *layer.Ndemag,
-        layer.torque_par,
-        layer.torque_perp,
-        layer.hoe_amplitude,
-        *hoe,
-    ]
+    extra = [layer.alpha, layer.torque_par, layer.torque_perp, layer.hoe_amplitude, *hoe]
+    return _energy_layer_values(layer) + extra
 
 
 def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]:
     """LayerDynamic whose parameters are symbols, and those symbols in the order of `_diode_layer_values`."""
-    names = ["t", "Ms", "alpha", "Ks", "Kphi", "Kmag", "Hdmix", "Hdmiy", "Hdmiz", "Nx", "Ny", "Nz", "tpar", "tperp"]
-    p = [sym.Symbol(f"{name}_{i}", real=True) for name in names]
-    t, Ms, alpha, Ks, Kphi, Kmag = p[:6]
-    hdmi, nd, (tpar, tperp) = p[6:9], p[9:12], p[12:]
+    p = _symbolic_energy_layer(i)
+    alpha, tpar, tperp = (sym.Symbol(f"{name}_{i}", real=True) for name in ("alpha", "tpar", "tperp"))
     amp = sym.Symbol(f"hoeamp_{i}")  # complex: per-layer drive amplitude, an argument so it never recompiles
     hoe = [*(sym.Symbol(f"hoe{c}_{i}", real=True) for c in "xyz"), sym.Symbol(f"hoedl_{i}")] if with_hoe else []
     layer = LayerDynamic(
         _id=i,
-        thickness=t,
-        Kv=VectorObj(0, Kphi, Kmag),
-        Ks=Ks,
-        Ms=Ms,
-        Hdmi=list(hdmi),
-        Ndemag=list(nd),
+        **_layer_kwargs(p),
         alpha=alpha,
         torque_par=tpar,
         torque_perp=tperp,
@@ -532,7 +566,25 @@ def _symbolic_diode_layer(i: int, with_hoe: bool) -> tuple["LayerDynamic", list]
         hoe_dl_ratio=hoe[3] if hoe else 0,
         hoe_amplitude=amp,
     )
-    return layer, [*p, amp, *hoe]
+    return layer, [*p, alpha, tpar, tperp, amp, *hoe]
+
+
+def _symbolic_twin(layers: list, dipole: bool) -> tuple["Solver", list]:
+    """Solver over symbolic `layers` whose J1, J2, ilD (and dipole tensors) are symbols too, and those symbols
+    in the order of `Solver._coupling_values`."""
+    n = len(layers)
+    J1 = [sym.Symbol(f"J1_{i}", real=True) for i in range(n - 1)]
+    J2 = [sym.Symbol(f"J2_{i}", real=True) for i in range(n - 1)]
+    twin = Solver(layers=list(layers), J1=list(J1), J2=list(J2))
+    twin.ilD = [sym.ImmutableMatrix([sym.Symbol(f"D{c}_{i}", real=True) for c in "xyz"]) for i in range(n - 1)]
+    params = [*J1, *J2, *(c for d in twin.ilD for c in d)]
+    if dipole:
+        twin.Ndipole = "symbolic"  # str(twin) keys create_energy's cache: keep the two layouts apart
+        twin.dipoleMatrix = [
+            sym.Matrix(3, 3, [sym.Symbol(f"Ndip{k}_{i}", real=True) for k in range(9)]) for i in range(n - 1)
+        ]
+        params += [c for mat in twin.dipoleMatrix for c in mat]
+    return twin, params
 
 
 def spin_diode_mr_channels(
@@ -749,7 +801,6 @@ class Solver:
         char_AP = sym.I * omega * sym.eye(J0_AP.shape[0]) - J0_AP
         return char_P, char_AP, J0_P, J0_AP
 
-    @lru_cache(3)  # noqa: B019  # cache for 3 calls
     def create_energy(
         self,
         H: Union[VectorObj, sym.ImmutableMatrix, None] = None,
@@ -764,6 +815,10 @@ class Solver:
         If volumetric = False the J constant is divided by weighted thickness
         and included in every layer's energy, correcting FMR automatically.
         """
+        return self._create_energy(H, volumetric, Constants.mu0())
+
+    @lru_cache(3)  # noqa: B019  # cache for 3 calls; mu0 is baked into the expression, so it keys the cache
+    def _create_energy(self, H, volumetric: bool, _mu0: float):
         if H is None:
             h = self.H.get_cartesian()
             H = sym.ImmutableMatrix(h)
@@ -1250,42 +1305,177 @@ class Solver:
         n = len(self.layers)
         with_hoe = tuple(layer._hoe_cartesian is not None for layer in self.layers)
         dipole = self.dipoleMatrix is not None
-        values = [v for layer in self.layers for v in _diode_layer_values(layer)] + [*self.J1, *self.J2]
-        values += [c for d in self.ilD for c in d] + ([c for mat in self.dipoleMatrix for c in mat] if dipole else [])
-        # constants are baked into the compiled system: a changed one compiles a new entry
-        key = (n, Vdc_ex_variable, with_hoe, dipole, Constants.mu0(), Constants.gamma_rad())
-        with _DIODE_FN_LOCK:
-            fns = _DIODE_FN_CACHE.get(key)
-            if fns is None:
-                layers, params = zip(*(_symbolic_diode_layer(i, h) for i, h in enumerate(with_hoe)))
-                params = [p for ps in params for p in ps]
-                J1 = [sym.Symbol(f"J1_{i}", real=True) for i in range(n - 1)]
-                J2 = [sym.Symbol(f"J2_{i}", real=True) for i in range(n - 1)]
-                twin = Solver(layers=list(layers), J1=list(J1), J2=list(J2))
-                twin.ilD = [
-                    sym.ImmutableMatrix([sym.Symbol(f"D{c}_{i}", real=True) for c in "xyz"]) for i in range(n - 1)
-                ]
-                params += [*J1, *J2, *(c for d in twin.ilD for c in d)]
-                if dipole:
-                    twin.Ndipole = "symbolic"  # str(twin) keys create_energy's cache: keep the two layouts apart
-                    twin.dipoleMatrix = [
-                        sym.Matrix(3, 3, [sym.Symbol(f"Ndip{k}_{i}", real=True) for k in range(9)])
-                        for i in range(n - 1)
-                    ]
-                    params += [c for mat in twin.dipoleMatrix for c in mat]
-                Hsym = sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
-                A, V = twin._compute_A_and_V_matrices(n=n, Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None)
-                zero = {LayerDynamic.get_Vp_symbol(): 0, LayerDynamic.get_hoe_ex_symbol(): 0}
-                args = [c for layer in twin.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA, *params]
-                fns = (
-                    sym.lambdify(args, list(sym.ImmutableMatrix(A).subs(zero)), "numpy", cse=True),
-                    sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
-                )
-                _DIODE_FN_CACHE[key] = fns
-                if len(_DIODE_FN_CACHE) > _DIODE_FN_CACHE_SIZE:
-                    _DIODE_FN_CACHE.popitem(last=False)
-            _DIODE_FN_CACHE.move_to_end(key)
+        values = [v for layer in self.layers for v in _diode_layer_values(layer)] + self._coupling_values()
+
+        def compile_fns():
+            layers, params = zip(*(_symbolic_diode_layer(i, h) for i, h in enumerate(with_hoe)))
+            twin, coupling = _symbolic_twin(layers, dipole)
+            Hsym = sym.ImmutableMatrix([sym.Symbol(r"H_{x}"), sym.Symbol(r"H_{y}"), sym.Symbol(r"H_{z}")])
+            A, V = twin._compute_A_and_V_matrices(n=n, Vdc_ex_variable=Vdc_ex_variable, H=Hsym, frequency=None)
+            zero = {LayerDynamic.get_Vp_symbol(): 0, LayerDynamic.get_hoe_ex_symbol(): 0}
+            args = [c for layer in twin.layers for c in layer.get_coord_sym()] + [*Hsym, OMEGA]
+            args += [p for ps in params for p in ps] + coupling
+            return (
+                sym.lambdify(args, list(sym.ImmutableMatrix(A).subs(zero)), "numpy", cse=True),
+                sym.lambdify(args, list(V.subs(zero)), "numpy", cse=True),
+            )
+
+        fns = _cached_fns((n, Vdc_ex_variable, with_hoe, dipole), compile_fns)
         return (*fns, [complex(v) if np.iscomplexobj(v) else float(v) for v in values])
+
+    def _coupling_values(self) -> list:
+        """Numeric J1, J2, ilD (and dipole tensors) in the order of `_symbolic_twin`."""
+        dipole = [c for mat in self.dipoleMatrix for c in mat] if self.dipoleMatrix is not None else []
+        return [*self.J1, *self.J2, *(c for d in self.ilD for c in d), *dipole]
+
+    def _relax_functions(self):
+        """`_row_kernel`s with rows (theta_0, phi_0, ..., Hx, Hy, Hz) -> energy per area [mJ/m^2] and
+        (energy, gradient, upper Hessian triangle), plus this solver's parameter values. Compiled once per
+        layout (number of layers, dipole coupling) like `_diode_functions`."""
+        n = len(self.layers)
+        dipole = self.dipoleMatrix is not None
+        values = [v for layer in self.layers for v in _energy_layer_values(layer)] + self._coupling_values()
+
+        def compile_fns():
+            params = [_symbolic_energy_layer(i) for i in range(n)]
+            twin, coupling = _symbolic_twin([LayerSB(_id=i, **_layer_kwargs(p)) for i, p in enumerate(params)], dipole)
+            Hsym = sym.symbols("H_x H_y H_z", real=True)
+            # mJ/m^2: the scale of the relaxation tolerances
+            energy = 1e3 * twin.create_energy(H=sym.ImmutableMatrix(Hsym), volumetric=False)
+            coords = [c for layer in twin.layers for c in layer.get_coord_sym()]
+            grad = [sym.diff(energy, c) for c in coords]
+            hess = [sym.diff(grad[i], coords[j]) for i, j in zip(*np.triu_indices(2 * n))]
+            rows, args = [*coords, *Hsym], [*(p for ps in params for p in ps), *coupling]
+            return _row_kernel(rows, args, [energy]), _row_kernel(rows, args, [energy, *grad, *hess])
+
+        fns = _cached_fns(("relax", n, dipole), compile_fns)
+        return (*fns, np.array(values, float))
+
+    def relax_field_path(
+        self,
+        Hpath: np.ndarray,
+        directions: np.ndarray,
+        init: Union[np.ndarray, None] = None,
+        tol: float = 1e-9,
+        max_iter: int = 60,
+        return_hessian: bool = False,
+    ):
+        """Equilibria along a field sweep, for many field directions at once (hysteresis loops, angular scans).
+
+        The sweep is followed step by step, each step starting from the previous equilibrium, so metastable
+        states persist until they lose stability (hysteresis). All directions are relaxed together but
+        independently: per direction a saddle-free damped Newton step (|eigenvalues| of the Hessian, at most
+        0.3 rad) with its own backtracking line search, so no direction can push another over a barrier.
+        A converged point with negative curvature (a saddle, e.g. exactly antiparallel to the field) is
+        nudged along that mode, as thermal noise would, at most 3 times per step. A direction whose line
+        search fails is at the numerical floor and counts as converged. Theta is kept in [1e-6, pi - 1e-6]
+        (trials are clipped before their energy is checked). Points still above `tol` (or at a
+        saddle) after `max_iter` iterations, and saddles left after 3 nudges, are kept as they are and counted
+        in one RuntimeWarning.
+        Energy, gradient and Hessian come from `create_energy` (all terms), compiled once per layout with the
+        material parameters as arguments: a new parameter set needs no symbolic work.
+
+        :param Hpath: field magnitudes along the sweep (steps,) [A/m], signed: H = Hpath[k] * direction.
+        :param directions: field directions, unit vectors (n, 3) or in-plane angles (n,) [rad].
+        :param init: start (n, 2N) or (2N,) as (theta_0, phi_0, theta_1, ...). Default: every layer along
+            the first field (in-plane phi of layer i shifted by +-1e-5 rad to break the exact symmetry).
+        :param tol: convergence: max |dE/d angle| [mJ/m^2 per rad] of the energy per area.
+        :param max_iter: Newton iterations per field step.
+        :param return_hessian: also return the energy Hessian at each equilibrium [J/m^2 per rad^2].
+        :return: equilibria (steps, n, 2N) as (theta_0, phi_0, theta_1, ...); with `return_hessian`,
+            (equilibria, Hessians (steps, n, 2N, 2N)). m_i = (sin t cos p, sin t sin p, cos t).
+        """
+        if any(layer.coordinate_system != "spherical" for layer in self.layers):
+            raise ValueError("relax_field_path: only spherical-coordinate layers are supported")
+        energy_fn, egh_fn, values = self._relax_functions()
+        dim = 2 * len(self.layers)
+        upper = np.triu_indices(dim)
+        directions = np.asarray(directions, float)
+        if directions.ndim == 1:
+            directions = np.column_stack([np.cos(directions), np.sin(directions), np.zeros_like(directions)])
+        if directions.ndim != 2 or directions.shape[1] != 3:
+            raise ValueError("relax_field_path: directions must be (n, 3) vectors or (n,) angles")
+        if not np.all(np.isfinite(directions)):
+            raise ValueError("relax_field_path: directions must be finite")
+        norm = np.linalg.norm(directions, axis=1, keepdims=True)
+        if not np.all(norm > 0):
+            raise ValueError("relax_field_path: every direction must be a non-zero vector")
+        u = directions / norm
+        n = len(u)
+        Hpath = np.asarray(Hpath, float)
+        if Hpath.ndim != 1 or not len(Hpath):
+            raise ValueError("relax_field_path: Hpath must be a non-empty 1-D array of field magnitudes")
+        if not np.all(np.isfinite(Hpath)):
+            raise ValueError("relax_field_path: Hpath must be finite")
+        if init is None:
+            start = u if Hpath[0] >= 0 else -u
+            theta = np.arccos(np.clip(start[:, 2], -1, 1))
+            phi = np.arctan2(start[:, 1], start[:, 0])
+            init = np.column_stack([v for i in range(dim // 2) for v in (theta, phi + 1e-5 * (-1) ** i)])
+
+        def clip(x):
+            x[:, 0::2] = np.clip(x[:, 0::2], 1e-6, np.pi - 1e-6)
+            return x
+
+        x = clip(np.array(np.broadcast_to(init, (n, dim)), float))
+
+        def egh(x, h):
+            out = np.empty((len(x), 1 + dim + len(upper[0])))
+            egh_fn(np.hstack([x, h]), values, out)
+            hess = np.empty((len(x), dim, dim))
+            hess[:, upper[0], upper[1]] = hess[:, upper[1], upper[0]] = out[:, 1 + dim :]
+            return out[:, 0], out[:, 1 : 1 + dim], hess
+
+        def energy(x, h):
+            out = np.empty((len(x), 1))
+            energy_fn(np.hstack([x, h]), values, out)
+            return out[:, 0]
+
+        out = np.empty((len(Hpath), n, dim))
+        hessians = np.empty((len(Hpath), n, dim, dim)) if return_hessian else None
+        unconverged = 0
+        for k, h in enumerate(Hpath):
+            hk = h * u
+            act = np.arange(n)  # directions not yet converged at this step
+            frozen, nudges = np.zeros(n, bool), np.zeros(n, int)
+            for it in range(max_iter + 1):  # the last pass only checks convergence
+                e, g, hess = egh(x[act], hk[act])
+                lam, vec = np.linalg.eigh(hess)
+                done = (np.max(np.abs(g), axis=1) < tol) | frozen[act]
+                negative = done & (lam[:, 0] < -1e-9)
+                saddle = negative & (nudges[act] < 3)  # cap: a clipped-theta "saddle" never resolves
+                unconverged += np.count_nonzero(negative & ~saddle)  # still a saddle after 3 nudges
+                nudges[act] += saddle
+                keep = ~done | saddle
+                act, e, g, lam, vec, saddle = act[keep], e[keep], g[keep], lam[keep], vec[keep], saddle[keep]
+                if not len(act) or it == max_iter:
+                    break
+                step = -np.einsum("nij,nj->ni", vec, np.einsum("nji,nj->ni", vec, g) / np.maximum(np.abs(lam), 1e-6))
+                step[saddle] = 1e-3 * vec[saddle, :, 0]
+                step *= np.minimum(1.0, 0.3 / np.maximum(np.max(np.abs(step), axis=1), 1e-300))[:, None]
+                alpha, test = np.ones(len(act)), ~saddle  # backtracking, only on directions still going uphill
+                for _ in range(30):
+                    idx = np.flatnonzero(test)
+                    if not len(idx):
+                        break
+                    trial = clip(x[act[idx]] + alpha[idx, None] * step[idx])
+                    test[idx] = energy(trial, hk[act[idx]]) > e[idx] + 1e-15 * np.abs(e[idx])
+                    alpha[idx[test[idx]]] *= 0.5
+                alpha[test] = 0.0
+                frozen[act[test]] = True
+                x[act] = clip(x[act] + alpha[:, None] * step)
+            unconverged += len(act)
+            out[k] = x
+            if return_hessian:
+                hessians[k] = egh(x, hk)[2] / 1e3
+        if unconverged:
+            warnings.warn(
+                f"relax_field_path: {unconverged} of {out.shape[0] * n} (field step, direction) points did not"
+                f" converge to tol={tol} in max_iter={max_iter} iterations",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+        return (out, hessians) if return_hessian else out
 
     def linearised_spin_diode_scan(
         self,
