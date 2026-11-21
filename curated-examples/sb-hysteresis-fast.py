@@ -17,7 +17,7 @@ CRITICAL SIMULATION MECHANISMS:
 3. relax_field_path: per-direction damped Newton with line search, compiled once per layout; all
    field angles are relaxed together, and new material parameters need no recompile.
 4. Comparison: the loops (net moment along the field) agree; per layer the methods may settle in
-   mirror-image scissor states about the field: both are minima, within ~1e-2 mJ/m^2 in energy
+   mirror-image scissor states about the field, within ~1e-2 mJ/m^2 in energy
    (`Solver.create_energy`), either one lower. Near zero field the loops can switch one step apart.
 
 The figure shows the net moment along the field for both methods at each field angle.
