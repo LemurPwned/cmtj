@@ -9,6 +9,7 @@ on:
       - "README.md"
       - "CHANGELOG.md"
       - "cmtj/**"
+      - "assets/**"
       - "scripts/readme_copy.py"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
@@ -22,6 +23,8 @@ concurrency:
 
 jobs:
   deploy:
+    # manual dispatch from another ref must not publish unmerged docs
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
