@@ -133,3 +133,11 @@ def test_layer_and_junction_repr():
     tricky = Layer("a'b\\c\nd", mag=CVector(0, 0, 1), anis=CVector(0, 0, 1), Ms=1.0000000001, thickness=1e-9,
                    cellSurface=1e-16, demagTensor=demag)
     assert repr(tricky).startswith("Layer(id=" + repr("a'b\\c\nd")) and "Ms=1.0000000001" in repr(tricky)
+    
+def test_cvector_pickle():
+    import copy
+    import pickle
+
+    v = CVector(1.5, -2.0, 3.25)
+    for w in (pickle.loads(pickle.dumps(v)), copy.deepcopy(v), copy.copy(v)):
+        assert w == v and w is not v
