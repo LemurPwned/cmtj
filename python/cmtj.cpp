@@ -226,6 +226,19 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("applyMask", py::overload_cast<const std::vector<unsigned int> &>(
                &DAxialDriver::applyMask));
 
+     // Python's repr: escaped strings, shortest round-trip floats
+     const auto layerRepr = [](const DLayer& l) {
+          const auto f = [](double x) { return std::string(py::repr(py::float_(x))); };
+          const auto v = [&f](const DVector& c) {
+               return "[x:" + f(c.x) + ", y:" + f(c.y) + ", z:" + f(c.z) + "]";
+          };
+          std::string s = "Layer(id=" + std::string(py::repr(py::str(l.id))) + ", Ms=" + f(l.Ms) +
+                          ", thickness=" + f(l.thickness) + ", damping=" + f(l.damping) +
+                          ", mag=" + v(l.mag) + ", anis=" + v(l.anis);
+          if (l.isAFM) s += ", mag2=" + v(l.mag2);
+          return s + ")";
+     };
+
      py::class_<DLayer>(m, "Layer")
           .def(py::init<std::string,          // id
                DVector,              // mag
@@ -316,7 +329,8 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
           .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
-          .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
+          .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise)
+          .def("__repr__", layerRepr);
 
      py::class_<DJunction>(m, "Junction")
           .def(py::init<std::vector<DLayer>>(), "layers"_a)
@@ -388,7 +402,13 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("getLayer", &DJunction::getLayer, "layerId"_a,
                py::return_value_policy::reference)
           // readonly props
-          .def_readonly("layers", &DJunction::layers);
+          .def_readonly("layers", &DJunction::layers)
+          .def("__repr__", [layerRepr](const DJunction& j) {
+               std::string s = "Junction(layers=[";
+               for (size_t i = 0; i < j.layers.size(); i++)
+                    s += (i ? ",\n  " : "\n  ") + layerRepr(j.layers[i]);
+               return s + "])";
+          });
 
      // stack module
      py::module stack_module =

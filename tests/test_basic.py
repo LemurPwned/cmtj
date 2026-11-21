@@ -120,6 +120,20 @@ def test_energy_log_lengths_match_with_current():
     assert len(log["free_I"]) == len(log["time"])
 
 
+def test_layer_and_junction_repr():
+    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    layer = Layer("free", mag=CVector(0, 0, 1), anis=CVector(0, 0, 1), Ms=1.2, thickness=1e-9,
+                  cellSurface=1e-16, demagTensor=demag)
+    r = repr(layer)
+    assert r.startswith("Layer(id='free'") and "Ms=1.2" in r and "thickness=1e-09" in r
+    assert str(layer) == r
+    j = repr(Junction([layer]))
+    assert j.startswith("Junction(layers=[") and r in j
+
+    tricky = Layer("a'b\\c\nd", mag=CVector(0, 0, 1), anis=CVector(0, 0, 1), Ms=1.0000000001, thickness=1e-9,
+                   cellSurface=1e-16, demagTensor=demag)
+    assert repr(tricky).startswith("Layer(id=" + repr("a'b\\c\nd")) and "Ms=1.0000000001" in repr(tricky)
+    
 def test_cvector_pickle():
     import copy
     import pickle
