@@ -118,3 +118,14 @@ def test_energy_log_lengths_match_with_current():
     junction.runSimulation(1e-10, 1e-12, 1e-12, calculateEnergies=True)
     log = junction.getLog()
     assert len(log["free_I"]) == len(log["time"])
+
+
+def test_layer_and_junction_repr():
+    demag = [CVector(0, 0, 0), CVector(0, 0, 0), CVector(0, 0, 1)]
+    layer = Layer("free", mag=CVector(0, 0, 1), anis=CVector(0, 0, 1), Ms=1.2, thickness=1e-9,
+                  cellSurface=1e-16, demagTensor=demag)
+    r = repr(layer)
+    assert r.startswith("Layer(id='free'") and "Ms=1.2" in r and "thickness=1e-09" in r
+    assert str(layer) == r
+    j = repr(Junction([layer]))
+    assert j.startswith("Junction(layers=[") and "id='free'" in j

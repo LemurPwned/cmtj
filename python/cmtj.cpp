@@ -218,6 +218,16 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("applyMask", py::overload_cast<const std::vector<unsigned int> &>(
                &DAxialDriver::applyMask));
 
+     const auto layerRepr = [](const DLayer& l) {
+          std::ostringstream ss;
+          ss << "Layer(id='" << l.id << "', Ms=" << l.Ms << ", thickness=" << l.thickness
+             << ", damping=" << l.damping << ", mag=" << l.mag.toString()
+             << ", anis=" << l.anis.toString();
+          if (l.isAFM) ss << ", mag2=" << l.mag2.toString();
+          ss << ")";
+          return ss.str();
+     };
+
      py::class_<DLayer>(m, "Layer")
           .def(py::init<std::string,          // id
                DVector,              // mag
@@ -308,7 +318,8 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("getId", &DLayer::getId)
           .def("getOneFVector", &DLayer::getOneFVector)
           .def("setAdaptiveParams", &DLayer::setAdaptiveParams, "params"_a)
-          .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise);
+          .def("createBufferedAlphaNoise", &DLayer::createBufferedAlphaNoise)
+          .def("__repr__", layerRepr);
 
      py::class_<DJunction>(m, "Junction")
           .def(py::init<std::vector<DLayer>>(), "layers"_a)
@@ -380,7 +391,13 @@ PYBIND11_MODULE(_cmtj, m) {
           .def("getLayer", &DJunction::getLayer, "layerId"_a,
                py::return_value_policy::reference)
           // readonly props
-          .def_readonly("layers", &DJunction::layers);
+          .def_readonly("layers", &DJunction::layers)
+          .def("__repr__", [layerRepr](const DJunction& j) {
+               std::string s = "Junction(layers=[";
+               for (size_t i = 0; i < j.layers.size(); i++)
+                    s += (i ? ",\n  " : "\n  ") + layerRepr(j.layers[i]);
+               return s + "])";
+          });
 
      // stack module
      py::module stack_module =
