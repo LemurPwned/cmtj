@@ -414,3 +414,32 @@ def test_relax_field_path_warns_when_unconverged():
     solver = _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0))
     with pytest.warns(RuntimeWarning, match="did not converge"):
         solver.relax_field_path(np.linspace(-50e3, 50e3, 5), np.deg2rad([10.0]), max_iter=1)
+
+
+def test_relax_field_path_follows_mu0_change():
+    from cmtj.models import clear_diode_cache
+    from cmtj.utils import Constants
+
+    params = (2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)
+    path, angles = np.linspace(-50e3, 50e3, 11), np.deg2rad([10.0, 80.0])
+    mu0 = Constants.mu0()
+    try:
+        _coruco_solver(params).relax_field_path(path, angles)  # compile and cache at the default mu0
+        Constants.set_mu0(2 * mu0)
+        changed = _coruco_solver(params).relax_field_path(path, angles)
+        clear_diode_cache()
+        Solver._create_energy.cache_clear()
+        fresh = _coruco_solver(params).relax_field_path(path, angles)
+    finally:
+        Constants.set_mu0(mu0)
+    assert np.allclose(changed, fresh)
+
+
+@pytest.mark.parametrize(
+    "path, directions, match",
+    [([1e3], np.ones((2, 2)), "directions must be"), ([1e3], np.ones((1, 2, 3)), "directions must be"),
+     ([], [0.0], "Hpath must be"), ([[1e3]], [0.0], "Hpath must be")],
+)
+def test_relax_field_path_rejects_bad_shapes(path, directions, match):
+    with pytest.raises(ValueError, match=match):
+        _coruco_solver((2e3, 0.3, 0, 0, -1e-4, 0, 0, 0, 0, 0, 0, 0, 0)).relax_field_path(path, directions)

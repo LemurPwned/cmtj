@@ -801,7 +801,6 @@ class Solver:
         char_AP = sym.I * omega * sym.eye(J0_AP.shape[0]) - J0_AP
         return char_P, char_AP, J0_P, J0_AP
 
-    @lru_cache(3)  # noqa: B019  # cache for 3 calls
     def create_energy(
         self,
         H: Union[VectorObj, sym.ImmutableMatrix, None] = None,
@@ -816,6 +815,10 @@ class Solver:
         If volumetric = False the J constant is divided by weighted thickness
         and included in every layer's energy, correcting FMR automatically.
         """
+        return self._create_energy(H, volumetric, Constants.mu0())
+
+    @lru_cache(3)  # noqa: B019  # cache for 3 calls; mu0 is baked into the expression, so it keys the cache
+    def _create_energy(self, H, volumetric: bool, _mu0: float):
         if H is None:
             h = self.H.get_cartesian()
             H = sym.ImmutableMatrix(h)
@@ -1366,8 +1369,9 @@ class Solver:
         A converged point with negative curvature (a saddle, e.g. exactly antiparallel to the field) is
         nudged along that mode, as thermal noise would, at most 3 times per step. A direction whose line
         search fails is at the numerical floor and counts as converged. Theta is kept in [1e-6, pi - 1e-6]
-        (trials are clipped before their energy is checked). Points still above `tol` (or at an un-nudged
-        saddle) after `max_iter` iterations are kept as they are and counted in one RuntimeWarning.
+        (trials are clipped before their energy is checked). Points still above `tol` (or at a
+        saddle) after `max_iter` iterations, and saddles left after 3 nudges, are kept as they are and counted
+        in one RuntimeWarning.
         Energy, gradient and Hessian come from `create_energy` (all terms), compiled once per layout with the
         material parameters as arguments: a new parameter set needs no symbolic work.
 
@@ -1387,12 +1391,16 @@ class Solver:
         directions = np.asarray(directions, float)
         if directions.ndim == 1:
             directions = np.column_stack([np.cos(directions), np.sin(directions), np.zeros_like(directions)])
+        if directions.ndim != 2 or directions.shape[1] != 3:
+            raise ValueError("relax_field_path: directions must be (n, 3) vectors or (n,) angles")
         norm = np.linalg.norm(directions, axis=1, keepdims=True)
         if not np.all(norm > 0):
             raise ValueError("relax_field_path: every direction must be a non-zero vector")
         u = directions / norm
         n = len(u)
         Hpath = np.asarray(Hpath, float)
+        if Hpath.ndim != 1 or not len(Hpath):
+            raise ValueError("relax_field_path: Hpath must be a non-empty 1-D array of field magnitudes")
         if init is None:
             start = u if Hpath[0] >= 0 else -u
             theta = np.arccos(np.clip(start[:, 2], -1, 1))
@@ -1428,7 +1436,9 @@ class Solver:
                 e, g, hess = egh(x[act], hk[act])
                 lam, vec = np.linalg.eigh(hess)
                 done = (np.max(np.abs(g), axis=1) < tol) | frozen[act]
-                saddle = done & (lam[:, 0] < -1e-9) & (nudges[act] < 3)  # cap: a clipped-theta "saddle" never resolves
+                negative = done & (lam[:, 0] < -1e-9)
+                saddle = negative & (nudges[act] < 3)  # cap: a clipped-theta "saddle" never resolves
+                unconverged += np.count_nonzero(negative & ~saddle)  # still a saddle after 3 nudges
                 nudges[act] += saddle
                 keep = ~done | saddle
                 act, e, g, lam, vec, saddle = act[keep], e[keep], g[keep], lam[keep], vec[keep], saddle[keep]
